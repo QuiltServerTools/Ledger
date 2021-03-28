@@ -1,0 +1,8 @@
+{
+  "text.ledger.header.inspect.pos": "Inspecting logs at %s",
+
+  "text.ledger.action_message.time_diff": "%s ago",
+
+  "text.ledger.action.block-place": "placed",
+  "text.ledger.action.block-break": "broke"
+}

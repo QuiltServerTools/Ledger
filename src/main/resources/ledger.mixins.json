@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "us.potatoboy.ledger.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "callbacks.BlockItemMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

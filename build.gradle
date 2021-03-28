@@ -1,0 +1,126 @@
+plugins {
+    id "fabric-loom" version "$loom_version"
+    id "maven-publish"
+    id "org.jetbrains.kotlin.jvm" version "$kotlin_version"
+    id "org.jetbrains.kotlin.plugin.serialization" version "$kotlin_version"
+    id "org.jetbrains.dokka" version "$dokka_version"
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+archivesBaseName = project.archives_base_name
+version = project.mod_version
+group = project.maven_group
+
+minecraft {
+
+}
+
+repositories {
+    maven { url = "http://maven.fabricmc.net/" }
+    maven { url = "https://dl.bintray.com/kotlin/kotlin-eap" }
+    maven { url = "https://dl.bintray.com/kotlin/dokka" }
+    maven { url 'https://jitpack.io' }
+    maven { url = "https://maven.nucleoid.xyz/" }
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    // To change the versions see the gradle.properties file
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // Fabric API
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Server translations
+    modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
+
+    // Kotlin
+    modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    //modImplementation "net.axay:fabrikmc-core:${project.fabrik_version}"
+    //modImplementation "net.axay:fabrikmc-commands:${project.fabrik_version}"
+    //modImplementation(include("com.github.P03W:Aegis:${project.aegis_version}"))
+
+    //Database
+    implementation "org.jetbrains.exposed:exposed-core:${project.exposedVersion}"
+    implementation "org.jetbrains.exposed:exposed-dao:${project.exposedVersion}"
+    implementation "org.jetbrains.exposed:exposed-jdbc:${project.exposedVersion}"
+    implementation "org.jetbrains.exposed:exposed-java-time:${project.exposedVersion}"
+
+    implementation "org.xerial:sqlite-jdbc:${project.jdbc_version}"
+
+
+    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
+    // You may need to force-disable transitiveness on them.
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include "fabric.mod.json"
+        expand "version": project.version
+    }
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "fabric.mod.json"
+    }
+}
+
+// ensure that the encoding is set to UTF-8, no matter what the system default is
+// this fixes some edge cases with special characters not displaying correctly
+// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+// if it is present.
+// If you remove this task, sources will not be generated.
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
+    from sourceSets.main.allSource
+}
+
+jar {
+    from "LICENSE"
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // add all the jars that should be included when publishing to maven
+            artifact(remapJar) {
+                builtBy remapJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+        }
+    }
+
+    // select the repositories you want to publish to
+    repositories {
+        // uncomment to publish to the local maven
+        // mavenLocal()
+    }
+}
+
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
