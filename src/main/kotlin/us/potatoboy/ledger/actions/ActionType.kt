@@ -21,8 +21,9 @@ interface ActionType {
     var sourceName: String
     var sourceProfile: GameProfile?
     var extraData: String?
+    var rolledBack: Boolean
 
-    fun rollback(): Boolean
+    fun rollback(world: ServerWorld): Boolean
     fun getTranslationType(): String
     fun getMessage(): Text
 }

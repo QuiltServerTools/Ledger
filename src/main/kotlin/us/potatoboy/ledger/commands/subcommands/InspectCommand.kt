@@ -2,22 +2,24 @@ package us.potatoboy.ledger.commands.subcommands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.LiteralText
-import net.minecraft.text.Texts
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.math.BlockPos
+import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.TextColorPallet
+import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.BuildableCommand
-import us.potatoboy.ledger.database.ActionLookupParams
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.MessageUtils
 
-class InspectCommand : BuildableCommand {
+object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
         literal("inspect")
             .executes { toggleInspect(it) }
@@ -37,12 +39,13 @@ class InspectCommand : BuildableCommand {
     }
 
     private fun inspectBlock(context: Context, pos: BlockPos): Int {
-        val player = context.source.player
+        val source = context.source
 
         GlobalScope.launch(Dispatchers.IO) {
-            val params = ActionLookupParams(
+            val params = ActionSearchParams(
                 min = pos,
                 max = pos,
+                null,
                 null,
                 null,
                 null,
@@ -50,20 +53,24 @@ class InspectCommand : BuildableCommand {
                 null
             )
 
-            val actions = DatabaseManager.searchActions(params)
+            Ledger.searchCache[source.name] = params
 
-            player.sendMessage(
-                Texts.bracketed(
-                    TranslatableText(
-                        "text.ledger.header.inspect.pos",
-                        LiteralText("${pos.x} ${pos.y} ${pos.z}")
-                            .setStyle(TextColorPallet.secondary)
-                    )
-                ).setStyle(TextColorPallet.primary), false
-            )
-            actions.forEach { actionType ->
-                player.sendMessage(actionType.getMessage(), false)
+            val results = DatabaseManager.searchActions(params, 1, source)
+
+            if (results.actions.isEmpty()) {
+                source.sendError(TranslatableText("error.ledger.command.no_results"))
+                return@launch
             }
+
+            MessageUtils.sendSearchResults(
+                source, results,
+                TranslatableText(
+                    "text.ledger.header.search.pos",
+                    LiteralText("${pos.x} ${pos.y} ${pos.z}")
+                        //.setStyle(TextColorPallet.secondary)
+                ).setStyle(TextColorPallet.primary)
+            )
+
         }
         return 1
     }

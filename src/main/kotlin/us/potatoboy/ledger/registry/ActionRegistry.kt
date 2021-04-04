@@ -1,13 +1,14 @@
 package us.potatoboy.ledger.registry
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.ObjectSet
 import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.actions.BlockBreakActionType
 import us.potatoboy.ledger.actions.BlockPlaceActionType
 import us.potatoboy.ledger.database.DatabaseManager
 import java.util.function.Supplier
 
-object LedgerRegistry {
+object ActionRegistry {
     private val actionTypes = Object2ObjectOpenHashMap<String, Supplier<ActionType>>()
 
     fun registerActionType(supplier: Supplier<ActionType>) {
@@ -24,4 +25,8 @@ object LedgerRegistry {
     }
 
     fun getType(id: String) = actionTypes[id]
+
+    fun getTypes(): ObjectSet<String> {
+        return actionTypes.keys
+    }
 }

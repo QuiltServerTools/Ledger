@@ -1,4 +1,4 @@
-package us.potatoboy.ledger.actions
+package us.potatoboy.ledger.actionutils
 
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.CompoundTag
@@ -6,6 +6,9 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
+import us.potatoboy.ledger.actions.ActionType
+import us.potatoboy.ledger.actions.BlockBreakActionType
+import us.potatoboy.ledger.actions.BlockPlaceActionType
 
 object ActionFactory {
     fun blockBreakAction(world: World, pos: BlockPos, state: BlockState, source: String): BlockBreakActionType {
@@ -16,7 +19,7 @@ object ActionFactory {
     }
 
     fun blockBreakAction(world: World, pos: BlockPos, state: BlockState, source: ServerPlayerEntity): BlockBreakActionType {
-        val action = blockBreakAction(world, pos, state, source.name.asString())
+        val action = blockBreakAction(world, pos, state, "player")
         action.sourceProfile = source.gameProfile
 
         return action
@@ -30,7 +33,7 @@ object ActionFactory {
     }
 
     fun blockPlaceAction(world: World, pos: BlockPos, state: BlockState, source: ServerPlayerEntity): BlockPlaceActionType {
-        val action = blockPlaceAction(world, pos, state, source.name.asString())
+        val action = blockPlaceAction(world, pos, state, "player")
         action.sourceProfile = source.gameProfile
 
         return action

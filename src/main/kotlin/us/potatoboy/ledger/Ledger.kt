@@ -9,18 +9,23 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
-import us.potatoboy.ledger.commands.AliasNode
+import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.LedgerCommand
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.QueueDrainer
+import us.potatoboy.ledger.listeners.BlockEventListener
 import us.potatoboy.ledger.listeners.PlayerEventListener
-import us.potatoboy.ledger.registry.LedgerRegistry
+import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
+import java.util.concurrent.ConcurrentHashMap
 
 object Ledger : DedicatedServerModInitializer {
     val modId = "ledger"
     val logger = LogManager.getLogger(modId)
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
+    const val PAGESIZE = 8 //TODO make configurable
+
+    val searchCache = ConcurrentHashMap<String, ActionSearchParams>();
 
     private var queueDrainerJob: Job? = null
 
@@ -29,7 +34,7 @@ object Ledger : DedicatedServerModInitializer {
         logger.info("Initializing Ledger ${version.friendlyString}")
 
         DatabaseManager.ensureTables()
-        LedgerRegistry.registerDefaultTypes()
+        ActionRegistry.registerDefaultTypes()
         initListeners()
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STARTED.register(::serverStarted)
@@ -42,12 +47,13 @@ object Ledger : DedicatedServerModInitializer {
             .plus(Registry.BLOCK.ids)
             .plus(Registry.ITEM.ids)
             .plus(Registry.ENTITY_TYPE.ids)
-            .plus(server.saveProperties.generatorOptions.dimensions.ids)
 
 
         queueDrainerJob = GlobalScope.launch(Dispatchers.IO) {
+            server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.insertWorld(it) }
+
             logger.info("Inserting ${idSet.size} registry keys into database...")
-            //idSet.forEach { DatabaseManager.registerKey(it) }
+            idSet.forEach { DatabaseManager.insertObject(it) }
             logger.info("Registry insert complete. Starting queue drainer")
 
             QueueDrainer.run()
@@ -66,6 +72,7 @@ object Ledger : DedicatedServerModInitializer {
 
     private fun initListeners() {
         PlayerEventListener
+        BlockEventListener
     }
 
     private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) {

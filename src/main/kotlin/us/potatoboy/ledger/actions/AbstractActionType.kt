@@ -2,7 +2,9 @@ package us.potatoboy.ledger.actions
 
 import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.*
+import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
@@ -25,43 +27,28 @@ abstract class AbstractActionType : ActionType {
     override var sourceName: String = "Unknown"
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null
+    override var rolledBack: Boolean = false
 
-    override fun rollback(): Boolean = false
+    override fun rollback(world: ServerWorld): Boolean = false
 
     @ExperimentalTime
     override fun getMessage(): Text {
         val message: MutableText = LiteralText("")
-        if (sourceProfile != null) {
-            message.appendWithSpace(LiteralText(sourceProfile!!.name).setStyle(TextColorPallet.secondary))
-        } else {
-            message.appendWithSpace(LiteralText("@$sourceName").setStyle(TextColorPallet.secondary))
+        message.appendWithSpace(getSourceMessage())
+        message.appendWithSpace(getActionMessage())
+        message.appendWithSpace(getObjectMessage())
+        message.appendWithSpace(getTimeMessage())
+        message.append(getLocationMessage())
+
+        if (rolledBack) {
+            message.formatted(Formatting.STRIKETHROUGH)
         }
-
-        message.appendWithSpace(TranslatableText("text.ledger.action.${identifier}").styled {
-            it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
-                    LiteralText(identifier)
-                )
-            )
-        })
-
-        message.appendWithSpace(
-            TranslatableText(
-                Util.createTranslationKey(
-                    this.getTranslationType(),
-                    objectIdentifier
-                )
-            ).setStyle(TextColorPallet.tertiary)
-        )
-
-        message.appendWithSpace(getTimeDiff())
 
         return message
     }
 
     @ExperimentalTime
-    private fun getTimeDiff(): Text {
+    fun getTimeMessage(): Text {
         val duration = Duration.between(timestamp, Instant.now()).toKotlinDuration()
         val text: MutableText = LiteralText("")
 
@@ -99,4 +86,50 @@ abstract class AbstractActionType : ActionType {
 
         return message
     }
+
+    fun getSourceMessage(): Text = if (sourceProfile != null) {
+        LiteralText(sourceProfile!!.name).setStyle(TextColorPallet.secondary)
+    } else {
+        LiteralText("@$sourceName").setStyle(TextColorPallet.secondary)
+    }
+
+    fun getActionMessage(): Text = TranslatableText("text.ledger.action.${identifier}")
+        .styled {
+            it.withHoverEvent(
+                HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    LiteralText(identifier)
+                )
+            )
+        }
+
+    fun getObjectMessage(): Text = TranslatableText(
+        Util.createTranslationKey(
+            this.getTranslationType(),
+            objectIdentifier
+        )
+    ).setStyle(TextColorPallet.tertiary).styled {
+        it.withHoverEvent(
+            HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                LiteralText(objectIdentifier.toString())
+            )
+        )
+    }
+
+    fun getLocationMessage(): Text = LiteralText("${pos.x} ${pos.y} ${pos.z}")
+        .setStyle(TextColorPallet.secondary)
+        .styled {
+            it.withHoverEvent(
+                HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    TranslatableText("text.ledger.action_message.location.hover")
+                )
+            ).withClickEvent(
+                ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/tp ${pos.x} ${pos.y} ${pos.z}"
+                )
+            )
+        }
 }

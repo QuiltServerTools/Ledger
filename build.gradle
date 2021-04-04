@@ -23,6 +23,7 @@ repositories {
     maven { url = "https://dl.bintray.com/kotlin/dokka" }
     maven { url 'https://jitpack.io' }
     maven { url = "https://maven.nucleoid.xyz/" }
+    maven { url 'https://dl.bintray.com/bymartrixx/maven' }
     mavenCentral()
     jcenter()
 }
@@ -36,16 +37,15 @@ dependencies {
     // Fabric API
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // Server translations
+    // Message stuff
     modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
+    modImplementation(include("com.github.SpaceClouds42:Ekho:${project.ekho_version}"))
+
 
     // Kotlin
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    //modImplementation "net.axay:fabrikmc-core:${project.fabrik_version}"
-    //modImplementation "net.axay:fabrikmc-commands:${project.fabrik_version}"
-    //modImplementation(include("com.github.P03W:Aegis:${project.aegis_version}"))
 
     //Database
     implementation "org.jetbrains.exposed:exposed-core:${project.exposedVersion}"
@@ -55,6 +55,7 @@ dependencies {
 
     implementation "org.xerial:sqlite-jdbc:${project.jdbc_version}"
 
+    modCompile 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.
