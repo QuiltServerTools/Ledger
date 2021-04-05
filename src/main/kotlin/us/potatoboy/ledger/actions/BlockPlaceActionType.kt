@@ -1,8 +1,9 @@
 package us.potatoboy.ledger.actions
 
 import net.minecraft.block.Blocks
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.registry.Registry
 
 class BlockPlaceActionType() : AbstractActionType() {
     override val identifier: String = "block-place"
@@ -12,5 +13,9 @@ class BlockPlaceActionType() : AbstractActionType() {
         world.setBlockState(pos, Blocks.AIR.defaultState)
 
         return true
+    }
+
+    override fun preview(world: ServerWorld, player: ServerPlayerEntity) {
+        player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, Blocks.AIR.defaultState))
     }
 }

@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.item.Item
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
@@ -24,6 +25,7 @@ interface ActionType {
     var rolledBack: Boolean
 
     fun rollback(world: ServerWorld): Boolean
+    fun preview(world: ServerWorld, player: ServerPlayerEntity)
     fun getTranslationType(): String
     fun getMessage(): Text
 }

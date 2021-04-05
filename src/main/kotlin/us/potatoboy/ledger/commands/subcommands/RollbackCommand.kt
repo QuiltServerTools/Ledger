@@ -4,7 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.minecraft.server.command.CommandManager
+import net.minecraft.text.LiteralText
 import net.minecraft.text.TranslatableText
+import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
@@ -35,14 +37,28 @@ object RollbackCommand : BuildableCommand {
                 return@launch
             }
 
-            source.sendFeedback(TranslatableText("text.ledger.rollback.start", actions.size), true)
+            source.sendFeedback(
+                TranslatableText(
+                    "text.ledger.rollback.start",
+                    LiteralText(actions.size.toString()).setStyle(TextColorPallet.secondary)
+                ).setStyle(TextColorPallet.primary), true
+            )
             for (action in actions) {
                 if (!action.rollback(context.source.world)) {
-                    source.sendFeedback(TranslatableText("text.ledger.rollback.fail", action.objectIdentifier), true)
+                    source.sendFeedback(
+                        TranslatableText("text.ledger.rollback.fail", action.objectIdentifier).setStyle(
+                            TextColorPallet.secondary
+                        ), true
+                    )
                 }
                 action.rolledBack = true
             }
-            source.sendFeedback(TranslatableText("text.ledger.rollback.finish", actions.size), true)
+            source.sendFeedback(
+                TranslatableText(
+                    "text.ledger.rollback.finish",
+                    actions.size
+                ).setStyle(TextColorPallet.primary), true
+            )
 
         }
         return 1

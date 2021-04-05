@@ -75,6 +75,7 @@ object DatabaseManager {
             }
 
             totalActions = query.copy().count()
+            if (totalActions == 0L) return@transaction
 
             query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
             query = query.limit(
@@ -116,6 +117,27 @@ object DatabaseManager {
         return actionTypes
     }
 
+    fun previewActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
+        val actionTypes = mutableListOf<ActionType>()
+
+        transaction {
+            val query: Query
+            try {
+                query = buildQuery(params, source)
+                    .andWhere { Tables.Actions.rolledBack eq false }
+                    .orderBy(Tables.Actions.id, SortOrder.DESC)
+            } catch (e: IllegalArgumentException) {
+                return@transaction
+            }
+
+            val actions = Tables.Action.wrapRows(query).toList()
+
+            actionTypes.addAll(daoToActionType(actions))
+        }
+
+        return actionTypes
+    }
+
     private fun daoToActionType(actions: List<Tables.Action>): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
@@ -150,14 +172,13 @@ object DatabaseManager {
 
     private fun buildQuery(params: ActionSearchParams, source: ServerCommandSource): Query {
         val query = Tables.Actions
-            .join(Tables.ActionIdentifiers, JoinType.INNER, additionalConstraint = {Tables.Actions.actionIdentifier eq Tables.ActionIdentifiers.id})
-            .join(Tables.Worlds, JoinType.INNER, additionalConstraint = {Tables.Actions.world eq Tables.Worlds.id})
-            .join(Tables.ObjectIdentifiers, JoinType.INNER, additionalConstraint = {Tables.Actions.objectId eq Tables.ObjectIdentifiers.id})
-            .join(Tables.Sources, JoinType.INNER, additionalConstraint = {Tables.Actions.sourceName eq Tables.Sources.id})
+            //TODO figure out why this doesn't work .leftJoin(Tables.Players)
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .innerJoin(Tables.ObjectIdentifiers)
+            .innerJoin(Tables.Sources)
             .selectAll()
 
-        //TODO make all these things less duplicated
-        //TODO join tables instead of all these selects somehow
         if (params.min != null && params.max != null) {
             query.andWhere { Tables.Actions.x.between(params.min.x, params.max.x) }
             query.andWhere { Tables.Actions.y.between(params.min.y, params.max.y) }
@@ -173,16 +194,6 @@ object DatabaseManager {
             params.sourceNames,
             Tables.Sources.name
         )
-
-        /*
-        if (!addParameters(
-                query,
-                params.sourceNames,
-                Tables.Sources.name,
-                ::getSource,
-                source
-        )) throw IllegalArgumentException()
-         */
 
         addParameters(
             query,
@@ -228,32 +239,6 @@ object DatabaseManager {
                 }
             }
         }
-    }
-
-    private fun <E> addParameters(
-        query: Query,
-        paramSet: Set<E>?,
-        column: Column<EntityID<Int>>,
-        getEntity: (e: E) -> IntEntity?,
-        source: ServerCommandSource
-    ): Boolean {
-        paramSet?.forEachIndexed { index, param ->
-            val paramEntity = getEntity(param)
-            return if (paramEntity == null) {
-                source.sendError(TranslatableText("error.ledger.unknown_param", param))
-                false
-            } else {
-                if (index == 0) {
-                    query.andWhere { column eq paramEntity.id }
-                } else {
-                    query.orWhere { column eq paramEntity.id }
-                }
-
-                true
-            }
-        }
-
-        return true
     }
 
     private fun <E> addNullableParameters(

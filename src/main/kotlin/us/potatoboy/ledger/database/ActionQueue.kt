@@ -11,4 +11,6 @@ object ActionQueue {
     }
 
     fun getQueue() = queue
+
+    fun size() = queue.size
 }

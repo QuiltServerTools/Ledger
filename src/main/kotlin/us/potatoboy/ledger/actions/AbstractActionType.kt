@@ -2,6 +2,7 @@ package us.potatoboy.ledger.actions
 
 import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.*
 import net.minecraft.util.Formatting
@@ -30,6 +31,7 @@ abstract class AbstractActionType : ActionType {
     override var rolledBack: Boolean = false
 
     override fun rollback(world: ServerWorld): Boolean = false
+    override fun preview(world: ServerWorld, player: ServerPlayerEntity) {}
 
     @ExperimentalTime
     override fun getMessage(): Text {

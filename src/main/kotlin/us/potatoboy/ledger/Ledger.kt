@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import us.potatoboy.ledger.actionutils.ActionSearchParams
+import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.LedgerCommand
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.QueueDrainer
@@ -17,6 +18,7 @@ import us.potatoboy.ledger.listeners.BlockEventListener
 import us.potatoboy.ledger.listeners.PlayerEventListener
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 object Ledger : DedicatedServerModInitializer {
@@ -26,6 +28,7 @@ object Ledger : DedicatedServerModInitializer {
     const val PAGESIZE = 8 //TODO make configurable
 
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>();
+    val previewCache = ConcurrentHashMap<UUID, Preview>();
 
     private var queueDrainerJob: Job? = null
 
@@ -48,12 +51,11 @@ object Ledger : DedicatedServerModInitializer {
             .plus(Registry.ITEM.ids)
             .plus(Registry.ENTITY_TYPE.ids)
 
-
         queueDrainerJob = GlobalScope.launch(Dispatchers.IO) {
             server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.insertWorld(it) }
 
             logger.info("Inserting ${idSet.size} registry keys into database...")
-            idSet.forEach { DatabaseManager.insertObject(it) }
+            //idSet.forEach { DatabaseManager.insertObject(it) }
             logger.info("Registry insert complete. Starting queue drainer")
 
             QueueDrainer.run()

@@ -1,10 +1,7 @@
 package us.potatoboy.ledger.commands
 
 import net.minecraft.server.command.CommandManager.literal
-import us.potatoboy.ledger.commands.subcommands.InspectCommand
-import us.potatoboy.ledger.commands.subcommands.PageCommand
-import us.potatoboy.ledger.commands.subcommands.RollbackCommand
-import us.potatoboy.ledger.commands.subcommands.SearchCommand
+import us.potatoboy.ledger.commands.subcommands.*
 import us.potatoboy.ledger.utility.BrigadierUtils
 import us.potatoboy.ledger.utility.Dispatcher
 
@@ -27,5 +24,9 @@ class LedgerCommand(private val dispatcher: Dispatcher) {
         rootNode.addChild(RollbackCommand.build())
         rootNode.addChild(BrigadierUtils.buildRedirect("rb", RollbackCommand.build()))
 
+        rootNode.addChild(PreviewCommand.build())
+        rootNode.addChild(BrigadierUtils.buildRedirect("pv", PreviewCommand.build()))
+
+        rootNode.addChild(StatusCommand.build())
     }
 }
