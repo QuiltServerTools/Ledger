@@ -21,5 +21,12 @@ fun interface PlayerBlockPlaceCallback {
             }
     }
 
-    fun place(world: World, player: PlayerEntity, pos: BlockPos, state: BlockState, entity: BlockEntity?, context: ItemPlacementContext)
+    fun place(
+        world: World,
+        player: PlayerEntity,
+        pos: BlockPos,
+        state: BlockState,
+        entity: BlockEntity?,
+        context: ItemPlacementContext
+    )
 }

@@ -17,8 +17,8 @@ public abstract class BlockItemMixin extends Item {
 	}
 
 	@Inject(
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;getBlockPos()Lnet/minecraft/util/math/BlockPos;"),
 			method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;getBlockPos()Lnet/minecraft/util/math/BlockPos;"),
 			cancellable = true
 	)
 	public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, CallbackInfoReturnable<Boolean> info) {

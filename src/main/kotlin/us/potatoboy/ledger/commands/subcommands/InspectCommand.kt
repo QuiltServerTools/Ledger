@@ -2,7 +2,6 @@ package us.potatoboy.ledger.commands.subcommands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.server.command.CommandManager.argument
@@ -67,7 +66,7 @@ object InspectCommand : BuildableCommand {
                 TranslatableText(
                     "text.ledger.header.search.pos",
                     LiteralText("${pos.x} ${pos.y} ${pos.z}")
-                        //.setStyle(TextColorPallet.secondary)
+                    //.setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary)
             )
 

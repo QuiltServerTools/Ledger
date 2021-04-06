@@ -1,13 +1,9 @@
 package us.potatoboy.ledger.utility
 
 import net.fabricmc.fabric.api.util.NbtType
-import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtHelper
-import net.minecraft.state.State
-import net.minecraft.state.StateManager
-import net.minecraft.state.property.Property
 import net.minecraft.util.Identifier
 
 object NbtUtils {

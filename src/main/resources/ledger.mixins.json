@@ -3,8 +3,11 @@
   "package": "us.potatoboy.ledger.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "DoubleInventoryMixin",
+    "LockableContainerBlockEntityMixin",
     "callbacks.BlockItemMixin",
-    "callbacks.ExplosionMixin"
+    "callbacks.ExplosionMixin",
+    "callbacks.ScreenHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

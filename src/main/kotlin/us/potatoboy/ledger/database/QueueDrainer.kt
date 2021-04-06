@@ -13,7 +13,13 @@ object QueueDrainer : Runnable {
         while (running) {
             try {
                 val queuedActions = ArrayList<ActionType>(50)
-                Queues.drain(ActionQueue.getQueue(), queuedActions, 50, 5, TimeUnit.SECONDS) //TODO make queue drain size and timeout config
+                Queues.drain(
+                    ActionQueue.getQueue(),
+                    queuedActions,
+                    50,
+                    5,
+                    TimeUnit.SECONDS
+                ) //TODO make queue drain size and timeout config
 
                 if (queuedActions.isEmpty()) continue
                 DatabaseManager.insertActions(queuedActions)

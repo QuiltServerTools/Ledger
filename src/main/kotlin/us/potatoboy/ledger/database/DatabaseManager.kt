@@ -24,7 +24,9 @@ import kotlin.math.ceil
 
 object DatabaseManager {
     private val databaseFile = File(FabricLoader.getInstance().gameDir.toFile(), "ledger.sqlite")
-    private val database = Database.connect("jdbc:sqlite:${databaseFile.path.replace('\\', '/')}")
+    private val database = Database.connect(
+        url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
+    )
 
     fun ensureTables() = transaction {
         SchemaUtils.createMissingTablesAndColumns(
@@ -315,13 +317,14 @@ object DatabaseManager {
 
     private fun getSource(source: String) =
         transaction {
-           Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
+            Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
         }
 
 
     //TODO cache in a map maybe?
     private fun getRegistryKey(identifier: Identifier) = transaction {
-        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).firstOrNull()
+        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1)
+            .firstOrNull()
     }
 
     private fun getWorld(identifier: Identifier) = transaction {

@@ -13,6 +13,7 @@ import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.launchMain
 
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -43,23 +44,27 @@ object RollbackCommand : BuildableCommand {
                     LiteralText(actions.size.toString()).setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary), true
             )
-            for (action in actions) {
-                if (!action.rollback(context.source.world)) {
-                    source.sendFeedback(
-                        TranslatableText("text.ledger.rollback.fail", action.objectIdentifier).setStyle(
-                            TextColorPallet.secondary
-                        ), true
-                    )
-                }
-                action.rolledBack = true
-            }
-            source.sendFeedback(
-                TranslatableText(
-                    "text.ledger.rollback.finish",
-                    actions.size
-                ).setStyle(TextColorPallet.primary), true
-            )
 
+            context.source.world.launchMain {
+                for (action in actions) {
+                    if (!action.rollback(context.source.world)) {
+                        //TODO deal with rollbacks better
+                        source.sendFeedback(
+                            TranslatableText("text.ledger.rollback.fail", action.objectIdentifier).setStyle(
+                                TextColorPallet.secondary
+                            ), true
+                        )
+                    }
+                    action.rolledBack = true
+                }
+
+                source.sendFeedback(
+                    TranslatableText(
+                        "text.ledger.rollback.finish",
+                        actions.size
+                    ).setStyle(TextColorPallet.primary), true
+                )
+            }
         }
         return 1
     }

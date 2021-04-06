@@ -6,7 +6,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.`java-time`.timestamp
-import us.potatoboy.ledger.database.Tables.ObjectIdentifier.Companion.transform
 import java.time.Instant
 
 object Tables {

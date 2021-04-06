@@ -9,6 +9,8 @@ class BlockPlaceActionType() : AbstractActionType() {
     override val identifier: String = "block-place"
     override fun getTranslationType(): String = "block"
 
+    //TODO deal with redundant position and identifier in extra data
+
     override fun rollback(world: ServerWorld): Boolean {
         world.setBlockState(pos, Blocks.AIR.defaultState)
 

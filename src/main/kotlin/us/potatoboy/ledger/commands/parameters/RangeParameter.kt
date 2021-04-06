@@ -8,7 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.ServerCommandSource
 import java.util.concurrent.CompletableFuture
 
-class RangeParameter: SimpleParameter<Int>() {
+class RangeParameter : SimpleParameter<Int>() {
     override fun parse(stringReader: StringReader): Int {
         return IntegerArgumentType.integer(1).parse(stringReader)
     }

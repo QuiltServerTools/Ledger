@@ -2,9 +2,7 @@ package us.potatoboy.ledger.registry
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectSet
-import us.potatoboy.ledger.actions.ActionType
-import us.potatoboy.ledger.actions.BlockBreakActionType
-import us.potatoboy.ledger.actions.BlockPlaceActionType
+import us.potatoboy.ledger.actions.*
 import us.potatoboy.ledger.database.DatabaseManager
 import java.util.function.Supplier
 
@@ -22,6 +20,8 @@ object ActionRegistry {
     fun registerDefaultTypes() {
         registerActionType { BlockBreakActionType() }
         registerActionType { BlockPlaceActionType() }
+        registerActionType { ItemInsertActionType() }
+        registerActionType { ItemRemoveActionType() }
     }
 
     fun getType(id: String) = actionTypes[id]

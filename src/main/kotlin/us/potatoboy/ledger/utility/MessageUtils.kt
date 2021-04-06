@@ -2,7 +2,6 @@ package us.potatoboy.ledger.utility
 
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.*
-import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.actionutils.SearchResults
 

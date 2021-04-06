@@ -50,7 +50,7 @@ abstract class AbstractActionType : ActionType {
     }
 
     @ExperimentalTime
-    fun getTimeMessage(): Text {
+    open fun getTimeMessage(): Text {
         val duration = Duration.between(timestamp, Instant.now()).toKotlinDuration()
         val text: MutableText = LiteralText("")
 
@@ -89,13 +89,13 @@ abstract class AbstractActionType : ActionType {
         return message
     }
 
-    fun getSourceMessage(): Text = if (sourceProfile != null) {
+    open fun getSourceMessage(): Text = if (sourceProfile != null) {
         LiteralText(sourceProfile!!.name).setStyle(TextColorPallet.secondary)
     } else {
         LiteralText("@$sourceName").setStyle(TextColorPallet.secondary)
     }
 
-    fun getActionMessage(): Text = TranslatableText("text.ledger.action.${identifier}")
+    open fun getActionMessage(): Text = TranslatableText("text.ledger.action.${identifier}")
         .styled {
             it.withHoverEvent(
                 HoverEvent(
@@ -105,7 +105,7 @@ abstract class AbstractActionType : ActionType {
             )
         }
 
-    fun getObjectMessage(): Text = TranslatableText(
+    open fun getObjectMessage(): Text = TranslatableText(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier
@@ -119,7 +119,7 @@ abstract class AbstractActionType : ActionType {
         )
     }
 
-    fun getLocationMessage(): Text = LiteralText("${pos.x} ${pos.y} ${pos.z}")
+    open fun getLocationMessage(): Text = LiteralText("${pos.x} ${pos.y} ${pos.z}")
         .setStyle(TextColorPallet.secondary)
         .styled {
             it.withHoverEvent(

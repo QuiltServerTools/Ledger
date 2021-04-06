@@ -6,7 +6,6 @@ import kotlinx.coroutines.launch
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
-import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.BuildableCommand

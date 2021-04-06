@@ -2,30 +2,25 @@
   "text.ledger.header.search.pos": "--- Searching logs at %s ---",
   "text.ledger.header.search": "------ Searching logs ------",
   "text.ledger.header.status": "------ Ledger ------",
-
   "text.ledger.footer.search": "------- %s [Page %s of %s] %s -------",
   "text.ledger.footer.page_forward": ">>",
   "text.ledger.footer.page_forward.hover": "Next Page",
   "text.ledger.footer.page_backward": "<<",
   "text.ledger.footer.page_backward.hover": "Previous Page",
-
   "text.ledger.status.queue": "Queue: %s actions",
-
   "text.ledger.preview.start": "Preview starting",
-
   "text.ledger.action_message.time_diff": "%s ago",
   "text.ledger.action_message.location.hover": "Click to teleport",
-
   "text.ledger.rollback.start": "Rolling back %s actions",
   "text.ledger.rollback.finish": "Rollback complete",
   "text.ledger.rollback.fail": "Failed to rollback %s",
-
   "error.ledger.no_cached_params": "No cached search. Try preforming a search first",
   "error.ledger.command.no_results": "No results for that search",
   "error.ledger.no_more_pages": "No more pages",
   "error.ledger.unknown_param": "Unknown parameter %s",
   "error.ledger.no_preview": "No current preview",
-
   "text.ledger.action.block-place": "placed",
-  "text.ledger.action.block-break": "broke"
+  "text.ledger.action.block-break": "broke",
+  "text.ledger.action.item-insert": "added",
+  "text.ledger.action.item-remove": "removed"
 }
