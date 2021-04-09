@@ -24,7 +24,9 @@ abstract class AbstractActionType : ActionType {
     override var pos: BlockPos = BlockPos.ORIGIN
     override var world: Identifier? = null
     override var objectIdentifier: Identifier = Identifier("air")
+    override var oldObjectIdentifier: Identifier = Identifier("air")
     override var blockState: BlockState? = null
+    override var oldBlockState: BlockState? = null
     override var sourceName: String = "Unknown"
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null

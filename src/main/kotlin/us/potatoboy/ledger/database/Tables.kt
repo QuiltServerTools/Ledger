@@ -53,7 +53,9 @@ object Tables {
         val z = integer("z")
         val world = reference("world_id", Worlds.id)
         val objectId = reference("object_id", ObjectIdentifiers.id)
+        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id)
         val blockState = text("block_state").nullable()
+        val oldBlockState = text("old_block_state").nullable()
         val sourceName = reference("source", Sources.id)
         val sourcePlayer = optReference("player_id", Players.id)
         val extraData = text("extra_data").nullable()
@@ -70,7 +72,9 @@ object Tables {
         var z by Actions.z
         var world by World referencedOn Actions.world
         var objectId by ObjectIdentifier referencedOn Actions.objectId
+        var oldObjectId by ObjectIdentifier referencedOn Actions.oldObjectId
         var blockState by Actions.blockState
+        var oldBlockState by Actions.oldBlockState
         var sourceName by Source referencedOn Actions.sourceName
         var sourcePlayer by Player optionalReferencedOn Actions.sourcePlayer
         var extraData by Actions.extraData

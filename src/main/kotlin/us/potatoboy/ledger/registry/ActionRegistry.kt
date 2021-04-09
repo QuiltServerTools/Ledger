@@ -19,7 +19,7 @@ object ActionRegistry {
 
     fun registerDefaultTypes() {
         registerActionType { BlockBreakActionType() }
-        registerActionType { BlockPlaceActionType() }
+        registerActionType { BlockChangeActionType("block-place") }
         registerActionType { ItemInsertActionType() }
         registerActionType { ItemRemoveActionType() }
     }

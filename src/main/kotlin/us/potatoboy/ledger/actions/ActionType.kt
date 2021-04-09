@@ -15,13 +15,16 @@ interface ActionType {
     var pos: BlockPos
     var world: Identifier?
     var objectIdentifier: Identifier
+    var oldObjectIdentifier: Identifier
     var blockState: BlockState?
+    var oldBlockState: BlockState?
     var sourceName: String
     var sourceProfile: GameProfile?
     var extraData: String?
     var rolledBack: Boolean
 
     fun rollback(world: ServerWorld): Boolean
+    fun restore(world: ServerWorld): Boolean
     fun preview(world: ServerWorld, player: ServerPlayerEntity)
     fun getTranslationType(): String
     fun getMessage(): Text

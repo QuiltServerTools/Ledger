@@ -28,6 +28,7 @@ object DatabaseManager {
         url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
     )
 
+    //TODO implement locks to prevent multiple db modifications at once
     fun ensureTables() = transaction {
         SchemaUtils.createMissingTablesAndColumns(
             Tables.Players,
@@ -52,8 +53,10 @@ object DatabaseManager {
                     y = action.pos.y
                     z = action.pos.z
                     objectId = action.objectIdentifier.let { getRegistryKey(it)!! }
+                    oldObjectId = action.oldObjectIdentifier.let { getRegistryKey(it)!! }
                     world = getWorld(action.world ?: Ledger.server.overworld.registryKey.value)!!
                     blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+                    oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
                     sourceName = Tables.Source[getAndCreateSource(action.sourceName)]
                     sourcePlayer = action.sourceProfile?.let { getPlayer(it.id) }
                     extraData = action.extraData
@@ -119,6 +122,30 @@ object DatabaseManager {
         return actionTypes
     }
 
+    fun restoreActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
+        val actionTypes = mutableListOf<ActionType>()
+
+        transaction {
+            val query: Query
+            try {
+                query = buildQuery(params, source)
+                    .andWhere { Tables.Actions.rolledBack eq true }
+                    .orderBy(Tables.Actions.id, SortOrder.DESC)
+            } catch (e: IllegalArgumentException) {
+                return@transaction
+            }
+
+            val actions = Tables.Action.wrapRows(query).toList()
+            for (action in actions) {
+                action.rolledBack = false
+            }
+
+            actionTypes.addAll(daoToActionType(actions))
+        }
+
+        return actionTypes
+    }
+
     fun previewActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
@@ -155,10 +182,17 @@ object DatabaseManager {
             type.pos = BlockPos(action.x, action.y, action.z)
             type.world = action.world.identifier
             type.objectIdentifier = action.objectId.identifier
+            type.oldObjectIdentifier = action.oldObjectId.identifier
             type.blockState = action.blockState?.let {
                 NbtUtils.blockStateFromProperties(
                     StringNbtReader.parse(it),
                     action.objectId.identifier
+                )
+            }
+            type.oldBlockState = action.oldBlockState?.let {
+                NbtUtils.blockStateFromProperties(
+                    StringNbtReader.parse(it),
+                    action.oldObjectId.identifier
                 )
             }
             type.sourceName = action.sourceName.name
@@ -173,11 +207,16 @@ object DatabaseManager {
     }
 
     private fun buildQuery(params: ActionSearchParams, source: ServerCommandSource): Query {
+        //val objectTable = Tables.ObjectIdentifiers.alias("test")
+        val oldObjectTable = Tables.ObjectIdentifiers.alias("oldObjects")
+
         val query = Tables.Actions
             //TODO figure out why this doesn't work .leftJoin(Tables.Players)
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
-            .innerJoin(Tables.ObjectIdentifiers)
+            //.join(Tables.ObjectIdentifiers, JoinType.INNER) {Tables.Actions.objectId eq Tables.ObjectIdentifiers.identifier.alias("a")}
+            .innerJoin(oldObjectTable, {Tables.Actions.objectId}, {oldObjectTable[Tables.ObjectIdentifiers.id]})
+            .innerJoin(Tables.ObjectIdentifiers, {Tables.Actions.oldObjectId}, {Tables.ObjectIdentifiers.id})
             .innerJoin(Tables.Sources)
             .selectAll()
 

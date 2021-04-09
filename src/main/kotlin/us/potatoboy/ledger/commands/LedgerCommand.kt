@@ -27,6 +27,8 @@ class LedgerCommand(private val dispatcher: Dispatcher) {
         rootNode.addChild(PreviewCommand.build())
         rootNode.addChild(BrigadierUtils.buildRedirect("pv", PreviewCommand.build()))
 
+        rootNode.addChild(RestoreCommand.build())
+
         rootNode.addChild(StatusCommand.build())
     }
 }
