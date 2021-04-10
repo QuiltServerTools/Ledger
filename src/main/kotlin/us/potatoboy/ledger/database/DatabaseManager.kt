@@ -130,7 +130,7 @@ object DatabaseManager {
             try {
                 query = buildQuery(params, source)
                     .andWhere { Tables.Actions.rolledBack eq true }
-                    .orderBy(Tables.Actions.id, SortOrder.DESC)
+                    .orderBy(Tables.Actions.id, SortOrder.ASC)
             } catch (e: IllegalArgumentException) {
                 return@transaction
             }

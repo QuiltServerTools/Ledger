@@ -18,11 +18,11 @@
 
   "text.ledger.rollback.start": "Rolling back %s actions",
   "text.ledger.rollback.finish": "Rollback complete",
-  "text.ledger.rollback.fail": "Failed to rollback %s",
+  "text.ledger.rollback.fail": "Failed to rollback %s x%s",
 
   "text.ledger.restore.start": "Restoring %s actions",
   "text.ledger.restore.finish": "Restore complete",
-  "text.ledger.restore.fail": "Failed to restore %s",
+  "text.ledger.restore.fail": "Failed to restore %s x%s",
 
   "error.ledger.no_cached_params": "No cached search. Try preforming a search first",
   "error.ledger.command.no_results": "No results for that search",

@@ -7,6 +7,7 @@ import net.minecraft.server.command.CommandManager
 import net.minecraft.text.LiteralText
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.TextColorPallet
+import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
@@ -46,16 +47,21 @@ object RollbackCommand : BuildableCommand {
             )
 
             context.source.world.launchMain {
+                val fails = HashMap<String, Int>()
+
                 for (action in actions) {
                     if (!action.rollback(context.source.world)) {
-                        //TODO deal with rollbacks better
-                        source.sendFeedback(
-                            TranslatableText("text.ledger.rollback.fail", action.objectIdentifier).setStyle(
-                                TextColorPallet.secondary
-                            ), true
-                        )
+                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1;
                     }
                     action.rolledBack = true
+                }
+
+                for (entry in fails.entries) {
+                    source.sendFeedback(
+                        TranslatableText("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
+                            TextColorPallet.secondary
+                        ), true
+                    )
                 }
 
                 source.sendFeedback(

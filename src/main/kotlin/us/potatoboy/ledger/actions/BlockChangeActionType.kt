@@ -11,7 +11,7 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
         if (oldBlock.isEmpty) return false
 
         var state = oldBlock.get().defaultState
-        if (this.blockState != null) state = this.oldBlockState
+        if (this.oldBlockState != null) state = this.oldBlockState
 
         world.setBlockState(pos, state)
 
