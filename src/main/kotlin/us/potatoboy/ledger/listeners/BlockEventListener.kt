@@ -7,12 +7,18 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 import us.potatoboy.ledger.actionutils.ActionFactory
+import us.potatoboy.ledger.callbacks.BlockBurnEvent
 import us.potatoboy.ledger.callbacks.BlockExplodeEvent
 import us.potatoboy.ledger.database.ActionQueue
 
 object BlockEventListener {
     init {
         BlockExplodeEvent.EVENT.register(::onExplode)
+        BlockBurnEvent.EVENT.register(::onBurn)
+    }
+
+    private fun onBurn(world: World, pos: BlockPos, state: BlockState) {
+        ActionQueue.addActionToQueue(ActionFactory.blockBreakAction(world, pos, state, "fire"))
     }
 
     private fun onExplode(
