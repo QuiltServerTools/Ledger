@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import us.potatoboy.ledger.callbacks.BlockExplodeEvent;
+import us.potatoboy.ledger.callbacks.BlockExplodeCallback;
 
 import java.util.Iterator;
 
@@ -45,7 +45,7 @@ public abstract class ExplosionMixin {
 			BlockState blockState,
 			Block block) {
 
-		BlockExplodeEvent.Companion.getEVENT().invoker().explode(
+		BlockExplodeCallback.Companion.getEVENT().invoker().explode(
 				world,
 				entity,
 				blockPos,

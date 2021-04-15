@@ -6,11 +6,11 @@ import net.minecraft.block.BlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-fun interface BlockBurnEvent {
+fun interface BlockBurnCallback {
     companion object {
-        val EVENT: Event<BlockBurnEvent> =
-            EventFactory.createArrayBacked(BlockBurnEvent::class.java) { listeners ->
-                BlockBurnEvent { world, pos, state ->
+        val EVENT: Event<BlockBurnCallback> =
+            EventFactory.createArrayBacked(BlockBurnCallback::class.java) { listeners ->
+                BlockBurnCallback { world, pos, state ->
                     for (listener in listeners) {
                         listener.burn(world, pos, state)
                     }

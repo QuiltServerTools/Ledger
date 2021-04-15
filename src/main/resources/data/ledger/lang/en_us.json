@@ -33,5 +33,6 @@
   "text.ledger.action.block-place": "placed",
   "text.ledger.action.block-break": "broke",
   "text.ledger.action.item-insert": "added",
-  "text.ledger.action.item-remove": "removed"
+  "text.ledger.action.item-remove": "removed",
+  "text.ledger.action.entity-kill": "killed"
 }

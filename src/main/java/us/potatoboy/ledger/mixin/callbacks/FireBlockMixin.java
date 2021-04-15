@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import us.potatoboy.ledger.callbacks.BlockBurnEvent;
+import us.potatoboy.ledger.callbacks.BlockBurnCallback;
 
 import java.util.Random;
 
@@ -26,7 +26,7 @@ public abstract class FireBlockMixin {
 	)
 	private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
 		if (blockState.getBlock() != Blocks.FIRE) {
-			BlockBurnEvent.Companion.getEVENT().invoker().burn(world, pos, blockState);
+			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState);
 		}
 	}
 
@@ -40,7 +40,7 @@ public abstract class FireBlockMixin {
 	)
 	private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
 		if (blockState.getBlock() != Blocks.FIRE) {
-			BlockBurnEvent.Companion.getEVENT().invoker().burn(world, pos, blockState);
+			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState);
 		}
 	}
 }

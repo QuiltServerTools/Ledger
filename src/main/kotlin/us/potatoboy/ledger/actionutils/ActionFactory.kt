@@ -2,6 +2,9 @@ package us.potatoboy.ledger.actionutils
 
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.network.ServerPlayerEntity
@@ -120,5 +123,41 @@ object ActionFactory {
         action.objectIdentifier = Registry.ITEM.getId(stack.item)
         action.sourceName = source
         action.extraData = stack.toTag(CompoundTag())?.asString()
+    }
+
+    fun entityKillAction(world: World, pos: BlockPos, entity: LivingEntity, cause: DamageSource): EntityKillActionType {
+        val killer = cause.attacker
+        val action = EntityKillActionType()
+
+        when {
+            killer is PlayerEntity -> {
+                setEntityData(action, pos, world, entity, "player")
+                action.sourceProfile = killer.gameProfile
+            }
+            killer != null -> {
+                val source = Registry.ENTITY_TYPE.getId(killer.type).path
+                setEntityData(action, pos, world, entity, source)
+            }
+            else -> {
+                setEntityData(action, pos, world, entity, cause.name)
+            }
+        }
+
+        return action
+    }
+
+
+    private fun setEntityData(
+        action: ActionType,
+        pos: BlockPos,
+        world: World,
+        entity: LivingEntity,
+        source: String
+    ) {
+        action.pos = pos
+        action.world = world.registryKey.value
+        action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.sourceName = source
+        action.extraData = entity.toTag(CompoundTag())?.asString()
     }
 }

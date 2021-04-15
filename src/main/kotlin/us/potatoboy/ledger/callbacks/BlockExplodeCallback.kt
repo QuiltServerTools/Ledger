@@ -8,11 +8,11 @@ import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-fun interface BlockExplodeEvent {
+fun interface BlockExplodeCallback {
     companion object {
-        val EVENT: Event<BlockExplodeEvent> =
-            EventFactory.createArrayBacked(BlockExplodeEvent::class.java) { listeners ->
-                BlockExplodeEvent { world, source, pos, state, entity ->
+        val EVENT: Event<BlockExplodeCallback> =
+            EventFactory.createArrayBacked(BlockExplodeCallback::class.java) { listeners ->
+                BlockExplodeCallback { world, source, pos, state, entity ->
                     for (listener in listeners) {
                         listener.explode(world, source, pos, state, entity)
                     }

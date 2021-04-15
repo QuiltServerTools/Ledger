@@ -8,6 +8,7 @@
     "callbacks.BlockItemMixin",
     "callbacks.ExplosionMixin",
     "callbacks.FireBlockMixin",
+    "callbacks.LivingEntityMixin",
     "callbacks.ScreenHandlerMixin"
   ],
   "injectors": {

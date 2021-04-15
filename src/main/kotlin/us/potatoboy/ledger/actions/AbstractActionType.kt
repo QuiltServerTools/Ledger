@@ -34,6 +34,7 @@ abstract class AbstractActionType : ActionType {
 
     override fun rollback(world: ServerWorld): Boolean = false
     override fun preview(world: ServerWorld, player: ServerPlayerEntity) {}
+    override fun restore(world: ServerWorld): Boolean = false
 
     @ExperimentalTime
     override fun getMessage(): Text {

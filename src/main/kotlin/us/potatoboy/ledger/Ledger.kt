@@ -15,6 +15,7 @@ import us.potatoboy.ledger.commands.LedgerCommand
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.QueueDrainer
 import us.potatoboy.ledger.listeners.BlockEventListener
+import us.potatoboy.ledger.listeners.EntityCallbackListener
 import us.potatoboy.ledger.listeners.PlayerEventListener
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
@@ -75,6 +76,7 @@ object Ledger : DedicatedServerModInitializer {
     private fun initListeners() {
         PlayerEventListener
         BlockEventListener
+        EntityCallbackListener
     }
 
     private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) {

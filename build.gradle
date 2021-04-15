@@ -18,12 +18,13 @@ minecraft {
 }
 
 repositories {
-    maven { url = "http://maven.fabricmc.net/" }
-    maven { url = "https://dl.bintray.com/kotlin/kotlin-eap" }
-    maven { url = "https://dl.bintray.com/kotlin/dokka" }
-    maven { url 'https://jitpack.io' }
-    maven { url = "https://maven.nucleoid.xyz/" }
-    maven { url 'https://dl.bintray.com/bymartrixx/maven' }
+    maven { url "http://maven.fabricmc.net/" }
+    maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
+    maven { url "https://dl.bintray.com/kotlin/dokka" }
+    maven { url "https://jitpack.io" }
+    //maven { url "https://maven.nucleoid.xyz/" }
+    maven { url "https://dl.bintray.com/bymartrixx/maven" }
+    maven { url "https://porez.ml/maven"}
     mavenCentral()
     jcenter()
 }
