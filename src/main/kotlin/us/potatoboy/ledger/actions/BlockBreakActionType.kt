@@ -6,6 +6,7 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import us.potatoboy.ledger.TextColorPallet
+import us.potatoboy.ledger.utility.literal
 
 class BlockBreakActionType : BlockChangeActionType("block-break") {
     override fun getObjectMessage(): Text = TranslatableText(
@@ -17,7 +18,7 @@ class BlockBreakActionType : BlockChangeActionType("block-break") {
         it.withHoverEvent(
             HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                LiteralText(oldObjectIdentifier.toString())
+                oldObjectIdentifier.toString().literal()
             )
         )
     }

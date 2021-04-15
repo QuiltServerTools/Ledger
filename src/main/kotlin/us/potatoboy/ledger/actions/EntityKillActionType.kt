@@ -3,6 +3,7 @@ package us.potatoboy.ledger.actions
 import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.math.Vec3d
 import net.minecraft.util.registry.Registry
 
 class EntityKillActionType : AbstractActionType() {
@@ -16,6 +17,8 @@ class EntityKillActionType : AbstractActionType() {
             val entity: LivingEntity = (entityType.get().create(world) as LivingEntity?)!!
             entity.fromTag(StringNbtReader.parse(extraData))
             entity.health = entity.defaultMaxHealth.toFloat()
+            entity.velocity = Vec3d.ZERO
+            entity.fireTicks = 0
 
             world.spawnEntity(entity)
 

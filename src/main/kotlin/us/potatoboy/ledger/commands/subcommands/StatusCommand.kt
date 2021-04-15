@@ -1,13 +1,15 @@
 package us.potatoboy.ledger.commands.subcommands
 
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.command.CommandManager
-import net.minecraft.text.LiteralText
 import net.minecraft.text.TranslatableText
+import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.database.ActionQueue
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.literal
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -25,13 +27,23 @@ object StatusCommand : BuildableCommand {
         source.sendFeedback(
             TranslatableText(
                 "text.ledger.status.queue",
-                LiteralText(
-                    ActionQueue.size().toString()
-                ).setStyle(TextColorPallet.primary)
+                ActionQueue.size().toString().literal()
+                    .setStyle(TextColorPallet.tertiary)
+            ).setStyle(TextColorPallet.secondary),
+            false
+        )
+        source.sendFeedback(
+            TranslatableText(
+                "text.ledger.status.version",
+                getVersion().friendlyString.literal()
+                    .setStyle(TextColorPallet.tertiary)
             ).setStyle(TextColorPallet.secondary),
             false
         )
 
         return 1
     }
+
+    private fun getVersion() =
+        FabricLoader.getInstance().getModContainer(Ledger.modId).get().metadata.version
 }

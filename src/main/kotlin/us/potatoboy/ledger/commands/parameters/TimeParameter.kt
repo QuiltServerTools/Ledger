@@ -37,7 +37,6 @@ class TimeParameter : SimpleParameter<Duration>() {
                     "h" -> duration = duration.plusHours(timeValue)
                     "d" -> duration = duration.plusDays(timeValue)
                     "w" -> duration = duration.plusDays(timeValue * 7)
-                    else -> throw SimpleCommandExceptionType(LiteralText("")).create()
                 }
             }
         }

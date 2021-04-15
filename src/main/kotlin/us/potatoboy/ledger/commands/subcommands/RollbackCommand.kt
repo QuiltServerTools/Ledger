@@ -15,6 +15,7 @@ import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
 import us.potatoboy.ledger.utility.launchMain
+import us.potatoboy.ledger.utility.literal
 
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -42,7 +43,7 @@ object RollbackCommand : BuildableCommand {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.rollback.start",
-                    LiteralText(actions.size.toString()).setStyle(TextColorPallet.secondary)
+                    actions.size.toString().literal().setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary), true
             )
 

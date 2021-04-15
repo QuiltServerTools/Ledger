@@ -10,6 +10,7 @@
   "text.ledger.footer.page_backward.hover": "Previous Page",
 
   "text.ledger.status.queue": "Queue: %s actions",
+  "text.ledger.status.version": "Version: %s",
 
   "text.ledger.preview.start": "Preview starting",
 

@@ -6,5 +6,7 @@ import net.minecraft.text.Text
 
 fun MutableText.appendWithSpace(text: Text) {
     this.append(text)
-    this.append(LiteralText(" "))
+    this.append(" ".literal())
 }
+
+fun String.literal() = LiteralText(this)

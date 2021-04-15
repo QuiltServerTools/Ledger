@@ -20,14 +20,16 @@ object SearchCommand : BuildableCommand {
         return literal("search")
             .then(SearchParamArgument.argument("params")
                 .executes { search(it, SearchParamArgument.get(it, "params")) })
-
             .build()
     }
 
-    fun search(context: Context, params: ActionSearchParams?): Int {
+    fun search(context: Context, params: ActionSearchParams): Int {
         val source = context.source
 
-        if (params == null) return -1
+        if (params.isEmpty()) {
+            source.sendError(TranslatableText("error.ledger.command.no_params"))
+            return -1
+        }
 
         GlobalScope.launch(Dispatchers.IO) {
             Ledger.searchCache[source.name] = params

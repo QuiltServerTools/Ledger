@@ -11,6 +11,7 @@ import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.utility.appendWithSpace
+import us.potatoboy.ledger.utility.literal
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -38,7 +39,7 @@ abstract class AbstractActionType : ActionType {
 
     @ExperimentalTime
     override fun getMessage(): Text {
-        val message: MutableText = LiteralText("")
+        val message: MutableText = "".literal()
         message.appendWithSpace(getSourceMessage())
         message.appendWithSpace(getActionMessage())
         message.appendWithSpace(getObjectMessage())
@@ -55,7 +56,7 @@ abstract class AbstractActionType : ActionType {
     @ExperimentalTime
     open fun getTimeMessage(): Text {
         val duration = Duration.between(timestamp, Instant.now()).toKotlinDuration()
-        val text: MutableText = LiteralText("")
+        val text: MutableText = "".literal()
 
         duration.toComponents { days, hours, minutes, seconds, nanoseconds ->
 
@@ -78,7 +79,7 @@ abstract class AbstractActionType : ActionType {
         val message = TranslatableText("text.ledger.action_message.time_diff", text)
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-        val timeMessage = LiteralText(formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())))
+        val timeMessage = formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())).literal()
 
         message.styled {
             it.withHoverEvent(
@@ -93,9 +94,9 @@ abstract class AbstractActionType : ActionType {
     }
 
     open fun getSourceMessage(): Text = if (sourceProfile != null) {
-        LiteralText(sourceProfile!!.name).setStyle(TextColorPallet.secondary)
+        sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
     } else {
-        LiteralText("@$sourceName").setStyle(TextColorPallet.secondary)
+        "@$sourceName".literal().setStyle(TextColorPallet.secondary)
     }
 
     open fun getActionMessage(): Text = TranslatableText("text.ledger.action.${identifier}")
@@ -103,7 +104,7 @@ abstract class AbstractActionType : ActionType {
             it.withHoverEvent(
                 HoverEvent(
                     HoverEvent.Action.SHOW_TEXT,
-                    LiteralText(identifier)
+                    identifier.literal()
                 )
             )
         }
@@ -117,12 +118,12 @@ abstract class AbstractActionType : ActionType {
         it.withHoverEvent(
             HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                LiteralText(objectIdentifier.toString())
+                objectIdentifier.toString().literal()
             )
         )
     }
 
-    open fun getLocationMessage(): Text = LiteralText("${pos.x} ${pos.y} ${pos.z}")
+    open fun getLocationMessage(): Text = "${pos.x} ${pos.y} ${pos.z}".literal()
         .setStyle(TextColorPallet.secondary)
         .styled {
             it.withHoverEvent(

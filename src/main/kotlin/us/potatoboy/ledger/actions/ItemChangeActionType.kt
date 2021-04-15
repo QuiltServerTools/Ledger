@@ -15,6 +15,7 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 import us.potatoboy.ledger.TextColorPallet
+import us.potatoboy.ledger.utility.literal
 
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
@@ -29,7 +30,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     override fun getObjectMessage(): Text {
         val stack = ItemStack.fromTag(StringNbtReader.parse(extraData))
 
-        return LiteralText("${stack.count} ").append(
+        return "${stack.count} ".literal().append(
             TranslatableText(
                 Util.createTranslationKey(
                     getTranslationType(),

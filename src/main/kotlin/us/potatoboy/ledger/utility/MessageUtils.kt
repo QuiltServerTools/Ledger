@@ -30,8 +30,8 @@ object MessageUtils {
                         Style.EMPTY
                     }
                 },
-                LiteralText(results.page.toString()).setStyle(TextColorPallet.tertiary),
-                LiteralText(results.pages.toString()).setStyle(TextColorPallet.tertiary),
+                results.page.toString().literal().setStyle(TextColorPallet.tertiary),
+                results.pages.toString().literal().setStyle(TextColorPallet.tertiary),
                 TranslatableText("text.ledger.footer.page_forward").setStyle(TextColorPallet.secondary).styled {
                     if (results.page < results.pages) {
                         it.withHoverEvent(

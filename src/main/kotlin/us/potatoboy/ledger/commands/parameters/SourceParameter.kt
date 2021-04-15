@@ -16,11 +16,11 @@ class SourceParameter : SimpleParameter<String>() {
             stringReader.skip()
         }
 
-        return stringReader.string.substring(i, stringReader.cursor).toLowerCase()
+        return stringReader.string.substring(i, stringReader.cursor)
     }
 
     private fun isCharValid(c: Char): Boolean {
-        return c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@'
+        return c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_'
     }
 
     override fun getSuggestions(

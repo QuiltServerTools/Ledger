@@ -17,6 +17,7 @@ import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
 import us.potatoboy.ledger.utility.MessageUtils
+import us.potatoboy.ledger.utility.literal
 
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -33,6 +34,7 @@ object InspectCommand : BuildableCommand {
         val source = context.source
         val player = source.player
 
+        //TODO inspect mode
         source.sendFeedback(LiteralText("WIP"), false)
         return 1
     }
@@ -65,7 +67,7 @@ object InspectCommand : BuildableCommand {
                 source, results,
                 TranslatableText(
                     "text.ledger.header.search.pos",
-                    LiteralText("${pos.x} ${pos.y} ${pos.z}")
+                    "${pos.x} ${pos.y} ${pos.z}".literal()
                     //.setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary)
             )

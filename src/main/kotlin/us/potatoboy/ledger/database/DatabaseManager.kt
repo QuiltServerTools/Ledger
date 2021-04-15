@@ -43,7 +43,26 @@ object DatabaseManager {
 
     fun insertActions(actions: Collection<ActionType>) {
         transaction {
-            addLogger(StdOutSqlLogger)
+            //addLogger(StdOutSqlLogger)
+
+            /* TODO try to figure out batch inserts maybe
+            val Actions = Tables.Actions
+            Actions.batchInsert(actions) { action ->
+                this[Actions.actionIdentifier] = Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq action.identifier }.first().id.value
+                this[Actions.timestamp] = action.timestamp
+                this[Actions.x] = action.pos.x
+                this[Actions.y] = action.pos.y
+                this[Actions.z] = action.pos.z
+                this[Actions.objectId] = getRegistryKey(action.objectIdentifier)
+                this[Actions.oldObjectId] = getRegistryKey(action.oldObjectIdentifier)
+                this[Actions.world] = getWorld(action.world ?: Ledger.server.overworld.registryKey.value)!!.id.value
+                this[Actions.blockState] = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+                this[Actions.oldBlockState] = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+                this[Actions.sourceName] = getAndCreateSource(action.sourceName)
+                //this[Actions.sourcePlayer] = action.sourceProfile?.let { getPlayer(it.id) }
+                this[Actions.extraData] = action.extraData
+            }
+            */
 
             for (action in actions) {
                 Tables.Action.new {
@@ -70,7 +89,7 @@ object DatabaseManager {
         var totalActions: Long = 0
 
         transaction {
-            addLogger(StdOutSqlLogger)
+            //addLogger(StdOutSqlLogger)
 
             var query: Query
             try {
@@ -214,9 +233,10 @@ object DatabaseManager {
             //TODO figure out why this doesn't work .leftJoin(Tables.Players)
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
             //.join(Tables.ObjectIdentifiers, JoinType.INNER) {Tables.Actions.objectId eq Tables.ObjectIdentifiers.identifier.alias("a")}
-            .innerJoin(oldObjectTable, {Tables.Actions.objectId}, {oldObjectTable[Tables.ObjectIdentifiers.id]})
-            .innerJoin(Tables.ObjectIdentifiers, {Tables.Actions.oldObjectId}, {Tables.ObjectIdentifiers.id})
+            .innerJoin(oldObjectTable, {Tables.Actions.oldObjectId}, {oldObjectTable[Tables.ObjectIdentifiers.id]})
+            .innerJoin(Tables.ObjectIdentifiers, {Tables.Actions.objectId}, {Tables.ObjectIdentifiers.id})
             .innerJoin(Tables.Sources)
             .selectAll()
 
@@ -251,17 +271,15 @@ object DatabaseManager {
         addParameters(
             query,
             params.objects?.map { it.toString() },
-            Tables.ObjectIdentifiers.identifier
+            Tables.ObjectIdentifiers.identifier,
+            oldObjectTable[Tables.ObjectIdentifiers.identifier]
         )
 
-        if (!addNullableParameters(
-                query,
-                params.sourcePlayerNames,
-                Tables.Actions.sourcePlayer,
-                ::getPlayer,
-                source
-            )
-        ) throw IllegalArgumentException()
+        addParameters(
+            query,
+            params.sourcePlayerNames,
+            Tables.Players.playerName
+        )
 
         return query
     }
@@ -271,41 +289,28 @@ object DatabaseManager {
         paramSet: Collection<E>?,
         column: Column<E>
     ) {
-        if (paramSet != null) {
-            paramSet.forEachIndexed { index, param ->
-                if (index == 0) {
-                    query.andWhere { column eq param }
-                } else {
-                    query.orWhere { column eq param }
-                }
+        paramSet?.forEachIndexed { index, param ->
+            if (index == 0) {
+                query.andWhere { column eq param }
+            } else {
+                query.orWhere { column eq param }
             }
         }
     }
 
-    private fun <E> addNullableParameters(
+    private fun <E> addParameters(
         query: Query,
-        paramSet: Set<E>?,
-        column: Column<EntityID<Int>?>,
-        getEntity: (e: E) -> IntEntity?,
-        source: ServerCommandSource
-    ): Boolean {
+        paramSet: Collection<E>?,
+        column: Column<E>,
+        orColumn: Column<E>
+    ) {
         paramSet?.forEachIndexed { index, param ->
-            val paramEntity = getEntity(param)
-            return if (paramEntity == null) {
-                source.sendError(TranslatableText("error.ledger.unknown_param", param))
-                false
+            if (index == 0) {
+                query.andWhere { column eq param or (orColumn eq param)}
             } else {
-                if (index == 0) {
-                    query.andWhere { column eq paramEntity.id }
-                } else {
-                    query.orWhere { column eq paramEntity.id }
-                }
-
-                true
+                query.orWhere { column eq param or (orColumn eq param)}
             }
         }
-
-        return true
     }
 
     fun insertActionId(id: String) {
