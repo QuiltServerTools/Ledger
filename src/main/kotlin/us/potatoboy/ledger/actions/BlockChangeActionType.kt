@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.actions
 
+import net.minecraft.nbt.StringNbtReader
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
@@ -14,6 +15,9 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
         if (this.oldBlockState != null) state = this.oldBlockState
 
         world.setBlockState(pos, state)
+        if (state.block.hasBlockEntity()) {
+            world.getBlockEntity(pos)?.fromTag(state, StringNbtReader.parse(extraData)) //TODO add a column for old extra data
+        }
 
         return true
     }
@@ -23,7 +27,7 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
         if (block.isEmpty) return
 
         var state = block.get().defaultState
-        if (this.blockState != null) state = this.oldBlockState
+        if (this.oldBlockState != null) state = this.oldBlockState
 
         player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, state))
     }

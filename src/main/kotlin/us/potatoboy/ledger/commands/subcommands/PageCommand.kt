@@ -1,6 +1,10 @@
 package us.potatoboy.ledger.commands.subcommands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.TranslatableText
@@ -26,24 +30,25 @@ object PageCommand : BuildableCommand {
 
         val params = Ledger.searchCache[source.name]
         if (params != null) {
-            val results = DatabaseManager.searchActions(params, page, source)
+            GlobalScope.launch(Dispatchers.IO) {
+                val results = DatabaseManager.searchActions(params, page, source)
 
-            if (results.page > results.pages) {
-                source.sendError(TranslatableText("error.ledger.no_more_pages"))
-                return -1
+                if (results.page > results.pages) {
+                    source.sendError(TranslatableText("error.ledger.no_more_pages"))
+                    return@launch
+                }
+
+                MessageUtils.sendSearchResults(
+                    source, results,
+                    TranslatableText(
+                        "text.ledger.header.search"
+                    ).setStyle(TextColorPallet.primary)
+                )
             }
 
-            MessageUtils.sendSearchResults(
-                source, results,
-                TranslatableText(
-                    "text.ledger.header.search"
-                ).setStyle(TextColorPallet.primary)
-            )
-
-            return results.actions.size
+            return 1
         } else {
             source.sendError(TranslatableText("error.ledger.no_cached_params"))
-
             return -1
         }
     }

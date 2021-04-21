@@ -25,6 +25,8 @@
   "text.ledger.restore.finish": "Restore complete",
   "text.ledger.restore.fail": "Failed to restore %s x%s",
 
+  "text.ledger.database.busy": "Database is currently busy with %d actions. This may take a moment",
+
   "error.ledger.no_cached_params": "No cached search. Try preforming a search first",
   "error.ledger.command.no_results": "No results for that search",
   "error.ledger.no_more_pages": "No more pages",

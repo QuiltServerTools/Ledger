@@ -9,7 +9,8 @@ import net.minecraft.world.World
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.BlockBurnCallback
 import us.potatoboy.ledger.callbacks.BlockExplodeCallback
-import us.potatoboy.ledger.database.ActionQueue
+import us.potatoboy.ledger.database.DatabaseQueue
+import us.potatoboy.ledger.database.queueitems.ActionQueueItem
 
 object BlockEventListener {
     init {
@@ -18,7 +19,7 @@ object BlockEventListener {
     }
 
     private fun onBurn(world: World, pos: BlockPos, state: BlockState) {
-        ActionQueue.addActionToQueue(ActionFactory.blockBreakAction(world, pos, state, "fire"))
+        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.blockBreakAction(world, pos, state, "fire")))
     }
 
     private fun onExplode(
@@ -30,6 +31,15 @@ object BlockEventListener {
     ) {
         val source = entity?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
 
-        ActionQueue.addActionToQueue(ActionFactory.blockBreakAction(world, blockPos, blockState, source))
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.blockBreakAction(
+                    world,
+                    blockPos,
+                    blockState,
+                    source
+                )
+            )
+        )
     }
 }

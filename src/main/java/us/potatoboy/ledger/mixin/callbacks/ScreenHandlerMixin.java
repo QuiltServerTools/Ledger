@@ -55,7 +55,7 @@ public abstract class ScreenHandlerMixin {
 		slot.setStack(stack);
 	}
 
-	@Redirect(method = "method_30010", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;transferSlot(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;", remap = true), remap = false)
+	@Redirect(method = "method_30010", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;transferSlot(Lnet/minecraft/entity/player/PlayerEntity;I)Lnet/minecraft/item/ItemStack;"))
 	public ItemStack ledgerLogStackTransfer(ScreenHandler handler, PlayerEntity player, int slotIndex, int i, int j, SlotActionType slotActionType, PlayerEntity transferPlayer) {
 		Slot slot = this.slots.get(slotIndex);
 		int origStackCount = slot.getStack().getCount();
@@ -73,7 +73,7 @@ public abstract class ScreenHandlerMixin {
 		return result;
 	}
 
-	@Inject(method = "method_30010", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;increment(I)V", ordinal = 0), remap = false, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	@Inject(method = "method_30010", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;increment(I)V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
 	public void ledgerLogStackIncrement(int i, int j, SlotActionType slotActionType, PlayerEntity playerEntity, CallbackInfoReturnable<ItemStack> cir, ItemStack itemStack, PlayerInventory playerInventory, Slot slot, ItemStack itemStack7, ItemStack itemStack8, int q) {
 		BlockPos pos = getInventoryLocation(slot, i);
 		if (pos != null) {

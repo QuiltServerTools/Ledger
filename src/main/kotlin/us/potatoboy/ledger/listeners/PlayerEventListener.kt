@@ -1,8 +1,5 @@
 package us.potatoboy.ledger.listeners
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -20,8 +17,9 @@ import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.PlayerBlockPlaceCallback
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback
 import us.potatoboy.ledger.callbacks.PlayerRemoveItemCallback
-import us.potatoboy.ledger.database.ActionQueue
-import us.potatoboy.ledger.database.DatabaseManager
+import us.potatoboy.ledger.database.DatabaseQueue
+import us.potatoboy.ledger.database.queueitems.ActionQueueItem
+import us.potatoboy.ledger.database.queueitems.PlayerQueueItem
 
 object PlayerEventListener {
     init {
@@ -33,17 +31,33 @@ object PlayerEventListener {
     }
 
     private fun onItemRemove(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
-        ActionQueue.addActionToQueue(ActionFactory.itemRemoveAction(player.serverWorld, itemStack, blockPos, player))
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.itemRemoveAction(
+                    player.serverWorld,
+                    itemStack,
+                    blockPos,
+                    player
+                )
+            )
+        )
     }
 
     private fun onItemInsert(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
-        ActionQueue.addActionToQueue(ActionFactory.itemInsertAction(player.serverWorld, itemStack, blockPos, player))
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.itemInsertAction(
+                    player.serverWorld,
+                    itemStack,
+                    blockPos,
+                    player
+                )
+            )
+        )
     }
 
     private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
-        GlobalScope.launch(Dispatchers.IO) {
-            DatabaseManager.addPlayer(networkHandler.player.uuid, networkHandler.player.entityName)
-        }
+        DatabaseQueue.addActionToQueue(PlayerQueueItem(networkHandler.player.uuid, networkHandler.player.entityName))
     }
 
     private fun onBlockPlace(
@@ -54,7 +68,16 @@ object PlayerEventListener {
         entity: BlockEntity?,
         context: ItemPlacementContext
     ) {
-        ActionQueue.addActionToQueue(ActionFactory.blockPlaceAction(world, pos, state, player as ServerPlayerEntity))
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.blockPlaceAction(
+                    world,
+                    pos,
+                    state,
+                    player as ServerPlayerEntity
+                )
+            )
+        )
     }
 
     private fun onBlockBreak(
@@ -64,6 +87,15 @@ object PlayerEventListener {
         state: BlockState,
         blockEntity: BlockEntity?
     ) {
-        ActionQueue.addActionToQueue(ActionFactory.blockBreakAction(world, pos, state, player as ServerPlayerEntity))
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.blockBreakAction(
+                    world,
+                    pos,
+                    state,
+                    player as ServerPlayerEntity
+                )
+            )
+        )
     }
 }

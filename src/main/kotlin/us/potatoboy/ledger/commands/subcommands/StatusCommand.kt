@@ -6,7 +6,7 @@ import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.commands.BuildableCommand
-import us.potatoboy.ledger.database.ActionQueue
+import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
 import us.potatoboy.ledger.utility.literal
@@ -27,7 +27,7 @@ object StatusCommand : BuildableCommand {
         source.sendFeedback(
             TranslatableText(
                 "text.ledger.status.queue",
-                ActionQueue.size().toString().literal()
+                DatabaseQueue.size().toString().literal()
                     .setStyle(TextColorPallet.tertiary)
             ).setStyle(TextColorPallet.secondary),
             false

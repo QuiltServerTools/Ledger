@@ -1,21 +1,26 @@
 package us.potatoboy.ledger.database
 
 import com.mojang.authlib.GameProfile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.SearchResults
+import us.potatoboy.ledger.database.queueitems.QueueItem
 import us.potatoboy.ledger.registry.ActionRegistry
+import us.potatoboy.ledger.utility.MessageUtils
 import us.potatoboy.ledger.utility.NbtUtils
 import java.io.File
 import java.time.Instant
@@ -27,6 +32,7 @@ object DatabaseManager {
     private val database = Database.connect(
         url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
     )
+    val dbMutex = Mutex()
 
     //TODO implement locks to prevent multiple db modifications at once
     fun ensureTables() = transaction {
@@ -41,75 +47,64 @@ object DatabaseManager {
         Ledger.logger.info("Tables created")
     }
 
-    fun insertActions(actions: Collection<ActionType>) {
-        transaction {
-            //addLogger(StdOutSqlLogger)
-
-            /* TODO try to figure out batch inserts maybe
-            val Actions = Tables.Actions
-            Actions.batchInsert(actions) { action ->
-                this[Actions.actionIdentifier] = Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq action.identifier }.first().id.value
-                this[Actions.timestamp] = action.timestamp
-                this[Actions.x] = action.pos.x
-                this[Actions.y] = action.pos.y
-                this[Actions.z] = action.pos.z
-                this[Actions.objectId] = getRegistryKey(action.objectIdentifier)
-                this[Actions.oldObjectId] = getRegistryKey(action.oldObjectIdentifier)
-                this[Actions.world] = getWorld(action.world ?: Ledger.server.overworld.registryKey.value)!!.id.value
-                this[Actions.blockState] = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-                this[Actions.oldBlockState] = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-                this[Actions.sourceName] = getAndCreateSource(action.sourceName)
-                //this[Actions.sourcePlayer] = action.sourceProfile?.let { getPlayer(it.id) }
-                this[Actions.extraData] = action.extraData
-            }
-            */
-
-            for (action in actions) {
-                Tables.Action.new {
-                    actionIdentifier = getActionId(action.identifier)!!
-                    timestamp = action.timestamp
-                    x = action.pos.x
-                    y = action.pos.y
-                    z = action.pos.z
-                    objectId = action.objectIdentifier.let { getRegistryKey(it)!! }
-                    oldObjectId = action.oldObjectIdentifier.let { getRegistryKey(it)!! }
-                    world = getWorld(action.world ?: Ledger.server.overworld.registryKey.value)!!
-                    blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-                    oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-                    sourceName = Tables.Source[getAndCreateSource(action.sourceName)]
-                    sourcePlayer = action.sourceProfile?.let { getPlayer(it.id) }
-                    extraData = action.extraData
+    suspend fun insertQueued(queuedItems: Collection<QueueItem>) {
+            newSuspendedTransaction {
+                dbMutex.withLock {
+                    for (queueItem in queuedItems) {
+                        queueItem.insert()
+                    }
                 }
             }
+    }
+
+    fun insertAction(action: ActionType) {
+        Tables.Action.new {
+            actionIdentifier = getActionId(action.identifier)!!
+            timestamp = action.timestamp
+            x = action.pos.x
+            y = action.pos.y
+            z = action.pos.z
+            objectId = action.objectIdentifier.let { getRegistryKey(it)!! }
+            oldObjectId = action.oldObjectIdentifier.let { getRegistryKey(it)!! }
+            world = getWorld(action.world ?: Ledger.server.overworld.registryKey.value)!!
+            blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            sourceName = Tables.Source[getAndCreateSource(action.sourceName)]
+            sourcePlayer = action.sourceProfile?.let { getPlayer(it.id) }
+            extraData = action.extraData
         }
     }
 
-    fun searchActions(params: ActionSearchParams, page: Int, source: ServerCommandSource): SearchResults {
+    suspend fun searchActions(params: ActionSearchParams, page: Int, source: ServerCommandSource): SearchResults {
         val actionTypes = mutableListOf<ActionType>()
         var totalActions: Long = 0
 
-        transaction {
+        MessageUtils.warnBusy(source)
+
+        newSuspendedTransaction {
             //addLogger(StdOutSqlLogger)
 
-            var query: Query
-            try {
-                query = buildQuery(params, source)
-            } catch (e: IllegalArgumentException) {
-                return@transaction
+            dbMutex.withLock {
+                var query: Query
+                try {
+                    query = buildQuery(params, source)
+                } catch (e: IllegalArgumentException) {
+                    return@newSuspendedTransaction
+                }
+
+                totalActions = query.copy().count()
+                if (totalActions == 0L) return@newSuspendedTransaction
+
+                query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
+                query = query.limit(
+                    Ledger.PAGESIZE,
+                    (Ledger.PAGESIZE * (page - 1)).toLong()
+                ).withDistinct()
+
+                val actions = Tables.Action.wrapRows(query).toList()
+
+                actionTypes.addAll(daoToActionType(actions))
             }
-
-            totalActions = query.copy().count()
-            if (totalActions == 0L) return@transaction
-
-            query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
-            query = query.limit(
-                Ledger.PAGESIZE,
-                (Ledger.PAGESIZE * (page - 1)).toLong()
-            ).withDistinct()
-
-            val actions = Tables.Action.wrapRows(query).toList()
-
-            actionTypes.addAll(daoToActionType(actions))
         }
 
         val totalPages = ceil(totalActions.toDouble() / Ledger.PAGESIZE.toDouble()).toInt()
@@ -117,70 +112,82 @@ object DatabaseManager {
         return SearchResults(actionTypes, params, page, totalPages)
     }
 
-    fun rollbackActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
+    suspend fun rollbackActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
-        transaction {
-            val query: Query
-            try {
-                query = buildQuery(params, source)
-                    .andWhere { Tables.Actions.rolledBack eq false }
-                    .orderBy(Tables.Actions.id, SortOrder.DESC)
-            } catch (e: IllegalArgumentException) {
-                return@transaction
-            }
+        MessageUtils.warnBusy(source)
 
-            val actions = Tables.Action.wrapRows(query).toList()
-            for (action in actions) {
-                action.rolledBack = true
-            }
+        newSuspendedTransaction {
+            dbMutex.withLock {
+                val query: Query
+                try {
+                    query = buildQuery(params, source)
+                        .andWhere { Tables.Actions.rolledBack eq false }
+                        .orderBy(Tables.Actions.id, SortOrder.DESC)
+                } catch (e: IllegalArgumentException) {
+                    return@newSuspendedTransaction
+                }
 
-            actionTypes.addAll(daoToActionType(actions))
+                val actions = Tables.Action.wrapRows(query).toList()
+                for (action in actions) {
+                    action.rolledBack = true
+                }
+
+                actionTypes.addAll(daoToActionType(actions))
+            }
         }
 
         return actionTypes
     }
 
-    fun restoreActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
+    suspend fun restoreActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
-        transaction {
-            val query: Query
-            try {
-                query = buildQuery(params, source)
-                    .andWhere { Tables.Actions.rolledBack eq true }
-                    .orderBy(Tables.Actions.id, SortOrder.ASC)
-            } catch (e: IllegalArgumentException) {
-                return@transaction
-            }
+        MessageUtils.warnBusy(source)
 
-            val actions = Tables.Action.wrapRows(query).toList()
-            for (action in actions) {
-                action.rolledBack = false
-            }
+        newSuspendedTransaction {
+            dbMutex.withLock {
+                val query: Query
+                try {
+                    query = buildQuery(params, source)
+                        .andWhere { Tables.Actions.rolledBack eq true }
+                        .orderBy(Tables.Actions.id, SortOrder.ASC)
+                } catch (e: IllegalArgumentException) {
+                    return@newSuspendedTransaction
+                }
 
-            actionTypes.addAll(daoToActionType(actions))
+                val actions = Tables.Action.wrapRows(query).toList()
+                for (action in actions) {
+                    action.rolledBack = false
+                }
+
+                actionTypes.addAll(daoToActionType(actions))
+            }
         }
 
         return actionTypes
     }
 
-    fun previewActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
+    suspend fun previewActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
-        transaction {
-            val query: Query
-            try {
-                query = buildQuery(params, source)
-                    .andWhere { Tables.Actions.rolledBack eq false }
-                    .orderBy(Tables.Actions.id, SortOrder.DESC)
-            } catch (e: IllegalArgumentException) {
-                return@transaction
+        MessageUtils.warnBusy(source)
+
+        newSuspendedTransaction {
+            dbMutex.withLock {
+                val query: Query
+                try {
+                    query = buildQuery(params, source)
+                        .andWhere { Tables.Actions.rolledBack eq false }
+                        .orderBy(Tables.Actions.id, SortOrder.DESC)
+                } catch (e: IllegalArgumentException) {
+                    return@newSuspendedTransaction
+                }
+
+                val actions = Tables.Action.wrapRows(query).toList()
+
+                actionTypes.addAll(daoToActionType(actions))
             }
-
-            val actions = Tables.Action.wrapRows(query).toList()
-
-            actionTypes.addAll(daoToActionType(actions))
         }
 
         return actionTypes
@@ -235,8 +242,8 @@ object DatabaseManager {
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
             //.join(Tables.ObjectIdentifiers, JoinType.INNER) {Tables.Actions.objectId eq Tables.ObjectIdentifiers.identifier.alias("a")}
-            .innerJoin(oldObjectTable, {Tables.Actions.oldObjectId}, {oldObjectTable[Tables.ObjectIdentifiers.id]})
-            .innerJoin(Tables.ObjectIdentifiers, {Tables.Actions.objectId}, {Tables.ObjectIdentifiers.id})
+            .innerJoin(oldObjectTable, { Tables.Actions.oldObjectId }, { oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
 
@@ -306,9 +313,9 @@ object DatabaseManager {
     ) {
         paramSet?.forEachIndexed { index, param ->
             if (index == 0) {
-                query.andWhere { column eq param or (orColumn eq param)}
+                query.andWhere { column eq param or (orColumn eq param) }
             } else {
-                query.orWhere { column eq param or (orColumn eq param)}
+                query.orWhere { column eq param or (orColumn eq param) }
             }
         }
     }
@@ -335,17 +342,17 @@ object DatabaseManager {
     }
 
     fun insertObject(identifier: Identifier) {
-        transaction {
-            Tables.ObjectIdentifiers.insertIgnore {
-                it[this.identifier] = identifier.toString()
-            }
+        Tables.ObjectIdentifiers.insertIgnore {
+            it[this.identifier] = identifier.toString()
         }
     }
 
-    fun insertWorld(identifier: Identifier) {
-        transaction {
-            Tables.Worlds.insertIgnore {
-                it[this.identifier] = identifier.toString()
+    suspend fun insertWorld(identifier: Identifier) {
+        newSuspendedTransaction {
+            dbMutex.withLock {
+                Tables.Worlds.insertIgnore {
+                    it[this.identifier] = identifier.toString()
+                }
             }
         }
     }
@@ -384,19 +391,17 @@ object DatabaseManager {
     }
 
     fun addPlayer(uuid: UUID, name: String) {
-        transaction {
-            addLogger(StdOutSqlLogger)
+        //addLogger(StdOutSqlLogger)
 
-            val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
+        val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
 
-            if (player != null) {
-                player.lastJoin = Instant.now()
-                player.playerName = name
-            } else {
-                Tables.Player.new {
-                    this.playerId = uuid
-                    this.playerName = name
-                }
+        if (player != null) {
+            player.lastJoin = Instant.now()
+            player.playerName = name
+        } else {
+            Tables.Player.new {
+                this.playerId = uuid
+                this.playerName = name
             }
         }
     }

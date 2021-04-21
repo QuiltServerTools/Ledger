@@ -13,7 +13,9 @@ import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.LedgerCommand
 import us.potatoboy.ledger.database.DatabaseManager
+import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.database.QueueDrainer
+import us.potatoboy.ledger.database.queueitems.RegistryQueueItem
 import us.potatoboy.ledger.listeners.BlockEventListener
 import us.potatoboy.ledger.listeners.EntityCallbackListener
 import us.potatoboy.ledger.listeners.PlayerEventListener
@@ -55,9 +57,8 @@ object Ledger : DedicatedServerModInitializer {
         queueDrainerJob = GlobalScope.launch(Dispatchers.IO) {
             server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.insertWorld(it) }
 
-            logger.info("Inserting ${idSet.size} registry keys into database...")
-            //idSet.forEach { DatabaseManager.insertObject(it) }
-            logger.info("Registry insert complete. Starting queue drainer")
+            logger.info("Inserting ${idSet.size} registry keys into the database queue... This will take a while")
+            idSet.forEach { DatabaseQueue.addActionToQueue(RegistryQueueItem(it)) }
 
             QueueDrainer.run()
         }
