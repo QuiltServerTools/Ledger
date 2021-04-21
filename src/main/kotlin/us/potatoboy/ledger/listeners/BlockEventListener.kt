@@ -9,6 +9,8 @@ import net.minecraft.world.World
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.BlockBurnCallback
 import us.potatoboy.ledger.callbacks.BlockExplodeCallback
+import us.potatoboy.ledger.callbacks.BlockFallCallback
+import us.potatoboy.ledger.callbacks.BlockLandCallback
 import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.database.queueitems.ActionQueueItem
 
@@ -16,6 +18,16 @@ object BlockEventListener {
     init {
         BlockExplodeCallback.EVENT.register(::onExplode)
         BlockBurnCallback.EVENT.register(::onBurn)
+        BlockFallCallback.EVENT.register(::onFall)
+        BlockLandCallback.EVENT.register(::onLand)
+    }
+
+    private fun onLand(world: World, pos: BlockPos, state: BlockState) {
+        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.blockPlaceAction(world, pos, state, "gravity")))
+    }
+
+    private fun onFall(world: World, pos: BlockPos, state: BlockState) {
+        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.blockBreakAction(world, pos, state, "gravity")))
     }
 
     private fun onBurn(world: World, pos: BlockPos, state: BlockState) {

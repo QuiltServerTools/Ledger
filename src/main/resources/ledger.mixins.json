@@ -7,6 +7,7 @@
     "LockableContainerBlockEntityMixin",
     "callbacks.BlockItemMixin",
     "callbacks.ExplosionMixin",
+    "callbacks.FallingBlockEntityMixin",
     "callbacks.FireBlockMixin",
     "callbacks.LivingEntityMixin",
     "callbacks.ScreenHandlerMixin"
