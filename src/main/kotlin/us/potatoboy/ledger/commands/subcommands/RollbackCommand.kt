@@ -1,21 +1,15 @@
 package us.potatoboy.ledger.commands.subcommands
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager
-import net.minecraft.text.LiteralText
 import net.minecraft.text.TranslatableText
-import us.potatoboy.ledger.TextColorPallet
-import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.utility.Context
-import us.potatoboy.ledger.utility.LiteralNode
-import us.potatoboy.ledger.utility.launchMain
-import us.potatoboy.ledger.utility.literal
+import us.potatoboy.ledger.utility.*
 
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -32,45 +26,47 @@ object RollbackCommand : BuildableCommand {
 
         if (params == null) return -1
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val actions = DatabaseManager.rollbackActions(params, source)
+        runBlocking {
+            launch(Dispatchers.IO) {
+                val actions = DatabaseManager.rollbackActions(params, source)
 
-            if (actions.isEmpty()) {
-                source.sendError(TranslatableText("error.ledger.command.no_results"))
-                return@launch
-            }
-
-            source.sendFeedback(
-                TranslatableText(
-                    "text.ledger.rollback.start",
-                    actions.size.toString().literal().setStyle(TextColorPallet.secondary)
-                ).setStyle(TextColorPallet.primary), true
-            )
-
-            context.source.world.launchMain {
-                val fails = HashMap<String, Int>()
-
-                for (action in actions) {
-                    if (!action.rollback(context.source.world)) {
-                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1;
-                    }
-                    action.rolledBack = true
-                }
-
-                for (entry in fails.entries) {
-                    source.sendFeedback(
-                        TranslatableText("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
-                            TextColorPallet.secondary
-                        ), true
-                    )
+                if (actions.isEmpty()) {
+                    source.sendError(TranslatableText("error.ledger.command.no_results"))
+                    return@launch
                 }
 
                 source.sendFeedback(
                     TranslatableText(
-                        "text.ledger.rollback.finish",
-                        actions.size
+                        "text.ledger.rollback.start",
+                        actions.size.toString().literal().setStyle(TextColorPallet.secondary)
                     ).setStyle(TextColorPallet.primary), true
                 )
+
+                context.source.world.launchMain {
+                    val fails = HashMap<String, Int>()
+
+                    for (action in actions) {
+                        if (!action.rollback(context.source.world)) {
+                            fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1;
+                        }
+                        action.rolledBack = true
+                    }
+
+                    for (entry in fails.entries) {
+                        source.sendFeedback(
+                            TranslatableText("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
+                                TextColorPallet.secondary
+                            ), true
+                        )
+                    }
+
+                    source.sendFeedback(
+                        TranslatableText(
+                            "text.ledger.rollback.finish",
+                            actions.size
+                        ).setStyle(TextColorPallet.primary), true
+                    )
+                }
             }
         }
         return 1

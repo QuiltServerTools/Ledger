@@ -9,12 +9,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
-import us.potatoboy.ledger.TextColorPallet
+import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.literal
 
 abstract class ItemChangeActionType : AbstractActionType() {

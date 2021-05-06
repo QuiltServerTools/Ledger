@@ -9,7 +9,7 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
-import us.potatoboy.ledger.TextColorPallet
+import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.appendWithSpace
 import us.potatoboy.ledger.utility.literal
 import java.time.Duration

@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import us.potatoboy.ledger.callbacks.BlockBurnCallback;
 import us.potatoboy.ledger.callbacks.BlockFallCallback;
 import us.potatoboy.ledger.callbacks.BlockLandCallback;
 

@@ -1,6 +1,5 @@
 package us.potatoboy.ledger.database
 
-import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.database.queueitems.QueueItem
 import java.util.concurrent.LinkedBlockingQueue
 

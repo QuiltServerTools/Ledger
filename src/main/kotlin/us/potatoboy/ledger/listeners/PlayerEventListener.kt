@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.listeners
 
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
@@ -11,8 +12,12 @@ import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.ActionResult
+import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import us.potatoboy.ledger.InspectionManager
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.PlayerBlockPlaceCallback
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback
@@ -28,6 +33,24 @@ object PlayerEventListener {
         ServerPlayConnectionEvents.JOIN.register(::onJoin)
         PlayerInsertItemCallback.EVENT.register(::onItemInsert)
         PlayerRemoveItemCallback.EVENT.register(::onItemRemove)
+        AttackBlockCallback.EVENT.register(::onBlockAttack)
+    }
+
+    private fun onBlockAttack(
+        player: PlayerEntity,
+        world: World,
+        hand: Hand,
+        pos: BlockPos,
+        direction: Direction
+    ): ActionResult {
+        if (world.isClient) return ActionResult.PASS
+
+        if (InspectionManager.isInspecting(player as ServerPlayerEntity)) {
+            InspectionManager.inspectBlock(player, pos)
+            return ActionResult.SUCCESS
+        }
+
+        return ActionResult.PASS
     }
 
     private fun onItemRemove(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {

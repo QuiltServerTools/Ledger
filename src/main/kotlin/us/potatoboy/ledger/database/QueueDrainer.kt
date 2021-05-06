@@ -3,7 +3,6 @@ package us.potatoboy.ledger.database
 import com.google.common.collect.Queues
 import kotlinx.coroutines.runBlocking
 import us.potatoboy.ledger.Ledger
-import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.database.queueitems.QueueItem
 import java.util.concurrent.TimeUnit
 

@@ -2,19 +2,18 @@ package us.potatoboy.ledger.commands.subcommands
 
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
-import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
 import us.potatoboy.ledger.utility.MessageUtils
+import us.potatoboy.ledger.utility.TextColorPallet
 
 object PageCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -30,20 +29,22 @@ object PageCommand : BuildableCommand {
 
         val params = Ledger.searchCache[source.name]
         if (params != null) {
-            GlobalScope.launch(Dispatchers.IO) {
-                val results = DatabaseManager.searchActions(params, page, source)
+            runBlocking {
+                launch(Dispatchers.IO) {
+                    val results = DatabaseManager.searchActions(params, page, source)
 
-                if (results.page > results.pages) {
-                    source.sendError(TranslatableText("error.ledger.no_more_pages"))
-                    return@launch
+                    if (results.page > results.pages) {
+                        source.sendError(TranslatableText("error.ledger.no_more_pages"))
+                        return@launch
+                    }
+
+                    MessageUtils.sendSearchResults(
+                        source, results,
+                        TranslatableText(
+                            "text.ledger.header.search"
+                        ).setStyle(TextColorPallet.primary)
+                    )
                 }
-
-                MessageUtils.sendSearchResults(
-                    source, results,
-                    TranslatableText(
-                        "text.ledger.header.search"
-                    ).setStyle(TextColorPallet.primary)
-                )
             }
 
             return 1

@@ -2,7 +2,6 @@ package us.potatoboy.ledger.utility
 
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.*
-import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.DatabaseQueue
@@ -55,7 +54,8 @@ object MessageUtils {
 
     fun warnBusy(source: ServerCommandSource) {
         if (DatabaseManager.dbMutex.isLocked) {
-            source.sendFeedback(TranslatableText("text.ledger.database.busy", DatabaseQueue.size()).setStyle(TextColorPallet.primary), false)
+            source.sendFeedback(TranslatableText("text.ledger.database.busy", DatabaseQueue.size()).setStyle(
+                TextColorPallet.primary), false)
         }
     }
 }

@@ -1,4 +1,4 @@
-package us.potatoboy.ledger
+package us.potatoboy.ledger.utility
 
 import net.minecraft.text.Style
 import net.minecraft.text.TextColor

@@ -30,8 +30,8 @@ object Ledger : DedicatedServerModInitializer {
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
     const val PAGESIZE = 8 //TODO make configurable
 
-    val searchCache = ConcurrentHashMap<String, ActionSearchParams>();
-    val previewCache = ConcurrentHashMap<UUID, Preview>();
+    val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
+    val previewCache = ConcurrentHashMap<UUID, Preview>()
 
     private var queueDrainerJob: Job? = null
 
@@ -57,7 +57,7 @@ object Ledger : DedicatedServerModInitializer {
         queueDrainerJob = GlobalScope.launch(Dispatchers.IO) {
             server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.insertWorld(it) }
 
-            logger.info("Inserting ${idSet.size} registry keys into the database queue... This will take a while")
+            logger.info("Inserting ${idSet.size} registry keys into the database queue...")
             idSet.forEach { DatabaseQueue.addActionToQueue(RegistryQueueItem(it)) }
 
             QueueDrainer.run()

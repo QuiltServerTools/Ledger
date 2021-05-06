@@ -1,9 +1,6 @@
 package us.potatoboy.ledger.database
 
 import com.mojang.authlib.GameProfile
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.fabricmc.loader.api.FabricLoader

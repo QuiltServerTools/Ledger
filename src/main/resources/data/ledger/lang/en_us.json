@@ -25,6 +25,10 @@
   "text.ledger.restore.finish": "Restore complete",
   "text.ledger.restore.fail": "Failed to restore %s x%s",
 
+  "text.ledger.inspect.toggle": "Inspect mode: %s",
+  "text.ledger.inspect.on": "Enabled",
+  "text.ledger.inspect.off": "Disabled",
+
   "text.ledger.database.busy": "Database is currently busy with %d actions. This may take a moment",
 
   "error.ledger.no_cached_params": "No cached search. Try preforming a search first",

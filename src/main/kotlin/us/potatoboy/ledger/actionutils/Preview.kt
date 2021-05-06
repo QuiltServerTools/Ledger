@@ -5,10 +5,10 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.math.BlockPos
-import us.potatoboy.ledger.TextColorPallet
 import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.commands.subcommands.RollbackCommand
 import us.potatoboy.ledger.utility.Context
+import us.potatoboy.ledger.utility.TextColorPallet
 
 class Preview(private val params: ActionSearchParams, actions: List<ActionType>, player: ServerPlayerEntity) {
     private val positions = mutableSetOf<BlockPos>()
