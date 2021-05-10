@@ -31,8 +31,8 @@ object SearchCommand : BuildableCommand {
             return -1
         }
 
-        runBlocking {
-            launch(Dispatchers.IO) {
+
+            Ledger.launch {
                 Ledger.searchCache[source.name] = params
 
                 val results = DatabaseManager.searchActions(params, 1, source)
@@ -50,7 +50,7 @@ object SearchCommand : BuildableCommand {
                 )
 
             }
-        }
+
         return 1
     }
 }

@@ -23,8 +23,9 @@ import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
 
-object Ledger : DedicatedServerModInitializer {
+object Ledger : DedicatedServerModInitializer, CoroutineScope {
     val modId = "ledger"
     val logger = LogManager.getLogger(modId)
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
@@ -83,5 +84,7 @@ object Ledger : DedicatedServerModInitializer {
     private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) {
         LedgerCommand(dispatcher).register()
     }
+
+    override val coroutineContext: CoroutineContext = Dispatchers.IO
 }
 

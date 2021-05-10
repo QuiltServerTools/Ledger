@@ -2,7 +2,6 @@ package us.potatoboy.ledger.commands.subcommands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
@@ -30,17 +29,15 @@ object PreviewCommand : BuildableCommand {
 
         if (params == null) return -1
 
-        runBlocking {
-            launch(Dispatchers.IO) {
-                val actions = DatabaseManager.previewActions(params, source)
+        Ledger.launch(Dispatchers.IO) {
+            val actions = DatabaseManager.previewActions(params, source)
 
-                if (actions.isEmpty()) {
-                    source.sendError(TranslatableText("error.ledger.command.no_results"))
-                    return@launch
-                }
-
-                Ledger.previewCache[source.player.uuid] = Preview(params, actions, source.player)
+            if (actions.isEmpty()) {
+                source.sendError(TranslatableText("error.ledger.command.no_results"))
+                return@launch
             }
+
+            Ledger.previewCache[source.player.uuid] = Preview(params, actions, source.player)
         }
         return 1
     }

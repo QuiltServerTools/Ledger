@@ -19,11 +19,9 @@ minecraft {
 
 repositories {
     maven { url "http://maven.fabricmc.net/" }
-    maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
-    maven { url "https://dl.bintray.com/kotlin/dokka" }
-    maven { url "https://jitpack.io" }
     maven { url "https://maven.nucleoid.xyz/" }
     maven { url "https://dl.bintray.com/bymartrixx/maven" }
+    maven { url "https://jitpack.io" }
     mavenCentral()
     jcenter()
 }
@@ -43,8 +41,8 @@ dependencies {
 
     // Kotlin
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-    implementation include ("org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}")
-    implementation include ("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     //Database
     implementation include ("org.jetbrains.exposed:exposed-core:${project.exposedVersion}")

@@ -3,7 +3,6 @@ package us.potatoboy.ledger.commands.subcommands
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.TranslatableText
@@ -29,22 +28,20 @@ object PageCommand : BuildableCommand {
 
         val params = Ledger.searchCache[source.name]
         if (params != null) {
-            runBlocking {
-                launch(Dispatchers.IO) {
-                    val results = DatabaseManager.searchActions(params, page, source)
+            Ledger.launch(Dispatchers.IO) {
+                val results = DatabaseManager.searchActions(params, page, source)
 
-                    if (results.page > results.pages) {
-                        source.sendError(TranslatableText("error.ledger.no_more_pages"))
-                        return@launch
-                    }
-
-                    MessageUtils.sendSearchResults(
-                        source, results,
-                        TranslatableText(
-                            "text.ledger.header.search"
-                        ).setStyle(TextColorPallet.primary)
-                    )
+                if (results.page > results.pages) {
+                    source.sendError(TranslatableText("error.ledger.no_more_pages"))
+                    return@launch
                 }
+
+                MessageUtils.sendSearchResults(
+                    source, results,
+                    TranslatableText(
+                        "text.ledger.header.search"
+                    ).setStyle(TextColorPallet.primary)
+                )
             }
 
             return 1

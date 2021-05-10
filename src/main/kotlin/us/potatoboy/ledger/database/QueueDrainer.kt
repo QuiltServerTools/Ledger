@@ -1,6 +1,7 @@
 package us.potatoboy.ledger.database
 
 import com.google.common.collect.Queues
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.database.queueitems.QueueItem
@@ -23,7 +24,7 @@ object QueueDrainer : Runnable {
                 ) //TODO make queue drain size and timeout config
 
                 if (queuedActions.isEmpty()) continue
-                runBlocking {
+                Ledger.launch {
                     DatabaseManager.insertQueued(queuedActions)
                 }
             } catch (e: InterruptedException) {
