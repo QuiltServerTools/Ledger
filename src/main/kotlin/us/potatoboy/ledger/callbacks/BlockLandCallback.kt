@@ -7,6 +7,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 fun interface BlockLandCallback {
+    fun land(world: World, pos: BlockPos, state: BlockState)
+
     companion object {
         val EVENT: Event<BlockLandCallback> =
             EventFactory.createArrayBacked(BlockLandCallback::class.java) { listeners ->
@@ -17,6 +19,4 @@ fun interface BlockLandCallback {
                 }
             }
     }
-
-    fun land(world: World, pos: BlockPos, state: BlockState)
 }

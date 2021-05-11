@@ -32,7 +32,6 @@ public abstract class BlockItemMixin extends Item {
 				context.getPlayer(),
 				context.getBlockPos(),
 				blockState,
-				context.getWorld().getBlockEntity(context.getBlockPos()),
 				context
 		);
 	}

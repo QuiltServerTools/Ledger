@@ -88,7 +88,6 @@ object PlayerEventListener {
         player: PlayerEntity,
         pos: BlockPos,
         state: BlockState,
-        entity: BlockEntity?,
         context: ItemPlacementContext
     ) {
         DatabaseQueue.addActionToQueue(

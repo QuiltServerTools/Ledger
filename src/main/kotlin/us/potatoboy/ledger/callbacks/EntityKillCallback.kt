@@ -8,6 +8,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 fun interface EntityKillCallback {
+    fun kill(world: World, pos: BlockPos, entity: LivingEntity, source: DamageSource)
+
     companion object {
         val EVENT: Event<EntityKillCallback> =
             EventFactory.createArrayBacked(EntityKillCallback::class.java) { listeners ->
@@ -18,6 +20,4 @@ fun interface EntityKillCallback {
                 }
             }
     }
-
-    fun kill(world: World, pos: BlockPos, entity: LivingEntity, source: DamageSource)
 }

@@ -13,6 +13,8 @@ import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 import us.potatoboy.ledger.actions.*
 
+const val PLAYER_SOURCE = "player"
+
 object ActionFactory {
     fun blockBreakAction(world: World, pos: BlockPos, state: BlockState, source: String): BlockBreakActionType {
         val action = BlockBreakActionType()
@@ -27,7 +29,7 @@ object ActionFactory {
         state: BlockState,
         source: ServerPlayerEntity
     ): BlockChangeActionType {
-        val action = blockBreakAction(world, pos, state, "player")
+        val action = blockBreakAction(world, pos, state, PLAYER_SOURCE)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -46,7 +48,7 @@ object ActionFactory {
         state: BlockState,
         source: ServerPlayerEntity
     ): BlockChangeActionType {
-        val action = blockPlaceAction(world, pos, state, "player")
+        val action = blockPlaceAction(world, pos, state, PLAYER_SOURCE)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -85,7 +87,7 @@ object ActionFactory {
         source: ServerPlayerEntity
     ): ItemInsertActionType {
         val action = ItemInsertActionType()
-        setItemData(action, pos, world, stack, "player")
+        setItemData(action, pos, world, stack, PLAYER_SOURCE)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -105,7 +107,7 @@ object ActionFactory {
         source: ServerPlayerEntity
     ): ItemRemoveActionType {
         val action = ItemRemoveActionType()
-        setItemData(action, pos, world, stack, "player")
+        setItemData(action, pos, world, stack, PLAYER_SOURCE)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -131,16 +133,14 @@ object ActionFactory {
 
         when {
             killer is PlayerEntity -> {
-                setEntityData(action, pos, world, entity, "player")
+                setEntityData(action, pos, world, entity, PLAYER_SOURCE)
                 action.sourceProfile = killer.gameProfile
             }
             killer != null -> {
                 val source = Registry.ENTITY_TYPE.getId(killer.type).path
                 setEntityData(action, pos, world, entity, source)
             }
-            else -> {
-                setEntityData(action, pos, world, entity, cause.name)
-            }
+            else -> setEntityData(action, pos, world, entity, cause.name)
         }
 
         return action

@@ -49,8 +49,7 @@ public abstract class ExplosionMixin {
 				world,
 				entity,
 				blockPos,
-				blockState,
-				world.getBlockEntity(blockPos)
+				blockState
 		);
 	}
 }

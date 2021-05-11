@@ -8,17 +8,17 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.ServerCommandSource
 import java.util.concurrent.CompletableFuture
 
+private const val MAX_SIZE = 9
+
 class RangeParameter : SimpleParameter<Int>() {
-    override fun parse(stringReader: StringReader): Int {
-        return IntegerArgumentType.integer(1).parse(stringReader)
-    }
+    override fun parse(stringReader: StringReader): Int = IntegerArgumentType.integer(1).parse(stringReader)
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        val remaining = builder.remaining.toLowerCase()
-        for (i in 1..9) builder.suggest(remaining + i)
+        val remaining = builder.remaining.lowercase()
+        for (i in 1..MAX_SIZE) builder.suggest(remaining + i)
         return builder.buildFuture()
     }
 }

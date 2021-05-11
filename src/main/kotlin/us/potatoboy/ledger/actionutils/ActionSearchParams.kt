@@ -25,9 +25,7 @@ class ActionSearchParams(
         builder.worlds
     )
 
-    fun isEmpty(): Boolean {
-        return listOf(min, max, time, actions, objects, sourceNames, sourcePlayerNames, worlds).all { it == null }
-    }
+    fun isEmpty() = listOf(min, max, time, actions, objects, sourceNames, sourcePlayerNames, worlds).all { it == null }
 
     companion object {
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()

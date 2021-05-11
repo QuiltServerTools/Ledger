@@ -13,7 +13,6 @@ class DimensionParameter : SimpleParameter<Identifier>() {
     override fun parse(stringReader: StringReader): Identifier =
         DimensionArgumentType.dimension().parse(stringReader)
 
-
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>?,
         builder: SuggestionsBuilder?

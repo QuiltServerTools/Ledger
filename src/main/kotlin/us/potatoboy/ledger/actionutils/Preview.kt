@@ -18,7 +18,8 @@ class Preview(private val params: ActionSearchParams, actions: List<ActionType>,
             TranslatableText(
                 "text.ledger.preview.start",
                 actions.size
-            ).setStyle(TextColorPallet.primary), false
+            ).setStyle(TextColorPallet.primary),
+            false
         )
 
         for (action in actions) {

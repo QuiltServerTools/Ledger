@@ -31,7 +31,7 @@ object DatabaseManager {
     )
     val dbMutex = Mutex()
 
-    //TODO implement locks to prevent multiple db modifications at once
+    // TODO implement locks to prevent multiple db modifications at once
     fun ensureTables() = transaction {
         SchemaUtils.createMissingTablesAndColumns(
             Tables.Players,
@@ -79,12 +79,12 @@ object DatabaseManager {
         MessageUtils.warnBusy(source)
 
         newSuspendedTransaction {
-            //addLogger(StdOutSqlLogger)
+            // addLogger(StdOutSqlLogger)
 
             dbMutex.withLock {
                 var query: Query
                 try {
-                    query = buildQuery(params, source)
+                    query = buildQuery(params)
                 } catch (e: IllegalArgumentException) {
                     return@newSuspendedTransaction
                 }
@@ -94,8 +94,8 @@ object DatabaseManager {
 
                 query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
                 query = query.limit(
-                    Ledger.PAGESIZE,
-                    (Ledger.PAGESIZE * (page - 1)).toLong()
+                    Ledger.PAGE_SIZE,
+                    (Ledger.PAGE_SIZE * (page - 1)).toLong()
                 ).withDistinct()
 
                 val actions = Tables.Action.wrapRows(query).toList()
@@ -104,7 +104,7 @@ object DatabaseManager {
             }
         }
 
-        val totalPages = ceil(totalActions.toDouble() / Ledger.PAGESIZE.toDouble()).toInt()
+        val totalPages = ceil(totalActions.toDouble() / Ledger.PAGE_SIZE.toDouble()).toInt()
 
         return SearchResults(actionTypes, params, page, totalPages)
     }
@@ -118,7 +118,7 @@ object DatabaseManager {
             dbMutex.withLock {
                 val query: Query
                 try {
-                    query = buildQuery(params, source)
+                    query = buildQuery(params)
                         .andWhere { Tables.Actions.rolledBack eq false }
                         .orderBy(Tables.Actions.id, SortOrder.DESC)
                 } catch (e: IllegalArgumentException) {
@@ -146,7 +146,7 @@ object DatabaseManager {
             dbMutex.withLock {
                 val query: Query
                 try {
-                    query = buildQuery(params, source)
+                    query = buildQuery(params)
                         .andWhere { Tables.Actions.rolledBack eq true }
                         .orderBy(Tables.Actions.id, SortOrder.ASC)
                 } catch (e: IllegalArgumentException) {
@@ -174,7 +174,7 @@ object DatabaseManager {
             dbMutex.withLock {
                 val query: Query
                 try {
-                    query = buildQuery(params, source)
+                    query = buildQuery(params)
                         .andWhere { Tables.Actions.rolledBack eq false }
                         .orderBy(Tables.Actions.id, SortOrder.DESC)
                 } catch (e: IllegalArgumentException) {
@@ -194,9 +194,9 @@ object DatabaseManager {
         val actionTypes = mutableListOf<ActionType>()
 
         for (action in actions) {
-            val typeSupplier = ActionRegistry.getType(action.actionIdentifier.actionIdentifier)
+            val typeSupplier = ActionRegistry.getType(action.actionIdentifier.identifier)
             if (typeSupplier == null) {
-                Ledger.logger.warn("Unknown action type ${action.actionIdentifier.actionIdentifier}")
+                Ledger.logger.warn("Unknown action type ${action.actionIdentifier.identifier}")
                 continue
             }
 
@@ -229,16 +229,14 @@ object DatabaseManager {
         return actionTypes
     }
 
-    private fun buildQuery(params: ActionSearchParams, source: ServerCommandSource): Query {
-        //val objectTable = Tables.ObjectIdentifiers.alias("test")
+    private fun buildQuery(params: ActionSearchParams): Query {
         val oldObjectTable = Tables.ObjectIdentifiers.alias("oldObjects")
 
         val query = Tables.Actions
-            //TODO figure out why this doesn't work .leftJoin(Tables.Players)
+            // TODO figure out why this doesn't work .leftJoin(Tables.Players)
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
-            //.join(Tables.ObjectIdentifiers, JoinType.INNER) {Tables.Actions.objectId eq Tables.ObjectIdentifiers.identifier.alias("a")}
             .innerJoin(oldObjectTable, { Tables.Actions.oldObjectId }, { oldObjectTable[Tables.ObjectIdentifiers.id] })
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
@@ -321,15 +319,15 @@ object DatabaseManager {
         transaction {
             if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
                 val actionIdentifier = Tables.ActionIdentifier.new {
-                    actionIdentifier = id
+                    identifier = id
                 }
             }
         }
     }
 
-    //TODO cache in a map maybe?
+    // TODO cache in a map maybe?
     private fun getActionId(id: String): Tables.ActionIdentifier? {
-        //Tables.ActionIdentifier.find { Tables.ActionIdentifiers.action_identifier eq id }.firstOrNull()!!
+        // Tables.ActionIdentifier.find { Tables.ActionIdentifiers.action_identifier eq id }.firstOrNull()!!
 
         val query = Tables.ActionIdentifiers.select {
             Tables.ActionIdentifiers.actionIdentifier eq id
@@ -368,8 +366,7 @@ object DatabaseManager {
             Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
         }
 
-
-    //TODO cache in a map maybe?
+    // TODO cache in a map maybe?
     private fun getRegistryKey(identifier: Identifier) = transaction {
         Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1)
             .firstOrNull()
@@ -388,7 +385,7 @@ object DatabaseManager {
     }
 
     fun addPlayer(uuid: UUID, name: String) {
-        //addLogger(StdOutSqlLogger)
+        // addLogger(StdOutSqlLogger)
 
         val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
 
@@ -403,13 +400,11 @@ object DatabaseManager {
         }
     }
 
-    //TODO cache in a map maybe?
+    // TODO cache in a map maybe?
 
-    fun getPlayer(playerId: UUID): Tables.Player? {
-        return Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
-    }
+    fun getPlayer(playerId: UUID) =
+        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
 
-    fun getPlayer(playerName: String): Tables.Player? {
-        return Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
-    }
+    fun getPlayer(playerName: String) =
+        Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
 }

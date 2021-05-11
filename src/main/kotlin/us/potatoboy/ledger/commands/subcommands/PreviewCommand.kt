@@ -18,7 +18,8 @@ object PreviewCommand : BuildableCommand {
         return CommandManager.literal("preview")
             .then(
                 SearchParamArgument.argument("params")
-                    .executes { preview(it, SearchParamArgument.get(it, "params")) })
+                    .executes { preview(it, SearchParamArgument.get(it, "params")) }
+            )
             .then(CommandManager.literal("apply").executes { apply(it) })
             .then(CommandManager.literal("cancel").executes { cancel(it) })
             .build()

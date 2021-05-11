@@ -5,13 +5,14 @@ import net.minecraft.client.MinecraftClient
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
+import us.potatoboy.ledger.Ledger
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
 object McDispatcher : CoroutineDispatcher() {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         context[McExecutor]?.executor?.invoke(block)
-            ?: throw RuntimeException("No McExecutor in $context context")
+            ?: error(IllegalStateException("No McExecutor in $context context"))
     }
 }
 
@@ -20,7 +21,7 @@ class McExecutor(val executor: (Runnable) -> Unit) : AbstractCoroutineContextEle
 }
 
 fun launchMain(executor: (Runnable) -> Unit, block: suspend CoroutineScope.() -> Unit): Job =
-    GlobalScope.launch(McDispatcher + McExecutor(executor), block = block)
+    Ledger.launch(McDispatcher + McExecutor(executor), block = block)
 
 fun World.launchMain(block: suspend CoroutineScope.() -> Unit) {
     when (this) {

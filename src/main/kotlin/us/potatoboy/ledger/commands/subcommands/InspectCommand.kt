@@ -13,18 +13,19 @@ object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
         literal("inspect")
             .executes { toggleInspect(it) }
-            .then(literal("on")
-                .executes { InspectionManager.inspectOn(it.source.player) }
+            .then(
+                literal("on")
+                    .executes { InspectionManager.inspectOn(it.source.player) }
             )
-            .then(literal("off")
-                .executes { InspectionManager.inspectOff(it.source.player) }
+            .then(
+                literal("off")
+                    .executes { InspectionManager.inspectOff(it.source.player) }
             )
             .then(
                 argument("pos", BlockPosArgumentType.blockPos())
                     .executes { inspectBlock(it, BlockPosArgumentType.getBlockPos(it, "pos")) }
             )
             .build()
-
 
     private fun toggleInspect(context: Context): Int {
         val source = context.source

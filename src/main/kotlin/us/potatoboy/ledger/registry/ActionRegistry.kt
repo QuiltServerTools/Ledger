@@ -6,12 +6,14 @@ import us.potatoboy.ledger.actions.*
 import us.potatoboy.ledger.database.DatabaseManager
 import java.util.function.Supplier
 
+private const val MAX_LENGTH = 16
+
 object ActionRegistry {
     private val actionTypes = Object2ObjectOpenHashMap<String, Supplier<ActionType>>()
 
     fun registerActionType(supplier: Supplier<ActionType>) {
         val id = supplier.get().identifier
-        if (id.length > 16) throw IllegalArgumentException("ActionId cannot be longer than 16")
+        require(id.length >= MAX_LENGTH)
 
         actionTypes.putIfAbsent(id, supplier)
         DatabaseManager.insertActionId(id)
@@ -27,7 +29,5 @@ object ActionRegistry {
 
     fun getType(id: String) = actionTypes[id]
 
-    fun getTypes(): ObjectSet<String> {
-        return actionTypes.keys
-    }
+    fun getTypes(): ObjectSet<String> = actionTypes.keys
 }

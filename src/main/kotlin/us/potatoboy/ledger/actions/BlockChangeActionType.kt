@@ -16,7 +16,8 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
 
         world.setBlockState(pos, state)
         if (state.block.hasBlockEntity()) {
-            world.getBlockEntity(pos)?.fromTag(state, StringNbtReader.parse(extraData)) //TODO add a column for old extra data
+            world.getBlockEntity(pos)?.fromTag(state, StringNbtReader.parse(extraData))
+            // TODO add a column for old extra data
         }
 
         return true

@@ -16,8 +16,8 @@ object RollbackCommand : BuildableCommand {
         return CommandManager.literal("rollback")
             .then(
                 SearchParamArgument.argument("params")
-                    .executes { rollback(it, SearchParamArgument.get(it, "params")) })
-
+                    .executes { rollback(it, SearchParamArgument.get(it, "params")) }
+            )
             .build()
     }
 
@@ -38,7 +38,8 @@ object RollbackCommand : BuildableCommand {
                 TranslatableText(
                     "text.ledger.rollback.start",
                     actions.size.toString().literal().setStyle(TextColorPallet.secondary)
-                ).setStyle(TextColorPallet.primary), true
+                ).setStyle(TextColorPallet.primary),
+                true
             )
 
             context.source.world.launchMain {
@@ -46,7 +47,7 @@ object RollbackCommand : BuildableCommand {
 
                 for (action in actions) {
                     if (!action.rollback(context.source.world)) {
-                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1;
+                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
                     }
                     action.rolledBack = true
                 }
@@ -55,7 +56,8 @@ object RollbackCommand : BuildableCommand {
                     source.sendFeedback(
                         TranslatableText("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
                             TextColorPallet.secondary
-                        ), true
+                        ),
+                        true
                     )
                 }
 
@@ -63,7 +65,8 @@ object RollbackCommand : BuildableCommand {
                     TranslatableText(
                         "text.ledger.rollback.finish",
                         actions.size
-                    ).setStyle(TextColorPallet.primary), true
+                    ).setStyle(TextColorPallet.primary),
+                    true
                 )
             }
         }

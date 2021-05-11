@@ -1,7 +1,6 @@
 package us.potatoboy.ledger.listeners
 
 import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
@@ -39,7 +38,6 @@ object BlockEventListener {
         entity: Entity?,
         blockPos: BlockPos,
         blockState: BlockState,
-        blockEntity: BlockEntity?
     ) {
         val source = entity?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
 

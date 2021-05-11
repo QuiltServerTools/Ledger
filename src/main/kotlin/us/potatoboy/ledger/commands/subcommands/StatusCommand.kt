@@ -45,5 +45,5 @@ object StatusCommand : BuildableCommand {
     }
 
     private fun getVersion() =
-        FabricLoader.getInstance().getModContainer(Ledger.modId).get().metadata.version
+        FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().metadata.version
 }

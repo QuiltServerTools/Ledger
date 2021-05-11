@@ -7,6 +7,8 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 
 fun interface PlayerInsertItemCallback {
+    fun insert(stack: ItemStack, pos: BlockPos, player: ServerPlayerEntity)
+
     companion object {
         val EVENT: Event<PlayerInsertItemCallback> =
             EventFactory.createArrayBacked(PlayerInsertItemCallback::class.java) { listeners ->
@@ -17,6 +19,4 @@ fun interface PlayerInsertItemCallback {
                 }
             }
     }
-
-    fun insert(stack: ItemStack, pos: BlockPos, player: ServerPlayerEntity)
 }

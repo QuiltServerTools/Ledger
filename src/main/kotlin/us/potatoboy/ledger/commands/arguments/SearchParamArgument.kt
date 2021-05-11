@@ -21,15 +21,15 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
 object SearchParamArgument {
-    private val paramSuggestors = HashMap<String, Parameter>()
+    private val paramSuggesters = HashMap<String, Parameter>()
 
     init {
-        paramSuggestors["action"] = Parameter(ActionParameter())
-        paramSuggestors["source"] = Parameter(SourceParameter())
-        paramSuggestors["range"] = Parameter(RangeParameter())
-        paramSuggestors["object"] = Parameter(ObjectParameter())
-        paramSuggestors["world"] = Parameter(DimensionParameter())
-        paramSuggestors["time"] = Parameter(TimeParameter())
+        paramSuggesters["action"] = Parameter(ActionParameter())
+        paramSuggesters["source"] = Parameter(SourceParameter())
+        paramSuggesters["range"] = Parameter(RangeParameter())
+        paramSuggesters["object"] = Parameter(ObjectParameter())
+        paramSuggesters["world"] = Parameter(DimensionParameter())
+        paramSuggesters["time"] = Parameter(TimeParameter())
     }
 
     fun argument(name: String): RequiredArgumentBuilder<ServerCommandSource, String> {
@@ -52,19 +52,19 @@ object SearchParamArgument {
                     builder.add(suggestCriteria(offsetBuilder))
                 } else {
                     val spaceSplit = input.substring(0, lastColonIndex).split(" ").toTypedArray()
-                    val criterium = spaceSplit[spaceSplit.size - 1]
-                    val criteriumArg = input.substring(lastColonIndex + 1)
-                    return@suggests if (!paramSuggestors.containsKey(criterium)) {
+                    val criterion = spaceSplit[spaceSplit.size - 1]
+                    val criteriaArg = input.substring(lastColonIndex + 1)
+                    return@suggests if (!paramSuggesters.containsKey(criterion)) {
                         builder.buildFuture()
                     } else {
-                        val suggestor = paramSuggestors[criterium]
-                        val remaining = suggestor!!.getRemaining(criteriumArg)
+                        val suggester = paramSuggesters[criterion]
+                        val remaining = suggester!!.getRemaining(criteriaArg)
                         if (remaining > 0) {
                             val offsetBuilder = builder.createOffset(input.length - remaining + 1)
                             suggestCriteria(offsetBuilder).buildFuture()
                         } else {
                             val offsetBuilder = builder.createOffset(lastColonIndex + 1)
-                            suggestor.listSuggestions(context, offsetBuilder)
+                            suggester.listSuggestions(context, offsetBuilder)
                         }
                     }
                 }
@@ -73,16 +73,16 @@ object SearchParamArgument {
     }
 
     fun get(context: Context, name: String): ActionSearchParams {
-        val input = StringArgumentType.getString(context, name);
+        val input = StringArgumentType.getString(context, name)
 
         val reader = StringReader(input)
-        val result = HashMultimap.create<String, Any>();
+        val result = HashMultimap.create<String, Any>()
         while (reader.canRead()) {
             val propertyName = reader.readStringUntil(':').trim(' ')
-            val suggestor = paramSuggestors[propertyName]
+            val suggester = paramSuggesters[propertyName]
                 ?: throw SimpleCommandExceptionType(LiteralMessage("Unknown property value: $propertyName"))
                     .create()
-            result.put(propertyName, suggestor.parse(reader))
+            result.put(propertyName, suggester.parse(reader))
         }
 
         val builder = ActionSearchParams.Builder()
@@ -105,26 +105,38 @@ object SearchParamArgument {
                 }
                 "object" -> {
                     val objectId = value as Identifier
-                    if (builder.objects == null) builder.objects = mutableSetOf(objectId) else builder.objects!!.add(
-                        objectId
-                    )
+                    if (builder.objects == null) {
+                        builder.objects = mutableSetOf(objectId)
+                    } else {
+                        builder.objects!!.add(objectId)
+                    }
                 }
                 "source" -> {
                     var playerName = value as String
                     if (playerName.startsWith('@')) {
                         playerName = playerName.trim('@')
-                        if (builder.sourceNames == null) builder.sourceNames =
-                            mutableSetOf(playerName) else builder.sourceNames!!.add(playerName)
+                        if (builder.sourceNames == null) {
+                            builder.sourceNames =
+                                mutableSetOf(playerName)
+                        } else {
+                            builder.sourceNames!!.add(playerName)
+                        }
                     } else {
-                        if (builder.sourcePlayerNames == null) builder.sourcePlayerNames =
-                            mutableSetOf(playerName) else builder.sourcePlayerNames!!.add(playerName)
+                        if (builder.sourcePlayerNames == null) {
+                            builder.sourcePlayerNames =
+                                mutableSetOf(playerName)
+                        } else {
+                            builder.sourcePlayerNames!!.add(playerName)
+                        }
                     }
                 }
                 "action" -> {
                     val action = value as String
-                    if (builder.actions == null) builder.actions = mutableSetOf(action) else builder.actions!!.add(
-                        action
-                    )
+                    if (builder.actions == null) {
+                        builder.actions = mutableSetOf(action)
+                    } else {
+                        builder.actions!!.add(action)
+                    }
                 }
                 "time" -> {
                     val time = value as Duration
@@ -137,8 +149,8 @@ object SearchParamArgument {
     }
 
     private fun suggestCriteria(builder: SuggestionsBuilder): SuggestionsBuilder {
-        val input = builder.remaining.toLowerCase()
-        for (param in paramSuggestors.keys) {
+        val input = builder.remaining.lowercase()
+        for (param in paramSuggesters.keys) {
             if (param.startsWith(input)) {
                 builder.suggest("$param:")
             }
@@ -166,8 +178,6 @@ object SearchParamArgument {
         }
 
         @Throws(CommandSyntaxException::class)
-        fun parse(reader: StringReader): Any {
-            return parameter.parse(reader)!!
-        }
+        fun parse(reader: StringReader) = parameter.parse(reader)!!
     }
 }

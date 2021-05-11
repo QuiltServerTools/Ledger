@@ -54,8 +54,13 @@ object MessageUtils {
 
     fun warnBusy(source: ServerCommandSource) {
         if (DatabaseManager.dbMutex.isLocked) {
-            source.sendFeedback(TranslatableText("text.ledger.database.busy", DatabaseQueue.size()).setStyle(
-                TextColorPallet.primary), false)
+            source.sendFeedback(
+                TranslatableText(
+                    "text.ledger.database.busy",
+                    DatabaseQueue.size()
+                ).setStyle(TextColorPallet.primary),
+                false
+            )
         }
     }
 }

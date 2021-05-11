@@ -37,7 +37,8 @@ object PageCommand : BuildableCommand {
                 }
 
                 MessageUtils.sendSearchResults(
-                    source, results,
+                    source,
+                    results,
                     TranslatableText(
                         "text.ledger.header.search"
                     ).setStyle(TextColorPallet.primary)

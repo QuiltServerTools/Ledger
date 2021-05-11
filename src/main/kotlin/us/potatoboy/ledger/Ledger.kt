@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.LedgerCommand
@@ -26,25 +27,27 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
-    val modId = "ledger"
-    val logger = LogManager.getLogger(modId)
+    const val MOD_ID = "ledger"
+    val logger: Logger = LogManager.getLogger(MOD_ID)
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
-    const val PAGESIZE = 8 //TODO make configurable
+
+    const val PAGE_SIZE = 8 // TODO make configurable
 
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
     private var queueDrainerJob: Job? = null
 
+    override val coroutineContext: CoroutineContext = Dispatchers.IO
+
     override fun onInitializeServer() {
-        val version = FabricLoader.getInstance().getModContainer(modId).get().metadata.version
+        val version = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata.version
         logger.info("Initializing Ledger ${version.friendlyString}")
 
         DatabaseManager.ensureTables()
         ActionRegistry.registerDefaultTypes()
         initListeners()
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
-        ServerLifecycleEvents.SERVER_STARTED.register(::serverStarted)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register(::commandRegistration)
     }
@@ -55,7 +58,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
             .plus(Registry.ITEM.ids)
             .plus(Registry.ENTITY_TYPE.ids)
 
-        queueDrainerJob = GlobalScope.launch(Dispatchers.IO) {
+        queueDrainerJob = Ledger.launch(Dispatchers.IO) {
             server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.insertWorld(it) }
 
             logger.info("Inserting ${idSet.size} registry keys into the database queue...")
@@ -63,9 +66,6 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
             QueueDrainer.run()
         }
-    }
-
-    private fun serverStarted(server: MinecraftServer) {
     }
 
     private fun serverStopped(server: MinecraftServer) {
@@ -81,10 +81,5 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         EntityCallbackListener
     }
 
-    private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) {
-        LedgerCommand(dispatcher).register()
-    }
-
-    override val coroutineContext: CoroutineContext = Dispatchers.IO
+    private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = LedgerCommand(dispatcher).register()
 }
-

@@ -7,6 +7,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
 fun interface BlockFallCallback {
+    fun fall(world: World, pos: BlockPos, state: BlockState)
+
     companion object {
         val EVENT: Event<BlockFallCallback> =
             EventFactory.createArrayBacked(BlockFallCallback::class.java) { listeners ->
@@ -17,6 +19,4 @@ fun interface BlockFallCallback {
                 }
             }
     }
-
-    fun fall(world: World, pos: BlockPos, state: BlockState)
 }

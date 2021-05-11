@@ -12,4 +12,4 @@ fun MutableText.appendWithSpace(text: Text) {
 
 fun String.literal() = LiteralText(this)
 fun String.translate() = TranslatableText(this)
-//fun String.translate(vararg args: Any) = TranslatableText(this, args)
+// fun String.translate(vararg args: Any) = TranslatableText(this, args)

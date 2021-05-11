@@ -19,9 +19,7 @@ class SourceParameter : SimpleParameter<String>() {
         return stringReader.string.substring(i, stringReader.cursor)
     }
 
-    private fun isCharValid(c: Char): Boolean {
-        return c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_'
-    }
+    private fun isCharValid(c: Char): Boolean = c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_'
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,
@@ -32,7 +30,7 @@ class SourceParameter : SimpleParameter<String>() {
 
         val players = context.source.playerNames
         players.add("@")
-        //TODO suggest nonplayer sources
+        // TODO suggest non-player sources
 
         return CommandSource.suggestMatching(
             players,

@@ -20,9 +20,7 @@ class ObjectParameter : SimpleParameter<Identifier>() {
         identifiers.addAll(Registry.ENTITY_TYPE.ids)
     }
 
-    override fun parse(stringReader: StringReader): Identifier {
-        return IdentifierArgumentType.identifier().parse(stringReader)
-    }
+    override fun parse(stringReader: StringReader): Identifier = IdentifierArgumentType.identifier().parse(stringReader)
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>?,

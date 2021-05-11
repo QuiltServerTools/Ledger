@@ -64,14 +64,13 @@ object InspectionManager {
             }
 
             MessageUtils.sendSearchResults(
-                source, results,
+                source,
+                results,
                 TranslatableText(
                     "text.ledger.header.search.pos",
                     "${pos.x} ${pos.y} ${pos.z}".literal()
-                    //.setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary)
             )
-
         }
     }
 }

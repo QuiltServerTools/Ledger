@@ -16,12 +16,12 @@ object RestoreCommand : BuildableCommand {
         return CommandManager.literal("restore")
             .then(
                 SearchParamArgument.argument("params")
-                    .executes { restore(it, SearchParamArgument.get(it, "params")) })
-
+                    .executes { restore(it, SearchParamArgument.get(it, "params")) }
+            )
             .build()
     }
 
-    fun restore(context: Context, params: ActionSearchParams?): Int {
+    private fun restore(context: Context, params: ActionSearchParams?): Int {
         val source = context.source
 
         if (params == null) return -1
@@ -38,7 +38,8 @@ object RestoreCommand : BuildableCommand {
                 TranslatableText(
                     "text.ledger.restore.start",
                     actions.size.toString().literal().setStyle(TextColorPallet.secondary)
-                ).setStyle(TextColorPallet.primary), true
+                ).setStyle(TextColorPallet.primary),
+                true
             )
 
             context.source.world.launchMain {
@@ -46,7 +47,7 @@ object RestoreCommand : BuildableCommand {
 
                 for (action in actions) {
                     if (!action.restore(context.source.world)) {
-                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1;
+                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
                     }
                     action.rolledBack = true
                 }
@@ -55,7 +56,8 @@ object RestoreCommand : BuildableCommand {
                     source.sendFeedback(
                         TranslatableText("text.ledger.restore.fail", entry.key, entry.value).setStyle(
                             TextColorPallet.secondary
-                        ), true
+                        ),
+                        true
                     )
                 }
 
@@ -63,7 +65,8 @@ object RestoreCommand : BuildableCommand {
                     TranslatableText(
                         "text.ledger.restore.finish",
                         actions.size
-                    ).setStyle(TextColorPallet.primary), true
+                    ).setStyle(TextColorPallet.primary),
+                    true
                 )
             }
         }

@@ -8,9 +8,12 @@ import net.minecraft.server.command.ServerCommandSource
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
+private const val MAX_SIZE = 9
+
 class TimeParameter : SimpleParameter<Duration>() {
     private val units = listOf('s', 'm', 'h', 'd', 'w')
 
+    @Suppress("MagicNumber")
     override fun parse(stringReader: StringReader): Duration {
         val i: Int = stringReader.cursor
 
@@ -18,9 +21,9 @@ class TimeParameter : SimpleParameter<Duration>() {
             stringReader.skip()
         }
 
-        val input = stringReader.string.substring(i, stringReader.cursor).toLowerCase()
+        val input = stringReader.string.substring(i, stringReader.cursor).lowercase()
 
-        val timeRegex = Regex("([0-9]+)(s|m|h|d|w)")
+        val timeRegex = Regex("([0-9]+)([smhdw])")
         val times = timeRegex.findAll(input)
 
         var duration = Duration.ZERO
@@ -42,21 +45,19 @@ class TimeParameter : SimpleParameter<Duration>() {
         return duration
     }
 
-    private fun isCharValid(c: Char): Boolean {
-        return c in '0'..'9' || c in 'a'..'z'
-    }
+    private fun isCharValid(c: Char) = c in '0'..'9' || c in 'a'..'z'
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
-        val remaining = builder.remaining.toLowerCase()
+        val remaining = builder.remaining.lowercase()
         if (remaining.isEmpty()) {
-            for (i in 1..9) builder.suggest(i)
+            for (i in 1..MAX_SIZE) builder.suggest(i)
         } else {
             val end = remaining.last()
             if (units.contains(end)) {
-                for (i in 1..10) builder.suggest(remaining + i)
+                for (i in 1..MAX_SIZE) builder.suggest(remaining + i)
                 return builder.buildFuture()
             }
 

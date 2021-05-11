@@ -7,6 +7,8 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 
 fun interface PlayerRemoveItemCallback {
+    fun remove(stack: ItemStack, pos: BlockPos, player: ServerPlayerEntity)
+
     companion object {
         val EVENT: Event<PlayerRemoveItemCallback> =
             EventFactory.createArrayBacked(PlayerRemoveItemCallback::class.java) { listeners ->
@@ -17,6 +19,4 @@ fun interface PlayerRemoveItemCallback {
                 }
             }
     }
-
-    fun remove(stack: ItemStack, pos: BlockPos, player: ServerPlayerEntity)
 }
