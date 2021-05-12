@@ -4,7 +4,7 @@ import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.util.math.BlockPos
-import us.potatoboy.ledger.InspectionManager
+import us.potatoboy.ledger.*
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
@@ -15,11 +15,11 @@ object InspectCommand : BuildableCommand {
             .executes { toggleInspect(it) }
             .then(
                 literal("on")
-                    .executes { InspectionManager.inspectOn(it.source.player) }
+                    .executes { it.source.player.inspectOn() }
             )
             .then(
                 literal("off")
-                    .executes { InspectionManager.inspectOff(it.source.player) }
+                    .executes { it.source.player.inspectOff() }
             )
             .then(
                 argument("pos", BlockPosArgumentType.blockPos())
@@ -31,17 +31,17 @@ object InspectCommand : BuildableCommand {
         val source = context.source
         val player = source.player
 
-        return if (InspectionManager.isInspecting(player)) {
-            InspectionManager.inspectOff(player)
+        return if (player.isInspecting()) {
+            player.inspectOff()
         } else {
-            InspectionManager.inspectOn(player)
+            player.inspectOn()
         }
     }
 
     private fun inspectBlock(context: Context, pos: BlockPos): Int {
         val source = context.source
 
-        InspectionManager.inspectBlock(source.player, pos)
+        source.player.inspectBlock(pos)
         return 1
     }
 }

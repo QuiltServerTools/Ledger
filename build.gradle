@@ -19,9 +19,8 @@ minecraft {
 }
 
 repositories {
-    maven { url "http://maven.fabricmc.net/" }
+    maven { url "https://maven.fabricmc.net/" }
     maven { url "https://maven.nucleoid.xyz/" }
-    maven { url "https://dl.bintray.com/bymartrixx/maven" }
     maven { url "https://jitpack.io" }
     mavenCentral()
     jcenter()
@@ -55,8 +54,6 @@ dependencies {
     implementation include("org.slf4j:slf4j-simple:1.7.30")
 
     implementation include ("org.xerial:sqlite-jdbc:${project.jdbc_version}")
-
-    modCompile 'io.github.bymartrixx.wdmcf:wdmcf:1.0.1'
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.

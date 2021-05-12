@@ -2,6 +2,7 @@ package us.potatoboy.ledger.actionutils
 
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
@@ -16,9 +17,15 @@ import us.potatoboy.ledger.actions.*
 const val PLAYER_SOURCE = "player"
 
 object ActionFactory {
-    fun blockBreakAction(world: World, pos: BlockPos, state: BlockState, source: String): BlockBreakActionType {
+    fun blockBreakAction(
+        world: World,
+        pos: BlockPos,
+        state: BlockState,
+        source: String,
+        entity: BlockEntity? = null
+    ): BlockBreakActionType {
         val action = BlockBreakActionType()
-        setBlockData(action, pos, world, Blocks.AIR.defaultState, state, source)
+        setBlockData(action, pos, world, Blocks.AIR.defaultState, state, source, entity)
 
         return action
     }
@@ -27,17 +34,11 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: ServerPlayerEntity
+        source: ServerPlayerEntity,
+        entity: BlockEntity? = null
     ): BlockChangeActionType {
-        val action = blockBreakAction(world, pos, state, PLAYER_SOURCE)
+        val action = blockBreakAction(world, pos, state, PLAYER_SOURCE, entity)
         action.sourceProfile = source.gameProfile
-
-        return action
-    }
-
-    fun blockPlaceAction(world: World, pos: BlockPos, state: BlockState, source: String): BlockChangeActionType {
-        val action = BlockChangeActionType("block-place")
-        setBlockData(action, pos, world, state, Blocks.AIR.defaultState, source)
 
         return action
     }
@@ -46,9 +47,23 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: ServerPlayerEntity
+        source: String,
+        entity: BlockEntity? = null
     ): BlockChangeActionType {
-        val action = blockPlaceAction(world, pos, state, PLAYER_SOURCE)
+        val action = BlockChangeActionType("block-place")
+        setBlockData(action, pos, world, state, Blocks.AIR.defaultState, source, entity)
+
+        return action
+    }
+
+    fun blockPlaceAction(
+        world: World,
+        pos: BlockPos,
+        state: BlockState,
+        source: ServerPlayerEntity,
+        entity: BlockEntity? = null
+    ): BlockChangeActionType {
+        val action = blockPlaceAction(world, pos, state, PLAYER_SOURCE, entity)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -60,7 +75,8 @@ object ActionFactory {
         world: World,
         state: BlockState,
         oldState: BlockState,
-        source: String
+        source: String,
+        entity: BlockEntity? = null
     ) {
         action.pos = pos
         action.world = world.registryKey.value
@@ -69,7 +85,6 @@ object ActionFactory {
         action.blockState = state
         action.oldBlockState = oldState
         action.sourceName = source
-        val entity = if (oldState.block.hasBlockEntity()) world.getBlockEntity(pos) else null
         action.extraData = entity?.toTag(CompoundTag())?.asString()
     }
 

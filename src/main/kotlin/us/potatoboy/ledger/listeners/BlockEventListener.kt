@@ -1,6 +1,7 @@
 package us.potatoboy.ledger.listeners
 
 import net.minecraft.block.BlockState
+import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
@@ -26,20 +27,40 @@ object BlockEventListener {
     }
 
     private fun onFall(world: World, pos: BlockPos, state: BlockState) {
-        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.blockBreakAction(world, pos, state, "gravity")))
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.blockBreakAction(
+                    world,
+                    pos,
+                    state,
+                    "gravity"
+                )
+            )
+        )
     }
 
-    private fun onBurn(world: World, pos: BlockPos, state: BlockState) {
-        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.blockBreakAction(world, pos, state, "fire")))
+    private fun onBurn(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
+        DatabaseQueue.addActionToQueue(
+            ActionQueueItem(
+                ActionFactory.blockBreakAction(
+                    world,
+                    pos,
+                    state,
+                    "fire",
+                    entity
+                )
+            )
+        )
     }
 
     private fun onExplode(
         world: World,
-        entity: Entity?,
+        source: Entity?,
         blockPos: BlockPos,
         blockState: BlockState,
+        entity: BlockEntity?
     ) {
-        val source = entity?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
+        val sourceName = source?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
 
         DatabaseQueue.addActionToQueue(
             ActionQueueItem(
@@ -47,7 +68,8 @@ object BlockEventListener {
                     world,
                     blockPos,
                     blockState,
-                    source
+                    sourceName,
+                    entity
                 )
             )
         )

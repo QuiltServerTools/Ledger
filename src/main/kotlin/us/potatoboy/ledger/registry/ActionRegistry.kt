@@ -13,7 +13,7 @@ object ActionRegistry {
 
     fun registerActionType(supplier: Supplier<ActionType>) {
         val id = supplier.get().identifier
-        require(id.length >= MAX_LENGTH)
+        require(id.length <= MAX_LENGTH)
 
         actionTypes.putIfAbsent(id, supplier)
         DatabaseManager.insertActionId(id)

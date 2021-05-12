@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.util.ActionResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,12 +19,12 @@ public abstract class BlockItemMixin extends Item {
 
 	@Inject(
 			method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemPlacementContext;getBlockPos()Lnet/minecraft/util/math/BlockPos;"),
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ActionResult;success(Z)Lnet/minecraft/util/ActionResult;"),
 			cancellable = true
 	)
-	public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, CallbackInfoReturnable<Boolean> info) {
+	public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
 		if (context.getPlayer() == null) return;
-		//TODO deal with dispenser placements (create separate event?)
+		// TODO deal with dispenser placements (create separate event?)
 
 		BlockState blockState = context.getWorld().getBlockState(context.getBlockPos());
 
@@ -32,7 +33,8 @@ public abstract class BlockItemMixin extends Item {
 				context.getPlayer(),
 				context.getBlockPos(),
 				blockState,
-				context
+				context,
+				blockState.getBlock().hasBlockEntity() ? context.getWorld().getBlockEntity(context.getBlockPos()) : null
 		);
 	}
 }

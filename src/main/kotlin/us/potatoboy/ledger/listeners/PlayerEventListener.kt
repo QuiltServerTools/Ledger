@@ -17,7 +17,6 @@ import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
-import us.potatoboy.ledger.InspectionManager
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.PlayerBlockPlaceCallback
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback
@@ -25,6 +24,8 @@ import us.potatoboy.ledger.callbacks.PlayerRemoveItemCallback
 import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.database.queueitems.ActionQueueItem
 import us.potatoboy.ledger.database.queueitems.PlayerQueueItem
+import us.potatoboy.ledger.inspectBlock
+import us.potatoboy.ledger.isInspecting
 
 object PlayerEventListener {
     init {
@@ -45,8 +46,8 @@ object PlayerEventListener {
     ): ActionResult {
         if (world.isClient) return ActionResult.PASS
 
-        if (InspectionManager.isInspecting(player as ServerPlayerEntity)) {
-            InspectionManager.inspectBlock(player, pos)
+        if ((player as ServerPlayerEntity).isInspecting()) {
+            player.inspectBlock(pos)
             return ActionResult.SUCCESS
         }
 
@@ -88,7 +89,8 @@ object PlayerEventListener {
         player: PlayerEntity,
         pos: BlockPos,
         state: BlockState,
-        context: ItemPlacementContext
+        context: ItemPlacementContext,
+        blockEntity: BlockEntity?
     ) {
         DatabaseQueue.addActionToQueue(
             ActionQueueItem(
@@ -96,7 +98,8 @@ object PlayerEventListener {
                     world,
                     pos,
                     state,
-                    player as ServerPlayerEntity
+                    player as ServerPlayerEntity,
+                    blockEntity
                 )
             )
         )
@@ -115,7 +118,8 @@ object PlayerEventListener {
                     world,
                     pos,
                     state,
-                    player as ServerPlayerEntity
+                    player as ServerPlayerEntity,
+                    blockEntity
                 )
             )
         )
