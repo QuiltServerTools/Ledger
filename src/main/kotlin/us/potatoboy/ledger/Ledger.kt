@@ -28,7 +28,7 @@ import kotlin.coroutines.CoroutineContext
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-    val logger: Logger = LogManager.getLogger(MOD_ID)
+    val logger: Logger = LogManager.getLogger("Ledger")
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
 
     const val PAGE_SIZE = 8 // TODO make configurable
