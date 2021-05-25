@@ -2,6 +2,7 @@ package us.potatoboy.ledger.listeners
 
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
+import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
@@ -14,6 +15,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
@@ -35,6 +37,21 @@ object PlayerEventListener {
         PlayerInsertItemCallback.EVENT.register(::onItemInsert)
         PlayerRemoveItemCallback.EVENT.register(::onItemRemove)
         AttackBlockCallback.EVENT.register(::onBlockAttack)
+        UseBlockCallback.EVENT.register(::onUseBlock)
+    }
+
+    private fun onUseBlock(
+        player: PlayerEntity,
+        world: World,
+        hand: Hand,
+        blockHitResult: BlockHitResult
+    ): ActionResult {
+        if ((player as ServerPlayerEntity).isInspecting()) {
+            player.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
+            return ActionResult.SUCCESS
+        }
+
+        return ActionResult.PASS
     }
 
     private fun onBlockAttack(
