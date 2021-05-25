@@ -20,6 +20,7 @@ import us.potatoboy.ledger.database.queueitems.RegistryQueueItem
 import us.potatoboy.ledger.listeners.BlockEventListener
 import us.potatoboy.ledger.listeners.EntityCallbackListener
 import us.potatoboy.ledger.listeners.PlayerEventListener
+import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
 import java.util.*
@@ -50,6 +51,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register(::commandRegistration)
+        Networking.init()
     }
 
     private fun serverStarting(server: MinecraftServer) {

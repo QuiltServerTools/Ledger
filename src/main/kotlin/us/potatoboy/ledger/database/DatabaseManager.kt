@@ -3,10 +3,10 @@ package us.potatoboy.ledger.database
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
+import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -25,7 +25,7 @@ import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
-    private val databaseFile = File(FabricLoader.getInstance().gameDir.toFile(), "ledger.sqlite")
+    private val databaseFile = File(Ledger.server.getSavePath(WorldSavePath.ROOT).toFile(), "ledger.sqlite")
     private val database = Database.connect(
         url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
     )
@@ -45,13 +45,13 @@ object DatabaseManager {
     }
 
     suspend fun insertQueued(queuedItems: Collection<QueueItem>) {
-            newSuspendedTransaction {
-                dbMutex.withLock {
-                    for (queueItem in queuedItems) {
-                        queueItem.insert()
-                    }
+        newSuspendedTransaction {
+            dbMutex.withLock {
+                for (queueItem in queuedItems) {
+                    queueItem.insert()
                 }
             }
+        }
     }
 
     fun insertAction(action: ActionType) {
