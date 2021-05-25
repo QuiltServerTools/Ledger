@@ -27,7 +27,7 @@ import us.potatoboy.ledger.database.queueitems.ActionQueueItem
 import us.potatoboy.ledger.database.queueitems.PlayerQueueItem
 import us.potatoboy.ledger.inspectBlock
 import us.potatoboy.ledger.isInspecting
-import us.potatoboy.ledger.network.packet.blockbreak.ActionPacket
+import us.potatoboy.ledger.network.packet.action.ActionPacket
 
 object PlayerEventListener {
     init {

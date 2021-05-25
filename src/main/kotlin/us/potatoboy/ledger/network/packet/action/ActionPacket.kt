@@ -1,4 +1,4 @@
-package us.potatoboy.ledger.network.packet.blockbreak
+package us.potatoboy.ledger.network.packet.action
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.block.Blocks
@@ -26,8 +26,8 @@ class ActionPacket: Packet {
         } else {
             buf.writeString(action.oldBlockState.toString())
         }
-        buf.writeString(if (action.sourceProfile != null) action.sourceProfile!!.name else action.sourceName)
-        buf.writeString(if (action.extraData != null) action.extraData.toString() else "")
+        buf.writeString(action.sourceProfile?.name ?: action.sourceName)
+        buf.writeString(action.extraData ?: "")
 
         println(buf.toString())
     }
