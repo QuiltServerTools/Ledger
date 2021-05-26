@@ -8,6 +8,13 @@ queueTimeoutSec = 5
 # Number of actions to show per page
 pageSize = 8
 
+[color]
+# Colors in hex format
+primary = "#009688"
+primaryVariant = "#52c7b8"
+secondary = "#1e88e5"
+secondaryVariant = "#6ab7ff"
+
 [actions]
 # Blacklists - blacklisted things will not be logged in the database
 # Example - Prevent all actions with stone or bat as the object from being logged

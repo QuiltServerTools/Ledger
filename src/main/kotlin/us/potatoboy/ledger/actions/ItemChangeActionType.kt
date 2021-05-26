@@ -36,7 +36,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
                     objectIdentifier
                 )
             )
-        ).setStyle(TextColorPallet.tertiary).styled {
+        ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
                     HoverEvent.Action.SHOW_ITEM,

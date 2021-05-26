@@ -14,6 +14,7 @@ import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.LedgerCommand
 import us.potatoboy.ledger.config.CONFIG_PATH
+import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.database.QueueDrainer
@@ -50,6 +51,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                 FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
             )
         }
+        config.validateRequired()
 
         DatabaseManager.ensureTables()
         ActionRegistry.registerDefaultTypes()

@@ -106,7 +106,7 @@ abstract class AbstractActionType : ActionType {
             this.getTranslationType(),
             objectIdentifier
         )
-    ).setStyle(TextColorPallet.tertiary).styled {
+    ).setStyle(TextColorPallet.secondaryVariant).styled {
         it.withHoverEvent(
             HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,

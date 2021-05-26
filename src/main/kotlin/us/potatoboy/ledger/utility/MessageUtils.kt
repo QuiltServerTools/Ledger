@@ -17,7 +17,7 @@ object MessageUtils {
         source.sendFeedback(
             TranslatableText(
                 "text.ledger.footer.search",
-                TranslatableText("text.ledger.footer.page_backward").setStyle(TextColorPallet.secondary).styled {
+                TranslatableText("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant).styled {
                     if (results.page > 1) {
                         it.withHoverEvent(
                             HoverEvent(
@@ -31,9 +31,9 @@ object MessageUtils {
                         Style.EMPTY
                     }
                 },
-                results.page.toString().literal().setStyle(TextColorPallet.tertiary),
-                results.pages.toString().literal().setStyle(TextColorPallet.tertiary),
-                TranslatableText("text.ledger.footer.page_forward").setStyle(TextColorPallet.secondary).styled {
+                results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
+                results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
+                TranslatableText("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant).styled {
                     if (results.page < results.pages) {
                         it.withHoverEvent(
                             HoverEvent(

@@ -9,6 +9,7 @@ val config = Config {
     addSpec(DatabaseSpec)
     addSpec(SearchSpec)
     addSpec(ActionsSpec)
+    addSpec(ColorSpec)
 }
     .from.toml.resource(CONFIG_PATH)
     .from.toml.watchFile("config\\$CONFIG_PATH")

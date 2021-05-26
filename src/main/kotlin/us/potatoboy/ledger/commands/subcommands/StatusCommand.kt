@@ -28,7 +28,7 @@ object StatusCommand : BuildableCommand {
             TranslatableText(
                 "text.ledger.status.queue",
                 DatabaseQueue.size().toString().literal()
-                    .setStyle(TextColorPallet.tertiary)
+                    .setStyle(TextColorPallet.secondaryVariant)
             ).setStyle(TextColorPallet.secondary),
             false
         )
@@ -36,7 +36,7 @@ object StatusCommand : BuildableCommand {
             TranslatableText(
                 "text.ledger.status.version",
                 getVersion().friendlyString.literal()
-                    .setStyle(TextColorPallet.tertiary)
+                    .setStyle(TextColorPallet.secondaryVariant)
             ).setStyle(TextColorPallet.secondary),
             false
         )

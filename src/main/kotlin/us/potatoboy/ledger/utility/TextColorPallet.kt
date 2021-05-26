@@ -2,12 +2,13 @@ package us.potatoboy.ledger.utility
 
 import net.minecraft.text.Style
 import net.minecraft.text.TextColor
+import us.potatoboy.ledger.config.ColorSpec
+import us.potatoboy.ledger.config.config
 
 @Suppress("MagicNumber")
 object TextColorPallet {
-    val primary: Style = Style.EMPTY.withColor(TextColor.fromRgb(0xA4243B))
-    val secondary: Style = Style.EMPTY.withColor(TextColor.fromRgb(0xD8973C))
-    val tertiary: Style = Style.EMPTY.withColor(TextColor.fromRgb(0xBD632F))
-    val quaternary: Style = Style.EMPTY.withColor(TextColor.fromRgb(0x273E47))
-    val light: Style = Style.EMPTY.withColor(TextColor.fromRgb(0xD8C99B))
+    val primary: Style get() =  Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.primary]))
+    val primaryVariant: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.primaryVariant]))
+    val secondary: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.secondary]))
+    val secondaryVariant: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.secondaryVariant]))
 }
