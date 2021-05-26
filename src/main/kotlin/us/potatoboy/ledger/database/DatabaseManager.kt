@@ -15,6 +15,8 @@ import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.SearchResults
+import us.potatoboy.ledger.config.SearchSpec
+import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.queueitems.QueueItem
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.MessageUtils
@@ -94,8 +96,8 @@ object DatabaseManager {
 
                 query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
                 query = query.limit(
-                    Ledger.PAGE_SIZE,
-                    (Ledger.PAGE_SIZE * (page - 1)).toLong()
+                    config[SearchSpec.pageSize],
+                    (config[SearchSpec.pageSize] * (page - 1)).toLong()
                 ).withDistinct()
 
                 val actions = Tables.Action.wrapRows(query).toList()
@@ -104,7 +106,7 @@ object DatabaseManager {
             }
         }
 
-        val totalPages = ceil(totalActions.toDouble() / Ledger.PAGE_SIZE.toDouble()).toInt()
+        val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
 
         return SearchResults(actionTypes, params, page, totalPages)
     }

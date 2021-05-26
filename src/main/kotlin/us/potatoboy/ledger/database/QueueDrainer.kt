@@ -4,11 +4,10 @@ import com.google.common.collect.Queues
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import us.potatoboy.ledger.Ledger
+import us.potatoboy.ledger.config.DatabaseSpec
+import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.queueitems.QueueItem
 import java.util.concurrent.TimeUnit
-
-private const val MAX_QUEUE_SIZE = 50
-private const val QUEUE_TIMEOUT_SEC = 5L
 
 object QueueDrainer : Runnable {
     private var running = false
@@ -17,12 +16,12 @@ object QueueDrainer : Runnable {
         running = true
         while (running) {
             try {
-                val queuedActions = ArrayList<QueueItem>(MAX_QUEUE_SIZE)
+                val queuedActions = ArrayList<QueueItem>(config[DatabaseSpec.maxQueueSize])
                 Queues.drain(
                     DatabaseQueue.getQueue(),
                     queuedActions,
-                    MAX_QUEUE_SIZE,
-                    QUEUE_TIMEOUT_SEC,
+                    config[DatabaseSpec.maxQueueSize],
+                    config[DatabaseSpec.queueTimeoutSec],
                     TimeUnit.SECONDS
                 ) // TODO make queue drain size and timeout config
 

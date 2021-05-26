@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.LedgerCommand
+import us.potatoboy.ledger.config.CONFIG_PATH
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.database.QueueDrainer
@@ -22,6 +23,7 @@ import us.potatoboy.ledger.listeners.EntityCallbackListener
 import us.potatoboy.ledger.listeners.PlayerEventListener
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
+import java.nio.file.Files
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -30,9 +32,6 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
     val logger: Logger = LogManager.getLogger("Ledger")
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
-
-    const val PAGE_SIZE = 8 // TODO make configurable
-
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
@@ -43,6 +42,14 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     override fun onInitializeServer() {
         val version = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata.version
         logger.info("Initializing Ledger ${version.friendlyString}")
+
+        if (!Files.exists(FabricLoader.getInstance().configDir.resolve(CONFIG_PATH))) {
+            logger.info("No config file, Creating")
+            Files.copy(
+                FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(CONFIG_PATH),
+                FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
+            )
+        }
 
         DatabaseManager.ensureTables()
         ActionRegistry.registerDefaultTypes()

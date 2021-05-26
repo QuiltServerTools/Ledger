@@ -45,7 +45,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    //Database
+    // Database
     implementation include ("org.jetbrains.exposed:exposed-core:${project.exposedVersion}")
     implementation include ("org.jetbrains.exposed:exposed-dao:${project.exposedVersion}")
     implementation include ("org.jetbrains.exposed:exposed-jdbc:${project.exposedVersion}")
@@ -56,6 +56,11 @@ dependencies {
 
     implementation include ("org.xerial:sqlite-jdbc:${project.jdbc_version}")
 
+    // Config
+    implementation include ("com.uchuhimo:konf:1.1.2")
+    implementation include ("com.uchuhimo:konf-toml:1.1.2")
+
+    // Debug
     modRuntime "me.bymartrixx:wdmcf:1.0.2"
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
@@ -126,6 +131,7 @@ compileTestKotlin {
 
 detekt {
     buildUponDefaultConfig = true
+    autoCorrect = true
     config = rootProject.files("detekt.yml")
 }
 

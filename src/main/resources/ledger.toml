@@ -1,0 +1,26 @@
+[database]
+# Amount of queue items to do per drain
+maxQueueSize = 50
+# Amount of time to wait for queue to reach maxQueueSize
+queueTimeoutSec = 5
+
+[search]
+# Number of actions to show per page
+pageSize = 8
+
+[actions]
+# Blacklists - blacklisted things will not be logged in the database
+# Example - Prevent all actions with stone or bat as the object from being logged
+# objectBlacklist = [
+#   "minecraft:stone",
+#   "minecraft:bat"
+# ]
+
+# Blacklists action types. Ex: "block-break", "entity-kill"
+typeBlacklist = []
+# Blacklists worlds/dimensions. Ex: "mincraft:the_end", "minecraft:overworld"
+worldBlacklist = []
+# Blacklists objects (Items, Mobs, Blocks). Ex: "minecraft:cobblestone", "minecraft:blaze"
+objectBlacklist = []
+# Blacklists sources. Ex: "lava", "gravity", "fire", "fall"
+sourceBlacklist = []
