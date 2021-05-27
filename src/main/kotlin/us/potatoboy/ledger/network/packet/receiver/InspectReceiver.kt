@@ -1,4 +1,4 @@
-package us.potatoboy.ledger.network.packet
+package us.potatoboy.ledger.network.packet.receiver
 
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.networking.v1.PacketSender
@@ -8,6 +8,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.getInspectResults
+import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.action.ActionPacket
 
 class InspectReceiver : Receiver {

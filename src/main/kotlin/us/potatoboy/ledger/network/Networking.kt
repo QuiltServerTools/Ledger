@@ -7,13 +7,15 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
-import us.potatoboy.ledger.network.packet.InspectReceiver
 import us.potatoboy.ledger.network.packet.PacketTypes
 import us.potatoboy.ledger.network.packet.Receiver
+import us.potatoboy.ledger.network.packet.receiver.InspectReceiver
+import us.potatoboy.ledger.network.packet.receiver.SearchReceiver
 
 object Networking {
     fun init() {
         register(PacketTypes.INSPECT.id, InspectReceiver())
+        register(PacketTypes.SEARCH.id, SearchReceiver())
     }
 
     private fun register(channel: Identifier, receiver: Receiver) {

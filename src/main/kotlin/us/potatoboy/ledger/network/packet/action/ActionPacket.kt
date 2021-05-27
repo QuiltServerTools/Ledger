@@ -28,7 +28,5 @@ class ActionPacket: Packet {
         }
         buf.writeString(action.sourceProfile?.name ?: action.sourceName)
         buf.writeString(action.extraData ?: "")
-
-        println(buf.toString())
     }
 }
