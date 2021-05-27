@@ -60,7 +60,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register(::commandRegistration)
-        Networking.init()
+        Networking
     }
 
     private fun serverStarting(server: MinecraftServer) {
