@@ -11,7 +11,7 @@ import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.network.packet.PacketTypes
+import us.potatoboy.ledger.network.packet.LedgerPacketTypes
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.action.ActionPacket
 
@@ -44,7 +44,7 @@ class SearchReceiver: Receiver {
             results.actions.forEach { action: ActionType -> run {
                 val packet = ActionPacket()
                 packet.populate(action)
-                sender.sendPacket(PacketTypes.ACTION.id, packet.buf)
+                sender.sendPacket(LedgerPacketTypes.ACTION.id, packet.buf)
             } }
         }
     }

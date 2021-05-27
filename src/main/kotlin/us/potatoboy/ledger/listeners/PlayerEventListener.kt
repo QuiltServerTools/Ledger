@@ -27,7 +27,6 @@ import us.potatoboy.ledger.database.queueitems.ActionQueueItem
 import us.potatoboy.ledger.database.queueitems.PlayerQueueItem
 import us.potatoboy.ledger.inspectBlock
 import us.potatoboy.ledger.isInspecting
-import us.potatoboy.ledger.network.packet.action.ActionPacket
 
 object PlayerEventListener {
     init {
@@ -84,7 +83,6 @@ object PlayerEventListener {
 
     private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
         DatabaseQueue.addActionToQueue(PlayerQueueItem(networkHandler.player.uuid, networkHandler.player.entityName))
-        val p = ActionPacket()
         ServerPlayNetworking.send(networkHandler.player, p.channel, p.buf)
     }
 
