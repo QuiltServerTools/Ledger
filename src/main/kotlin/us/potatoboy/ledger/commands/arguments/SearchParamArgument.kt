@@ -16,7 +16,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.parameters.*
-import us.potatoboy.ledger.utility.Context
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 
@@ -72,9 +71,7 @@ object SearchParamArgument {
             }
     }
 
-    fun get(context: Context, name: String): ActionSearchParams {
-        val input = StringArgumentType.getString(context, name)
-
+    fun get(input: String, source: ServerCommandSource): ActionSearchParams {
         val reader = StringReader(input)
         val result = HashMultimap.create<String, Any>()
         while (reader.canRead()) {
@@ -95,9 +92,9 @@ object SearchParamArgument {
                 "range" -> {
                     val range = value as Int - 1
                     builder.min =
-                        BlockPos(context.source.position.subtract(range.toDouble(), range.toDouble(), range.toDouble()))
+                        BlockPos(source.position.subtract(range.toDouble(), range.toDouble(), range.toDouble()))
                     builder.max =
-                        BlockPos(context.source.position.add(range.toDouble(), range.toDouble(), range.toDouble()))
+                        BlockPos(source.position.add(range.toDouble(), range.toDouble(), range.toDouble()))
                 }
                 "world" -> {
                     val world = value as Identifier
@@ -146,6 +143,11 @@ object SearchParamArgument {
         }
 
         return builder.build()
+    }
+
+    fun get(context: CommandContext<ServerCommandSource>, name: String): ActionSearchParams {
+        val input = StringArgumentType.getString(context, name)
+        return get(input, context.source)
     }
 
     private fun suggestCriteria(builder: SuggestionsBuilder): SuggestionsBuilder {

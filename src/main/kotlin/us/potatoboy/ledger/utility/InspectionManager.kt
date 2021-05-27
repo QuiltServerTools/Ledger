@@ -7,6 +7,7 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
 import us.potatoboy.ledger.actionutils.ActionSearchParams
+import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.MessageUtils
 import us.potatoboy.ledger.utility.TextColorPallet
@@ -71,5 +72,16 @@ fun ServerPlayerEntity.inspectBlock(pos: BlockPos) {
             ).setStyle(TextColorPallet.primary)
         )
     }
+}
+
+suspend fun ServerPlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
+    val source = this.commandSource
+    val params = ActionSearchParams.build {
+        min = pos
+        max = pos
+    }
+
+    Ledger.searchCache[source.name] = params
+    return DatabaseManager.searchActions(params, 1, source)
 }
 

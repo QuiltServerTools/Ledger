@@ -47,13 +47,13 @@ object DatabaseManager {
     }
 
     suspend fun insertQueued(queuedItems: Collection<QueueItem>) {
-            newSuspendedTransaction {
-                dbMutex.withLock {
-                    for (queueItem in queuedItems) {
-                        queueItem.insert()
-                    }
+        newSuspendedTransaction {
+            dbMutex.withLock {
+                for (queueItem in queuedItems) {
+                    queueItem.insert()
                 }
             }
+        }
     }
 
     fun insertAction(action: ActionType) {
