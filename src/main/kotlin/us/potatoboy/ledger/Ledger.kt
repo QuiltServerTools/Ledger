@@ -84,4 +84,6 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     }
 
     private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = LedgerCommand(dispatcher).register()
+
+    fun identifier(path: String) = Identifier(MOD_ID, path)
 }
