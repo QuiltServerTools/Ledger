@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.player.PlayerEntity
@@ -83,7 +82,6 @@ object PlayerEventListener {
 
     private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
         DatabaseQueue.addActionToQueue(PlayerQueueItem(networkHandler.player.uuid, networkHandler.player.entityName))
-        ServerPlayNetworking.send(networkHandler.player, p.channel, p.buf)
     }
 
     private fun onBlockPlace(
