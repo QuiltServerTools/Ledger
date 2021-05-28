@@ -1,4 +1,4 @@
-package us.potatoboy.ledger
+package us.potatoboy.ledger.utility
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -6,13 +6,10 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
+import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.utility.MessageUtils
-import us.potatoboy.ledger.utility.TextColorPallet
-import us.potatoboy.ledger.utility.literal
-import us.potatoboy.ledger.utility.translate
 import java.util.*
 
 private val inspectingUsers = HashSet<UUID>()
@@ -52,6 +49,7 @@ fun ServerPlayerEntity.inspectBlock(pos: BlockPos) {
         val params = ActionSearchParams.build {
             min = pos
             max = pos
+            worlds = mutableSetOf(source.world.registryKey.value)
         }
 
         Ledger.searchCache[source.name] = params

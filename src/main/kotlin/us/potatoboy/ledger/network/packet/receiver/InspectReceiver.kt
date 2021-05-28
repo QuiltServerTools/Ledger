@@ -8,7 +8,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import us.potatoboy.ledger.Ledger
-import us.potatoboy.ledger.getInspectResults
+import us.potatoboy.ledger.utility.getInspectResults
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.action.ActionPacket
 

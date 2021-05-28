@@ -7,8 +7,7 @@ import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.util.math.BlockPos
 import us.potatoboy.ledger.*
 import us.potatoboy.ledger.commands.BuildableCommand
-import us.potatoboy.ledger.utility.Context
-import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.*
 
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
