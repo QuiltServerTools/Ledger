@@ -40,10 +40,10 @@ abstract class AbstractActionType : ActionType {
     @ExperimentalTime
     override fun getMessage(): Text {
         val message: MutableText = "".literal()
+        message.appendWithSpace(getTimeMessage())
         message.appendWithSpace(getSourceMessage())
         message.appendWithSpace(getActionMessage())
         message.appendWithSpace(getObjectMessage())
-        message.appendWithSpace(getTimeMessage())
         message.append(getLocationMessage())
 
         if (rolledBack) {
