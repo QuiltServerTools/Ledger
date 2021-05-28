@@ -17,7 +17,7 @@ import us.potatoboy.ledger.utility.TextColorPallet
 object SearchCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return literal("search")
-            .requires { Permissions.check(it, "ledger.search", Ledger.PERMISSION_LEVEL) }
+            .requires(Permissions.require("ledger.commands.search", Ledger.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
                     .executes { search(it, SearchParamArgument.get(it, "params")) }

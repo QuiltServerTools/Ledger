@@ -25,7 +25,7 @@ class SearchReceiver: Receiver {
         sender: PacketSender
     ) {
         if (!Permissions.check(player, "ledger.networking", Ledger.PERMISSION_LEVEL) ||
-            !Permissions.check(player, "ledger.search", Ledger.PERMISSION_LEVEL)) return
+            !Permissions.check(player, "ledger.commands.search", Ledger.PERMISSION_LEVEL)) return
         val source = player.commandSource
         val input = buf.readString()
         val params = SearchParamArgument.get(input, source)

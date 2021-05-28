@@ -21,7 +21,7 @@ class InspectReceiver : Receiver {
         sender: PacketSender
     ) {
         if (!Permissions.check(player, "ledger.networking", Ledger.PERMISSION_LEVEL) ||
-            !Permissions.check(player, "ledger.inspect", Ledger.PERMISSION_LEVEL)) return
+            !Permissions.check(player, "ledger.commands.inspect", Ledger.PERMISSION_LEVEL)) return
         val pos = buf.readBlockPos()
         Ledger.launch {
             val results = player.getInspectResults(pos)

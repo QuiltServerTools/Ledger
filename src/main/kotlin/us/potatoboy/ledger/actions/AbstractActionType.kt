@@ -70,7 +70,7 @@ abstract class AbstractActionType : ActionType {
 
         val message = TranslatableText("text.ledger.action_message.time_diff", text)
 
-        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
         val timeMessage = formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())).literal()
 
         message.styled {

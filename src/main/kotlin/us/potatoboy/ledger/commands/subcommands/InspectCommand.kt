@@ -13,7 +13,7 @@ import us.potatoboy.ledger.utility.LiteralNode
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
         literal("inspect")
-            .requires { Permissions.check(it, "ledger.inspect", Ledger.PERMISSION_LEVEL) }
+            .requires(Permissions.require("ledger.commands.inspect", Ledger.PERMISSION_LEVEL))
             .executes { toggleInspect(it) }
             .then(
                 literal("on")
