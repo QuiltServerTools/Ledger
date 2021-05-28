@@ -2,6 +2,7 @@ package us.potatoboy.ledger.commands.subcommands
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
@@ -14,6 +15,7 @@ import us.potatoboy.ledger.utility.*
 object RestoreCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("restore")
+            .requires { Permissions.check(it, "ledger.rollback", Ledger.PERMISSION_LEVEL) }
             .then(
                 SearchParamArgument.argument("params")
                     .executes { restore(it, SearchParamArgument.get(it, "params")) }

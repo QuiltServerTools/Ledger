@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.commands.subcommands
 
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
@@ -12,6 +13,7 @@ import us.potatoboy.ledger.utility.LiteralNode
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
         literal("inspect")
+            .requires { Permissions.check(it, "ledger.inspect", Ledger.PERMISSION_LEVEL) }
             .executes { toggleInspect(it) }
             .then(
                 literal("on")

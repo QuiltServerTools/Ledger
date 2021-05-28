@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.commands.subcommands
 
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.TranslatableText
@@ -14,6 +15,7 @@ import us.potatoboy.ledger.utility.literal
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
         CommandManager.literal("status")
+            .requires { Permissions.check(it, "ledger.status", Ledger.PERMISSION_LEVEL) }
             .executes { status(it) }
             .build()
 

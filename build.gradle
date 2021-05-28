@@ -23,6 +23,7 @@ repositories {
     maven { url "https://maven.nucleoid.xyz/" }
     maven { url 'https://maven.bymartrixx.me' }
     maven { url "https://jitpack.io" }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     mavenCentral()
     jcenter()
 }
@@ -35,6 +36,9 @@ dependencies {
 
     // Fabric API
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // Permissions
+    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
     // Message stuff
     modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))

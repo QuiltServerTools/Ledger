@@ -1,6 +1,7 @@
 package us.potatoboy.ledger.commands.subcommands
 
 import kotlinx.coroutines.launch
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
@@ -16,6 +17,7 @@ import us.potatoboy.ledger.utility.TextColorPallet
 object SearchCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return literal("search")
+            .requires { Permissions.check(it, "ledger.search", Ledger.PERMISSION_LEVEL) }
             .then(
                 SearchParamArgument.argument("params")
                     .executes { search(it, SearchParamArgument.get(it, "params")) }
@@ -25,7 +27,6 @@ object SearchCommand : BuildableCommand {
 
     private fun search(context: Context, params: ActionSearchParams): Int {
         val source = context.source
-
         if (params.isEmpty()) {
             source.sendError(TranslatableText("error.ledger.command.no_params"))
             return -1

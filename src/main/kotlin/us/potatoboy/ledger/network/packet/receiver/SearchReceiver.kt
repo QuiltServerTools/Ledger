@@ -1,6 +1,7 @@
 package us.potatoboy.ledger.network.packet.receiver
 
 import kotlinx.coroutines.launch
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.MinecraftServer
@@ -23,6 +24,8 @@ class SearchReceiver: Receiver {
         buf: PacketByteBuf,
         sender: PacketSender
     ) {
+        if (!Permissions.check(player, "ledger.networking", Ledger.PERMISSION_LEVEL) ||
+            !Permissions.check(player, "ledger.search", Ledger.PERMISSION_LEVEL)) return
         val source = player.commandSource
         val input = buf.readString()
         val params = SearchParamArgument.get(input, source)

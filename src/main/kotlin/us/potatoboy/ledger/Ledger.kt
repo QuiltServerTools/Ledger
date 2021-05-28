@@ -31,7 +31,14 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
+
     const val MOD_ID = "ledger"
+
+    // I hate detekt
+    // :detekt failed
+    // MagicNumber
+    const val PERMISSION_LEVEL = 3
+
     val logger: Logger = LogManager.getLogger("Ledger")
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
