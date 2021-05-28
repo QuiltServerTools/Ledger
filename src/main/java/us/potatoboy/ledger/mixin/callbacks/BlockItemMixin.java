@@ -34,7 +34,7 @@ public abstract class BlockItemMixin extends Item {
 				context.getBlockPos(),
 				blockState,
 				context,
-				blockState.getBlock().hasBlockEntity() ? context.getWorld().getBlockEntity(context.getBlockPos()) : null
+				context.getWorld().getBlockEntity(context.getBlockPos()) != null ? context.getWorld().getBlockEntity(context.getBlockPos()) : null
 		);
 	}
 }

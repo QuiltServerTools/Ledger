@@ -7,8 +7,8 @@ plugins {
     id "com.github.jakemarsden.git-hooks" version "0.0.2"
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version
@@ -41,7 +41,8 @@ dependencies {
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
     // Message stuff
-    modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
+    //FIXME No 1.17 release yet
+    //modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
 
     // Kotlin
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
@@ -120,15 +121,15 @@ publishing {
     }
 }
 
-compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileKotlin.kotlinOptions.jvmTarget = "16"
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "16"
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "16"
     }
 }
 

@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.mixin;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
@@ -10,8 +11,8 @@ import us.potatoboy.ledger.actionutils.LocationalInventory;
 
 @Mixin(LockableContainerBlockEntity.class)
 public abstract class LockableContainerBlockEntityMixin extends BlockEntity implements LocationalInventory {
-	public LockableContainerBlockEntityMixin(BlockEntityType<?> type) {
-		super(type);
+	public LockableContainerBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@NotNull

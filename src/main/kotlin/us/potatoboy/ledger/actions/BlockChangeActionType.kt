@@ -37,8 +37,8 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
         if (this.blockState != null) state = this.blockState
 
         world.setBlockState(pos, state)
-        if (state.block.hasBlockEntity()) {
-            world.getBlockEntity(pos)?.fromTag(state, StringNbtReader.parse(extraData))
+        if (world.getBlockEntity(pos) != null) {
+            world.getBlockEntity(pos)?.writeNbt(StringNbtReader.parse(extraData))
         }
 
         return true

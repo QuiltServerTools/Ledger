@@ -27,7 +27,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     override fun getObjectMessage(): Text {
-        val stack = ItemStack.fromTag(StringNbtReader.parse(extraData))
+        val stack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
 
         return "${stack.count} ".literal().append(
             TranslatableText(
@@ -52,7 +52,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val block = blockState.block
         if (block is InventoryProvider) {
             inventory = (block as InventoryProvider).getInventory(blockState, world, pos)
-        } else if (block.hasBlockEntity()) {
+        } else if (world.getBlockEntity(pos) != null) {
             val blockEntity = world.getBlockEntity(pos)!!
             if (blockEntity is Inventory) {
                 inventory = blockEntity
@@ -66,7 +66,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     protected fun removeMatchingItem(inventory: Inventory): Boolean {
-        val rollbackStack = ItemStack.fromTag(StringNbtReader.parse(extraData))
+        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
 
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
@@ -80,7 +80,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     protected fun addItem(inventory: Inventory): Boolean {
-        val rollbackStack = ItemStack.fromTag(StringNbtReader.parse(extraData))
+        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
 
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)

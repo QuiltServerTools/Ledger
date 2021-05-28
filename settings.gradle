@@ -2,6 +2,10 @@ pluginManagement {
     repositories {
         jcenter()
         maven {
+            name = 'Quilt'
+            url = 'https://maven.quiltmc.org/'
+        }
+        maven {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }

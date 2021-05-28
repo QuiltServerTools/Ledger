@@ -26,7 +26,7 @@ public abstract class FireBlockMixin {
 	)
 	private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
 		if (blockState.getBlock() != Blocks.FIRE) {
-			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, blockState.getBlock().hasBlockEntity() ? world.getBlockEntity(pos) : null);
+			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
 		}
 	}
 
@@ -40,7 +40,7 @@ public abstract class FireBlockMixin {
 	)
 	private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
 		if (blockState.getBlock() != Blocks.FIRE) {
-			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, blockState.getBlock().hasBlockEntity() ? world.getBlockEntity(pos) : null);
+			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
 		}
 	}
 }

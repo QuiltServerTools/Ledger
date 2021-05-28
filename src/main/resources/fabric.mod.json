@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "ledger",
-  "version": "${version}",
+  "version": "1.0.0",
   "name": "Ledger",
   "description": "Logs stuff",
   "authors": [
@@ -26,9 +26,9 @@
     "ledger.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.7.1",
+    "fabricloader": ">=0.11.3",
     "fabric": "*",
     "fabric-language-kotlin": ">=1.5.0+kotlin.1.4.31",
-    "minecraft": "^1.16.5"
+    "minecraft": "1.17.x"
   }
 }

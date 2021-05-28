@@ -7,7 +7,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
@@ -85,7 +85,7 @@ object ActionFactory {
         action.blockState = state
         action.oldBlockState = oldState
         action.sourceName = source
-        action.extraData = entity?.toTag(CompoundTag())?.asString()
+        action.extraData = entity?.writeNbt(NbtCompound())?.asString()
     }
 
     fun itemInsertAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemInsertActionType {
@@ -139,7 +139,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = stack.toTag(CompoundTag())?.asString()
+        action.extraData = stack.writeNbt(NbtCompound())?.asString()
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: LivingEntity, cause: DamageSource): EntityKillActionType {
@@ -172,6 +172,6 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
-        action.extraData = entity.toTag(CompoundTag())?.asString()
+        action.extraData = entity.writeNbt(NbtCompound())?.asString()
     }
 }

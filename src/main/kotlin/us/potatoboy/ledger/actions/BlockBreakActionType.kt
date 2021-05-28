@@ -36,8 +36,8 @@ class BlockBreakActionType : BlockChangeActionType("block-break") {
 
         world.setBlockState(pos, state)
 
-        if (success && state.block.hasBlockEntity()) {
-            world.getBlockEntity(pos)?.fromTag(state, StringNbtReader.parse(extraData))
+        if (success && world.getBlockEntity(pos) != null) {
+            world.getBlockEntity(pos)?.writeNbt(StringNbtReader.parse(extraData))
         }
 
         return success
