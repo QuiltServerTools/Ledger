@@ -9,7 +9,8 @@
     "callbacks.ExplosionMixin",
     "callbacks.FallingBlockEntityMixin",
     "callbacks.FireBlockMixin",
-    "callbacks.LivingEntityMixin"
+    "callbacks.LivingEntityMixin",
+    "callbacks.ScreenHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

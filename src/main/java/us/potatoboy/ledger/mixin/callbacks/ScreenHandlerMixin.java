@@ -33,15 +33,13 @@ public abstract class ScreenHandlerMixin {
 	@Final
 	public DefaultedList<Slot> slots;
 
-	@Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;takeStack(I)Lnet/minecraft/item/ItemStack;"))
-	public ItemStack ledgerLogStackTake(Slot slot, int amount, int i, int j, SlotActionType slotActionType, PlayerEntity player) {
-		ItemStack takenStack = slot.takeStack(amount);
+	@Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;onTakeItem(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;)V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+	public void ledgerLogStackTake(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci, PlayerInventory inventory, Slot slot) {
 
-		BlockPos pos = getInventoryLocation(slot, i);
+		BlockPos pos = getInventoryLocation(slot, slotIndex);
 		if (pos != null) {
-			logChange(player, takenStack, ItemStack.EMPTY, pos);
+			logChange(player, slot.getStack(), ItemStack.EMPTY, pos);
 		}
-		return takenStack;
 	}
 
 	@Redirect(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;setStack(Lnet/minecraft/item/ItemStack;)V"))
@@ -73,12 +71,12 @@ public abstract class ScreenHandlerMixin {
 	}
 
 	@Inject(method = "internalOnSlotClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;increment(I)V", ordinal = 0), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-	public void ledgerLogStackIncrement(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci, ItemStack itemStack, PlayerInventory playerInventory, Slot slot, ItemStack itemStack7, ItemStack itemStack8, int q) {
+	public void ledgerLogStackIncrement(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci, PlayerInventory inventory, Slot slot, ItemStack stack, int i, int j, int k) {
 		BlockPos pos = getInventoryLocation(slot, slotIndex);
 		if (pos != null) {
-			ItemStack newItemStack = itemStack7.copy();
-			newItemStack.increment(q);
-			logChange(player, itemStack7, newItemStack, pos);
+			ItemStack newItemStack = stack.copy();
+			newItemStack.increment(i);
+			logChange(player, stack, newItemStack, pos);
 		}
 	}
 
