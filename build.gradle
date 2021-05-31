@@ -40,9 +40,8 @@ dependencies {
     // Permissions
     modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
 
-    // Message stuff
-    //FIXME No 1.17 release yet
-    //modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
+    // Translations
+    modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
 
     // Kotlin
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
@@ -108,15 +107,17 @@ publishing {
             artifact(remapJar) {
                 builtBy remapJar
             }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
         }
     }
 
     // select the repositories you want to publish to
     repositories {
-        // uncomment to publish to the local maven
+        maven {
+            name = "FstMaven"
+            credentials(PasswordCredentials)
+            url = uri(System.getenv("FstMavenUrl") == null ? "" : System.getenv("FstMavenUrl"))
+            allowInsecureProtocol = true
+        }
         // mavenLocal()
     }
 }
