@@ -9,25 +9,33 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import us.potatoboy.ledger.Ledger;
 import us.potatoboy.ledger.actionutils.DoubleInventoryHelper;
 import us.potatoboy.ledger.actionutils.LocationalInventory;
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback;
 import us.potatoboy.ledger.callbacks.PlayerRemoveItemCallback;
 import us.potatoboy.ledger.utility.HandledSlot;
+import us.potatoboy.ledger.utility.HandlerWithPlayer;
 
 @Mixin(Slot.class)
 public abstract class SlotMixin implements HandledSlot {
     private ScreenHandler handler = null;
 
-    @Shadow @Final public Inventory inventory;
-    @Shadow @Final private int index;
+    @Shadow
+    @Final
+    public Inventory inventory;
+    @Shadow
+    @Final
+    private int index;
+
+    @Shadow
+    public abstract ItemStack getStack();
 
     @NotNull
     @Override
@@ -41,11 +49,49 @@ public abstract class SlotMixin implements HandledSlot {
     }
 
     @Inject(method = "setStack", at = @At(value = "HEAD"))
-    private void ledgerSetStackMixin(ItemStack stack, CallbackInfo ci) {
+    private void ledgerLogSetStack(ItemStack newStack, CallbackInfo ci) {
         BlockPos pos = getInventoryLocation();
-        if (pos != null) {
-            //logChange(handler, inventory.getStack(this.index), stack, pos);
+        HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
+        if (pos != null && handlerWithPlayer.getPlayer() != null) {
+            ItemStack oldStack = this.getStack().copy();
+            Ledger.INSTANCE.getLogger().info("new stack " + newStack);
+            Ledger.INSTANCE.getLogger().info("old stack " + oldStack);
+            logChange(handlerWithPlayer.getPlayer(), oldStack, newStack.copy(), pos);
         }
+    }
+
+    @Inject(
+            method = "insertStack(Lnet/minecraft/item/ItemStack;I)Lnet/minecraft/item/ItemStack;",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;increment(I)V"),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION
+    )
+    private void ledgerLogInsertStack(ItemStack cursorStack, int count, CallbackInfoReturnable<ItemStack> cir, ItemStack oldStack, int i) {
+        BlockPos pos = getInventoryLocation();
+        HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
+        if (pos != null && handlerWithPlayer.getPlayer() != null) {
+            ItemStack newStack = oldStack.copy();
+            newStack.increment(i);
+            logChange(handlerWithPlayer.getPlayer(), oldStack.copy(), newStack, pos);
+        }
+    }
+
+    /**
+     * @author Potatoboy9999
+     * @reason Log the item stack removed for ledger
+     */
+    @Overwrite
+    public ItemStack takeStack(int amount) {
+        // newStack and oldStack seem like they should be swapped. They should not
+        ItemStack oldStack = this.inventory.getStack(this.index).copy();
+        ItemStack removedStack = this.inventory.removeStack(this.index, amount);
+        ItemStack newStack = this.inventory.getStack(this.index).copy();
+
+        BlockPos pos = getInventoryLocation();
+        HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
+        if (pos != null && handlerWithPlayer.getPlayer() != null) {
+            logChange(handlerWithPlayer.getPlayer(), oldStack, newStack, pos);
+        }
+        return removedStack;
     }
 
     @Unique
@@ -84,6 +130,7 @@ public abstract class SlotMixin implements HandledSlot {
 
         boolean oldEmpty = oldStack.isEmpty(); // we know only one is empty
         ItemStack changedStack = oldEmpty ? newStack : oldStack;
+        Ledger.INSTANCE.getLogger().info("changed stack" + changedStack);
 
         if (oldEmpty) {
             PlayerInsertItemCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerPlayerEntity) player);

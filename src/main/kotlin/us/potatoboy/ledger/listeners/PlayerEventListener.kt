@@ -19,6 +19,7 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.PlayerBlockPlaceCallback
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback
@@ -72,6 +73,7 @@ object PlayerEventListener {
     }
 
     private fun onItemRemove(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
+        Ledger.logger.info("removed $itemStack")
         DatabaseQueue.addActionToQueue(
             ActionQueueItem(
                 ActionFactory.itemRemoveAction(
@@ -85,6 +87,7 @@ object PlayerEventListener {
     }
 
     private fun onItemInsert(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
+        Ledger.logger.info("inserted $itemStack")
         DatabaseQueue.addActionToQueue(
             ActionQueueItem(
                 ActionFactory.itemInsertAction(
