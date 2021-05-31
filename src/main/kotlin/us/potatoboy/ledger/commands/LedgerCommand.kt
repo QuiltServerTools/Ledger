@@ -30,5 +30,7 @@ class LedgerCommand(private val dispatcher: Dispatcher) {
         rootNode.addChild(RestoreCommand.build())
 
         rootNode.addChild(StatusCommand.build())
+
+        rootNode.addChild(TeleportCommand.build())
     }
 }

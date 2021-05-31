@@ -9,6 +9,7 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.appendWithSpace
 import us.potatoboy.ledger.utility.literal
@@ -126,7 +127,7 @@ abstract class AbstractActionType : ActionType {
             ).withClickEvent(
                 ClickEvent(
                     ClickEvent.Action.RUN_COMMAND,
-                    "/tp ${pos.x} ${pos.y} ${pos.z}"
+                    "/lg tp ${world ?: World.OVERWORLD.value} ${pos.x} ${pos.y} ${pos.z}"
                 )
             )
         }
