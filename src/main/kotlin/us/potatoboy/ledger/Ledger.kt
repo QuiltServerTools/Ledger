@@ -33,10 +33,6 @@ import kotlin.coroutines.CoroutineContext
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     const val MOD_ID = "ledger"
-
-    // I hate detekt
-    // :detekt failed
-    // MagicNumber
     const val PERMISSION_LEVEL = 3
 
     val logger: Logger = LogManager.getLogger("Ledger")

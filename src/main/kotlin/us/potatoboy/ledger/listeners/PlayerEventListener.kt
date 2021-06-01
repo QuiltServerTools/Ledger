@@ -26,8 +26,8 @@ import us.potatoboy.ledger.callbacks.PlayerRemoveItemCallback
 import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.database.queueitems.ActionQueueItem
 import us.potatoboy.ledger.database.queueitems.PlayerQueueItem
-import us.potatoboy.ledger.inspectBlock
-import us.potatoboy.ledger.isInspecting
+import us.potatoboy.ledger.utility.inspectBlock
+import us.potatoboy.ledger.utility.isInspecting
 
 object PlayerEventListener {
     init {

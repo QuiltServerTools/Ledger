@@ -15,7 +15,7 @@ import us.potatoboy.ledger.utility.*
 object RestoreCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("restore")
-            .requires { Permissions.check(it, "ledger.rollback", Ledger.PERMISSION_LEVEL) }
+            .requires(Permissions.require("ledger.commands.rollback", Ledger.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
                     .executes { restore(it, SearchParamArgument.get(it, "params")) }

@@ -15,7 +15,7 @@ import us.potatoboy.ledger.utility.*
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("rollback")
-            .requires { Permissions.check(it, "ledger.rollback", Ledger.PERMISSION_LEVEL) }
+            .requires(Permissions.require("ledger.commands.rollback", Ledger.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
                     .executes { rollback(it, SearchParamArgument.get(it, "params")) }
