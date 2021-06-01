@@ -1,7 +1,14 @@
 package us.potatoboy.ledger.commands
 
 import net.minecraft.server.command.CommandManager.literal
-import us.potatoboy.ledger.commands.subcommands.*
+import us.potatoboy.ledger.commands.subcommands.InspectCommand
+import us.potatoboy.ledger.commands.subcommands.PageCommand
+import us.potatoboy.ledger.commands.subcommands.PreviewCommand
+import us.potatoboy.ledger.commands.subcommands.RestoreCommand
+import us.potatoboy.ledger.commands.subcommands.RollbackCommand
+import us.potatoboy.ledger.commands.subcommands.SearchCommand
+import us.potatoboy.ledger.commands.subcommands.StatusCommand
+import us.potatoboy.ledger.commands.subcommands.TeleportCommand
 import us.potatoboy.ledger.utility.BrigadierUtils
 import us.potatoboy.ledger.utility.Dispatcher
 
