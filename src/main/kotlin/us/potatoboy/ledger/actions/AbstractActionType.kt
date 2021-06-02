@@ -15,7 +15,6 @@ import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import us.potatoboy.ledger.utility.TextColorPallet
-import us.potatoboy.ledger.utility.appendWithSpace
 import us.potatoboy.ledger.utility.literal
 import java.time.Duration
 import java.time.Instant
@@ -44,12 +43,14 @@ abstract class AbstractActionType : ActionType {
 
     @ExperimentalTime
     override fun getMessage(): Text {
-        val message: MutableText = "".literal()
-        message.appendWithSpace(getTimeMessage())
-        message.appendWithSpace(getSourceMessage())
-        message.appendWithSpace(getActionMessage())
-        message.appendWithSpace(getObjectMessage())
-        message.append(getLocationMessage())
+        val message = TranslatableText(
+            "text.ledger.action_message",
+            getTimeMessage(),
+            getSourceMessage(),
+            getActionMessage(),
+            getObjectMessage(),
+            getLocationMessage()
+        )
 
         if (rolledBack) {
             message.formatted(Formatting.STRIKETHROUGH)
@@ -61,19 +62,17 @@ abstract class AbstractActionType : ActionType {
     @ExperimentalTime
     open fun getTimeMessage(): Text {
         val duration = Duration.between(timestamp, Instant.now()).toKotlinDuration()
-        val text: MutableText = "".literal()
+        val message: MutableText = "".literal()
 
         duration.toComponents { days, hours, minutes, seconds, _ ->
 
             when {
-                days > 0 -> text.append(days.toString()).append("d")
-                hours > 0 -> text.append(hours.toString()).append("h")
-                minutes > 0 -> text.append(minutes.toString()).append("m")
-                else -> text.append(seconds.toString()).append("s")
+                days > 0 -> message.append(days.toString()).append("d")
+                hours > 0 -> message.append(hours.toString()).append("h")
+                minutes > 0 -> message.append(minutes.toString()).append("m")
+                else -> message.append(seconds.toString()).append("s")
             }
         }
-
-        val message = TranslatableText("text.ledger.action_message.time_diff", text)
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
         val timeMessage = formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())).literal()
