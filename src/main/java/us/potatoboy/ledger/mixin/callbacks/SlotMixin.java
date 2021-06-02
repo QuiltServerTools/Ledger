@@ -51,69 +51,21 @@ public abstract class SlotMixin implements HandledSlot {
         this.handler = handler;
     }
 
-    @Inject(method = "setStack", at = @At(value = "HEAD"))
-    private void ledgerLogSetStack(ItemStack newStack, CallbackInfo ci) {
-        if (oldStack == null) {
-            oldStack = this.getStack().copy();
-        }
-
-        BlockPos pos = getInventoryLocation();
-        HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
-        if (pos != null && handlerWithPlayer.getPlayer() != null) {
-            Ledger.INSTANCE.getLogger().info("new stack " + newStack);
-            Ledger.INSTANCE.getLogger().info("old stack " + oldStack);
-            logChange(handlerWithPlayer.getPlayer(), oldStack, newStack.copy(), pos);
-        }
-    }
-
-    @Inject(method = "setStack", at = @At(value = "RETURN"))
-    private void ledgerUpdateOldStack(ItemStack stack, CallbackInfo ci) {
+    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    private void ledgerGetInitialStack(Inventory inventory, int index, int x, int y, CallbackInfo ci) {
         oldStack = this.getStack().copy();
     }
 
     @Inject(method = "markDirty", at = @At(value = "HEAD"))
-    private void ledgerUpdateOldStackChange(CallbackInfo ci) {
-        oldStack = this.getStack().copy();
-    }
-
-    /*
-    @Inject(
-            method = "insertStack(Lnet/minecraft/item/ItemStack;I)Lnet/minecraft/item/ItemStack;",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;increment(I)V"),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION
-    )
-    private void ledgerLogInsertStack(ItemStack cursorStack, int count, CallbackInfoReturnable<ItemStack> cir, ItemStack oldStack, int i) {
+    private void ledgerLogChanges(CallbackInfo ci) {
         BlockPos pos = getInventoryLocation();
         HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
+
         if (pos != null && handlerWithPlayer.getPlayer() != null) {
-            ItemStack newStack = oldStack.copy();
-            newStack.increment(i);
-            logChange(handlerWithPlayer.getPlayer(), oldStack.copy(), newStack, pos);
-        }
-    }
-     */
-
-    /**
-     * @author Potatoboy9999
-     * @reason Log the item stack removed for ledger
-     */
-    @Overwrite
-    public ItemStack takeStack(int amount) {
-        ItemStack stack = this.inventory.getStack(this.index).copy();
-        ItemStack removedStack = this.inventory.removeStack(this.index, amount);
-
-        if (oldStack == null) {
-            oldStack = this.getStack().copy();
-        }
-
-        BlockPos pos = getInventoryLocation();
-        HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
-        if (pos != null && handlerWithPlayer.getPlayer() != null) {
-            logChange(handlerWithPlayer.getPlayer(), oldStack, stack, pos);
+            logChange(handlerWithPlayer.getPlayer(), oldStack, this.getStack().copy(), pos);
         }
 
         oldStack = this.getStack().copy();
-        return removedStack;
     }
 
     @Unique
@@ -152,7 +104,6 @@ public abstract class SlotMixin implements HandledSlot {
 
         boolean oldEmpty = stack.isEmpty(); // we know only one is empty
         ItemStack changedStack = oldEmpty ? newStack : stack;
-        Ledger.INSTANCE.getLogger().info("changed stack " + changedStack);
 
         if (oldEmpty) {
             PlayerInsertItemCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerPlayerEntity) player);

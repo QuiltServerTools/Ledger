@@ -21,7 +21,6 @@ import us.potatoboy.ledger.utility.HandlerWithPlayer;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
-    //FIXME Broken in 1.17
 	@Unique
 	private ServerPlayerEntity player = null;
 
