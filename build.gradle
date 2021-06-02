@@ -5,6 +5,7 @@ plugins {
     id "org.jetbrains.kotlin.plugin.serialization" version "$kotlin_version"
     id "io.gitlab.arturbosch.detekt" version "1.15.0"
     id "com.github.jakemarsden.git-hooks" version "0.0.2"
+    id "com.github.johnrengelman.shadow" version "7.0.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -16,6 +17,15 @@ group = project.maven_group
 
 minecraft {
 
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+
+    // in case it is needed later
+    modShade
+    modImplementation.extendsFrom modShade
 }
 
 repositories {
@@ -38,31 +48,27 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // Permissions
-    modImplementation(include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT'))
+    modImplementation include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT')
 
-    // Message stuff
-    //FIXME No 1.17 release yet
-    //modImplementation(include("fr.catcore:server-translations-api:${project.server_translations_version}"))
+    // Translations
+    modImplementation include("fr.catcore:server-translations-api:${project.server_translations_version}")
 
     // Kotlin
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    shade "org.jetbrains.kotlinx:kotlinx-serialization-core:${project.kx_ser_version}"
+    shade "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // Database
-    implementation include ("org.jetbrains.exposed:exposed-core:${project.exposedVersion}")
-    implementation include ("org.jetbrains.exposed:exposed-dao:${project.exposedVersion}")
-    implementation include ("org.jetbrains.exposed:exposed-jdbc:${project.exposedVersion}")
-    implementation include ("org.jetbrains.exposed:exposed-java-time:${project.exposedVersion}")
+    implementation include("org.jetbrains.exposed:exposed-core:${project.exposedVersion}")
+    implementation include("org.jetbrains.exposed:exposed-dao:${project.exposedVersion}")
+    implementation include("org.jetbrains.exposed:exposed-jdbc:${project.exposedVersion}")
+    implementation include("org.jetbrains.exposed:exposed-java-time:${project.exposedVersion}")
 
-    implementation include("org.slf4j:slf4j-api:1.7.30")
-    implementation include("org.slf4j:slf4j-simple:1.7.30")
-
-    implementation include ("org.xerial:sqlite-jdbc:${project.jdbc_version}")
+    implementation include("org.xerial:sqlite-jdbc:${project.jdbc_version}")
 
     // Config
-    implementation include ("com.uchuhimo:konf:1.1.2")
-    implementation include ("com.uchuhimo:konf-toml:1.1.2")
+    shade "com.uchuhimo:konf-core:1.1.2"
+    shade "com.uchuhimo:konf-toml:1.1.2"
 
     // Debug
     modRuntime "me.bymartrixx:wdmcf:1.0.2"
@@ -100,6 +106,35 @@ jar {
     from "LICENSE"
 }
 
+shadowJar {
+    from "LICENSE"
+
+    configurations = [ project.configurations.shade, project.configurations.modShade ]
+    classifier = "dev-all"
+    exclude "kotlin/**", "kotlinx/**", "javax/**", "META-INF"
+    exclude "org/checkerframework/**", "org/intellij/**", "org/jetbrains/annotations/**"
+    exclude "com/google/gson/**"
+    exclude "net/kyori/**"
+    exclude "org/slf4j/**"
+
+    def relocPath = "us.potatoboy.ledger.libs."
+    relocate "com.fasterxml", relocPath + "com.fasterxml"
+    relocate "com.moandjiezana.toml", relocPath + "com.moandjiezana.toml"
+    relocate "com.uchuhimo.konf", relocPath + "com.uchuhimo.konf"
+    relocate "javassist", relocPath + "javassist"
+    // Relocate each apache lib separately as just org.apache.commons will relocate things that aren't shaded and break stuff
+    relocate "org.apache.commons.lang3", relocPath + "org.apache.commons.lang3"
+    relocate "org.apache.commons.text", relocPath + "org.apache.commons.text"
+    relocate "org.reflections", relocPath + "org.reflections"
+    // it appears you cannot relocate sqlite due to the native libraries
+//    relocate "org.sqlite", relocPath + "org.sqlite"
+}
+
+remapJar {
+    dependsOn(shadowJar)
+    input.set(shadowJar.archivePath)
+}
+
 // configure the maven publication
 publishing {
     publications {
@@ -108,15 +143,17 @@ publishing {
             artifact(remapJar) {
                 builtBy remapJar
             }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
         }
     }
 
     // select the repositories you want to publish to
     repositories {
-        // uncomment to publish to the local maven
+        maven {
+            name = "FstMaven"
+            credentials(PasswordCredentials)
+            url = uri(System.getenv("FstMavenUrl") == null ? "" : System.getenv("FstMavenUrl"))
+            allowInsecureProtocol = true
+        }
         // mavenLocal()
     }
 }

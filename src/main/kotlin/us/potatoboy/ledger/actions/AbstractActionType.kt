@@ -4,11 +4,16 @@ import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.*
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.appendWithSpace
 import us.potatoboy.ledger.utility.literal
@@ -16,7 +21,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
+import java.util.TimeZone
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
@@ -70,7 +75,7 @@ abstract class AbstractActionType : ActionType {
 
         val message = TranslatableText("text.ledger.action_message.time_diff", text)
 
-        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
         val timeMessage = formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())).literal()
 
         message.styled {
@@ -126,7 +131,7 @@ abstract class AbstractActionType : ActionType {
             ).withClickEvent(
                 ClickEvent(
                     ClickEvent.Action.RUN_COMMAND,
-                    "/tp ${pos.x} ${pos.y} ${pos.z}"
+                    "/lg tp ${world ?: World.OVERWORLD.value} ${pos.x} ${pos.y} ${pos.z}"
                 )
             )
         }

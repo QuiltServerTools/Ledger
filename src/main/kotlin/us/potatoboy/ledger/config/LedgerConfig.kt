@@ -2,6 +2,7 @@ package us.potatoboy.ledger.config
 
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
+import net.fabricmc.loader.api.FabricLoader
 
 const val CONFIG_PATH = "ledger.toml"
 
@@ -12,6 +13,6 @@ val config = Config {
     addSpec(ColorSpec)
 }
     .from.toml.resource(CONFIG_PATH)
-    .from.toml.watchFile("config\\$CONFIG_PATH")
+    .from.toml.watchFile(FabricLoader.getInstance().configDir.resolve("ledger.toml").toFile())
     .from.env()
     .from.systemProperties()

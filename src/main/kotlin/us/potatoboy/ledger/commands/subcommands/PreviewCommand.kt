@@ -17,7 +17,7 @@ import us.potatoboy.ledger.utility.LiteralNode
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("preview")
-            .requires { Permissions.check(it, "ledger.preview", Ledger.PERMISSION_LEVEL) }
+            .requires(Permissions.require("ledger.commands.preview", Ledger.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
                     .executes { preview(it, SearchParamArgument.get(it, "params")) }

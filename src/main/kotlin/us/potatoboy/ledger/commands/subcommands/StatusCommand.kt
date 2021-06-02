@@ -15,7 +15,7 @@ import us.potatoboy.ledger.utility.literal
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
         CommandManager.literal("status")
-            .requires { Permissions.check(it, "ledger.status", Ledger.PERMISSION_LEVEL) }
+            .requires(Permissions.require("ledger.commands.status", Ledger.PERMISSION_LEVEL))
             .executes { status(it) }
             .build()
 
