@@ -9,6 +9,7 @@ import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.BuildableCommand
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
@@ -17,30 +18,50 @@ import us.potatoboy.ledger.utility.LiteralNode
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("preview")
-            .requires(Permissions.require("ledger.commands.preview", Ledger.PERMISSION_LEVEL))
-            .then(
-                SearchParamArgument.argument("params")
-                    .executes { preview(it, SearchParamArgument.get(it, "params")) }
+            .requires(Permissions.require("ledger.commands.preview", CommandConsts.PERMISSION_LEVEL))
+            .then(CommandManager.literal("rollback")
+                .then(
+                    SearchParamArgument.argument(CommandConsts.PARAMS)
+                        .executes {
+                            preview(
+                                it,
+                                SearchParamArgument.get(it, CommandConsts.PARAMS),
+                                Preview.Type.ROLLBACK
+                            )
+                        }
+                )
+            )
+            .then(CommandManager.literal("restore")
+                .then(
+                    SearchParamArgument.argument(CommandConsts.PARAMS)
+                        .executes {
+                            preview(
+                                it,
+                                SearchParamArgument.get(it, CommandConsts.PARAMS),
+                                Preview.Type.RESTORE
+                            )
+                        }
+                )
             )
             .then(CommandManager.literal("apply").executes { apply(it) })
             .then(CommandManager.literal("cancel").executes { cancel(it) })
             .build()
     }
 
-    private fun preview(context: Context, params: ActionSearchParams?): Int {
+    private fun preview(context: Context, params: ActionSearchParams?, type: Preview.Type): Int {
         val source = context.source
 
         if (params == null) return -1
 
         Ledger.launch(Dispatchers.IO) {
-            val actions = DatabaseManager.previewActions(params, source)
+            val actions = DatabaseManager.previewActions(params, source, type)
 
             if (actions.isEmpty()) {
                 source.sendError(TranslatableText("error.ledger.command.no_results"))
                 return@launch
             }
 
-            Ledger.previewCache[source.player.uuid] = Preview(params, actions, source.player)
+            Ledger.previewCache[source.player.uuid] = Preview(params, actions, source.player, type)
         }
         return 1
     }

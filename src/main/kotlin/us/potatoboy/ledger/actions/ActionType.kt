@@ -25,7 +25,8 @@ interface ActionType {
 
     fun rollback(world: ServerWorld): Boolean
     fun restore(world: ServerWorld): Boolean
-    fun preview(world: ServerWorld, player: ServerPlayerEntity)
+    fun previewRollback(world: ServerWorld, player: ServerPlayerEntity)
+    fun previewRestore(world: ServerWorld, player: ServerPlayerEntity)
     fun getTranslationType(): String
     fun getMessage(): Text
 }

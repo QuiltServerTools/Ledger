@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.mixin.callbacks;
 
+import java.util.Random;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FireBlock;
@@ -12,35 +13,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import us.potatoboy.ledger.callbacks.BlockBurnCallback;
 
-import java.util.Random;
-
 @Mixin(FireBlock.class)
 public abstract class FireBlockMixin {
-	@Inject(
-			method = "trySpreadingFire",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"
-			),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION
-	)
-	private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
-		if (blockState.getBlock() != Blocks.FIRE) {
-			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
-		}
-	}
+    @Inject(
+            method = "trySpreadingFire",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"
+            ),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION
+    )
+    private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
+        if (blockState.getBlock() != Blocks.FIRE) {
+            BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
+        }
+    }
 
-	@Inject(
-			method = "trySpreadingFire",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"
-			),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION
-	)
-	private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
-		if (blockState.getBlock() != Blocks.FIRE) {
-			BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
-		}
-	}
+    @Inject(
+            method = "trySpreadingFire",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"
+            ),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION
+    )
+    private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
+        if (blockState.getBlock() != Blocks.FIRE) {
+            BlockBurnCallback.Companion.getEVENT().invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
+        }
+    }
 }

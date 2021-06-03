@@ -11,6 +11,7 @@ primary = "#009688"
 primaryVariant = "#52c7b8"
 secondary = "#1e88e5"
 secondaryVariant = "#6ab7ff"
+light = "#c5d6f0"
 ```
 
 #### Red
@@ -22,6 +23,7 @@ primary = "#A4243B"
 primaryVariant = "#C8973C"
 secondary = "#BD632F"
 secondaryVariant = "#D8C99B"
+light = "#ccc8c8"
 ```
 
 #### Green
@@ -30,7 +32,8 @@ secondaryVariant = "#D8C99B"
 [color]
 # Colors in hex format
 primary = "#2A993F"
-primaryVariant = "#30B348"
+primaryVariant = "#b0c196"
 secondary = "#20D44D"
-secondaryVariant = "#34C74C"
+secondaryVariant = "#279639"
+light = "#c9c9c9"
 ```

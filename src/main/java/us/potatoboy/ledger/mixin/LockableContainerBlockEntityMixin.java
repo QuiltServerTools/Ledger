@@ -11,13 +11,13 @@ import us.potatoboy.ledger.actionutils.LocationalInventory;
 
 @Mixin(LockableContainerBlockEntity.class)
 public abstract class LockableContainerBlockEntityMixin extends BlockEntity implements LocationalInventory {
-	public LockableContainerBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-		super(type, pos, state);
-	}
+    public LockableContainerBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
 
-	@NotNull
-	@Override
-	public BlockPos getLocation() {
-		return this.pos;
-	}
+    @NotNull
+    @Override
+    public BlockPos getLocation() {
+        return this.pos;
+    }
 }

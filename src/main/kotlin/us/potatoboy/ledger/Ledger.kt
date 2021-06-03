@@ -1,6 +1,10 @@
 package us.potatoboy.ledger
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -26,14 +30,13 @@ import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
 import java.nio.file.Files
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     const val MOD_ID = "ledger"
-    const val PERMISSION_LEVEL = 3
 
     val logger: Logger = LogManager.getLogger("Ledger")
     val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }

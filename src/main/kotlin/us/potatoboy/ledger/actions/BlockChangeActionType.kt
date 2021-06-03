@@ -1,48 +1,55 @@
 package us.potatoboy.ledger.actions
 
+import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
+import us.potatoboy.ledger.Ledger
 
 open class BlockChangeActionType(override val identifier: String) : AbstractActionType() {
     override fun rollback(world: ServerWorld): Boolean {
-        val oldBlock = Registry.BLOCK.getOrEmpty(oldObjectIdentifier)
-        if (oldBlock.isEmpty) return false
-
-        var state = oldBlock.get().defaultState
-        if (this.oldBlockState != null) state = this.oldBlockState
-
-        world.setBlockState(pos, state)
+        world.setBlockState(pos, oldBlockState())
 
         return true
     }
 
-    override fun preview(world: ServerWorld, player: ServerPlayerEntity) {
-        val block = Registry.BLOCK.getOrEmpty(oldObjectIdentifier)
-        if (block.isEmpty) return
-
-        var state = block.get().defaultState
-        if (this.oldBlockState != null) state = this.oldBlockState
-
-        player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, state))
+    override fun previewRollback(world: ServerWorld, player: ServerPlayerEntity) {
+        player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, oldBlockState()))
     }
 
     override fun restore(world: ServerWorld): Boolean {
-        val block = Registry.BLOCK.getOrEmpty(objectIdentifier)
-        if (block.isEmpty) return false
-
-        var state = block.get().defaultState
-        if (this.blockState != null) state = this.blockState
-
-        world.setBlockState(pos, state)
-        if (world.getBlockEntity(pos) != null) {
+        world.setBlockState(pos, newBlockState())
+        if (newBlockState().hasBlockEntity()) {
             world.getBlockEntity(pos)?.writeNbt(StringNbtReader.parse(extraData))
         }
 
         return true
     }
 
+    override fun previewRestore(world: ServerWorld, player: ServerPlayerEntity) {
+        player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, newBlockState()))
+    }
+
     override fun getTranslationType() = "block"
+
+    private fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldBlockState)
+
+    private fun newBlockState() = checkForBlockState(objectIdentifier, blockState)
+
+    private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
+        val block = Registry.BLOCK.getOrEmpty(identifier)
+        if (block.isEmpty) {
+            Ledger.logger.warn("Unknown block $identifier")
+            return Blocks.AIR.defaultState
+        }
+
+        var state = block.get().defaultState
+        if (checkState != null) state = checkState
+
+        return state
+    }
 }

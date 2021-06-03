@@ -8,12 +8,27 @@ import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.andWhere
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.lowerCase
+import org.jetbrains.exposed.sql.or
+import org.jetbrains.exposed.sql.orWhere
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.actionutils.ActionSearchParams
+import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.config.SearchSpec
 import us.potatoboy.ledger.config.config
@@ -23,7 +38,7 @@ import us.potatoboy.ledger.utility.MessageUtils
 import us.potatoboy.ledger.utility.NbtUtils
 import java.io.File
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -167,7 +182,11 @@ object DatabaseManager {
         return actionTypes
     }
 
-    suspend fun previewActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
+    suspend fun previewActions(
+        params: ActionSearchParams,
+        source: ServerCommandSource,
+        type: Preview.Type
+    ): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
         MessageUtils.warnBusy(source)
@@ -177,7 +196,7 @@ object DatabaseManager {
                 val query: Query
                 try {
                     query = buildQuery(params)
-                        .andWhere { Tables.Actions.rolledBack eq false }
+                        .andWhere { Tables.Actions.rolledBack eq (type == Preview.Type.RESTORE) }
                         .orderBy(Tables.Actions.id, SortOrder.DESC)
                 } catch (e: IllegalArgumentException) {
                     return@newSuspendedTransaction
@@ -369,10 +388,8 @@ object DatabaseManager {
         }
 
     // TODO cache in a map maybe?
-    private fun getRegistryKey(identifier: Identifier) = transaction {
-        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1)
-            .firstOrNull()
-    }
+    private fun getRegistryKey(identifier: Identifier) =
+        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
 
     private fun getWorld(identifier: Identifier) = transaction {
         Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).firstOrNull()

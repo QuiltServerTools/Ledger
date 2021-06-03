@@ -7,4 +7,5 @@ object ColorSpec : ConfigSpec() {
     val primaryVariant by required<String>()
     val secondary by required<String>()
     val secondaryVariant by required<String>()
+    val light by required<String>()
 }

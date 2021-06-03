@@ -7,12 +7,13 @@ import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.util.math.BlockPos
 import us.potatoboy.ledger.*
 import us.potatoboy.ledger.commands.BuildableCommand
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.utility.*
 
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
         literal("inspect")
-            .requires(Permissions.require("ledger.commands.inspect", Ledger.PERMISSION_LEVEL))
+            .requires(Permissions.require("ledger.commands.inspect", CommandConsts.PERMISSION_LEVEL))
             .executes { toggleInspect(it) }
             .then(
                 literal("on")

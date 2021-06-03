@@ -7,6 +7,7 @@ import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.BuildableCommand
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
@@ -17,7 +18,7 @@ import us.potatoboy.ledger.utility.TextColorPallet
 object SearchCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return literal("search")
-            .requires(Permissions.require("ledger.commands.search", Ledger.PERMISSION_LEVEL))
+            .requires(Permissions.require("ledger.commands.search", CommandConsts.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
                     .executes { search(it, SearchParamArgument.get(it, "params")) }

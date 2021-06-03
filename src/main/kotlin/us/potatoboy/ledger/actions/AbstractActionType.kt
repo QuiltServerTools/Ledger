@@ -38,7 +38,8 @@ abstract class AbstractActionType : ActionType {
     override var rolledBack: Boolean = false
 
     override fun rollback(world: ServerWorld): Boolean = false
-    override fun preview(world: ServerWorld, player: ServerPlayerEntity) = Unit
+    override fun previewRollback(world: ServerWorld, player: ServerPlayerEntity) = Unit
+    override fun previewRestore(world: ServerWorld, player: ServerPlayerEntity) = Unit
     override fun restore(world: ServerWorld): Boolean = false
 
     @ExperimentalTime
@@ -51,6 +52,7 @@ abstract class AbstractActionType : ActionType {
             getObjectMessage(),
             getLocationMessage()
         )
+        message.style = TextColorPallet.light
 
         if (rolledBack) {
             message.formatted(Formatting.STRIKETHROUGH)
@@ -62,17 +64,19 @@ abstract class AbstractActionType : ActionType {
     @ExperimentalTime
     open fun getTimeMessage(): Text {
         val duration = Duration.between(timestamp, Instant.now()).toKotlinDuration()
-        val message: MutableText = "".literal()
+        val text: MutableText = "".literal()
 
         duration.toComponents { days, hours, minutes, seconds, _ ->
 
             when {
-                days > 0 -> message.append(days.toString()).append("d")
-                hours > 0 -> message.append(hours.toString()).append("h")
-                minutes > 0 -> message.append(minutes.toString()).append("m")
-                else -> message.append(seconds.toString()).append("s")
+                days > 0 -> text.append(days.toString()).append("d")
+                hours > 0 -> text.append(hours.toString()).append("h")
+                minutes > 0 -> text.append(minutes.toString()).append("m")
+                else -> text.append(seconds.toString()).append("s")
             }
         }
+
+        val message = TranslatableText("text.ledger.action_message.time_diff", text)
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
         val timeMessage = formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())).literal()

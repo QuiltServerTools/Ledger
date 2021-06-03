@@ -8,9 +8,10 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import us.potatoboy.ledger.Ledger
-import us.potatoboy.ledger.utility.getInspectResults
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.action.ActionPacket
+import us.potatoboy.ledger.utility.getInspectResults
 
 class InspectReceiver : Receiver {
     override fun receive(
@@ -20,8 +21,9 @@ class InspectReceiver : Receiver {
         buf: PacketByteBuf,
         sender: PacketSender
     ) {
-        if (!Permissions.check(player, "ledger.networking", Ledger.PERMISSION_LEVEL) ||
-            !Permissions.check(player, "ledger.commands.inspect", Ledger.PERMISSION_LEVEL)) return
+        if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
+            !Permissions.check(player, "ledger.commands.inspect", CommandConsts.PERMISSION_LEVEL)
+        ) return
         val pos = buf.readBlockPos()
         Ledger.launch {
             val results = player.getInspectResults(pos)
@@ -33,6 +35,5 @@ class InspectReceiver : Receiver {
                 }
             }
         }
-
     }
 }

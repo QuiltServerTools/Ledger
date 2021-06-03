@@ -2,6 +2,7 @@ package us.potatoboy.ledger.mixin.callbacks;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Iterator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -18,39 +19,37 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import us.potatoboy.ledger.callbacks.BlockExplodeCallback;
 
-import java.util.Iterator;
-
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin {
-	@Shadow
-	@Final
-	private World world;
+    @Shadow
+    @Final
+    private World world;
 
-	@Shadow
-	@Final
-	private Entity entity;
+    @Shadow
+    @Final
+    private Entity entity;
 
-	@Inject(
-			method = "affectWorld",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"),
-			locals = LocalCapture.CAPTURE_FAILEXCEPTION
-	)
-	private void ledgerBlockExplodeCallback(
-			boolean bl,
-			CallbackInfo ci,
-			boolean bl2,
-			ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList,
-			Iterator<BlockPos> blocks,
-			BlockPos blockPos,
-			BlockState blockState,
-			Block block) {
+    @Inject(
+            method = "affectWorld",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"),
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION
+    )
+    private void ledgerBlockExplodeCallback(
+            boolean bl,
+            CallbackInfo ci,
+            boolean bl2,
+            ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList,
+            Iterator<BlockPos> blocks,
+            BlockPos blockPos,
+            BlockState blockState,
+            Block block) {
 
-		BlockExplodeCallback.Companion.getEVENT().invoker().explode(
-				world,
-				entity,
-				blockPos,
-				blockState,
-				world.getBlockEntity(blockPos) != null ? world.getBlockEntity(blockPos) : null
-		);
-	}
+        BlockExplodeCallback.Companion.getEVENT().invoker().explode(
+                world,
+                entity,
+                blockPos,
+                blockState,
+                world.getBlockEntity(blockPos) != null ? world.getBlockEntity(blockPos) : null
+        );
+    }
 }

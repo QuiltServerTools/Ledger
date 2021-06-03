@@ -6,15 +6,15 @@ import net.minecraft.command.argument.PosArgument
 import net.minecraft.command.argument.Vec3ArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.world.ServerWorld
-import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.BuildableCommand
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
 
 object TeleportCommand : BuildableCommand {
     override fun build(): LiteralNode =
         CommandManager.literal("tp")
-            .requires(Permissions.require("ledger.commands.tp", Ledger.PERMISSION_LEVEL))
+            .requires(Permissions.require("ledger.commands.tp", CommandConsts.PERMISSION_LEVEL))
             .then(
                 CommandManager.argument("world", DimensionArgumentType.dimension())
                     .then(

@@ -10,15 +10,15 @@ import us.potatoboy.ledger.callbacks.EntityKillCallback;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-	@Inject(
-			method = "onDeath",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getAttacker()Lnet/minecraft/entity/Entity;")
-	)
-	private void ledgerEntityKillInvoker(DamageSource source, CallbackInfo ci) {
-		LivingEntity entity = (LivingEntity) (Object) this;
+    @Inject(
+            method = "onDeath",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getAttacker()Lnet/minecraft/entity/Entity;")
+    )
+    private void ledgerEntityKillInvoker(DamageSource source, CallbackInfo ci) {
+        LivingEntity entity = (LivingEntity) (Object) this;
 
-		EntityKillCallback.Companion.getEVENT().invoker().kill(
-				entity.world, entity.getBlockPos(), entity, source
-		);
-	}
+        EntityKillCallback.Companion.getEVENT().invoker().kill(
+                entity.world, entity.getBlockPos(), entity, source
+        );
+    }
 }

@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.commands
 
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager.literal
 import us.potatoboy.ledger.commands.subcommands.InspectCommand
 import us.potatoboy.ledger.commands.subcommands.PageCommand
@@ -14,7 +15,9 @@ import us.potatoboy.ledger.utility.Dispatcher
 
 class LedgerCommand(private val dispatcher: Dispatcher) {
     fun register() {
-        val rootNode = literal("ledger").build()
+        val rootNode =
+            literal("ledger").requires(Permissions.require("ledger.commands.root", CommandConsts.PERMISSION_LEVEL))
+                .build()
 
         dispatcher.root.addChild(rootNode)
         dispatcher.root.addChild(literal("lg").redirect(rootNode).build())

@@ -57,11 +57,10 @@ class TimeParameter : SimpleParameter<Duration>() {
                 for (i in 1..MAX_SIZE) builder.suggest(i.toString() + unit)
             } else {
                 val end = remaining.last()
-                if (end in '0'..'9') {
+                if (end in '1'..'9') {
                     builder.suggest(remaining + unit)
                 }
             }
-
         }
         return builder.buildFuture()
     }

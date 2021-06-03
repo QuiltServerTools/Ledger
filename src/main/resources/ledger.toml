@@ -14,6 +14,7 @@ primary = "#009688"
 primaryVariant = "#52c7b8"
 secondary = "#1e88e5"
 secondaryVariant = "#6ab7ff"
+light = "#c5d6f0"
 
 [actions]
 # Blacklists - blacklisted things will not be logged in the database

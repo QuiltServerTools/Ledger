@@ -14,7 +14,8 @@
 
   "text.ledger.preview.start": "Preview starting",
 
-  "text.ledger.action_message": "%1$s ago %2$s %3$s %4$s %5$s",
+  "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+  "text.ledger.action_message.time_diff": "%s ago",
   "text.ledger.action_message.location.hover": "Click to teleport",
 
   "text.ledger.rollback.start": "Rolling back %s actions",

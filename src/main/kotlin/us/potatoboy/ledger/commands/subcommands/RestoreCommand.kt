@@ -8,14 +8,19 @@ import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.commands.BuildableCommand
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.utility.*
+import us.potatoboy.ledger.utility.Context
+import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.TextColorPallet
+import us.potatoboy.ledger.utility.launchMain
+import us.potatoboy.ledger.utility.literal
 
 object RestoreCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("restore")
-            .requires(Permissions.require("ledger.commands.rollback", Ledger.PERMISSION_LEVEL))
+            .requires(Permissions.require("ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
                     .executes { restore(it, SearchParamArgument.get(it, "params")) }
@@ -23,10 +28,8 @@ object RestoreCommand : BuildableCommand {
             .build()
     }
 
-    private fun restore(context: Context, params: ActionSearchParams?): Int {
+    fun restore(context: Context, params: ActionSearchParams): Int {
         val source = context.source
-
-        if (params == null) return -1
 
         Ledger.launch(Dispatchers.IO) {
             val actions = DatabaseManager.restoreActions(params, source)

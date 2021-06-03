@@ -10,17 +10,17 @@ import us.potatoboy.ledger.actionutils.DoubleInventoryHelper;
 
 @Mixin(DoubleInventory.class)
 public abstract class DoubleInventoryMixin implements DoubleInventoryHelper {
-	@Shadow
-	@Final
-	private Inventory first;
+    @Shadow
+    @Final
+    private Inventory first;
 
-	@Shadow
-	@Final
-	private Inventory second;
+    @Shadow
+    @Final
+    private Inventory second;
 
-	@NotNull
-	@Override
-	public Inventory getInventory(int slot) {
-		return slot >= this.first.size() ? this.second : this.first;
-	}
+    @NotNull
+    @Override
+    public Inventory getInventory(int slot) {
+        return slot >= this.first.size() ? this.second : this.first;
+    }
 }

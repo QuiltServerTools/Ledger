@@ -6,6 +6,7 @@ import net.minecraft.server.command.CommandManager
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.BuildableCommand
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.database.DatabaseQueue
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
@@ -15,7 +16,7 @@ import us.potatoboy.ledger.utility.literal
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
         CommandManager.literal("status")
-            .requires(Permissions.require("ledger.commands.status", Ledger.PERMISSION_LEVEL))
+            .requires(Permissions.require("ledger.commands.status", CommandConsts.PERMISSION_LEVEL))
             .executes { status(it) }
             .build()
 

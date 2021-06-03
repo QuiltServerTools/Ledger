@@ -6,11 +6,17 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.math.BlockPos
 import us.potatoboy.ledger.actions.ActionType
+import us.potatoboy.ledger.commands.subcommands.RestoreCommand
 import us.potatoboy.ledger.commands.subcommands.RollbackCommand
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.TextColorPallet
 
-class Preview(private val params: ActionSearchParams, actions: List<ActionType>, player: ServerPlayerEntity) {
+class Preview(
+    private val params: ActionSearchParams,
+    actions: List<ActionType>,
+    player: ServerPlayerEntity,
+    private val type: Type
+) {
     private val positions = mutableSetOf<BlockPos>()
 
     init {
@@ -23,7 +29,10 @@ class Preview(private val params: ActionSearchParams, actions: List<ActionType>,
         )
 
         for (action in actions) {
-            action.preview(player.world as ServerWorld, player)
+            when (type) {
+                Type.ROLLBACK -> action.previewRollback(player.world as ServerWorld, player)
+                Type.RESTORE -> action.previewRestore(player.world as ServerWorld, player)
+            }
             positions.add(action.pos)
         }
     }
@@ -35,6 +44,14 @@ class Preview(private val params: ActionSearchParams, actions: List<ActionType>,
     }
 
     fun apply(context: Context) {
-        RollbackCommand.rollback(context, params)
+        when (type) {
+            Type.ROLLBACK -> RollbackCommand.rollback(context, params)
+            Type.RESTORE -> RestoreCommand.restore(context, params)
+        }
+    }
+
+    enum class Type {
+        ROLLBACK,
+        RESTORE
     }
 }

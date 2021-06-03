@@ -1,7 +1,11 @@
 package us.potatoboy.ledger.utility
 
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.*
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
+import net.minecraft.text.Style
+import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.database.DatabaseQueue

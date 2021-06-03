@@ -10,13 +10,14 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actions.ActionType
+import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.network.packet.LedgerPacketTypes
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.action.ActionPacket
 
-class SearchReceiver: Receiver {
+class SearchReceiver : Receiver {
     override fun receive(
         server: MinecraftServer,
         player: ServerPlayerEntity,
@@ -24,8 +25,9 @@ class SearchReceiver: Receiver {
         buf: PacketByteBuf,
         sender: PacketSender
     ) {
-        if (!Permissions.check(player, "ledger.networking", Ledger.PERMISSION_LEVEL) ||
-            !Permissions.check(player, "ledger.commands.search", Ledger.PERMISSION_LEVEL)) return
+        if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
+            !Permissions.check(player, "ledger.commands.search", CommandConsts.PERMISSION_LEVEL)
+        ) return
         val source = player.commandSource
         val input = buf.readString()
         val params = SearchParamArgument.get(input, source)
@@ -44,11 +46,13 @@ class SearchReceiver: Receiver {
                 source.sendError(TranslatableText("error.ledger.command.no_results"))
                 return@launch
             }
-            results.actions.forEach { action: ActionType -> run {
-                val packet = ActionPacket()
-                packet.populate(action)
-                sender.sendPacket(LedgerPacketTypes.ACTION.id, packet.buf)
-            } }
+            results.actions.forEach { action: ActionType ->
+                run {
+                    val packet = ActionPacket()
+                    packet.populate(action)
+                    sender.sendPacket(LedgerPacketTypes.ACTION.id, packet.buf)
+                }
+            }
         }
     }
 }
