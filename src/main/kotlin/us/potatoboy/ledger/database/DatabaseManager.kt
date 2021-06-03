@@ -3,7 +3,6 @@ package us.potatoboy.ledger.database
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
@@ -27,11 +26,19 @@ import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
-    private val databaseFile = File(FabricLoader.getInstance().gameDir.toFile(), "ledger.sqlite")
-    private val database = Database.connect(
-        url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
-    )
+
+    // These values are initialised as null to allow the database to be created at server start,
+    // which means the database file is located in the world folder and allows for per-world databases.
+    private var databaseFile: File? = null
+    private var database: Database? = null
     val dbMutex = Mutex()
+
+    fun setValues(file: File) {
+        databaseFile = file
+        database = Database.connect(
+            url = "jdbc:sqlite:${databaseFile!!.path.replace('\\', '/')}",
+        )
+    }
 
     // TODO implement locks to prevent multiple db modifications at once
     fun ensureTables() = transaction {
@@ -65,7 +72,7 @@ object DatabaseManager {
             z = action.pos.z
             objectId = action.objectIdentifier.let { getRegistryKey(it)!! }
             oldObjectId = action.oldObjectIdentifier.let { getRegistryKey(it)!! }
-            world = getWorld(action.world ?: Ledger.server.overworld.registryKey.value)!!
+            world = getWorld(action.world ?: Ledger.server!!.overworld.registryKey.value)!!
             blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
             oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
             sourceName = Tables.Source[getAndCreateSource(action.sourceName)]

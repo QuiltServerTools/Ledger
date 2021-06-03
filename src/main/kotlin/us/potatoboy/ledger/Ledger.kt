@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
+import net.minecraft.util.WorldSavePath
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -36,7 +37,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val PERMISSION_LEVEL = 3
 
     val logger: Logger = LogManager.getLogger("Ledger")
-    val server: MinecraftServer by lazy { FabricLoader.getInstance().gameInstance as MinecraftServer }
+    var server: MinecraftServer? = null
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
@@ -57,13 +58,22 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
         config.validateRequired()
 
-        DatabaseManager.ensureTables()
-        ActionRegistry.registerDefaultTypes()
-        initListeners()
+        // Init database
+        ServerLifecycleEvents.SERVER_STARTING.register { server: MinecraftServer ->
+            run {
+                this.server = server
+                DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile())
+                DatabaseManager.ensureTables()
+                ActionRegistry.registerDefaultTypes()
+                initListeners()
+                Networking
+            }
+        }
+
+
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register(::commandRegistration)
-        Networking
     }
 
     private fun serverStarting(server: MinecraftServer) {
