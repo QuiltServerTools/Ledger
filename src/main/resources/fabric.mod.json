@@ -3,14 +3,14 @@
   "id": "ledger",
   "version": "1.0.0",
   "name": "Ledger",
-  "description": "Logs stuff",
+  "description": "Logs world events and allows for them to be rolled back",
   "authors": [
     "Potatoboy9999"
   ],
   "contact": {
-    "homepage": "temp",
-    "sources": "temp",
-    "issues": "temp"
+    "homepage": "https://github.com/QuiltServerTools",
+    "sources": "https://github.com/QuiltServerTools/Ledger",
+    "issues": "https://github.com/QuiltServerTools/Ledger/issues"
   },
   "license": "LGPL",
   "icon": "assets/ledger/icon.png",
@@ -27,7 +27,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.11.3",
-    "fabric": "*",
+    "fabric": ">=0.34.8",
     "fabric-language-kotlin": ">=1.5.0+kotlin.1.4.31",
     "minecraft": "1.17.x"
   }

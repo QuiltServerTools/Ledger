@@ -52,20 +52,17 @@ class TimeParameter : SimpleParameter<Duration>() {
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val remaining = builder.remaining.lowercase()
-        if (remaining.isEmpty()) {
-            for (i in 1..MAX_SIZE) builder.suggest(i)
-        } else {
-            val end = remaining.last()
-            if (units.contains(end)) {
-                for (i in 1..MAX_SIZE) builder.suggest(remaining + i)
-                return builder.buildFuture()
+        for (unit in units) {
+            if (remaining.isEmpty()) {
+                for (i in 1..MAX_SIZE) builder.suggest(i.toString() + unit)
+            } else {
+                val end = remaining.last()
+                if (end in '0'..'9') {
+                    builder.suggest(remaining + unit)
+                }
             }
 
-            for (unit in units) {
-                builder.suggest(remaining + unit)
-            }
         }
-
         return builder.buildFuture()
     }
 }
