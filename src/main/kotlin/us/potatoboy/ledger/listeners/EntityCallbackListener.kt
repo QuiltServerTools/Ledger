@@ -6,15 +6,16 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.EntityKillCallback
-import us.potatoboy.ledger.database.DatabaseQueue
-import us.potatoboy.ledger.database.queueitems.ActionQueueItem
+import us.potatoboy.ledger.database.DatabaseManager
 
-object EntityCallbackListener {
-    init {
-        EntityKillCallback.EVENT.register(::onKill)
-    }
 
-    private fun onKill(world: World, pos: BlockPos, entity: LivingEntity, source: DamageSource) {
-        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.entityKillAction(world, pos, entity, source)))
-    }
+fun registerEntityListeners() {
+    EntityKillCallback.EVENT.register(::onKill)
 }
+
+private fun onKill(world: World, pos: BlockPos, entity: LivingEntity, source: DamageSource) {
+    DatabaseManager.logAction(
+        ActionFactory.entityKillAction(world, pos, entity, source)
+    )
+}
+

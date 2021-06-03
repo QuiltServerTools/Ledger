@@ -1,6 +1,11 @@
 package us.potatoboy.ledger.database
 
 import com.mojang.authlib.GameProfile
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
@@ -12,6 +17,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
@@ -31,7 +37,6 @@ import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.config.SearchSpec
 import us.potatoboy.ledger.config.config
-import us.potatoboy.ledger.database.queueitems.QueueItem
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.MessageUtils
 import us.potatoboy.ledger.utility.NbtUtils
@@ -48,6 +53,20 @@ object DatabaseManager {
     private var database: Database? = null
     val dbMutex = Mutex()
 
+    private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
+    val actions = _actions.asSharedFlow()
+
+    init {
+        // TODO stop minecraft from closing while still collecting or something? not sure
+        Ledger.launch {
+            actions.collect {
+                execute {
+                    insertAction(it)
+                }
+            }
+        }
+    }
+
     fun setValues(file: File) {
         databaseFile = file
         database = Database.connect(
@@ -55,7 +74,6 @@ object DatabaseManager {
         )
     }
 
-    // TODO implement locks to prevent multiple db modifications at once
     fun ensureTables() = transaction {
         SchemaUtils.createMissingTablesAndColumns(
             Tables.Players,
@@ -66,34 +84,6 @@ object DatabaseManager {
             Tables.Worlds
         )
         Ledger.logger.info("Tables created")
-    }
-
-    suspend fun insertQueued(queuedItems: Collection<QueueItem>) {
-        newSuspendedTransaction {
-            dbMutex.withLock {
-                for (queueItem in queuedItems) {
-                    queueItem.insert()
-                }
-            }
-        }
-    }
-
-    fun insertAction(action: ActionType) {
-        Tables.Action.new {
-            actionIdentifier = getActionId(action.identifier)!!
-            timestamp = action.timestamp
-            x = action.pos.x
-            y = action.pos.y
-            z = action.pos.z
-            objectId = action.objectIdentifier.let { getRegistryKey(it)!! }
-            oldObjectId = action.oldObjectIdentifier.let { getRegistryKey(it)!! }
-            world = getWorld(action.world ?: Ledger.server!!.overworld.registryKey.value)!!
-            blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            sourceName = Tables.Source[getAndCreateSource(action.sourceName)]
-            sourcePlayer = action.sourceProfile?.let { getPlayer(it.id) }
-            extraData = action.extraData
-        }
     }
 
     suspend fun searchActions(params: ActionSearchParams, page: Int, source: ServerCommandSource): SearchResults {
@@ -343,16 +333,6 @@ object DatabaseManager {
         }
     }
 
-    fun insertActionId(id: String) {
-        transaction {
-            if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
-                val actionIdentifier = Tables.ActionIdentifier.new {
-                    identifier = id
-                }
-            }
-        }
-    }
-
     // TODO cache in a map maybe?
     private fun getActionId(id: String): Tables.ActionIdentifier? {
         // Tables.ActionIdentifier.find { Tables.ActionIdentifiers.action_identifier eq id }.firstOrNull()!!
@@ -364,37 +344,17 @@ object DatabaseManager {
         return Tables.ActionIdentifier.wrapRows(query).firstOrNull()
     }
 
-    fun insertObject(identifier: Identifier) {
-        Tables.ObjectIdentifiers.insertIgnore {
-            it[this.identifier] = identifier.toString()
+    private fun getAndCreateSource(source: String): Tables.Source {
+        Tables.Sources.insertIgnore {
+            it[name] = source
         }
+
+        return getSource(source)
     }
-
-    suspend fun insertWorld(identifier: Identifier) {
-        newSuspendedTransaction {
-            dbMutex.withLock {
-                Tables.Worlds.insertIgnore {
-                    it[this.identifier] = identifier.toString()
-                }
-            }
-        }
-    }
-
-    private fun getAndCreateSource(source: String) =
-        transaction {
-            Tables.Sources.insertIgnore {
-                it[name] = source
-            }
-
-            getSource(source)!!.id
-        }
 
     private fun getSource(source: String) =
-        transaction {
-            Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
-        }
+        Tables.Source.find { Tables.Sources.name eq source }.first()
 
-    // TODO cache in a map maybe?
     private fun getRegistryKey(identifier: Identifier) =
         Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
 
@@ -402,17 +362,86 @@ object DatabaseManager {
         Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).firstOrNull()
     }
 
-    fun registerKeys(identifiers: Set<Identifier>) {
-        transaction {
-            Tables.ObjectIdentifiers.batchInsert(identifiers) { identifier ->
-                this[Tables.ObjectIdentifiers.identifier] = identifier.toString()
+    fun logAction(action: ActionType) {
+        _actions.tryEmit(action)
+    }
+
+    suspend fun registerWorld(identifier: Identifier) {
+        execute {
+            insertWorld(identifier)
+        }
+    }
+
+    suspend fun registerActionType(id: String) {
+        execute {
+            insertActionType(id)
+        }
+    }
+
+    suspend fun logPlayer(uuid: UUID, name: String) {
+        execute {
+            insertPlayer(uuid, name)
+        }
+    }
+
+    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) {
+        execute {
+            insertRegKeys(identifiers)
+        }
+    }
+
+    fun getPlayer(playerId: UUID) =
+        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
+
+    fun getPlayer(playerName: String) =
+        Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
+
+    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
+        dbMutex.withLock {
+            newSuspendedTransaction {
+                body(this)
+            }
+        }
+
+    private fun Transaction.insertActionType(id: String) {
+        if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
+            val actionIdentifier = Tables.ActionIdentifier.new {
+                identifier = id
             }
         }
     }
 
-    fun addPlayer(uuid: UUID, name: String) {
-        // addLogger(StdOutSqlLogger)
+    private fun Transaction.insertWorld(identifier: Identifier) {
+        Tables.Worlds.insertIgnore {
+            it[this.identifier] = identifier.toString()
+        }
+    }
 
+    private fun Transaction.insertRegKeys(identifiers: Collection<Identifier>) {
+        Tables.ObjectIdentifiers.batchInsert(identifiers, true) { identifier ->
+            this[Tables.ObjectIdentifiers.identifier] = identifier.toString()
+        }
+    }
+
+    private fun Transaction.insertAction(action: ActionType) {
+        Tables.Action.new {
+            actionIdentifier = getActionId(action.identifier)!!
+            timestamp = action.timestamp
+            x = action.pos.x
+            y = action.pos.y
+            z = action.pos.z
+            objectId = getRegistryKey(action.objectIdentifier)
+            oldObjectId = getRegistryKey(action.oldObjectIdentifier)
+            world = getWorld(action.world ?: Ledger.server!!.overworld.registryKey.value)!!
+            blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            sourceName = getAndCreateSource(action.sourceName)
+            sourcePlayer = action.sourceProfile?.let { getPlayer(it.id) }
+            extraData = action.extraData
+        }
+    }
+
+    private fun Transaction.insertPlayer(uuid: UUID, name: String) {
         val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
 
         if (player != null) {
@@ -425,12 +454,4 @@ object DatabaseManager {
             }
         }
     }
-
-    // TODO cache in a map maybe?
-
-    fun getPlayer(playerId: UUID) =
-        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
-
-    fun getPlayer(playerName: String) =
-        Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
 }

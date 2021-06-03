@@ -12,23 +12,20 @@ import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.receiver.InspectReceiver
 import us.potatoboy.ledger.network.packet.receiver.SearchReceiver
 
-object Networking {
-    init {
-        register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
-        register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
-    }
 
-    private fun register(channel: Identifier, receiver: Receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(channel) {
-                server: MinecraftServer,
-                player: ServerPlayerEntity,
-                handler: ServerPlayNetworkHandler,
-                buf: PacketByteBuf,
-                sender: PacketSender ->
-            run {
-                receiver.receive(server, player, handler, buf, sender)
-            }
-        }
+fun registerNetworking() {
+    register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
+    register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
+}
+
+private fun register(channel: Identifier, receiver: Receiver) {
+    ServerPlayNetworking.registerGlobalReceiver(channel) {
+            server: MinecraftServer,
+            player: ServerPlayerEntity,
+            handler: ServerPlayNetworkHandler,
+            buf: PacketByteBuf,
+            sender: PacketSender ->
+        receiver.receive(server, player, handler, buf, sender)
     }
 }
 

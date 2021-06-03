@@ -1,5 +1,6 @@
 package us.potatoboy.ledger.listeners
 
+import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
@@ -19,126 +20,117 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
+import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.actionutils.ActionFactory
 import us.potatoboy.ledger.callbacks.PlayerBlockPlaceCallback
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback
 import us.potatoboy.ledger.callbacks.PlayerRemoveItemCallback
-import us.potatoboy.ledger.database.DatabaseQueue
-import us.potatoboy.ledger.database.queueitems.ActionQueueItem
-import us.potatoboy.ledger.database.queueitems.PlayerQueueItem
+import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.inspectBlock
 import us.potatoboy.ledger.utility.isInspecting
 
-object PlayerEventListener {
-    init {
-        PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
-        PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
-        ServerPlayConnectionEvents.JOIN.register(::onJoin)
-        PlayerInsertItemCallback.EVENT.register(::onItemInsert)
-        PlayerRemoveItemCallback.EVENT.register(::onItemRemove)
-        AttackBlockCallback.EVENT.register(::onBlockAttack)
-        UseBlockCallback.EVENT.register(::onUseBlock)
+fun registerPlayerListeners() {
+    PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
+    PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
+    ServerPlayConnectionEvents.JOIN.register(::onJoin)
+    PlayerInsertItemCallback.EVENT.register(::onItemInsert)
+    PlayerRemoveItemCallback.EVENT.register(::onItemRemove)
+    AttackBlockCallback.EVENT.register(::onBlockAttack)
+    UseBlockCallback.EVENT.register(::onUseBlock)
+}
+
+private fun onUseBlock(
+    player: PlayerEntity,
+    world: World,
+    hand: Hand,
+    blockHitResult: BlockHitResult
+): ActionResult {
+    if ((player as ServerPlayerEntity).isInspecting()) {
+        player.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
+        return ActionResult.SUCCESS
     }
 
-    private fun onUseBlock(
-        player: PlayerEntity,
-        world: World,
-        hand: Hand,
-        blockHitResult: BlockHitResult
-    ): ActionResult {
-        if ((player as ServerPlayerEntity).isInspecting()) {
-            player.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
-            return ActionResult.SUCCESS
-        }
+    return ActionResult.PASS
+}
 
-        return ActionResult.PASS
+private fun onBlockAttack(
+    player: PlayerEntity,
+    world: World,
+    hand: Hand,
+    pos: BlockPos,
+    direction: Direction
+): ActionResult {
+    if (world.isClient) return ActionResult.PASS
+
+    if ((player as ServerPlayerEntity).isInspecting()) {
+        player.inspectBlock(pos)
+        return ActionResult.SUCCESS
     }
 
-    private fun onBlockAttack(
-        player: PlayerEntity,
-        world: World,
-        hand: Hand,
-        pos: BlockPos,
-        direction: Direction
-    ): ActionResult {
-        if (world.isClient) return ActionResult.PASS
+    return ActionResult.PASS
+}
 
-        if ((player as ServerPlayerEntity).isInspecting()) {
-            player.inspectBlock(pos)
-            return ActionResult.SUCCESS
-        }
-
-        return ActionResult.PASS
-    }
-
-    private fun onItemRemove(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.itemRemoveAction(
-                    player.serverWorld,
-                    itemStack,
-                    blockPos,
-                    player
-                )
-            )
+private fun onItemRemove(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
+    DatabaseManager.logAction(
+        ActionFactory.itemRemoveAction(
+            player.serverWorld,
+            itemStack,
+            blockPos,
+            player
         )
-    }
+    )
+}
 
-    private fun onItemInsert(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.itemInsertAction(
-                    player.serverWorld,
-                    itemStack,
-                    blockPos,
-                    player
-                )
-            )
+private fun onItemInsert(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
+    DatabaseManager.logAction(
+        ActionFactory.itemInsertAction(
+            player.serverWorld,
+            itemStack,
+            blockPos,
+            player
         )
-    }
+    )
+}
 
-    private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
-        DatabaseQueue.addActionToQueue(PlayerQueueItem(networkHandler.player.uuid, networkHandler.player.entityName))
+private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
+    Ledger.launch {
+        DatabaseManager.logPlayer(networkHandler.player.uuid, networkHandler.player.entityName)
     }
+}
 
-    private fun onBlockPlace(
-        world: World,
-        player: PlayerEntity,
-        pos: BlockPos,
-        state: BlockState,
-        context: ItemPlacementContext,
-        blockEntity: BlockEntity?
-    ) {
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.blockPlaceAction(
-                    world,
-                    pos,
-                    state,
-                    player as ServerPlayerEntity,
-                    blockEntity
-                )
-            )
+private fun onBlockPlace(
+    world: World,
+    player: PlayerEntity,
+    pos: BlockPos,
+    state: BlockState,
+    context: ItemPlacementContext,
+    blockEntity: BlockEntity?
+) {
+    DatabaseManager.logAction(
+        ActionFactory.blockPlaceAction(
+            world,
+            pos,
+            state,
+            player as ServerPlayerEntity,
+            blockEntity
         )
-    }
+    )
+}
 
-    private fun onBlockBreak(
-        world: World,
-        player: PlayerEntity,
-        pos: BlockPos,
-        state: BlockState,
-        blockEntity: BlockEntity?
-    ) {
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.blockBreakAction(
-                    world,
-                    pos,
-                    state,
-                    player as ServerPlayerEntity,
-                    blockEntity
-                )
-            )
+private fun onBlockBreak(
+    world: World,
+    player: PlayerEntity,
+    pos: BlockPos,
+    state: BlockState,
+    blockEntity: BlockEntity?
+) {
+    DatabaseManager.logAction(
+        ActionFactory.blockBreakAction(
+            world,
+            pos,
+            state,
+            player as ServerPlayerEntity,
+            blockEntity
         )
-    }
+    )
 }

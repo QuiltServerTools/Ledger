@@ -8,7 +8,6 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.database.DatabaseQueue
 
 object MessageUtils {
     fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
@@ -61,7 +60,7 @@ object MessageUtils {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.database.busy",
-                    DatabaseQueue.size()
+                    //DatabaseQueue.size()
                 ).setStyle(TextColorPallet.primary),
                 false
             )
