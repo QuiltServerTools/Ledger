@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.sql.Column
@@ -26,7 +25,6 @@ import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.orWhere
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -38,7 +36,6 @@ import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.config.SearchSpec
 import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.registry.ActionRegistry
-import us.potatoboy.ledger.utility.MessageUtils
 import us.potatoboy.ledger.utility.NbtUtils
 import java.io.File
 import java.time.Instant
@@ -86,126 +83,23 @@ object DatabaseManager {
         Ledger.logger.info("Tables created")
     }
 
-    suspend fun searchActions(params: ActionSearchParams, page: Int, source: ServerCommandSource): SearchResults {
-        val actionTypes = mutableListOf<ActionType>()
-        var totalActions: Long = 0
-
-        MessageUtils.warnBusy(source)
-
-        newSuspendedTransaction {
-            // addLogger(StdOutSqlLogger)
-
-            dbMutex.withLock {
-                var query: Query
-                try {
-                    query = buildQuery(params)
-                } catch (e: IllegalArgumentException) {
-                    return@newSuspendedTransaction
-                }
-
-                totalActions = query.copy().count()
-                if (totalActions == 0L) return@newSuspendedTransaction
-
-                query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
-                query = query.limit(
-                    config[SearchSpec.pageSize],
-                    (config[SearchSpec.pageSize] * (page - 1)).toLong()
-                ).withDistinct()
-
-                val actions = Tables.Action.wrapRows(query).toList()
-
-                actionTypes.addAll(daoToActionType(actions))
-            }
-        }
-
-        val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
-
-        return SearchResults(actionTypes, params, page, totalPages)
+    suspend fun searchActions(params: ActionSearchParams, page: Int): SearchResults = execute {
+        return@execute selectActionsSearch(params, page)
     }
 
-    suspend fun rollbackActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
-
-        MessageUtils.warnBusy(source)
-
-        newSuspendedTransaction {
-            dbMutex.withLock {
-                val query: Query
-                try {
-                    query = buildQuery(params)
-                        .andWhere { Tables.Actions.rolledBack eq false }
-                        .orderBy(Tables.Actions.id, SortOrder.DESC)
-                } catch (e: IllegalArgumentException) {
-                    return@newSuspendedTransaction
-                }
-
-                val actions = Tables.Action.wrapRows(query).toList()
-                for (action in actions) {
-                    action.rolledBack = true
-                }
-
-                actionTypes.addAll(daoToActionType(actions))
-            }
-        }
-
-        return actionTypes
+    suspend fun rollbackActions(params: ActionSearchParams): List<ActionType> = execute {
+        return@execute selectRollbackActions(params)
     }
 
-    suspend fun restoreActions(params: ActionSearchParams, source: ServerCommandSource): List<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
-
-        MessageUtils.warnBusy(source)
-
-        newSuspendedTransaction {
-            dbMutex.withLock {
-                val query: Query
-                try {
-                    query = buildQuery(params)
-                        .andWhere { Tables.Actions.rolledBack eq true }
-                        .orderBy(Tables.Actions.id, SortOrder.ASC)
-                } catch (e: IllegalArgumentException) {
-                    return@newSuspendedTransaction
-                }
-
-                val actions = Tables.Action.wrapRows(query).toList()
-                for (action in actions) {
-                    action.rolledBack = false
-                }
-
-                actionTypes.addAll(daoToActionType(actions))
-            }
-        }
-
-        return actionTypes
+    suspend fun restoreActions(params: ActionSearchParams): List<ActionType> = execute {
+        return@execute selectRestoreActions(params)
     }
 
     suspend fun previewActions(
         params: ActionSearchParams,
-        source: ServerCommandSource,
         type: Preview.Type
-    ): List<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
-
-        MessageUtils.warnBusy(source)
-
-        newSuspendedTransaction {
-            dbMutex.withLock {
-                val query: Query
-                try {
-                    query = buildQuery(params)
-                        .andWhere { Tables.Actions.rolledBack eq (type == Preview.Type.RESTORE) }
-                        .orderBy(Tables.Actions.id, SortOrder.DESC)
-                } catch (e: IllegalArgumentException) {
-                    return@newSuspendedTransaction
-                }
-
-                val actions = Tables.Action.wrapRows(query).toList()
-
-                actionTypes.addAll(daoToActionType(actions))
-            }
-        }
-
-        return actionTypes
+    ): List<ActionType> = execute {
+        return@execute selectActionsPreview(params, type)
     }
 
     private fun daoToActionType(actions: List<Tables.Action>): List<ActionType> {
@@ -251,7 +145,6 @@ object DatabaseManager {
         val oldObjectTable = Tables.ObjectIdentifiers.alias("oldObjects")
 
         val query = Tables.Actions
-            // TODO figure out why this doesn't work .leftJoin(Tables.Players)
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
@@ -333,16 +226,8 @@ object DatabaseManager {
         }
     }
 
-    // TODO cache in a map maybe?
-    private fun getActionId(id: String): Tables.ActionIdentifier? {
-        // Tables.ActionIdentifier.find { Tables.ActionIdentifiers.action_identifier eq id }.firstOrNull()!!
-
-        val query = Tables.ActionIdentifiers.select {
-            Tables.ActionIdentifiers.actionIdentifier eq id
-        }.limit(1)
-
-        return Tables.ActionIdentifier.wrapRows(query).firstOrNull()
-    }
+    private fun getActionId(id: String) =
+        Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.first()
 
     private fun getAndCreateSource(source: String): Tables.Source {
         Tables.Sources.insertIgnore {
@@ -358,9 +243,8 @@ object DatabaseManager {
     private fun getRegistryKey(identifier: Identifier) =
         Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
 
-    private fun getWorld(identifier: Identifier) = transaction {
-        Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).firstOrNull()
-    }
+    private fun getWorld(identifier: Identifier) =
+        Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
 
     fun logAction(action: ActionType) {
         _actions.tryEmit(action)
@@ -425,14 +309,14 @@ object DatabaseManager {
 
     private fun Transaction.insertAction(action: ActionType) {
         Tables.Action.new {
-            actionIdentifier = getActionId(action.identifier)!!
+            actionIdentifier = getActionId(action.identifier)
             timestamp = action.timestamp
             x = action.pos.x
             y = action.pos.y
             z = action.pos.z
             objectId = getRegistryKey(action.objectIdentifier)
             oldObjectId = getRegistryKey(action.oldObjectIdentifier)
-            world = getWorld(action.world ?: Ledger.server!!.overworld.registryKey.value)!!
+            world = getWorld(action.world ?: Ledger.server!!.overworld.registryKey.value)
             blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
             oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
             sourceName = getAndCreateSource(action.sourceName)
@@ -453,5 +337,79 @@ object DatabaseManager {
                 this.playerName = name
             }
         }
+    }
+
+    private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
+        val actionTypes = mutableListOf<ActionType>()
+        var totalActions: Long = 0
+
+        var query = buildQuery(params)
+
+        totalActions = query.copy().count()
+        if (totalActions == 0L) return SearchResults(actionTypes, params, page, 0)
+
+        query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
+        query = query.limit(
+            config[SearchSpec.pageSize],
+            (config[SearchSpec.pageSize] * (page - 1)).toLong()
+        ).withDistinct()
+
+        val actions = Tables.Action.wrapRows(query).toList()
+
+        actionTypes.addAll(daoToActionType(actions))
+
+        val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
+
+        return SearchResults(actionTypes, params, page, totalPages)
+    }
+
+    private fun Transaction.selectActionsPreview(
+        params: ActionSearchParams,
+        type: Preview.Type
+    ): MutableList<ActionType> {
+        val actionTypes = mutableListOf<ActionType>()
+
+        val query = buildQuery(params)
+            .andWhere { Tables.Actions.rolledBack eq (type == Preview.Type.RESTORE) }
+            .orderBy(Tables.Actions.id, SortOrder.DESC)
+
+        val actions = Tables.Action.wrapRows(query).toList()
+        actionTypes.addAll(daoToActionType(actions))
+
+        return actionTypes
+    }
+
+    private fun Transaction.selectRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
+        val actionTypes = mutableListOf<ActionType>()
+
+        val query = buildQuery(params)
+            .andWhere { Tables.Actions.rolledBack eq false }
+            .orderBy(Tables.Actions.id, SortOrder.DESC)
+
+        val actions = Tables.Action.wrapRows(query).toList()
+        for (action in actions) {
+            action.rolledBack = true
+        }
+
+        actionTypes.addAll(daoToActionType(actions))
+
+        return actionTypes
+    }
+
+    private fun Transaction.selectRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
+        val actionTypes = mutableListOf<ActionType>()
+
+        val query = buildQuery(params)
+            .andWhere { Tables.Actions.rolledBack eq true }
+            .orderBy(Tables.Actions.id, SortOrder.DESC)
+
+        val actions = Tables.Action.wrapRows(query).toList()
+        for (action in actions) {
+            action.rolledBack = false
+        }
+
+        actionTypes.addAll(daoToActionType(actions))
+
+        return actionTypes
     }
 }

@@ -16,6 +16,7 @@ import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.network.packet.LedgerPacketTypes
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.action.ActionPacket
+import us.potatoboy.ledger.utility.MessageUtils
 
 class SearchReceiver : Receiver {
     override fun receive(
@@ -40,7 +41,8 @@ class SearchReceiver : Receiver {
         Ledger.launch {
             Ledger.searchCache[source.name] = params
 
-            val results = DatabaseManager.searchActions(params, 1, source)
+            MessageUtils.warnBusy(source)
+            val results = DatabaseManager.searchActions(params, 1)
 
             if (results.actions.isEmpty()) {
                 source.sendError(TranslatableText("error.ledger.command.no_results"))

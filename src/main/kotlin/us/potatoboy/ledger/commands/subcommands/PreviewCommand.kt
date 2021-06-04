@@ -14,6 +14,7 @@ import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.MessageUtils
 
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -54,7 +55,8 @@ object PreviewCommand : BuildableCommand {
         if (params == null) return -1
 
         Ledger.launch(Dispatchers.IO) {
-            val actions = DatabaseManager.previewActions(params, source, type)
+            MessageUtils.warnBusy(source)
+            val actions = DatabaseManager.previewActions(params, type)
 
             if (actions.isEmpty()) {
                 source.sendError(TranslatableText("error.ledger.command.no_results"))

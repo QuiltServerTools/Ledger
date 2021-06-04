@@ -32,7 +32,7 @@ object StatusCommand : BuildableCommand {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.status.queue",
-                    DatabaseManager.actions.toString().literal()
+                    DatabaseManager.actions.toString().literal() // TODO fix
                         .setStyle(TextColorPallet.secondaryVariant)
                 ).setStyle(TextColorPallet.secondary),
                 false
