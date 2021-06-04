@@ -7,25 +7,25 @@ import us.potatoboy.ledger.actions.ActionType
 import us.potatoboy.ledger.network.packet.LedgerPacket
 import us.potatoboy.ledger.network.packet.LedgerPacketTypes
 
-class ActionPacket: LedgerPacket {
+class ActionPacket: LedgerPacket<ActionType> {
     override val channel: Identifier = LedgerPacketTypes.ACTION.id
     override var buf: PacketByteBuf = PacketByteBufs.create()
 
-    override fun populate(action: ActionType) {
+    override fun populate(content: ActionType) {
         // Position
-        buf.writeBlockPos(action.pos)
+        buf.writeBlockPos(content.pos)
         // Type
-        buf.writeString(action.identifier)
+        buf.writeString(content.identifier)
         // Dimension
-        buf.writeIdentifier(action.world)
+        buf.writeIdentifier(content.world)
         // Objects
-        buf.writeIdentifier(action.oldObjectIdentifier)
-        buf.writeIdentifier(action.objectIdentifier)
+        buf.writeIdentifier(content.oldObjectIdentifier)
+        buf.writeIdentifier(content.objectIdentifier)
         // Source
-        buf.writeString(action.sourceProfile?.name ?: "@" + action.sourceName)
+        buf.writeString(content.sourceProfile?.name ?: "@" + content.sourceName)
         // Epoch second of event, sent as a long
-        buf.writeLong(action.timestamp.epochSecond)
+        buf.writeLong(content.timestamp.epochSecond)
         // NBT
-        buf.writeString(action.extraData ?: "")
+        buf.writeString(content.extraData ?: "")
     }
 }
