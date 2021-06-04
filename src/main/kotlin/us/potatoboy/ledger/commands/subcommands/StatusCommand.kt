@@ -13,6 +13,7 @@ import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
 import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.literal
+import us.potatoboy.ledger.utility.translate
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -32,8 +33,11 @@ object StatusCommand : BuildableCommand {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.status.queue",
-                    DatabaseManager.actions.toString().literal() // TODO fix
-                        .setStyle(TextColorPallet.secondaryVariant)
+                    if (DatabaseManager.dbMutex.isLocked) {
+                        "text.ledger.status.queue.busy".translate().setStyle(TextColorPallet.secondaryVariant)
+                    } else {
+                        "text.ledger.status.queue.empty".translate().setStyle(TextColorPallet.secondaryVariant)
+                    }
                 ).setStyle(TextColorPallet.secondary),
                 false
             )

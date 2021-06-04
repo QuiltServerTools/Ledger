@@ -59,8 +59,7 @@ object MessageUtils {
         if (DatabaseManager.dbMutex.isLocked) {
             source.sendFeedback(
                 TranslatableText(
-                    "text.ledger.database.busy",
-                    //DatabaseQueue.size()
+                    "text.ledger.database.busy"
                 ).setStyle(TextColorPallet.primary),
                 false
             )
