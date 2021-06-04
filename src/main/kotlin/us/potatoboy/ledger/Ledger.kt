@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
-import us.potatoboy.ledger.commands.LedgerCommand
+import us.potatoboy.ledger.commands.registerCommands
 import us.potatoboy.ledger.config.CONFIG_PATH
 import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.DatabaseManager
@@ -94,7 +94,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         registerEntityListeners()
     }
 
-    private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = LedgerCommand(dispatcher).register()
+    private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = registerCommands(dispatcher)
 
     fun identifier(path: String) = Identifier(MOD_ID, path)
 }
