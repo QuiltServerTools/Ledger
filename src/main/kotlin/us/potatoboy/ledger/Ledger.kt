@@ -2,7 +2,6 @@ package us.potatoboy.ledger
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.fabricmc.api.DedicatedServerModInitializer
@@ -21,13 +20,10 @@ import us.potatoboy.ledger.commands.LedgerCommand
 import us.potatoboy.ledger.config.CONFIG_PATH
 import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.database.DatabaseQueue
-import us.potatoboy.ledger.database.QueueDrainer
-import us.potatoboy.ledger.database.queueitems.RegistryQueueItem
-import us.potatoboy.ledger.listeners.BlockEventListener
-import us.potatoboy.ledger.listeners.EntityCallbackListener
-import us.potatoboy.ledger.listeners.PlayerEventListener
-import us.potatoboy.ledger.network.Networking
+import us.potatoboy.ledger.listeners.registerBlockListeners
+import us.potatoboy.ledger.listeners.registerEntityListeners
+import us.potatoboy.ledger.listeners.registerPlayerListeners
+import us.potatoboy.ledger.network.registerNetworking
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
 import java.nio.file.Files
@@ -40,11 +36,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
 
     val logger: Logger = LogManager.getLogger("Ledger")
-    var server: MinecraftServer? = null
+    lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
     val previewCache = ConcurrentHashMap<UUID, Preview>()
-
-    private var queueDrainerJob: Job? = null
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 
@@ -61,51 +55,43 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
         config.validateRequired()
 
-        // Init database
-        ServerLifecycleEvents.SERVER_STARTING.register { server: MinecraftServer ->
-            run {
-                this.server = server
-                DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile())
-                DatabaseManager.ensureTables()
-                ActionRegistry.registerDefaultTypes()
-                initListeners()
-                Networking
-            }
-        }
-
-
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register(::commandRegistration)
     }
 
     private fun serverStarting(server: MinecraftServer) {
+        this.server = server
+        DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile())
+        DatabaseManager.ensureTables()
+        ActionRegistry.registerDefaultTypes()
+        initListeners()
+        registerNetworking()
+
         val idSet = setOf<Identifier>()
             .plus(Registry.BLOCK.ids)
             .plus(Registry.ITEM.ids)
             .plus(Registry.ENTITY_TYPE.ids)
 
-        queueDrainerJob = Ledger.launch(Dispatchers.IO) {
-            server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.insertWorld(it) }
+        Ledger.launch {
+            server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.registerWorld(it) }
 
-            logger.info("Inserting ${idSet.size} registry keys into the database queue...")
-            idSet.forEach { DatabaseQueue.addActionToQueue(RegistryQueueItem(it)) }
-
-            QueueDrainer.run()
+            logger.info("Inserting ${idSet.size} registry keys into the database...")
+            DatabaseManager.insertIdentifiers(idSet)
+            logger.info("Registry insert complete")
         }
     }
 
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            QueueDrainer.stop()
-            queueDrainerJob?.join()
+            // TODO make actions SharedFlow fully drain somehow
         }
     }
 
     private fun initListeners() {
-        PlayerEventListener
-        BlockEventListener
-        EntityCallbackListener
+        registerPlayerListeners()
+        registerBlockListeners()
+        registerEntityListeners()
     }
 
     private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = LedgerCommand(dispatcher).register()
