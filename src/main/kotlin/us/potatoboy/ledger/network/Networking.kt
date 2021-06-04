@@ -19,29 +19,26 @@ import us.potatoboy.ledger.network.packet.receiver.SearchReceiver
 object Networking {
     // List of players who have a compatible client mod
     var networkedPlayers: MutableList<ServerPlayerEntity> = ArrayList()
+
     init {
         if (config[NetworkingSpec.networking]) {
             register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
             register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
             register(LedgerPacketTypes.HANDSHAKE.id, HandshakePacketReceiver())
-            ServerPlayConnectionEvents.DISCONNECT.register { h: ServerPlayNetworkHandler, _: MinecraftServer ->
-                run {
-                    networkedPlayers.removeIf { p: ServerPlayerEntity -> p == h.player }
-                }
+            ServerPlayConnectionEvents.DISCONNECT.register { handler: ServerPlayNetworkHandler,
+                                                             server: MinecraftServer ->
+                networkedPlayers.remove(handler.player)
             }
         }
     }
 
     private fun register(channel: Identifier, receiver: Receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(channel) {
-                server: MinecraftServer,
-                player: ServerPlayerEntity,
-                handler: ServerPlayNetworkHandler,
-                buf: PacketByteBuf,
-                sender: PacketSender ->
-            run {
-                receiver.receive(server, player, handler, buf, sender)
-            }
+        ServerPlayNetworking.registerGlobalReceiver(channel) { server: MinecraftServer,
+                                                               player: ServerPlayerEntity,
+                                                               handler: ServerPlayNetworkHandler,
+                                                               buf: PacketByteBuf,
+                                                               sender: PacketSender ->
+            receiver.receive(server, player, handler, buf, sender)
         }
     }
 }
