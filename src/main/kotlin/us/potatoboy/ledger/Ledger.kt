@@ -36,7 +36,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
 
     val logger: Logger = LogManager.getLogger("Ledger")
-    var server: MinecraftServer? = null
+    lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 

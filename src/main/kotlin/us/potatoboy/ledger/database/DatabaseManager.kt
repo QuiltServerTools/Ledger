@@ -21,6 +21,7 @@ import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
@@ -44,10 +45,10 @@ import kotlin.math.ceil
 
 object DatabaseManager {
 
-    // These values are initialised as null to allow the database to be created at server start,
+    // These values are initialised late to allow the database to be created at server start,
     // which means the database file is located in the world folder and allows for per-world databases.
-    private var databaseFile: File? = null
-    private var database: Database? = null
+    private lateinit var databaseFile: File
+    private lateinit var database: Database
     val dbMutex = Mutex()
 
     private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
@@ -226,59 +227,29 @@ object DatabaseManager {
         }
     }
 
-    private fun getActionId(id: String) =
-        Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.first()
-
-    private fun getAndCreateSource(source: String): Tables.Source {
-        Tables.Sources.insertIgnore {
-            it[name] = source
-        }
-
-        return getSource(source)
-    }
-
-    private fun getSource(source: String) =
-        Tables.Source.find { Tables.Sources.name eq source }.first()
-
-    private fun getRegistryKey(identifier: Identifier) =
-        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
-
-    private fun getWorld(identifier: Identifier) =
-        Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
-
     fun logAction(action: ActionType) {
         _actions.tryEmit(action)
     }
 
-    suspend fun registerWorld(identifier: Identifier) {
+    suspend fun registerWorld(identifier: Identifier) =
         execute {
             insertWorld(identifier)
         }
-    }
 
-    suspend fun registerActionType(id: String) {
+    suspend fun registerActionType(id: String) =
         execute {
             insertActionType(id)
         }
-    }
 
-    suspend fun logPlayer(uuid: UUID, name: String) {
+    suspend fun logPlayer(uuid: UUID, name: String) =
         execute {
             insertPlayer(uuid, name)
         }
-    }
 
-    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) {
+    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) =
         execute {
             insertRegKeys(identifiers)
         }
-    }
-
-    fun getPlayer(playerId: UUID) =
-        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
-
-    fun getPlayer(playerName: String) =
-        Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
         dbMutex.withLock {
@@ -309,18 +280,18 @@ object DatabaseManager {
 
     private fun Transaction.insertAction(action: ActionType) {
         Tables.Action.new {
-            actionIdentifier = getActionId(action.identifier)
+            actionIdentifier = selectActionId(action.identifier)
             timestamp = action.timestamp
             x = action.pos.x
             y = action.pos.y
             z = action.pos.z
-            objectId = getRegistryKey(action.objectIdentifier)
-            oldObjectId = getRegistryKey(action.oldObjectIdentifier)
-            world = getWorld(action.world ?: Ledger.server!!.overworld.registryKey.value)
+            objectId = selectRegistryKey(action.objectIdentifier)
+            oldObjectId = selectRegistryKey(action.oldObjectIdentifier)
+            world = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value)
             blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
             oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            sourceName = getAndCreateSource(action.sourceName)
-            sourcePlayer = action.sourceProfile?.let { getPlayer(it.id) }
+            sourceName = insertAndSelectSource(action.sourceName)
+            sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
             extraData = action.extraData
         }
     }
@@ -412,4 +383,31 @@ object DatabaseManager {
 
         return actionTypes
     }
+
+    private fun Transaction.selectPlayer(playerId: UUID) =
+        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
+
+    private fun Transaction.selectPlayer(playerName: String) =
+        Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
+
+    private fun Transaction.insertAndSelectSource(source: String): Tables.Source {
+        var sourceDAO = Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
+
+        if (sourceDAO == null) {
+            sourceDAO = Tables.Source[Tables.Sources.insertAndGetId {
+                it[name] = source
+            }]
+        }
+
+        return sourceDAO
+    }
+
+    private fun Transaction.selectActionId(id: String) =
+        Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.first()
+
+    private fun Transaction.selectRegistryKey(identifier: Identifier) =
+        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
+
+    private fun Transaction.selectWorld(identifier: Identifier) =
+        Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
 }
