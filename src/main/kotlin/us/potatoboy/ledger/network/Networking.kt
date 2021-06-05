@@ -20,6 +20,7 @@ object Networking {
     // List of players who have a compatible client mod
     private var networkedPlayers: MutableList<ServerPlayerEntity> = ArrayList()
     const val protocolVersion: Int = 0
+
     init {
         if (config[NetworkingSpec.networking]) {
             register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
@@ -33,14 +34,14 @@ object Networking {
         }
     }
 
-private fun register(channel: Identifier, receiver: Receiver) {
-    ServerPlayNetworking.registerGlobalReceiver(channel) {
-            server: MinecraftServer,
-            player: ServerPlayerEntity,
-            handler: ServerPlayNetworkHandler,
-            buf: PacketByteBuf,
-            sender: PacketSender ->
-        receiver.receive(server, player, handler, buf, sender)
+    private fun register(channel: Identifier, receiver: Receiver) {
+        ServerPlayNetworking.registerGlobalReceiver(channel) { server: MinecraftServer,
+                                                               player: ServerPlayerEntity,
+                                                               handler: ServerPlayNetworkHandler,
+                                                               buf: PacketByteBuf,
+                                                               sender: PacketSender ->
+            receiver.receive(server, player, handler, buf, sender)
+        }
     }
 
     fun isAllowed(modid: String): Boolean {
