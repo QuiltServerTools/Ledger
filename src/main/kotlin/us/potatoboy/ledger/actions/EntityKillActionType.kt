@@ -16,7 +16,7 @@ class EntityKillActionType : AbstractActionType() {
         val entityType = Registry.ENTITY_TYPE.getOrEmpty(objectIdentifier)
         if (entityType.isPresent) {
             val entity: LivingEntity = (entityType.get().create(world) as LivingEntity?)!!
-            entity.readCustomDataFromNbt(StringNbtReader.parse(extraData))
+            entity.readNbt(StringNbtReader.parse(extraData))
             entity.health = entity.defaultMaxHealth.toFloat()
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
