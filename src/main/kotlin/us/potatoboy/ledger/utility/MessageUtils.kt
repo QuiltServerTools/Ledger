@@ -1,16 +1,28 @@
 package us.potatoboy.ledger.utility
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Style
-import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.*
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.database.DatabaseManager
+import us.potatoboy.ledger.network.Networking
+import us.potatoboy.ledger.network.packet.action.ActionPacket
 
 object MessageUtils {
     fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
+
+        // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
+        if (Networking.networkedPlayers.contains(source.player)) {
+            results.actions.forEach { actionType ->
+                run {
+                    val packet = ActionPacket()
+                    packet.populate(actionType)
+                    ServerPlayNetworking.send(source.player, packet.channel, packet.buf)
+                }
+            }
+            return
+        }
+
         source.sendFeedback(header, false)
 
         results.actions.forEach { actionType ->
