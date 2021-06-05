@@ -7,10 +7,10 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.CommandConsts
-import us.potatoboy.ledger.config.NetworkingSpec
-import us.potatoboy.ledger.config.config
+import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.handshake.HandshakeContent
 import us.potatoboy.ledger.network.packet.handshake.HandshakePacket
@@ -23,21 +23,24 @@ class HandshakePacketReceiver : Receiver {
         buf: PacketByteBuf,
         sender: PacketSender
     ) {
+        if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL)) return
         // This should be sent by the client whenever a player joins with a client mod
         val nbt = buf.readNbt()
         val modid = nbt?.getString("modid")
         val modVersion = nbt?.getString("version")
-        Ledger.logger.info("${player.name.asString()} joined the server with a Ledger compatible client mod")
-        Ledger.logger.info("Mod: $modid, Version: $modVersion")
+        val protocolVersion = nbt?.getInt("protocol_version")
+        if (Networking.protocolVersion == protocolVersion) {
+            Ledger.logger.info("${player.name.asString()} joined the server with a Ledger compatible client mod")
+            Ledger.logger.info("Mod: $modid, Version: $modVersion")
 
-        // If player has relevant permissions we add them to the list of
-        // network tracked players and send a response packet
-        if (Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL)
-            && config[NetworkingSpec.networking]) {
             // Player has networking permissions so we send a response
             val packet = HandshakePacket()
             packet.populate(HandshakeContent(modid!!))
             ServerPlayNetworking.send(player, packet.channel, packet.buf)
+            Networking.networkedPlayers.add(player)
+        } else {
+            player.sendMessage(TranslatableText("text.ledger.network.protocols_mismatched",
+                Networking.protocolVersion, protocolVersion), false)
         }
     }
 }
