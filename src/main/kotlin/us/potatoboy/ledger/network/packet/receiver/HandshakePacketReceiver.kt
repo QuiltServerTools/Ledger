@@ -11,7 +11,6 @@ import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.CommandConsts
 import us.potatoboy.ledger.config.NetworkingSpec
 import us.potatoboy.ledger.config.config
-import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.handshake.HandshakeContent
 import us.potatoboy.ledger.network.packet.handshake.HandshakePacket
@@ -39,7 +38,6 @@ class HandshakePacketReceiver : Receiver {
             val packet = HandshakePacket()
             packet.populate(HandshakeContent(modid!!))
             ServerPlayNetworking.send(player, packet.channel, packet.buf)
-            Networking.networkedPlayers.add(player)
         }
     }
 }

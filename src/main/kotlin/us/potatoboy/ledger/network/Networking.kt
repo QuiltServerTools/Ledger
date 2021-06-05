@@ -18,28 +18,48 @@ import us.potatoboy.ledger.network.packet.receiver.SearchReceiver
 
 object Networking {
     // List of players who have a compatible client mod
-    var networkedPlayers: MutableList<ServerPlayerEntity> = ArrayList()
-
+    private var networkedPlayers: MutableList<ServerPlayerEntity> = ArrayList()
+    const val protocolVersion: Int = 0
     init {
         if (config[NetworkingSpec.networking]) {
             register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
             register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
             register(LedgerPacketTypes.HANDSHAKE.id, HandshakePacketReceiver())
-            ServerPlayConnectionEvents.DISCONNECT.register { handler: ServerPlayNetworkHandler,
-                                                             server: MinecraftServer ->
-                networkedPlayers.remove(handler.player)
+            ServerPlayConnectionEvents.DISCONNECT.register { h: ServerPlayNetworkHandler, _: MinecraftServer ->
+                run {
+                    networkedPlayers.removeIf { p: ServerPlayerEntity -> p == h.player }
+                }
             }
         }
     }
 
     private fun register(channel: Identifier, receiver: Receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(channel) { server: MinecraftServer,
-                                                               player: ServerPlayerEntity,
-                                                               handler: ServerPlayNetworkHandler,
-                                                               buf: PacketByteBuf,
-                                                               sender: PacketSender ->
-            receiver.receive(server, player, handler, buf, sender)
+        ServerPlayNetworking.registerGlobalReceiver(channel) {
+                server: MinecraftServer,
+                player: ServerPlayerEntity,
+                handler: ServerPlayNetworkHandler,
+                buf: PacketByteBuf,
+                sender: PacketSender ->
+            run {
+                receiver.receive(server, player, handler, buf, sender)
+            }
         }
+    }
+
+    fun isAllowed(modid: String): Boolean {
+        var allowed = true
+        if (config[NetworkingSpec.allowByDefault]) {
+            if (config[NetworkingSpec.modBlacklist].contains(modid)) {
+                // Mod is blacklisted, disallow
+                allowed = false
+            }
+        } else {
+            if (!config[NetworkingSpec.modWhitelist].contains(modid)) {
+                // Mod is not whitelisted, disallow
+                allowed = false
+            }
+        }
+        return allowed
     }
 }
 
