@@ -29,7 +29,8 @@ object PageCommand : BuildableCommand {
         val params = Ledger.searchCache[source.name]
         if (params != null) {
             Ledger.launch(Dispatchers.IO) {
-                val results = DatabaseManager.searchActions(params, page, source)
+                MessageUtils.warnBusy(source)
+                val results = DatabaseManager.searchActions(params, page)
 
                 if (results.page > results.pages) {
                     source.sendError(TranslatableText("error.ledger.no_more_pages"))

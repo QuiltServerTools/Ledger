@@ -13,6 +13,7 @@ import us.potatoboy.ledger.commands.arguments.SearchParamArgument
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.utility.Context
 import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.MessageUtils
 import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.launchMain
 import us.potatoboy.ledger.utility.literal
@@ -32,7 +33,8 @@ object RestoreCommand : BuildableCommand {
         val source = context.source
 
         Ledger.launch(Dispatchers.IO) {
-            val actions = DatabaseManager.restoreActions(params, source)
+            MessageUtils.warnBusy(source)
+            val actions = DatabaseManager.restoreActions(params)
 
             if (actions.isEmpty()) {
                 source.sendError(TranslatableText("error.ledger.command.no_results"))

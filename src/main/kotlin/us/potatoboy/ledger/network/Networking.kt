@@ -33,17 +33,14 @@ object Networking {
         }
     }
 
-    private fun register(channel: Identifier, receiver: Receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(channel) {
-                server: MinecraftServer,
-                player: ServerPlayerEntity,
-                handler: ServerPlayNetworkHandler,
-                buf: PacketByteBuf,
-                sender: PacketSender ->
-            run {
-                receiver.receive(server, player, handler, buf, sender)
-            }
-        }
+private fun register(channel: Identifier, receiver: Receiver) {
+    ServerPlayNetworking.registerGlobalReceiver(channel) {
+            server: MinecraftServer,
+            player: ServerPlayerEntity,
+            handler: ServerPlayNetworkHandler,
+            buf: PacketByteBuf,
+            sender: PacketSender ->
+        receiver.receive(server, player, handler, buf, sender)
     }
 
     fun isAllowed(modid: String): Boolean {

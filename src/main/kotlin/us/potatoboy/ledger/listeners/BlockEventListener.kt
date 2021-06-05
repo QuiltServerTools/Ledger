@@ -11,67 +11,62 @@ import us.potatoboy.ledger.callbacks.BlockBurnCallback
 import us.potatoboy.ledger.callbacks.BlockExplodeCallback
 import us.potatoboy.ledger.callbacks.BlockFallCallback
 import us.potatoboy.ledger.callbacks.BlockLandCallback
-import us.potatoboy.ledger.database.DatabaseQueue
-import us.potatoboy.ledger.database.queueitems.ActionQueueItem
+import us.potatoboy.ledger.database.DatabaseManager
 
-object BlockEventListener {
-    init {
-        BlockExplodeCallback.EVENT.register(::onExplode)
-        BlockBurnCallback.EVENT.register(::onBurn)
-        BlockFallCallback.EVENT.register(::onFall)
-        BlockLandCallback.EVENT.register(::onLand)
-    }
 
-    private fun onLand(world: World, pos: BlockPos, state: BlockState) {
-        DatabaseQueue.addActionToQueue(ActionQueueItem(ActionFactory.blockPlaceAction(world, pos, state, "gravity")))
-    }
-
-    private fun onFall(world: World, pos: BlockPos, state: BlockState) {
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.blockBreakAction(
-                    world,
-                    pos,
-                    state,
-                    "gravity"
-                )
-            )
-        )
-    }
-
-    private fun onBurn(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.blockBreakAction(
-                    world,
-                    pos,
-                    state,
-                    "fire",
-                    entity
-                )
-            )
-        )
-    }
-
-    private fun onExplode(
-        world: World,
-        source: Entity?,
-        blockPos: BlockPos,
-        blockState: BlockState,
-        entity: BlockEntity?
-    ) {
-        val sourceName = source?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
-
-        DatabaseQueue.addActionToQueue(
-            ActionQueueItem(
-                ActionFactory.blockBreakAction(
-                    world,
-                    blockPos,
-                    blockState,
-                    sourceName,
-                    entity
-                )
-            )
-        )
-    }
+fun registerBlockListeners() {
+    BlockExplodeCallback.EVENT.register(::onExplode)
+    BlockBurnCallback.EVENT.register(::onBurn)
+    BlockFallCallback.EVENT.register(::onFall)
+    BlockLandCallback.EVENT.register(::onLand)
 }
+
+private fun onLand(world: World, pos: BlockPos, state: BlockState) {
+    DatabaseManager.logAction(
+        ActionFactory.blockPlaceAction(world, pos, state, "gravity")
+    )
+}
+
+private fun onFall(world: World, pos: BlockPos, state: BlockState) {
+    DatabaseManager.logAction(
+        ActionFactory.blockBreakAction(
+            world,
+            pos,
+            state,
+            "gravity"
+        )
+    )
+}
+
+private fun onBurn(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
+    DatabaseManager.logAction(
+        ActionFactory.blockBreakAction(
+            world,
+            pos,
+            state,
+            "fire",
+            entity
+        )
+    )
+}
+
+private fun onExplode(
+    world: World,
+    source: Entity?,
+    blockPos: BlockPos,
+    blockState: BlockState,
+    entity: BlockEntity?
+) {
+    val sourceName = source?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
+
+    DatabaseManager.logAction(
+        ActionFactory.blockBreakAction(
+            world,
+            blockPos,
+            blockState,
+            sourceName,
+            entity
+        )
+    )
+}
+

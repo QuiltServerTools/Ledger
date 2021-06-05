@@ -9,7 +9,9 @@
   "text.ledger.footer.page_backward": "<<",
   "text.ledger.footer.page_backward.hover": "Previous Page",
 
-  "text.ledger.status.queue": "Queue: %s actions",
+  "text.ledger.status.queue": "Database Queue: %s",
+  "text.ledger.status.queue.busy": "Busy",
+  "text.ledger.status.queue.empty": "Empty",
   "text.ledger.status.version": "Version: %s",
 
   "text.ledger.preview.start": "Preview starting",
@@ -30,7 +32,7 @@
   "text.ledger.inspect.on": "Enabled",
   "text.ledger.inspect.off": "Disabled",
 
-  "text.ledger.database.busy": "Database is currently busy with %d actions. This may take a moment",
+  "text.ledger.database.busy": "Database is currently busy. This may take a moment",
 
   "error.ledger.no_cached_params": "No cached search. Try preforming a search first",
   "error.ledger.command.no_results": "No results for that search",
