@@ -8,7 +8,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import us.potatoboy.ledger.Ledger
+import us.potatoboy.ledger.logWarn
 
 open class BlockChangeActionType(override val identifier: String) : AbstractActionType() {
     override fun rollback(world: ServerWorld): Boolean {
@@ -43,7 +43,7 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
         val block = Registry.BLOCK.getOrEmpty(identifier)
         if (block.isEmpty) {
-            Ledger.logger.warn("Unknown block $identifier")
+            logWarn("Unknown block $identifier")
             return Blocks.AIR.defaultState
         }
 

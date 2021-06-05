@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
-
     const val MOD_ID = "ledger"
 
     val logger: Logger = LogManager.getLogger("Ledger")
@@ -44,10 +43,10 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     override fun onInitializeServer() {
         val version = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata.version
-        logger.info("Initializing Ledger ${version.friendlyString}")
+        logInfo("Initializing Ledger ${version.friendlyString}")
 
         if (!Files.exists(FabricLoader.getInstance().configDir.resolve(CONFIG_PATH))) {
-            logger.info("No config file, Creating")
+            logInfo("No config file, Creating")
             Files.copy(
                 FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(CONFIG_PATH),
                 FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
@@ -76,9 +75,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         Ledger.launch {
             server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.registerWorld(it) }
 
-            logger.info("Inserting ${idSet.size} registry keys into the database...")
+            logInfo("Inserting ${idSet.size} registry keys into the database...")
             DatabaseManager.insertIdentifiers(idSet)
-            logger.info("Registry insert complete")
+            logInfo("Registry insert complete")
         }
     }
 
@@ -98,3 +97,10 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     fun identifier(path: String) = Identifier(MOD_ID, path)
 }
+
+fun logDebug(message: String) = Ledger.logger.debug(message)
+fun logInfo(message: String) = Ledger.logger.info(message)
+fun logWarn(message: String) = Ledger.logger.warn(message)
+fun logFatal(message: String) = Ledger.logger.warn(message)
+
+

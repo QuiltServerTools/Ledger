@@ -36,6 +36,8 @@ import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.actionutils.SearchResults
 import us.potatoboy.ledger.config.SearchSpec
 import us.potatoboy.ledger.config.config
+import us.potatoboy.ledger.logInfo
+import us.potatoboy.ledger.logWarn
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.NbtUtils
 import java.io.File
@@ -81,7 +83,7 @@ object DatabaseManager {
             Tables.Sources,
             Tables.Worlds
         )
-        Ledger.logger.info("Tables created")
+        logInfo("Tables created")
     }
 
     suspend fun searchActions(params: ActionSearchParams, page: Int): SearchResults = execute {
@@ -109,7 +111,7 @@ object DatabaseManager {
         for (action in actions) {
             val typeSupplier = ActionRegistry.getType(action.actionIdentifier.identifier)
             if (typeSupplier == null) {
-                Ledger.logger.warn("Unknown action type ${action.actionIdentifier.identifier}")
+                logWarn("Unknown action type ${action.actionIdentifier.identifier}")
                 continue
             }
 
