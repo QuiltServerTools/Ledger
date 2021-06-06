@@ -19,7 +19,7 @@ import us.potatoboy.ledger.network.packet.receiver.SearchReceiver
 object Networking {
     // List of players who have a compatible client mod
     var networkedPlayers: MutableList<ServerPlayerEntity> = ArrayList()
-    const val protocolVersion: Int = 0
+    const val protocolVersion: Int = 1
 
     init {
         if (config[NetworkingSpec.networking]) {
