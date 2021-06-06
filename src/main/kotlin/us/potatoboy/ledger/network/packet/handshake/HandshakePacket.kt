@@ -3,7 +3,6 @@ package us.potatoboy.ledger.network.packet.handshake
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
-import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.network.packet.LedgerPacket
 import us.potatoboy.ledger.network.packet.LedgerPacketTypes
 
@@ -13,9 +12,9 @@ class HandshakePacket: LedgerPacket<HandshakeContent> {
     override fun populate(content: HandshakeContent) {
         // Ledger information
         // Version
-        buf.writeInt(Networking.protocolVersion)
+        buf.writeInt(content.protocolVersion)
         // Is client mod allowed
-        val allowed = Networking.isAllowed(content.modid)
+        val allowed = content.allowed
         buf.writeBoolean(allowed)
     }
 }

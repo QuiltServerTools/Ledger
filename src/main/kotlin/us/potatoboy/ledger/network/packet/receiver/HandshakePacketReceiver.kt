@@ -35,7 +35,7 @@ class HandshakePacketReceiver : Receiver {
 
             // Player has networking permissions so we send a response
             val packet = HandshakePacket()
-            packet.populate(HandshakeContent(modid!!))
+            packet.populate(HandshakeContent(Networking.isAllowed(modid!!), Networking.protocolVersion))
             ServerPlayNetworking.send(player, packet.channel, packet.buf)
             Networking.networkedPlayers.add(player)
         } else {
