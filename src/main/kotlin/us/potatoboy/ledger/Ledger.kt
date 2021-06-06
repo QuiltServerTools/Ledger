@@ -23,11 +23,11 @@ import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.listeners.registerBlockListeners
 import us.potatoboy.ledger.listeners.registerEntityListeners
 import us.potatoboy.ledger.listeners.registerPlayerListeners
-import us.potatoboy.ledger.network.registerNetworking
+import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -65,7 +65,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         DatabaseManager.ensureTables()
         ActionRegistry.registerDefaultTypes()
         initListeners()
-        registerNetworking()
+        Networking
 
         val idSet = setOf<Identifier>()
             .plus(Registry.BLOCK.ids)
