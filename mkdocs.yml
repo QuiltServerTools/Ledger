@@ -1,0 +1,44 @@
+site_name: Ledger
+
+repo_url: https://github.com/QuiltServerTools/Ledger
+repo_name: QuiltServerTools/Ledger
+
+nav:
+  - index.md
+  - install.md
+  - Commands:
+    - commands/root.md
+    - commands/inspect.md
+    - commands/search.md
+    - commands/page.md
+    - commands/preview.md
+  - parameters.md
+
+theme:
+  name: material
+  logo: assets/Ledger-smol.svg
+  favicon: assets/Ledger-smol.svg
+  features:
+    - navigation.instant
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      primary: deep purple
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: deep purple
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+
+plugins:
+  - search
+extra:
+  version:
+    provider: mike
