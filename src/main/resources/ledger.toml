@@ -1,8 +1,8 @@
 [database]
-# Amount of queue items to do per drain
-maxQueueSize = 50
-# Amount of time to wait for queue to reach maxQueueSize
-queueTimeoutSec = 5
+# The maximum amount of time to wait for the queue to drain when the server stops
+queueTimeoutMin = 5
+# The amount of time between checking if the queue is empty when the server stops
+queueCheckDelaySec = 10
 
 [search]
 # Number of actions to show per page

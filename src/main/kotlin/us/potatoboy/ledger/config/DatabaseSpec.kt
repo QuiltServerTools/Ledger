@@ -3,6 +3,6 @@ package us.potatoboy.ledger.config
 import com.uchuhimo.konf.ConfigSpec
 
 object DatabaseSpec : ConfigSpec() {
-    val maxQueueSize by required<Int>()
-    val queueTimeoutSec by required<Long>()
+    val queueTimeoutMin by required<Long>()
+    val queueCheckDelaySec by required<Long>()
 }
