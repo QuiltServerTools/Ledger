@@ -1,7 +1,6 @@
 package us.potatoboy.ledger.network
 
 import net.fabricmc.fabric.api.networking.v1.PacketSender
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.MinecraftServer
@@ -18,19 +17,14 @@ import us.potatoboy.ledger.network.packet.receiver.SearchReceiver
 
 object Networking {
     // List of players who have a compatible client mod
-    var networkedPlayers: MutableList<ServerPlayerEntity> = ArrayList()
-    const val protocolVersion: Int = 0
+    private var networkedPlayers = mutableSetOf<ServerPlayerEntity>()
+    const val protocolVersion = 0
 
     init {
         if (config[NetworkingSpec.networking]) {
             register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
             register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
             register(LedgerPacketTypes.HANDSHAKE.id, HandshakePacketReceiver())
-            ServerPlayConnectionEvents.DISCONNECT.register { h: ServerPlayNetworkHandler, _: MinecraftServer ->
-                run {
-                    networkedPlayers.removeIf { p: ServerPlayerEntity -> p == h.player }
-                }
-            }
         }
     }
 
@@ -59,5 +53,11 @@ object Networking {
         }
         return allowed
     }
+
+    fun ServerPlayerEntity.hasNetworking() = networkedPlayers.contains(this)
+
+    fun ServerPlayerEntity.enableNetworking() = networkedPlayers.add(this)
+
+    fun ServerPlayerEntity.disableNetworking() = networkedPlayers.remove(this)
 }
 

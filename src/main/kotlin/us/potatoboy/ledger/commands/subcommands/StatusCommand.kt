@@ -5,16 +5,16 @@ import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.ClickEvent
-import net.minecraft.text.Style
-import net.minecraft.text.TextColor
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.BuildableCommand
 import us.potatoboy.ledger.commands.CommandConsts
-import us.potatoboy.ledger.config.ColorSpec
-import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.DatabaseManager
-import us.potatoboy.ledger.utility.*
+import us.potatoboy.ledger.utility.Context
+import us.potatoboy.ledger.utility.LiteralNode
+import us.potatoboy.ledger.utility.TextColorPallet
+import us.potatoboy.ledger.utility.literal
+import us.potatoboy.ledger.utility.translate
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -53,10 +53,10 @@ object StatusCommand : BuildableCommand {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.status.discord"
-                ).styled { style: Style ->
-                    style.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/FpRNYrQaGP"))
-                        .withColor(TextColor.parse(config[ColorSpec.secondary]))
-                }, false
+                ).setStyle(TextColorPallet.secondary)
+                    .styled {
+                        it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/FpRNYrQaGP"))
+                    }, false
             )
         }
 

@@ -26,6 +26,7 @@ import us.potatoboy.ledger.callbacks.PlayerBlockPlaceCallback
 import us.potatoboy.ledger.callbacks.PlayerInsertItemCallback
 import us.potatoboy.ledger.callbacks.PlayerRemoveItemCallback
 import us.potatoboy.ledger.database.DatabaseManager
+import us.potatoboy.ledger.network.Networking.disableNetworking
 import us.potatoboy.ledger.utility.inspectBlock
 import us.potatoboy.ledger.utility.isInspecting
 
@@ -33,10 +34,15 @@ fun registerPlayerListeners() {
     PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
     PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
     ServerPlayConnectionEvents.JOIN.register(::onJoin)
+    ServerPlayConnectionEvents.DISCONNECT.register(::onLeave)
     PlayerInsertItemCallback.EVENT.register(::onItemInsert)
     PlayerRemoveItemCallback.EVENT.register(::onItemRemove)
     AttackBlockCallback.EVENT.register(::onBlockAttack)
     UseBlockCallback.EVENT.register(::onUseBlock)
+}
+
+fun onLeave(handler: ServerPlayNetworkHandler, server: MinecraftServer) {
+    handler.player.disableNetworking()
 }
 
 private fun onUseBlock(

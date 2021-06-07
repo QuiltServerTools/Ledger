@@ -8,9 +8,10 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.TranslatableText
-import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.CommandConsts
+import us.potatoboy.ledger.logInfo
 import us.potatoboy.ledger.network.Networking
+import us.potatoboy.ledger.network.Networking.enableNetworking
 import us.potatoboy.ledger.network.packet.Receiver
 import us.potatoboy.ledger.network.packet.handshake.HandshakeContent
 import us.potatoboy.ledger.network.packet.handshake.HandshakePacket
@@ -30,17 +31,21 @@ class HandshakePacketReceiver : Receiver {
         val modVersion = nbt?.getString("version")
         val protocolVersion = nbt?.getInt("protocol_version")
         if (Networking.protocolVersion == protocolVersion) {
-            Ledger.logger.info("${player.name.asString()} joined the server with a Ledger compatible client mod")
-            Ledger.logger.info("Mod: $modid, Version: $modVersion")
+            logInfo("${player.name.asString()} joined the server with a Ledger compatible client mod")
+            logInfo("Mod: $modid, Version: $modVersion")
 
             // Player has networking permissions so we send a response
             val packet = HandshakePacket()
             packet.populate(HandshakeContent(Networking.isAllowed(modid!!), Networking.protocolVersion))
             ServerPlayNetworking.send(player, packet.channel, packet.buf)
-            Networking.networkedPlayers.add(player)
+            player.enableNetworking()
         } else {
-            player.sendMessage(TranslatableText("text.ledger.network.protocols_mismatched",
-                Networking.protocolVersion, protocolVersion), false)
+            player.sendMessage(
+                TranslatableText(
+                    "text.ledger.network.protocols_mismatched",
+                    Networking.protocolVersion, protocolVersion
+                ), false
+            )
         }
     }
 }
