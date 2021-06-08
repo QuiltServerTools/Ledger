@@ -10,6 +10,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import us.potatoboy.ledger.testmod.commands.registerCommands
 import java.time.Instant
 
@@ -18,7 +19,7 @@ object LedgerTest : ClientModInitializer {
     val INSPECT = Identifier("ledger", "inspect")
     val SEARCH = Identifier("ledger", "search")
     val ACTION = Identifier("ledger", "action")
-    val LOGGER = LogManager.getLogger("LedgerTestmod")
+    val LOGGER: Logger = LogManager.getLogger("LedgerTestmod")
 
     override fun onInitializeClient() {
         ClientPlayConnectionEvents.JOIN.register { handler, sender, client ->
@@ -49,7 +50,8 @@ object LedgerTest : ClientModInitializer {
             val timestamp = Instant.ofEpochSecond(buf.readLong())
             val extraData = buf.readString()
 
-            LOGGER.info("pos={}, id={}, world={}, oldObjectId={}, objectId={}, source={}, timestamp={}, extraData={}", pos, id, world, oldObjectId, objectId, source, timestamp, extraData)
+            LOGGER.info("pos={}, id={}, world={}, oldObjectId={}, objectId={}, source={}, timestamp={}, extraData={}",
+                pos, id, world, oldObjectId, objectId, source, timestamp, extraData)
         }
 
         PlayerBlockBreakEvents.AFTER.register { world, player, pos, state, blockEntity ->
