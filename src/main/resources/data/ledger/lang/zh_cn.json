@@ -1,0 +1,51 @@
+{
+  "text.ledger.header.search.pos": "--- 位于 %s 的记录---",
+  "text.ledger.header.search": "------ 记录搜索 ------",
+  "text.ledger.header.status": "------ Ledger ------",
+
+  "text.ledger.footer.search": "------- %s [第 %s 页 共 %s 页] %s -------",
+  "text.ledger.footer.page_forward": ">>",
+  "text.ledger.footer.page_forward.hover": "下一页",
+  "text.ledger.footer.page_backward": "<<",
+  "text.ledger.footer.page_backward.hover": "上一页",
+
+  "text.ledger.status.queue": "数据库队列: %s ",
+  "text.ledger.status.queue.busy": "繁忙",
+  "text.ledger.status.queue.empty": "闲置",
+  "text.ledger.status.version": "版本: %s",
+
+  "text.ledger.preview.start": "功能预览",
+
+  "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+  "text.ledger.action_message.time_diff": "%s ago",
+  "text.ledger.action_message.location.hover": "单击传送至此",
+
+  "text.ledger.rollback.start": "正在回滚，共 %s 次更改",
+  "text.ledger.rollback.finish": "完成了指定规则内的回滚",
+  "text.ledger.rollback.fail": "回滚失败 %s x%s",
+
+  "text.ledger.restore.start": "正在还原 %s 次回档更改",
+  "text.ledger.restore.finish": "完成了指定规则内的还原",
+  "text.ledger.restore.fail": "还原失败 %s x%s",
+
+  "text.ledger.inspect.toggle": "查询模式: %s",
+  "text.ledger.inspect.on": "开启",
+  "text.ledger.inspect.off": "关闭",
+
+  "text.ledger.database.busy": "数据库任务繁忙. 这可能需要一点时间",
+
+  "error.ledger.no_cached_params": "没有缓存搜索. 尝试先执行搜索",
+  "error.ledger.command.no_results": "没有查询到任何结果",
+  "error.ledger.no_more_pages": "没有更多页了",
+  "error.ledger.unknown_param": "非法参数--> %s",
+  "error.ledger.no_preview": "没有可预览的结果,预览失败",
+
+  "text.ledger.action.block-place": "放置",
+  "text.ledger.action.block-break": "破坏",
+  "text.ledger.action.item-insert": "放入",
+  "text.ledger.action.item-remove": "拿取",
+  "text.ledger.action.entity-kill": "killed"
+
+  "text.ledger.network.protocols_mismatched": "协议版本不匹配: client mod is Ledger protocol version %d and the client version is %d",
+  "text.ledger.status.discord": "单击以加入 Ledger  discord 服务器"
+}
