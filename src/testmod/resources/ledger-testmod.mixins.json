@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "us.potatoboy.ledger.testmod.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+    "ClientPlayerInteractionManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

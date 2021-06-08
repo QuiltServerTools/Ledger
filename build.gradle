@@ -15,8 +15,22 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-minecraft {
+sourceSets {
+    testmod {
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.compileClasspath
+    }
+}
 
+minecraft {
+    runs {
+        testmodClient {
+            client()
+            ideConfigGenerated project.rootProject == project
+            name = "Networking Testmod (Client)"
+            source sourceSets.testmod
+        }
+    }
 }
 
 configurations {
@@ -78,12 +92,18 @@ dependencies {
 }
 
 processResources {
-    processResources {
-        inputs.property "version", project.version
+    inputs.property "version", project.version
 
-        filesMatching("fabric.mod.json") {
-            expand "version": project.version
-        }
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+processTestmodResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
     }
 }
 
