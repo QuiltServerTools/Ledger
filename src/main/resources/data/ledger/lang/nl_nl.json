@@ -1,0 +1,51 @@
+{
+  "text.ledger.header.search.pos": "--- Zoeken in logboeken op %s ---",
+  "text.ledger.header.search": "------ Logboeken doorzoeken ------",
+  "text.ledger.header.status": "------ Ledger ------",
+
+  "text.ledger.footer.search": "------- %s [Pagina %s van %s] %s -------",
+  "text.ledger.footer.page_forward": ">>",
+  "text.ledger.footer.page_forward.hover": "Volgende Pagina",
+  "text.ledger.footer.page_backward": "<<",
+  "text.ledger.footer.page_backward.hover": "Vorige Pagina",
+
+  "text.ledger.status.queue": "Database Wachtrij: %s",
+  "text.ledger.status.queue.busy": "Bezig",
+  "text.ledger.status.queue.empty": "Leeg",
+  "text.ledger.status.version": "Versie: %s",
+  "text.ledger.status.discord": "Klik om lid te worden van de Ledger Discord server",
+
+  "text.ledger.preview.start": "Voorbeeld start",
+
+  "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+  "text.ledger.action_message.time_diff": "%s geleden",
+  "text.ledger.action_message.location.hover": "Klik om te teleporteren",
+
+  "text.ledger.rollback.start": "Terugdraaien van %s acties",
+  "text.ledger.rollback.finish": "Terugdraaien voltooid",
+  "text.ledger.rollback.fail": "Mislukt om %s x%s terug te draaien",
+
+  "text.ledger.restore.start": "%s acties herstellen",
+  "text.ledger.restore.finish": "Herstellen voltooid",
+  "text.ledger.restore.fail": "Terugzetten van %s x%s mislukt",
+
+  "text.ledger.inspect.toggle": "Inspecteer mode: %s",
+  "text.ledger.inspect.on": "Ingeschakeld",
+  "text.ledger.inspect.off": "Uitgeschakeld",
+
+  "text.ledger.database.busy": "De database is momenteel bezet. Dit kan even duren",
+
+  "error.ledger.no_cached_params": "Geen opgeslagen zoekopdracht. Probeer eerst een zoekopdracht uit te voeren",
+  "error.ledger.command.no_results": "Geen resultaten voor die zoekopdracht",
+  "error.ledger.no_more_pages": "Geen pagina's meer",
+  "error.ledger.unknown_param": "Onbekende parameter %s",
+  "error.ledger.no_preview": "Geen huidige preview",
+
+  "text.ledger.action.block-place": "geplaatst",
+  "text.ledger.action.block-break": "gebroken",
+  "text.ledger.action.item-insert": "toegevoegd",
+  "text.ledger.action.item-remove": "verwijderd",
+  "text.ledger.action.entity-kill": "gedood",
+
+  "text.ledger.network.protocols_mismatched": "Protocolversies komen niet overeen: client mod is Ledger protocolversie %d en de clientversie is %d"
+}
