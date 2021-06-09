@@ -3,6 +3,8 @@ package us.potatoboy.ledger.listeners
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
+import net.minecraft.entity.TntEntity
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
@@ -59,14 +61,18 @@ private fun onExplode(
 ) {
     val sourceName = source?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
 
-    DatabaseManager.logAction(
-        ActionFactory.blockBreakAction(
-            world,
-            blockPos,
-            blockState,
-            sourceName,
-            entity
-        )
+    val action = ActionFactory.blockBreakAction(
+        world,
+        blockPos,
+        blockState,
+        sourceName,
+        entity
     )
+
+    if (source is TntEntity && source.causingEntity is ServerPlayerEntity) {
+        action.sourceProfile = (source.causingEntity as ServerPlayerEntity).gameProfile
+    }
+
+    DatabaseManager.logAction(action)
 }
 
