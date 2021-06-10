@@ -16,4 +16,4 @@ After executing your search, you will see all the results and can paginate betwe
 |------------|------------|----------------------|---------------------|-------------------------|-------------------|
 | `Hover:`   | Exact time |                      | Action identifier   | Object identifier       | Teleport on click |
 
-*Order can be customized, see [configuration](../config)*
+*Order can be customized, see [configuration](../config.md)*

@@ -12,14 +12,20 @@ nav:
     - commands/search.md
     - commands/page.md
     - commands/preview.md
+    - commands/rollback.md
+    - commands/restore.md
+    - commands/status.md
+    - commands/teleport.md
+  - config.md
   - parameters.md
+  - queue.md
+  - networking.md
 
 theme:
   name: material
   logo: assets/Ledger-smol.svg
   favicon: assets/Ledger-smol.svg
   features:
-    - navigation.instant
   icon:
     repo: fontawesome/brands/github
   palette:
