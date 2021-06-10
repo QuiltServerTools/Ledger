@@ -14,6 +14,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
+import us.potatoboy.ledger.actionutils.PLAYER_SOURCE
 import us.potatoboy.ledger.utility.TextColorPallet
 import us.potatoboy.ledger.utility.literal
 import java.time.Duration
@@ -93,10 +94,16 @@ abstract class AbstractActionType : ActionType {
         return message
     }
 
-    open fun getSourceMessage(): Text = if (sourceProfile != null) {
-        sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
-    } else {
-        "@$sourceName".literal().setStyle(TextColorPallet.secondary)
+    open fun getSourceMessage(): Text {
+        if (sourceProfile == null) {
+            return "@$sourceName".literal().setStyle(TextColorPallet.secondary)
+        }
+
+        if (sourceName == PLAYER_SOURCE) {
+            return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
+        }
+
+        return "@$sourceName (${sourceProfile!!.name})".literal().setStyle(TextColorPallet.secondary)
     }
 
     open fun getActionMessage(): Text = TranslatableText("text.ledger.action.$identifier")

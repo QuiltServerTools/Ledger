@@ -2,7 +2,7 @@
   "required": true,
   "package": "us.potatoboy.ledger.mixin",
   "compatibilityLevel": "JAVA_16",
-  "mixins": [
+  "server": [
     "DoubleInventoryMixin",
     "LockableContainerBlockEntityMixin",
     "callbacks.BlockItemMixin",

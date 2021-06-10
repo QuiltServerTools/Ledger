@@ -57,7 +57,6 @@ object DatabaseManager {
     val actions = _actions.asSharedFlow()
 
     init {
-        // TODO stop minecraft from closing while still collecting or something? not sure
         Ledger.launch {
             actions.collect {
                 execute {

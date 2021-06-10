@@ -4,6 +4,7 @@ import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.command.CommandManager
+import net.minecraft.text.ClickEvent
 import net.minecraft.text.TranslatableText
 import us.potatoboy.ledger.Ledger
 import us.potatoboy.ledger.commands.BuildableCommand
@@ -48,6 +49,14 @@ object StatusCommand : BuildableCommand {
                         .setStyle(TextColorPallet.secondaryVariant)
                 ).setStyle(TextColorPallet.secondary),
                 false
+            )
+            source.sendFeedback(
+                TranslatableText(
+                    "text.ledger.status.discord"
+                ).setStyle(TextColorPallet.secondary)
+                    .styled {
+                        it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/FpRNYrQaGP"))
+                    }, false
             )
         }
 

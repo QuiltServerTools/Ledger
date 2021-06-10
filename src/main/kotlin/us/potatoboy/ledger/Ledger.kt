@@ -2,8 +2,10 @@ package us.potatoboy.ledger
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -18,18 +20,21 @@ import us.potatoboy.ledger.actionutils.ActionSearchParams
 import us.potatoboy.ledger.actionutils.Preview
 import us.potatoboy.ledger.commands.registerCommands
 import us.potatoboy.ledger.config.CONFIG_PATH
+import us.potatoboy.ledger.config.DatabaseSpec
 import us.potatoboy.ledger.config.config
 import us.potatoboy.ledger.database.DatabaseManager
 import us.potatoboy.ledger.listeners.registerBlockListeners
 import us.potatoboy.ledger.listeners.registerEntityListeners
 import us.potatoboy.ledger.listeners.registerPlayerListeners
-import us.potatoboy.ledger.network.registerNetworking
+import us.potatoboy.ledger.network.Networking
 import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.Dispatcher
 import java.nio.file.Files
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
@@ -65,7 +70,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         DatabaseManager.ensureTables()
         ActionRegistry.registerDefaultTypes()
         initListeners()
-        registerNetworking()
+        Networking
 
         val idSet = setOf<Identifier>()
             .plus(Registry.BLOCK.ids)
@@ -81,9 +86,15 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            // TODO make actions SharedFlow fully drain somehow
+            withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
+                while (DatabaseManager.dbMutex.isLocked) {
+                    logInfo("Database queue is still draining. If you exit now actions WILL be lost")
+                    delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
+                }
+            }
         }
     }
 
@@ -102,5 +113,3 @@ fun logDebug(message: String) = Ledger.logger.debug(message)
 fun logInfo(message: String) = Ledger.logger.info(message)
 fun logWarn(message: String) = Ledger.logger.warn(message)
 fun logFatal(message: String) = Ledger.logger.warn(message)
-
-

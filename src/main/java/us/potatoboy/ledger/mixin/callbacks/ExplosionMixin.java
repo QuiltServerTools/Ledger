@@ -44,6 +44,8 @@ public abstract class ExplosionMixin {
             BlockState blockState,
             Block block) {
 
+        if (blockState.isAir()) return;
+
         BlockExplodeCallback.Companion.getEVENT().invoker().explode(
                 world,
                 entity,

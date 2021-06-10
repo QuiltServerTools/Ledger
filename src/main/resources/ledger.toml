@@ -1,8 +1,8 @@
 [database]
-# Amount of queue items to do per drain
-maxQueueSize = 50
-# Amount of time to wait for queue to reach maxQueueSize
-queueTimeoutSec = 5
+# The maximum amount of time to wait for the queue to drain when the server stops
+queueTimeoutMin = 5
+# The amount of time between checking if the queue is empty when the server stops
+queueCheckDelaySec = 10
 
 [search]
 # Number of actions to show per page
@@ -32,3 +32,16 @@ worldBlacklist = []
 objectBlacklist = []
 # Blacklists sources. Ex: "lava", "gravity", "fire", "fall"
 sourceBlacklist = []
+
+[networking]
+# This section relates to Ledger's ability to interact with client mods for ease of use
+# Networking is enabled by default but you can disable and control it here
+
+# Change to true to allow Ledger client mod packets
+networking = true
+# Controls whether a mod should be allowed or denyed by default
+allowByDefault = true
+# Whitelists mods to bypass the allowByDefault. Ex: ["my_client", "ledger_mod"]
+modWhitelist = []
+# Disallows mods even if allowByDefault is enabled. Ex: ["my_client", "ledger_mod"]
+modBlacklist = []
