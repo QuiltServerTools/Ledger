@@ -17,7 +17,9 @@ nav:
     - commands/status.md
     - commands/teleport.md
   - config.md
+  - themes.md
   - parameters.md
+  - actions.md
   - queue.md
   - networking.md
 
@@ -42,6 +44,9 @@ theme:
         icon: material/weather-night
         name: Switch to dark mode
 
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
 
 plugins:
   - search
