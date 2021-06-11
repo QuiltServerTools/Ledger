@@ -52,11 +52,33 @@ object StatusCommand : BuildableCommand {
             )
             source.sendFeedback(
                 TranslatableText(
-                    "text.ledger.status.discord"
-                ).setStyle(TextColorPallet.secondary)
-                    .styled {
-                        it.withClickEvent(ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/FpRNYrQaGP"))
-                    }, false
+                    "text.ledger.status.discord",
+                    "text.ledger.status.discord.join".translate()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                        .styled {
+                            it.withClickEvent(
+                                ClickEvent(
+                                    ClickEvent.Action.OPEN_URL,
+                                    "https://discord.gg/FpRNYrQaGP"
+                                )
+                            )
+                        }
+                ).setStyle(TextColorPallet.secondary), false
+            )
+            source.sendFeedback(
+                TranslatableText(
+                    "text.ledger.status.wiki",
+                    "text.ledger.status.wiki.view".translate()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                        .styled {
+                            it.withClickEvent(
+                                ClickEvent(
+                                    ClickEvent.Action.OPEN_URL,
+                                    "https://quiltservertools.github.io/Ledger/${getVersion().friendlyString}/"
+                                )
+                            )
+                        }
+                ).setStyle(TextColorPallet.secondary), false
             )
         }
 
