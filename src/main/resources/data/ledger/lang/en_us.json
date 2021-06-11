@@ -13,7 +13,10 @@
   "text.ledger.status.queue.busy": "Busy",
   "text.ledger.status.queue.empty": "Empty",
   "text.ledger.status.version": "Version: %s",
-  "text.ledger.status.discord": "Click to join the Ledger Discord server",
+  "text.ledger.status.discord": "Discord: %s",
+  "text.ledger.status.discord.join": "Click to Join",
+  "text.ledger.status.wiki": "Wiki: %s",
+  "text.ledger.status.wiki.view": "Click to View",
 
   "text.ledger.preview.start": "Preview starting",
 

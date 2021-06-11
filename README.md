@@ -1,5 +1,7 @@
 [![discord](https://img.shields.io/discord/764543203772334100?label=discord)](https://discord.gg/UxHnDWr)
 
+For a much better guide, visit our [wiki](https://quiltservertools.github.io/Ledger/latest/)
+
 ## Ledger
 
 A world change logging tool for fabric
