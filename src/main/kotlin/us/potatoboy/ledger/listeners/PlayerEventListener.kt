@@ -8,8 +8,8 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
@@ -31,8 +31,8 @@ import us.potatoboy.ledger.utility.inspectBlock
 import us.potatoboy.ledger.utility.isInspecting
 
 fun registerPlayerListeners() {
-    PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
     PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
+    PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
     ServerPlayConnectionEvents.JOIN.register(::onJoin)
     ServerPlayConnectionEvents.DISCONNECT.register(::onLeave)
     PlayerInsertItemCallback.EVENT.register(::onItemInsert)
@@ -106,21 +106,33 @@ private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: Packe
 
 private fun onBlockPlace(
     world: World,
-    player: PlayerEntity,
+    placer: LivingEntity,
     pos: BlockPos,
     state: BlockState,
-    context: ItemPlacementContext,
     blockEntity: BlockEntity?
 ) {
-    DatabaseManager.logAction(
-        ActionFactory.blockPlaceAction(
-            world,
-            pos,
-            state,
-            player as ServerPlayerEntity,
-            blockEntity
+    if (placer is ServerPlayerEntity) {
+        DatabaseManager.logAction(
+            ActionFactory.blockPlaceAction(
+                world,
+                pos,
+                state,
+                placer,
+                blockEntity
+            )
         )
-    )
+    } else {
+        DatabaseManager.logAction(
+            ActionFactory.blockPlaceAction(
+                world,
+                pos,
+                state,
+                "redstone",
+                blockEntity
+            )
+        )
+    }
+
 }
 
 private fun onBlockBreak(

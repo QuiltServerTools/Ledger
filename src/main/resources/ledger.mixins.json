@@ -5,7 +5,7 @@
   "server": [
     "DoubleInventoryMixin",
     "LockableContainerBlockEntityMixin",
-    "callbacks.BlockItemMixin",
+    "callbacks.BlockMixin",
     "callbacks.ExplosionMixin",
     "callbacks.FallingBlockEntityMixin",
     "callbacks.FireBlockMixin",

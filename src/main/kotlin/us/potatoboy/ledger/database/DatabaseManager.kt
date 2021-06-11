@@ -11,22 +11,7 @@ import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.insertIgnore
-import org.jetbrains.exposed.sql.lowerCase
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.orWhere
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import us.potatoboy.ledger.Ledger
@@ -42,7 +27,7 @@ import us.potatoboy.ledger.registry.ActionRegistry
 import us.potatoboy.ledger.utility.NbtUtils
 import java.io.File
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -69,7 +54,7 @@ object DatabaseManager {
     fun setValues(file: File) {
         databaseFile = file
         database = Database.connect(
-            url = "jdbc:sqlite:${databaseFile!!.path.replace('\\', '/')}",
+            url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
         )
     }
 
