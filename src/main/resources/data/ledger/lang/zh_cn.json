@@ -9,7 +9,7 @@
   "text.ledger.footer.page_backward": "<<",
   "text.ledger.footer.page_backward.hover": "上一页",
 
-  "text.ledger.status.queue": "数据库队列: %s ",
+  "text.ledger.status.queue": "数据库队列状态: %s ",
   "text.ledger.status.queue.busy": "繁忙",
   "text.ledger.status.queue.empty": "闲置",
   "text.ledger.status.version": "版本: %s",
@@ -35,7 +35,7 @@
   "text.ledger.database.busy": "数据库任务繁忙. 这可能需要一点时间",
 
   "error.ledger.no_cached_params": "没有缓存搜索. 尝试先执行搜索",
-  "error.ledger.command.no_results": "没有查询到任何结果",
+  "error.ledger.command.no_results": "没有查询到任何记录",
   "error.ledger.no_more_pages": "没有更多页了",
   "error.ledger.unknown_param": "非法参数--> %s",
   "error.ledger.no_preview": "没有可预览的结果,预览失败",
@@ -44,8 +44,8 @@
   "text.ledger.action.block-break": "破坏",
   "text.ledger.action.item-insert": "放入",
   "text.ledger.action.item-remove": "拿取",
-  "text.ledger.action.entity-kill": "killed",
+  "text.ledger.action.entity-kill": "杀死",
 
-  "text.ledger.network.protocols_mismatched": "协议版本不匹配: client mod is Ledger protocol version %d and the client version is %d",
+  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端协议版本 %d",
   "text.ledger.status.discord": "单击以加入 Ledger  discord 服务器"
 }
