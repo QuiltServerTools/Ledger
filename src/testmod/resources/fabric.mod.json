@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "ledger-testmod",
+  "version": "1.0.0",
+  "name": "Ledger (Networking Testmod)",
+  "description": "Logs world events and allows for them to be rolled back",
+  "authors": [
+    "Potatoboy9999"
+  ],
+  "contact": {
+    "homepage": "https://github.com/QuiltServerTools",
+    "sources": "https://github.com/QuiltServerTools/Ledger",
+    "issues": "https://github.com/QuiltServerTools/Ledger/issues"
+  },
+  "license": "LGPL",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "us.potatoboy.ledger.testmod.LedgerTest::INSTANCE"
+    ]
+  },
+  "mixins": [
+    "ledger-testmod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": ">=0.34.8",
+    "fabric-language-kotlin": ">=1.6.0+kotlin.1.5.0",
+    "minecraft": "1.17.x"
+  }
+}
