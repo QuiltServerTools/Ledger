@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "us.potatoboy.ledger.mixin",
+  "package": "com.github.quiltservertools.ledger.mixin",
   "compatibilityLevel": "JAVA_16",
   "server": [
     "DoubleInventoryMixin",

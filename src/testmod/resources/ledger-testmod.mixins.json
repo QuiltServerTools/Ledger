@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "us.potatoboy.ledger.testmod.mixin",
+  "package": "com.github.quiltservertools.ledger.testmod.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
     "ClientPlayerInteractionManagerMixin"
