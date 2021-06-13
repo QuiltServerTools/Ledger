@@ -7,6 +7,8 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
+import us.potatoboy.ledger.config.ActionsSpec
+import us.potatoboy.ledger.config.config
 import java.time.Instant
 
 interface ActionType {
@@ -29,4 +31,10 @@ interface ActionType {
     fun previewRestore(world: ServerWorld, player: ServerPlayerEntity)
     fun getTranslationType(): String
     fun getMessage(): Text
+
+    fun isBlacklisted() = config[ActionsSpec.typeBlacklist].contains(identifier) ||
+            config[ActionsSpec.objectBlacklist].contains(objectIdentifier) ||
+            config[ActionsSpec.objectBlacklist].contains(oldObjectIdentifier) ||
+            config[ActionsSpec.sourceBlacklist].contains(sourceName) ||
+            config[ActionsSpec.worldBlacklist].contains(world)
 }
