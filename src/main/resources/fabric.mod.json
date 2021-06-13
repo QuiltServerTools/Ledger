@@ -18,7 +18,7 @@
   "entrypoints": {
     "server": [
       {
-        "value": "us.potatoboy.ledger.Ledger::INSTANCE"
+        "value": "com.github.quiltservertools.ledger.Ledger::INSTANCE"
       }
     ]
   },

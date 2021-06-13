@@ -16,7 +16,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "us.potatoboy.ledger.testmod.LedgerTest::INSTANCE"
+      "com.github.quiltservertools.ledger.testmod.LedgerTest::INSTANCE"
     ]
   },
   "mixins": [
