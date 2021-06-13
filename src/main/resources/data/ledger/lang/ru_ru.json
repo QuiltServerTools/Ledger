@@ -1,0 +1,54 @@
+{
+  "text.ledger.header.search.pos": "--- Поиск журналов на %s ---",
+  "text.ledger.header.search": "------ Поиск журналов ------",
+  "text.ledger.header.status": "------ Ledger ------",
+
+  "text.ledger.footer.search": "------- %s [Страница %s из %s] %s -------",
+  "text.ledger.footer.page_forward": ">>",
+  "text.ledger.footer.page_forward.hover": "Следующая страница",
+  "text.ledger.footer.page_backward": "<<",
+  "text.ledger.footer.page_backward.hover": "Предыдущая страница",
+
+  "text.ledger.status.queue": "Очередь базы данных: %s",
+  "text.ledger.status.queue.busy": "Занято",
+  "text.ledger.status.queue.empty": "Пусто",
+  "text.ledger.status.version": "Версия: %s",
+  "text.ledger.status.discord": "Discord: %s",
+  "text.ledger.status.discord.join": "Нажмите, чтобы присоединиться",
+  "text.ledger.status.wiki": "Wiki: %s",
+  "text.ledger.status.wiki.view": "Нажмите, чтобы просмотреть",
+
+  "text.ledger.preview.start": "Предварительный просмотр начинается",
+
+  "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+  "text.ledger.action_message.time_diff": "%s назад",
+  "text.ledger.action_message.location.hover": "Нажмите, чтобы телепортироваться",
+
+  "text.ledger.rollback.start": "Откат %s действий(я)",
+  "text.ledger.rollback.finish": "Откат завершен",
+  "text.ledger.rollback.fail": "Не удалось откатить %s x%s",
+
+  "text.ledger.restore.start": "Восстановление %s действий(я)",
+  "text.ledger.restore.finish": "Восстановление завершено",
+  "text.ledger.restore.fail": "Не удалось восстановить %s x%s",
+
+  "text.ledger.inspect.toggle": "Режим проверки: %s",
+  "text.ledger.inspect.on": "Включен",
+  "text.ledger.inspect.off": "Отключен",
+
+  "text.ledger.database.busy": "База данных в настоящее время занята. Это может занять некоторое время",
+
+  "error.ledger.no_cached_params": "Нет кешированного поиска. Попробуйте сначала выполнить поиск",
+  "error.ledger.command.no_results": "Нет результатов для этого поиска",
+  "error.ledger.no_more_pages": "Больше нет страниц",
+  "error.ledger.unknown_param": "Неизвестный параметр %s",
+  "error.ledger.no_preview": "Нет текущего предварительного просмотра",
+
+  "text.ledger.action.block-place": "разместил",
+  "text.ledger.action.block-break": "сломал",
+  "text.ledger.action.item-insert": "добавил",
+  "text.ledger.action.item-remove": "удалил",
+  "text.ledger.action.entity-kill": "убил",
+
+  "text.ledger.network.protocols_mismatched": "Несоответствие версий протокола: клиентский мод - это версия протокола Ledger %d, а версия клиента - %d"
+}
