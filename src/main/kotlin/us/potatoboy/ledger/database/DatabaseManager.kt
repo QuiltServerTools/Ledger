@@ -229,6 +229,8 @@ object DatabaseManager {
     }
 
     fun logAction(action: ActionType) {
+        if (action.isBlacklisted()) return
+
         _actions.tryEmit(action)
     }
 
