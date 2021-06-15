@@ -1,5 +1,12 @@
 package com.github.quiltservertools.ledger.listeners
 
+import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.actionutils.ActionFactory
+import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback
+import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.network.Networking.disableNetworking
+import com.github.quiltservertools.ledger.utility.inspectBlock
+import com.github.quiltservertools.ledger.utility.isInspecting
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
@@ -10,7 +17,6 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
-import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
@@ -20,23 +26,12 @@ import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
-import com.github.quiltservertools.ledger.Ledger
-import com.github.quiltservertools.ledger.actionutils.ActionFactory
-import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback
-import com.github.quiltservertools.ledger.callbacks.PlayerInsertItemCallback
-import com.github.quiltservertools.ledger.callbacks.PlayerRemoveItemCallback
-import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.network.Networking.disableNetworking
-import com.github.quiltservertools.ledger.utility.inspectBlock
-import com.github.quiltservertools.ledger.utility.isInspecting
 
 fun registerPlayerListeners() {
     PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
     PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
     ServerPlayConnectionEvents.JOIN.register(::onJoin)
     ServerPlayConnectionEvents.DISCONNECT.register(::onLeave)
-    PlayerInsertItemCallback.EVENT.register(::onItemInsert)
-    PlayerRemoveItemCallback.EVENT.register(::onItemRemove)
     AttackBlockCallback.EVENT.register(::onBlockAttack)
     UseBlockCallback.EVENT.register(::onUseBlock)
 }
@@ -76,27 +71,6 @@ private fun onBlockAttack(
     return ActionResult.PASS
 }
 
-private fun onItemRemove(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
-    DatabaseManager.logAction(
-        ActionFactory.itemRemoveAction(
-            player.serverWorld,
-            itemStack,
-            blockPos,
-            player
-        )
-    )
-}
-
-private fun onItemInsert(itemStack: ItemStack, blockPos: BlockPos, player: ServerPlayerEntity) {
-    DatabaseManager.logAction(
-        ActionFactory.itemInsertAction(
-            player.serverWorld,
-            itemStack,
-            blockPos,
-            player
-        )
-    )
-}
 
 private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
     Ledger.launch {

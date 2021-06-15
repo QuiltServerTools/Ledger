@@ -1,11 +1,18 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
+import com.github.quiltservertools.ledger.actionutils.DoubleInventoryHelper;
+import com.github.quiltservertools.ledger.actionutils.LocationalInventory;
+import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback;
+import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback;
+import com.github.quiltservertools.ledger.utility.HandledSlot;
+import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,12 +23,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import com.github.quiltservertools.ledger.actionutils.DoubleInventoryHelper;
-import com.github.quiltservertools.ledger.actionutils.LocationalInventory;
-import com.github.quiltservertools.ledger.callbacks.PlayerInsertItemCallback;
-import com.github.quiltservertools.ledger.callbacks.PlayerRemoveItemCallback;
-import com.github.quiltservertools.ledger.utility.HandledSlot;
-import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
 
 @Mixin(Slot.class)
 public abstract class SlotMixin implements HandledSlot {
@@ -104,9 +105,9 @@ public abstract class SlotMixin implements HandledSlot {
         ItemStack changedStack = oldEmpty ? newStack : stack;
 
         if (oldEmpty) {
-            PlayerInsertItemCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerPlayerEntity) player);
+            ItemInsertCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerWorld) player.world, "player", (ServerPlayerEntity) player);
         } else {
-            PlayerRemoveItemCallback.Companion.getEVENT().invoker().remove(changedStack, pos, (ServerPlayerEntity) player);
+            ItemRemoveCallback.Companion.getEVENT().invoker().remove(changedStack, pos, (ServerWorld) player.world, "player", (ServerPlayerEntity) player);
         }
     }
 }
