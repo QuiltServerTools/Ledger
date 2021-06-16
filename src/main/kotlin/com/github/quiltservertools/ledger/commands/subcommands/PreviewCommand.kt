@@ -1,10 +1,5 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager
-import net.minecraft.text.TranslatableText
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
@@ -15,6 +10,11 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.lucko.fabric.api.permissions.v0.Permissions
+import net.minecraft.server.command.CommandManager
+import net.minecraft.text.TranslatableText
 
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -63,6 +63,7 @@ object PreviewCommand : BuildableCommand {
                 return@launch
             }
 
+            Ledger.previewCache[source.player.uuid]?.cancel(context.source.player)
             Ledger.previewCache[source.player.uuid] = Preview(params, actions, source.player, type)
         }
         return 1
