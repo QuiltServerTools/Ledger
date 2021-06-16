@@ -1,5 +1,19 @@
 package com.github.quiltservertools.ledger
 
+import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
+import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.commands.registerCommands
+import com.github.quiltservertools.ledger.config.CONFIG_PATH
+import com.github.quiltservertools.ledger.config.DatabaseSpec
+import com.github.quiltservertools.ledger.config.config
+import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.listeners.registerBlockListeners
+import com.github.quiltservertools.ledger.listeners.registerEntityListeners
+import com.github.quiltservertools.ledger.listeners.registerPlayerListeners
+import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
+import com.github.quiltservertools.ledger.network.Networking
+import com.github.quiltservertools.ledger.registry.ActionRegistry
+import com.github.quiltservertools.ledger.utility.Dispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -16,19 +30,6 @@ import net.minecraft.util.WorldSavePath
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
-import com.github.quiltservertools.ledger.actionutils.Preview
-import com.github.quiltservertools.ledger.commands.registerCommands
-import com.github.quiltservertools.ledger.config.CONFIG_PATH
-import com.github.quiltservertools.ledger.config.DatabaseSpec
-import com.github.quiltservertools.ledger.config.config
-import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.listeners.registerBlockListeners
-import com.github.quiltservertools.ledger.listeners.registerEntityListeners
-import com.github.quiltservertools.ledger.listeners.registerPlayerListeners
-import com.github.quiltservertools.ledger.network.Networking
-import com.github.quiltservertools.ledger.registry.ActionRegistry
-import com.github.quiltservertools.ledger.utility.Dispatcher
 import java.nio.file.Files
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -99,6 +100,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     }
 
     private fun initListeners() {
+        registerWorldEventListeners()
         registerPlayerListeners()
         registerBlockListeners()
         registerEntityListeners()
