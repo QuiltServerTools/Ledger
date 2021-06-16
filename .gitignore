@@ -12,3 +12,6 @@ out/
 # fabric
 run/
 minecraft/
+
+# Mkdocs
+site/

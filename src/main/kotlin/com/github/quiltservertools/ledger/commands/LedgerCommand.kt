@@ -1,7 +1,5 @@
 package com.github.quiltservertools.ledger.commands
 
-import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager.literal
 import com.github.quiltservertools.ledger.commands.subcommands.InspectCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PageCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PreviewCommand
@@ -12,6 +10,8 @@ import com.github.quiltservertools.ledger.commands.subcommands.StatusCommand
 import com.github.quiltservertools.ledger.commands.subcommands.TeleportCommand
 import com.github.quiltservertools.ledger.utility.BrigadierUtils
 import com.github.quiltservertools.ledger.utility.Dispatcher
+import me.lucko.fabric.api.permissions.v0.Permissions
+import net.minecraft.server.command.CommandManager.literal
 
 fun registerCommands(dispatcher: Dispatcher) {
     val rootNode =
@@ -19,7 +19,11 @@ fun registerCommands(dispatcher: Dispatcher) {
             .build()
 
     dispatcher.root.addChild(rootNode)
-    dispatcher.root.addChild(literal("lg").redirect(rootNode).build())
+    dispatcher.root.addChild(
+        literal("lg")
+            .requires(Permissions.require("ledger.commands.root", CommandConsts.PERMISSION_LEVEL)).redirect(rootNode)
+            .build()
+    )
 
     rootNode.addChild(InspectCommand.build())
     rootNode.addChild(BrigadierUtils.buildRedirect("i", InspectCommand.build()))
