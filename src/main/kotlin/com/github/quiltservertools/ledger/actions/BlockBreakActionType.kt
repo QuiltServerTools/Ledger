@@ -1,5 +1,7 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
@@ -7,8 +9,6 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
-import com.github.quiltservertools.ledger.utility.TextColorPallet
-import com.github.quiltservertools.ledger.utility.literal
 
 class BlockBreakActionType : BlockChangeActionType("block-break") {
     override fun getObjectMessage(): Text = TranslatableText(
@@ -37,7 +37,7 @@ class BlockBreakActionType : BlockChangeActionType("block-break") {
         world.setBlockState(pos, state)
 
         if (success && world.getBlockEntity(pos) != null) {
-            world.getBlockEntity(pos)?.writeNbt(StringNbtReader.parse(extraData))
+            world.getBlockEntity(pos)?.readNbt(StringNbtReader.parse(extraData))
         }
 
         return success
