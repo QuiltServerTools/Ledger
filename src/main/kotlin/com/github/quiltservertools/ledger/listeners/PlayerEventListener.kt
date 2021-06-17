@@ -2,13 +2,13 @@ package com.github.quiltservertools.ledger.listeners
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
+import com.github.quiltservertools.ledger.callbacks.PlayerBlockAttackCallback
 import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.disableNetworking
 import com.github.quiltservertools.ledger.utility.inspectBlock
 import com.github.quiltservertools.ledger.utility.isInspecting
 import kotlinx.coroutines.launch
-import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.fabricmc.fabric.api.networking.v1.PacketSender
@@ -32,7 +32,7 @@ fun registerPlayerListeners() {
     PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
     ServerPlayConnectionEvents.JOIN.register(::onJoin)
     ServerPlayConnectionEvents.DISCONNECT.register(::onLeave)
-    AttackBlockCallback.EVENT.register(::onBlockAttack)
+    PlayerBlockAttackCallback.EVENT.register(::onBlockAttack)
     UseBlockCallback.EVENT.register(::onUseBlock)
 }
 
@@ -57,9 +57,9 @@ private fun onUseBlock(
 private fun onBlockAttack(
     player: PlayerEntity,
     world: World,
-    hand: Hand,
     pos: BlockPos,
-    direction: Direction
+    direction: Direction,
+    hand: Hand
 ): ActionResult {
     if (world.isClient) return ActionResult.PASS
 
