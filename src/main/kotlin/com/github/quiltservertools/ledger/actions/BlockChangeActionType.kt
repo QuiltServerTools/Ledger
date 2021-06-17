@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.logWarn
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.nbt.StringNbtReader
@@ -8,7 +9,6 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import com.github.quiltservertools.ledger.logWarn
 
 open class BlockChangeActionType(override val identifier: String) : AbstractActionType() {
     override fun rollback(world: ServerWorld): Boolean {
@@ -24,7 +24,7 @@ open class BlockChangeActionType(override val identifier: String) : AbstractActi
     override fun restore(world: ServerWorld): Boolean {
         world.setBlockState(pos, newBlockState())
         if (newBlockState().hasBlockEntity()) {
-            world.getBlockEntity(pos)?.writeNbt(StringNbtReader.parse(extraData))
+            world.getBlockEntity(pos)?.readNbt(StringNbtReader.parse(extraData))
         }
 
         return true
