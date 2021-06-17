@@ -17,6 +17,7 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "callbacks.ItemScattererMixin"
+    "callbacks.ItemScattererMixin",
+    "callbacks.ServerPlayInteractionManagerMixin"
   ]
 }
