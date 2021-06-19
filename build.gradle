@@ -47,9 +47,9 @@ repositories {
     maven { url "https://maven.fabricmc.net/" }
     maven { url "https://maven.nucleoid.xyz/" }
     maven { url 'https://maven.bymartrixx.me' }
-    maven { url "https://jitpack.io" }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     mavenCentral()
+    maven { url "https://jitpack.io" }
     jcenter()
 }
 
@@ -66,7 +66,7 @@ dependencies {
     modImplementation include('me.lucko:fabric-permissions-api:0.1-SNAPSHOT')
 
     // Translations
-    modImplementation include("fr.catcore:server-translations-api:${project.server_translations_version}")
+    modImplementation include("com.github.QuiltServerTools:Server-Translations:1.17-SNAPSHOT")
 
     // Kotlin
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
