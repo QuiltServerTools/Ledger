@@ -1,5 +1,16 @@
 package com.github.quiltservertools.ledger.database
 
+import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.actions.ActionType
+import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
+import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.actionutils.SearchResults
+import com.github.quiltservertools.ledger.config.SearchSpec
+import com.github.quiltservertools.ledger.config.config
+import com.github.quiltservertools.ledger.logInfo
+import com.github.quiltservertools.ledger.logWarn
+import com.github.quiltservertools.ledger.registry.ActionRegistry
+import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,10 +24,13 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
@@ -25,21 +39,9 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.orWhere
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import com.github.quiltservertools.ledger.Ledger
-import com.github.quiltservertools.ledger.actions.ActionType
-import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
-import com.github.quiltservertools.ledger.actionutils.Preview
-import com.github.quiltservertools.ledger.actionutils.SearchResults
-import com.github.quiltservertools.ledger.config.SearchSpec
-import com.github.quiltservertools.ledger.config.config
-import com.github.quiltservertools.ledger.logInfo
-import com.github.quiltservertools.ledger.logWarn
-import com.github.quiltservertools.ledger.registry.ActionRegistry
-import com.github.quiltservertools.ledger.utility.NbtUtils
 import java.io.File
 import java.time.Instant
 import java.util.UUID
@@ -204,13 +206,15 @@ object DatabaseManager {
         paramSet: Collection<E>?,
         column: Column<E>
     ) {
-        paramSet?.forEachIndexed { index, param ->
-            if (index == 0) {
-                query.andWhere { column eq param }
-            } else {
-                query.orWhere { column eq param }
-            }
+        if (paramSet.isNullOrEmpty()) return
+
+        var operator = Op.build { column eq paramSet.first() }
+
+        paramSet.stream().skip(1).forEach { param ->
+            operator = operator.or { column eq param }
         }
+
+        query.andWhere { operator }
     }
 
     private fun <E> addParameters(
@@ -219,13 +223,15 @@ object DatabaseManager {
         column: Column<E>,
         orColumn: Column<E>
     ) {
-        paramSet?.forEachIndexed { index, param ->
-            if (index == 0) {
-                query.andWhere { column eq param or (orColumn eq param) }
-            } else {
-                query.orWhere { column eq param or (orColumn eq param) }
-            }
+        if (paramSet.isNullOrEmpty()) return
+
+        var operator = Op.build { column eq paramSet.first() }
+
+        paramSet.stream().skip(1).forEach { param ->
+            operator = operator.or { column eq param or (orColumn eq param) }
         }
+
+        query.andWhere { operator }
     }
 
     fun logAction(action: ActionType) {
@@ -317,6 +323,7 @@ object DatabaseManager {
         val actionTypes = mutableListOf<ActionType>()
         var totalActions: Long = 0
 
+        addLogger(StdOutSqlLogger)
         var query = buildQuery(params)
 
         totalActions = query.copy().count()
