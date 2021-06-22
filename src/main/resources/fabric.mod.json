@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "ledger",
-  "version": "1.0.0",
+  "version": "${version}",
   "name": "Ledger",
   "description": "Logs world events and allows for them to be rolled back",
   "authors": [

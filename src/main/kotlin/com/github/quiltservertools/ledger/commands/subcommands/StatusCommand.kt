@@ -1,11 +1,5 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
-import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
-import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.server.command.CommandManager
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.TranslatableText
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
@@ -15,6 +9,13 @@ import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import com.github.quiltservertools.ledger.utility.translate
+import kotlinx.coroutines.launch
+import me.lucko.fabric.api.permissions.v0.Permissions
+import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.loader.api.SemanticVersion
+import net.minecraft.server.command.CommandManager
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.TranslatableText
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -74,7 +75,7 @@ object StatusCommand : BuildableCommand {
                             it.withClickEvent(
                                 ClickEvent(
                                     ClickEvent.Action.OPEN_URL,
-                                    "https://quiltservertools.github.io/Ledger/${getVersion().friendlyString}/"
+                                    "https://quiltservertools.github.io/Ledger/latest/"
                                 )
                             )
                         }
@@ -85,6 +86,7 @@ object StatusCommand : BuildableCommand {
         return 1
     }
 
-    private fun getVersion() =
-        FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().metadata.version
+    private fun getVersion() = SemanticVersion.parse(
+        FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().metadata.version.friendlyString
+    )
 }
