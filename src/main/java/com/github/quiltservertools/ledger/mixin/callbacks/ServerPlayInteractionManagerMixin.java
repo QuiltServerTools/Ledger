@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin.callbacks;
 
 import com.github.quiltservertools.ledger.callbacks.PlayerBlockAttackCallback;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
@@ -18,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayerInteractionManager.class)
-public class ServerPlayInteractionManagerMixin {
+public abstract class ServerPlayInteractionManagerMixin {
     @Shadow
     @Final
     protected ServerPlayerEntity player;
@@ -35,7 +36,10 @@ public class ServerPlayInteractionManagerMixin {
             // The client might have broken the block on its side, so make sure to let it know.
             this.player.networkHandler.sendPacket(new BlockUpdateS2CPacket(world, pos));
             if (world.getBlockState(pos).hasBlockEntity()) {
-                this.player.networkHandler.sendPacket(world.getBlockEntity(pos).toUpdatePacket());
+                BlockEntityUpdateS2CPacket updatePacket = world.getBlockEntity(pos).toUpdatePacket();
+                if (updatePacket != null) {
+                    this.player.networkHandler.sendPacket(updatePacket);
+                }
             }
             info.cancel();
         }
