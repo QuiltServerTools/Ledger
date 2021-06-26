@@ -50,5 +50,5 @@
   "text.ledger.action.item-remove": "拿取",
   "text.ledger.action.entity-kill": "杀死",
 
-  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d",
+  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d"
 }
