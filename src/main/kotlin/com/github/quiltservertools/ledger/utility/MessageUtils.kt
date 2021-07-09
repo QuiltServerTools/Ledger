@@ -18,7 +18,7 @@ object MessageUtils {
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
         if (source.player.hasNetworking()) {
             for(n in results.page..results.pages) {
-                val networkResults = DatabaseManager.searchActions(params, n)
+                val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
                     val packet = ActionPacket()
                     packet.populate(it)
