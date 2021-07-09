@@ -13,7 +13,7 @@ import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
 
 object MessageUtils {
-    fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
+    suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
         if (source.player.hasNetworking()) {
