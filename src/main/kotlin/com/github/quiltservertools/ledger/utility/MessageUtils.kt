@@ -13,14 +13,17 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 
 object MessageUtils {
-    fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
+    suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
         if (source.hasPlayer() && source.player.hasNetworking()) {
-            results.actions.forEach {
-                val packet = ActionPacket()
-                packet.populate(it)
-                ServerPlayNetworking.send(source.player, packet.channel, packet.buf)
+            for(n in results.page..results.pages) {
+                val networkResults = DatabaseManager.searchActions(results.searchParams, n)
+                networkResults.actions.forEach {
+                    val packet = ActionPacket()
+                    packet.populate(it)
+                    ServerPlayNetworking.send(source.player, packet.channel, packet.buf)
+                }
             }
             return
         }
