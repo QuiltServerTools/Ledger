@@ -1,5 +1,9 @@
 package com.github.quiltservertools.ledger.utility
 
+import com.github.quiltservertools.ledger.actionutils.SearchResults
+import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.network.Networking.hasNetworking
+import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.ClickEvent
@@ -7,16 +11,12 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
-import com.github.quiltservertools.ledger.actionutils.SearchResults
-import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.network.Networking.hasNetworking
-import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
 
 object MessageUtils {
     fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
-        if (source.player.hasNetworking()) {
+        if (source.hasPlayer() && source.player.hasNetworking()) {
             results.actions.forEach {
                 val packet = ActionPacket()
                 packet.populate(it)
