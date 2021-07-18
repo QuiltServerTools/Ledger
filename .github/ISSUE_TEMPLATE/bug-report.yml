@@ -1,0 +1,96 @@
+name: Bug Report
+description: Report a bug
+labels: [bug]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before reporting a crash here, please make sure you are on the latest supported version.
+
+  - type: textarea
+    attributes:
+      label: Expected behavior
+      description: What you expected to see.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Observed/actual behavior
+      description: What you actually saw.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps/models to reproduce
+      description: This may include a screenshot, a video, or detailed instructions to help reconstruct the issue.
+      placeholder: |
+          1. Go to '...'
+          2. Click on '....'
+          3. Scroll down to '....'
+          4. See error
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+        value: Device Info
+
+  - type: dropdown
+    id: os
+    attributes:
+        label: What operating system are you running
+        options:
+            - Windows
+            - Mac
+            - Linux
+            - Other
+    validations:
+        required: true
+
+  - type: input
+    id: minecraft-version
+    attributes:
+        label: Minecraft version
+        placeholder: "1.17.1"
+    validations:
+        required: true
+
+  - type: input
+    id: ledger-version
+    attributes:
+        label: Ledger version
+        placeholder: "1.0.2"
+    validations:
+        required: true
+
+  - type: input
+    id: logs
+    attributes:
+        label: Logs
+        description: A link to your latest.log after experiencing the bug. Make sure to remove IP's
+    validations:
+        required: true
+
+  - type: checkboxes
+    attributes:
+      label: Agreements
+      description: Please agree to the following.
+      options:
+        - label: I am running the latest version of the mod.
+          required: true
+        - label: My version of Minecraft is supported.
+          required: true
+        - label: I have searched for and ensured there isn't already an open issue regarding this.
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Other
+      description: |
+        Please include other information that may be helpful below.
+        The more information we receive, the quicker and more effective we can be at finding the solution to the issue.
+    validations:
+      required: false
