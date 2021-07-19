@@ -47,7 +47,7 @@ private fun onUseBlock(
     blockHitResult: BlockHitResult
 ): ActionResult {
     if ((player as ServerPlayerEntity).isInspecting() && hand == Hand.MAIN_HAND) {
-        player.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
+        player.commandSource.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
         return ActionResult.SUCCESS
     }
 
@@ -64,7 +64,7 @@ private fun onBlockAttack(
     if (world.isClient) return ActionResult.PASS
 
     if ((player as ServerPlayerEntity).isInspecting()) {
-        player.inspectBlock(pos)
+        player.commandSource.inspectBlock(pos)
         return ActionResult.SUCCESS
     }
 
