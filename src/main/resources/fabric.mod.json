@@ -1,34 +1,34 @@
 {
-  "schemaVersion": 1,
-  "id": "ledger",
-  "version": "${version}",
-  "name": "Ledger",
-  "description": "Logs world events and allows for them to be rolled back",
-  "authors": [
-    "Potatoboy9999"
-  ],
-  "contact": {
-    "homepage": "https://github.com/QuiltServerTools",
-    "sources": "https://github.com/QuiltServerTools/Ledger",
-    "issues": "https://github.com/QuiltServerTools/Ledger/issues"
-  },
-  "license": "LGPL",
-  "icon": "assets/ledger/icon.png",
-  "environment": "server",
-  "entrypoints": {
-    "server": [
-      {
-        "value": "com.github.quiltservertools.ledger.Ledger::INSTANCE"
-      }
-    ]
-  },
-  "mixins": [
-    "ledger.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": ">=0.11.3",
-    "fabric": ">=0.34.8",
-    "fabric-language-kotlin": ">=1.6.0+kotlin.1.5.0",
-    "minecraft": "1.17.x"
-  }
+    "schemaVersion": 1,
+    "id": "${id}",
+    "version": "${version}",
+    "name": "${name}",
+    "description": "Logs world events and allows for them to be rolled back",
+    "authors": [
+        "Potatoboy9999"
+    ],
+    "contact": {
+        "homepage": "https://github.com/QuiltServerTools",
+        "sources": "https://github.com/QuiltServerTools/Ledger",
+        "issues": "https://github.com/QuiltServerTools/Ledger/issues"
+    },
+    "license": "LGPL",
+    "icon": "assets/ledger/icon.png",
+    "environment": "server",
+    "entrypoints": {
+        "server": [
+            {
+                "value": "com.github.quiltservertools.ledger.Ledger::INSTANCE"
+            }
+        ]
+    },
+    "mixins": [
+        "ledger.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${fabricLoader}",
+        "fabric": ">=${fabricApi}",
+        "fabric-language-kotlin": ">=${fabricKotlin}",
+        "minecraft": "1.17.x"
+    }
 }
