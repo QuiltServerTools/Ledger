@@ -1,5 +1,11 @@
 package com.github.quiltservertools.ledger.actionutils
 
+import com.github.quiltservertools.ledger.actions.ActionType
+import com.github.quiltservertools.ledger.actions.BlockBreakActionType
+import com.github.quiltservertools.ledger.actions.BlockChangeActionType
+import com.github.quiltservertools.ledger.actions.EntityKillActionType
+import com.github.quiltservertools.ledger.actions.ItemInsertActionType
+import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
@@ -8,11 +14,9 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
-import com.github.quiltservertools.ledger.actions.*
 
 const val PLAYER_SOURCE = "player"
 
@@ -34,7 +38,7 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: ServerPlayerEntity,
+        source: PlayerEntity,
         entity: BlockEntity? = null
     ): BlockChangeActionType {
         val action = blockBreakAction(world, pos, state, PLAYER_SOURCE, entity)
@@ -60,7 +64,7 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: ServerPlayerEntity,
+        source: PlayerEntity,
         entity: BlockEntity? = null
     ): BlockChangeActionType {
         val action = blockPlaceAction(world, pos, state, PLAYER_SOURCE, entity)
@@ -99,7 +103,7 @@ object ActionFactory {
         world: World,
         stack: ItemStack,
         pos: BlockPos,
-        source: ServerPlayerEntity
+        source: PlayerEntity
     ): ItemInsertActionType {
         val action = ItemInsertActionType()
         setItemData(action, pos, world, stack, PLAYER_SOURCE)
@@ -119,7 +123,7 @@ object ActionFactory {
         world: World,
         stack: ItemStack,
         pos: BlockPos,
-        source: ServerPlayerEntity
+        source: PlayerEntity
     ): ItemRemoveActionType {
         val action = ItemRemoveActionType()
         setItemData(action, pos, world, stack, PLAYER_SOURCE)
