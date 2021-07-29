@@ -91,7 +91,7 @@ private fun onBlockPlace(
             world,
             pos,
             state,
-            player as ServerPlayerEntity,
+            player,
             blockEntity
         )
     )
@@ -109,7 +109,7 @@ private fun onBlockBreak(
             world,
             pos,
             state,
-            player as ServerPlayerEntity,
+            player,
             blockEntity
         )
     )
