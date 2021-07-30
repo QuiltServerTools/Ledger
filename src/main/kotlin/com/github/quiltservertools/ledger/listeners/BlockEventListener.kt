@@ -1,19 +1,19 @@
 package com.github.quiltservertools.ledger.listeners
 
-import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.entity.Entity
-import net.minecraft.entity.TntEntity
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.registry.Registry
-import net.minecraft.world.World
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.BlockBurnCallback
 import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockFallCallback
 import com.github.quiltservertools.ledger.callbacks.BlockLandCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
+import net.minecraft.block.BlockState
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.Entity
+import net.minecraft.entity.TntEntity
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.registry.Registry
+import net.minecraft.world.World
 
 
 fun registerBlockListeners() {
@@ -69,8 +69,8 @@ private fun onExplode(
         entity
     )
 
-    if (source is TntEntity && source.causingEntity is ServerPlayerEntity) {
-        action.sourceProfile = (source.causingEntity as ServerPlayerEntity).gameProfile
+    if (source is TntEntity && source.causingEntity is PlayerEntity) {
+        action.sourceProfile = (source.causingEntity as PlayerEntity).gameProfile
     }
 
     DatabaseManager.logAction(action)

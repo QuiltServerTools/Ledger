@@ -1,23 +1,22 @@
 package com.github.quiltservertools.ledger.utility
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.TranslatableText
-import net.minecraft.util.Formatting
-import net.minecraft.util.math.BlockPos
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.database.DatabaseManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.text.TranslatableText
+import net.minecraft.util.Formatting
+import net.minecraft.util.math.BlockPos
 import java.util.UUID
-import kotlin.collections.HashSet
 
 private val inspectingUsers = HashSet<UUID>()
 
-fun ServerPlayerEntity.isInspecting() = inspectingUsers.contains(this.uuid)
+fun PlayerEntity.isInspecting() = inspectingUsers.contains(this.uuid)
 
-fun ServerPlayerEntity.inspectOn(): Int {
+fun PlayerEntity.inspectOn(): Int {
     inspectingUsers.add(this.uuid)
     this.sendMessage(
         TranslatableText(
@@ -30,7 +29,7 @@ fun ServerPlayerEntity.inspectOn(): Int {
     return 1
 }
 
-fun ServerPlayerEntity.inspectOff(): Int {
+fun PlayerEntity.inspectOff(): Int {
     inspectingUsers.remove(this.uuid)
     this.sendMessage(
         TranslatableText(
@@ -43,7 +42,7 @@ fun ServerPlayerEntity.inspectOff(): Int {
     return 1
 }
 
-fun ServerPlayerEntity.inspectBlock(pos: BlockPos) {
+fun PlayerEntity.inspectBlock(pos: BlockPos) {
     val source = this.commandSource
 
     Ledger.launch(Dispatchers.IO) {
@@ -74,7 +73,7 @@ fun ServerPlayerEntity.inspectBlock(pos: BlockPos) {
     }
 }
 
-suspend fun ServerPlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
+suspend fun PlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
     val source = this.commandSource
     val params = ActionSearchParams.build {
         min = pos
