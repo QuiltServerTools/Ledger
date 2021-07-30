@@ -19,7 +19,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.hit.BlockHitResult
@@ -46,7 +45,7 @@ private fun onUseBlock(
     hand: Hand,
     blockHitResult: BlockHitResult
 ): ActionResult {
-    if ((player as ServerPlayerEntity).isInspecting() && hand == Hand.MAIN_HAND) {
+    if (player.isInspecting() && hand == Hand.MAIN_HAND) {
         player.commandSource.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
         return ActionResult.SUCCESS
     }
@@ -63,7 +62,7 @@ private fun onBlockAttack(
 ): ActionResult {
     if (world.isClient) return ActionResult.PASS
 
-    if ((player as ServerPlayerEntity).isInspecting()) {
+    if (player.isInspecting()) {
         player.commandSource.inspectBlock(pos)
         return ActionResult.SUCCESS
     }
@@ -91,7 +90,7 @@ private fun onBlockPlace(
             world,
             pos,
             state,
-            player as ServerPlayerEntity,
+            player,
             blockEntity
         )
     )
@@ -109,7 +108,7 @@ private fun onBlockBreak(
             world,
             pos,
             state,
-            player as ServerPlayerEntity,
+            player,
             blockEntity
         )
     )
