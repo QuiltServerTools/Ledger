@@ -7,6 +7,7 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
@@ -42,8 +43,8 @@ fun PlayerEntity.inspectOff(): Int {
     return 1
 }
 
-fun PlayerEntity.inspectBlock(pos: BlockPos) {
-    val source = this.commandSource
+fun ServerCommandSource.inspectBlock(pos: BlockPos) {
+    val source = this
 
     Ledger.launch(Dispatchers.IO) {
         val params = ActionSearchParams.build {
