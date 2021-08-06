@@ -1,12 +1,5 @@
 package com.github.quiltservertools.ledger.network
 
-import net.fabricmc.fabric.api.networking.v1.PacketSender
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayNetworkHandler
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.Identifier
 import com.github.quiltservertools.ledger.config.NetworkingSpec
 import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
@@ -14,15 +7,22 @@ import com.github.quiltservertools.ledger.network.packet.Receiver
 import com.github.quiltservertools.ledger.network.packet.receiver.HandshakePacketReceiver
 import com.github.quiltservertools.ledger.network.packet.receiver.InspectReceiver
 import com.github.quiltservertools.ledger.network.packet.receiver.SearchReceiver
+import net.fabricmc.fabric.api.networking.v1.PacketSender
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.minecraft.network.PacketByteBuf
+import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.ServerPlayNetworkHandler
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.Identifier
 
 object Networking {
     // List of players who have a compatible client mod
     private var networkedPlayers = mutableSetOf<ServerPlayerEntity>()
-    const val protocolVersion = 0
+    const val protocolVersion = 1
 
     init {
         if (config[NetworkingSpec.networking]) {
-            register(LedgerPacketTypes.INSPECT.id, InspectReceiver())
+            register(LedgerPacketTypes.INSPECT_POS.id, InspectReceiver())
             register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
             register(LedgerPacketTypes.HANDSHAKE.id, HandshakePacketReceiver())
         }
