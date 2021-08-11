@@ -3,6 +3,7 @@ package com.github.quiltservertools.ledger.commands
 import com.github.quiltservertools.ledger.commands.subcommands.InspectCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PageCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PreviewCommand
+import com.github.quiltservertools.ledger.commands.subcommands.PurgeCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RestoreCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand
 import com.github.quiltservertools.ledger.commands.subcommands.SearchCommand
@@ -45,4 +46,6 @@ fun registerCommands(dispatcher: Dispatcher) {
     rootNode.addChild(StatusCommand.build())
 
     rootNode.addChild(TeleportCommand.build())
+
+    rootNode.addChild(PurgeCommand.build())
 }

@@ -7,6 +7,8 @@ queueCheckDelaySec = 10
 [search]
 # Number of actions to show per page
 pageSize = 8
+# Permission level for purge command
+purgePermissionLevel = 4
 
 [color]
 # Colors in hex format
