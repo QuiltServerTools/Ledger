@@ -1,14 +1,18 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
+import com.github.quiltservertools.ledger.commands.BuildableCommand
+import com.github.quiltservertools.ledger.commands.CommandConsts
+import com.github.quiltservertools.ledger.utility.Context
+import com.github.quiltservertools.ledger.utility.LiteralNode
+import com.github.quiltservertools.ledger.utility.inspectBlock
+import com.github.quiltservertools.ledger.utility.inspectOff
+import com.github.quiltservertools.ledger.utility.inspectOn
+import com.github.quiltservertools.ledger.utility.isInspecting
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.command.argument.BlockPosArgumentType
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.util.math.BlockPos
-import com.github.quiltservertools.ledger.*
-import com.github.quiltservertools.ledger.commands.BuildableCommand
-import com.github.quiltservertools.ledger.commands.CommandConsts
-import com.github.quiltservertools.ledger.utility.*
 
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -43,7 +47,7 @@ object InspectCommand : BuildableCommand {
     private fun inspectBlock(context: Context, pos: BlockPos): Int {
         val source = context.source
 
-        source.player.inspectBlock(pos)
+        source.inspectBlock(pos)
         return 1
     }
 }

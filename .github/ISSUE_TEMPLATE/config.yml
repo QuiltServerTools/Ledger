@@ -3,3 +3,6 @@ contact_links:
   - name: Support
     url: https://discord.gg/cSWma7DupQ
     about: Please ask and answer questions here.
+  - name: Docs
+    url: https://quiltservertools.github.io/Ledger/latest
+    about: Offical documentation for Ledger

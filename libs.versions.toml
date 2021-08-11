@@ -1,0 +1,43 @@
+[versions]
+minecraft = "1.17.1"
+yarn-mappings = "1.17.1+build.37"
+fabric-loader = "0.11.6"
+
+fabric-api = "0.37.2+1.17"
+
+# Kotlin
+kotlin = "1.5.21"
+fabric-kotlin = "1.6.3+kotlin.1.5.21"
+
+fabric-permissions = "0.1-SNAPSHOT"
+translations = "1.4.5+1.17"
+
+exposed = "0.33.1"
+sqlite-jdbc = "3.36.0.1"
+
+konf = "1.1.2"
+
+wdmcf = "1.0.2"
+
+[libraries]
+minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
+yarn-mappings = { module = "net.fabricmc:yarn", version.ref = "yarn-mappings" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-loader" }
+
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
+fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
+
+fabric-permissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric-permissions" }
+translations = { module = "fr.catcore:server-translations-api", version.ref = "translations" }
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
+
+konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
+konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
+
+wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
+
