@@ -6,6 +6,8 @@ import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
 import com.github.quiltservertools.ledger.network.packet.Receiver
 import com.github.quiltservertools.ledger.network.packet.receiver.HandshakePacketReceiver
 import com.github.quiltservertools.ledger.network.packet.receiver.InspectReceiver
+import com.github.quiltservertools.ledger.network.packet.receiver.PurgeReceiver
+import com.github.quiltservertools.ledger.network.packet.receiver.RollbackReceiver
 import com.github.quiltservertools.ledger.network.packet.receiver.SearchReceiver
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
@@ -25,16 +27,20 @@ object Networking {
             register(LedgerPacketTypes.INSPECT_POS.id, InspectReceiver())
             register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
             register(LedgerPacketTypes.HANDSHAKE.id, HandshakePacketReceiver())
+            register(LedgerPacketTypes.ROLLBACK.id, RollbackReceiver())
+            register(LedgerPacketTypes.PURGE.id, PurgeReceiver())
         }
     }
 
     private fun register(channel: Identifier, receiver: Receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(channel) { server: MinecraftServer,
-                                                               player: ServerPlayerEntity,
-                                                               handler: ServerPlayNetworkHandler,
-                                                               buf: PacketByteBuf,
-                                                               sender: PacketSender ->
-            receiver.receive(server, player, handler, buf, sender)
+        ServerPlayNetworking.registerGlobalReceiver(channel) {
+                server: MinecraftServer,
+                player: ServerPlayerEntity,
+                handler: ServerPlayNetworkHandler,
+                buf: PacketByteBuf,
+                sender: PacketSender ->
+
+                    receiver.receive(server, player, handler, buf, sender)
         }
     }
 

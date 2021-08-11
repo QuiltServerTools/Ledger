@@ -20,7 +20,7 @@ import net.minecraft.text.TranslatableText
 object PurgeCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return literal("purge")
-            .requires(Permissions.require("ledger.command.purge", config[SearchSpec.purgePermissionLevel]))
+            .requires(Permissions.require("ledger.commands.purge", config[SearchSpec.purgePermissionLevel]))
             .then(SearchParamArgument.argument(CommandConsts.PARAMS).executes {
                 runPurge(it, SearchParamArgument.get(it, CommandConsts.PARAMS))
             })

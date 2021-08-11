@@ -1,5 +1,16 @@
 package com.github.quiltservertools.ledger.network.packet.receiver
 
+import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.commands.CommandConsts
+import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
+import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
+import com.github.quiltservertools.ledger.network.packet.Receiver
+import com.github.quiltservertools.ledger.network.packet.response.ResponseCodes
+import com.github.quiltservertools.ledger.network.packet.response.ResponseContent
+import com.github.quiltservertools.ledger.network.packet.response.ResponsePacket
+import com.github.quiltservertools.ledger.utility.MessageUtils
+import com.github.quiltservertools.ledger.utility.TextColorPallet
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.PacketSender
@@ -8,15 +19,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.TranslatableText
-import com.github.quiltservertools.ledger.Ledger
-import com.github.quiltservertools.ledger.actions.ActionType
-import com.github.quiltservertools.ledger.commands.CommandConsts
-import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
-import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
-import com.github.quiltservertools.ledger.network.packet.Receiver
-import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
-import com.github.quiltservertools.ledger.utility.MessageUtils
 
 class SearchReceiver : Receiver {
     override fun receive(
@@ -28,15 +30,29 @@ class SearchReceiver : Receiver {
     ) {
         if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
             !Permissions.check(player, "ledger.commands.search", CommandConsts.PERMISSION_LEVEL)
-        ) return
+        ) {
+            ResponsePacket.sendResponse(
+                ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.NO_PERMISSION.code),
+                sender
+            )
+            return
+        }
         val source = player.commandSource
         val input = buf.readString()
         val params = SearchParamArgument.get(input, source)
 
         if (params.isEmpty()) {
-            source.sendError(TranslatableText("error.ledger.command.no_params"))
+            ResponsePacket.sendResponse(
+                ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.ERROR.code),
+                sender
+            )
             return
         }
+
+        ResponsePacket.sendResponse(
+            ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.EXECUTING.code),
+            sender
+        )
 
         Ledger.launch {
             Ledger.searchCache[source.name] = params
@@ -44,17 +60,18 @@ class SearchReceiver : Receiver {
             MessageUtils.warnBusy(source)
             val results = DatabaseManager.searchActions(params, 1)
 
-            if (results.actions.isEmpty()) {
-                source.sendError(TranslatableText("error.ledger.command.no_results"))
-                return@launch
-            }
-            results.actions.forEach { action: ActionType ->
-                run {
-                    val packet = ActionPacket()
-                    packet.populate(action)
-                    sender.sendPacket(LedgerPacketTypes.ACTION.id, packet.buf)
-                }
-            }
+            MessageUtils.sendSearchResults(
+                source,
+                results,
+                TranslatableText(
+                    "text.ledger.header.search"
+                ).setStyle(TextColorPallet.primary)
+            )
+
+            ResponsePacket.sendResponse(
+                ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.COMPLETED.code),
+                sender
+            )
         }
     }
 }
