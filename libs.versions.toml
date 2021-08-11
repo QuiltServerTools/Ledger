@@ -1,9 +1,9 @@
 [versions]
 minecraft = "1.17.1"
-yarn-mappings = "1.17.1+build.29"
+yarn-mappings = "1.17.1+build.37"
 fabric-loader = "0.11.6"
 
-fabric-api = "0.37.0+1.17"
+fabric-api = "0.37.2+1.17"
 
 # Kotlin
 kotlin = "1.5.21"
@@ -12,7 +12,7 @@ fabric-kotlin = "1.6.3+kotlin.1.5.21"
 fabric-permissions = "0.1-SNAPSHOT"
 translations = "1.4.5+1.17"
 
-exposed = "0.32.1"
+exposed = "0.33.1"
 sqlite-jdbc = "3.36.0.1"
 
 konf = "1.1.2"
