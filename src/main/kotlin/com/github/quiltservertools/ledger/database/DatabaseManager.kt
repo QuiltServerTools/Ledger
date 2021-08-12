@@ -428,14 +428,14 @@ object DatabaseManager {
 
     private fun Transaction.purge(params: ActionSearchParams) {
         Tables.Actions.deleteWhere {
-            val where = Op.build { Tables.Actions.id greaterEq 0 }
+            var where = Op.build { Tables.Actions.id greaterEq 0 }
 
             if (!params.actions.isNullOrEmpty()) {
                 var operator = Op.build { Tables.Actions.id eq selectActionId(params.actions.first()).id }
                 params.actions.stream().skip(1).forEach { param ->
                     operator = operator.or { Tables.Actions.actionIdentifier eq selectActionId(param).id }
                 }
-                where.and(operator)
+                where = where.and(operator)
             }
 
             if (!params.worlds.isNullOrEmpty()) {
@@ -443,19 +443,19 @@ object DatabaseManager {
                 params.worlds.stream().skip(1).forEach { param ->
                     operator = operator.or { Tables.Actions.actionIdentifier eq selectWorld(param).id }
                 }
-                where.and(operator)
+                where = where.and(operator)
             }
 
             if (params.min != null && params.max != null) {
-                where.and(Tables.Actions.x.between(params.min.x, params.max.x))
-                where.and(Tables.Actions.y.between(params.min.y, params.max.y))
-                where.and(Tables.Actions.z.between(params.min.z, params.max.z))
+                where = where.and(Tables.Actions.x.between(params.min.x, params.max.x))
+                where = where.and(Tables.Actions.y.between(params.min.y, params.max.y))
+                where = where.and(Tables.Actions.z.between(params.min.z, params.max.z))
             }
 
             if (params.time != null) {
                 // Leaving here to annoy potato
                 //TODO refactor time command stuff
-                where.and(Tables.Actions.timestamp.lessEq(Instant.now().minus(params.time)))
+                where = where.and(Tables.Actions.timestamp.lessEq(Instant.now().minus(params.time)))
             }
 
             if (!params.sourceNames.isNullOrEmpty()) {
@@ -463,7 +463,7 @@ object DatabaseManager {
                 params.sourceNames.stream().skip(1).forEach { param ->
                     operator = operator.or { Tables.Sources.name eq param }
                 }
-                where.and(operator)
+                where = where.and(operator)
             }
 
             if (!params.sourcePlayerNames.isNullOrEmpty()) {
@@ -471,7 +471,7 @@ object DatabaseManager {
                 params.sourcePlayerNames.stream().skip(1).forEach { param ->
                     operator = operator.or { Tables.Players.playerName eq param }
                 }
-                where.and(operator)
+                where = where.and(operator)
             }
 
             if (!params.objects.isNullOrEmpty()) {
@@ -480,7 +480,7 @@ object DatabaseManager {
                 objects.stream().skip(1).forEach { param ->
                     operator = operator.or { Tables.ObjectIdentifiers.identifier eq param }
                 }
-                where.and(operator)
+                where = where.and(operator)
             }
 
             return@deleteWhere where
