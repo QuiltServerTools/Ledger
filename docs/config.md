@@ -22,6 +22,8 @@ Found under `[search]`
 
 `pageSize` [Default: 8] controls the number of actions displayed per page
 
+`purgePermissionLevel` [Default: 4] controls the permission level required to run the purge command
+
 ### Message theme
 
 Found under `[color]`
@@ -60,6 +62,8 @@ queueCheckDelaySec = 10
 [search]
 # Number of actions to show per page
 pageSize = 8
+# Permission level for purge command
+purgePermissionLevel = 4
 
 [color]
 # Colors in hex format

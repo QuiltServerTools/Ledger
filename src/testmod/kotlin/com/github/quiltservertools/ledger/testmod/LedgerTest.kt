@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.testmod
 
+import com.github.quiltservertools.ledger.testmod.commands.registerCommands
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
@@ -11,7 +12,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import com.github.quiltservertools.ledger.testmod.commands.registerCommands
 import java.time.Instant
 
 object LedgerTest : ClientModInitializer {
@@ -27,7 +27,7 @@ object LedgerTest : ClientModInitializer {
             val tag = NbtCompound()
             tag.putString("modid", "ledger-testmod")
             tag.putString("version", "1.0.0")
-            tag.putInt("protocol_version", 0)
+            tag.putInt("protocol_version", 1)
             val buf = PacketByteBufs.create()
             buf.writeNbt(tag)
             sender.sendPacket(HANDSHAKE, buf)

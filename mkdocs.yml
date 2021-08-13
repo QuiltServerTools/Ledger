@@ -14,6 +14,7 @@ nav:
     - commands/preview.md
     - commands/rollback.md
     - commands/restore.md
+    - commands/purge.md
     - commands/status.md
     - commands/teleport.md
   - config.md

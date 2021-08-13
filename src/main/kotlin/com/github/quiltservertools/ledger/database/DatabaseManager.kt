@@ -69,7 +69,7 @@ object DatabaseManager {
     fun setValues(file: File) {
         databaseFile = file
         database = Database.connect(
-            url = "jdbc:sqlite:${databaseFile!!.path.replace('\\', '/')}",
+            url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
         )
     }
 
@@ -265,6 +265,12 @@ object DatabaseManager {
             }
         }
 
+    suspend fun purgeActions(params: ActionSearchParams) {
+        execute {
+            purgeActions(params)
+        }
+    }
+
     private fun Transaction.insertActionType(id: String) {
         if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
             val actionIdentifier = Tables.ActionIdentifier.new {
@@ -417,4 +423,12 @@ object DatabaseManager {
 
     private fun Transaction.selectWorld(identifier: Identifier) =
         Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
+
+    private fun Transaction.purgeActions(params: ActionSearchParams) {
+        val query = buildQuery(params)
+        val actions = Tables.Action.wrapRows(query).toList()
+        actions.forEach { action ->
+            action.delete()
+        }
+    }
 }
