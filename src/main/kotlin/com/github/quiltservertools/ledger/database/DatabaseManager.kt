@@ -30,10 +30,8 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
@@ -427,63 +425,10 @@ object DatabaseManager {
         Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
 
     private fun Transaction.purge(params: ActionSearchParams) {
-        Tables.Actions.deleteWhere {
-            var where = Op.build { Tables.Actions.id greaterEq 0 }
-
-            if (!params.actions.isNullOrEmpty()) {
-                var operator = Op.build { Tables.Actions.id eq selectActionId(params.actions.first()).id }
-                params.actions.stream().skip(1).forEach { param ->
-                    operator = operator.or { Tables.Actions.actionIdentifier eq selectActionId(param).id }
-                }
-                where = where.and(operator)
-            }
-
-            if (!params.worlds.isNullOrEmpty()) {
-                var operator = Op.build { Tables.Actions.id eq selectWorld(params.worlds.first()).id }
-                params.worlds.stream().skip(1).forEach { param ->
-                    operator = operator.or { Tables.Actions.actionIdentifier eq selectWorld(param).id }
-                }
-                where = where.and(operator)
-            }
-
-            if (params.min != null && params.max != null) {
-                where = where.and(Tables.Actions.x.between(params.min.x, params.max.x))
-                where = where.and(Tables.Actions.y.between(params.min.y, params.max.y))
-                where = where.and(Tables.Actions.z.between(params.min.z, params.max.z))
-            }
-
-            if (params.time != null) {
-                // Leaving here to annoy potato
-                //TODO refactor time command stuff
-                where = where.and(Tables.Actions.timestamp.lessEq(Instant.now().minus(params.time)))
-            }
-
-            if (!params.sourceNames.isNullOrEmpty()) {
-                var operator = Op.build { Tables.Sources.name eq params.sourceNames.first() }
-                params.sourceNames.stream().skip(1).forEach { param ->
-                    operator = operator.or { Tables.Sources.name eq param }
-                }
-                where = where.and(operator)
-            }
-
-            if (!params.sourcePlayerNames.isNullOrEmpty()) {
-                var operator = Op.build { Tables.Players.playerName eq params.sourcePlayerNames.first() }
-                params.sourcePlayerNames.stream().skip(1).forEach { param ->
-                    operator = operator.or { Tables.Players.playerName eq param }
-                }
-                where = where.and(operator)
-            }
-
-            if (!params.objects.isNullOrEmpty()) {
-                val objects = params.objects.map { it.toString() }
-                var operator = Op.build { Tables.ObjectIdentifiers.identifier eq objects.first() }
-                objects.stream().skip(1).forEach { param ->
-                    operator = operator.or { Tables.ObjectIdentifiers.identifier eq param }
-                }
-                where = where.and(operator)
-            }
-
-            return@deleteWhere where
+        val query = buildQuery(params)
+        val actions = Tables.Action.wrapRows(query).toList()
+        actions.forEach { action ->
+            action.delete()
         }
     }
 }
