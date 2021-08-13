@@ -42,7 +42,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -265,9 +265,9 @@ object DatabaseManager {
             }
         }
 
-    suspend fun purge(params: ActionSearchParams) {
+    suspend fun purgeActions(params: ActionSearchParams) {
         execute {
-            purge(params)
+            purgeActions(params)
         }
     }
 
@@ -424,7 +424,7 @@ object DatabaseManager {
     private fun Transaction.selectWorld(identifier: Identifier) =
         Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
 
-    private fun Transaction.purge(params: ActionSearchParams) {
+    private fun Transaction.purgeActions(params: ActionSearchParams) {
         val query = buildQuery(params)
         val actions = Tables.Action.wrapRows(query).toList()
         actions.forEach { action ->

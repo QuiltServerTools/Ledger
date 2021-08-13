@@ -37,7 +37,7 @@ class PurgeReceiver : Receiver {
 
         Ledger.launch {
 
-            DatabaseManager.purge(params)
+            DatabaseManager.purgeActions(params)
 
             ResponsePacket.sendResponse(ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.COMPLETED.code), sender)
         }
