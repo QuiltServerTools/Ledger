@@ -2,8 +2,6 @@ package com.github.quiltservertools.ledger
 
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
-import com.github.quiltservertools.ledger.api.ExtensionManager
-import com.github.quiltservertools.ledger.api.H2Extension
 import com.github.quiltservertools.ledger.commands.registerCommands
 import com.github.quiltservertools.ledger.config.CONFIG_PATH
 import com.github.quiltservertools.ledger.config.DatabaseSpec
@@ -42,6 +40,7 @@ import kotlin.time.ExperimentalTime
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
 
+    const val DEFAULT_DATABASE = "sqlite"
     val logger: Logger = LogManager.getLogger("Ledger")
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
@@ -65,8 +64,6 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register(::commandRegistration)
-
-        ExtensionManager.registerExtension(H2Extension())
     }
 
     private fun serverStarting(server: MinecraftServer) {
