@@ -89,6 +89,9 @@ dependencies {
 
     // Debug
     modRuntime(libs.wdmcf)
+
+    //TODO remove
+    implementation("com.h2database:h2:1.4.200")
 }
 
 tasks {
