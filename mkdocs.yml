@@ -17,6 +17,9 @@ nav:
     - commands/purge.md
     - commands/status.md
     - commands/teleport.md
+  - Extensions:
+    - extensions/extensions.md
+    - extensions/extension_development.md
   - config.md
   - themes.md
   - parameters.md
