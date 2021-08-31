@@ -9,6 +9,8 @@ object ExtensionManager {
 
     private var databaseExtension: Optional<DatabaseExtension> = Optional.empty()
 
+    var commands = mutableListOf<CommandExtension>()
+
     fun registerExtension(extension: LedgerExtension) {
         extensions.add(extension)
 
@@ -18,6 +20,10 @@ object ExtensionManager {
             } else {
                 failExtensionRegistration(extension)
             }
+        }
+
+        if (extension is CommandExtension) {
+            commands.add(extension)
         }
 
         extension.getConfigSpecs().forEach {

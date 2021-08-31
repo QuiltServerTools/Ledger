@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.commands
 
+import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.commands.subcommands.InspectCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PageCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PreviewCommand
@@ -48,4 +49,11 @@ fun registerCommands(dispatcher: Dispatcher) {
     rootNode.addChild(TeleportCommand.build())
 
     rootNode.addChild(PurgeCommand.build())
+
+    ExtensionManager.commands.forEach {
+        it.registerSubcommands().forEach { command ->
+            rootNode.addChild(command.build())
+        }
+
+    }
 }
