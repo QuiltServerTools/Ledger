@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.api
 
 import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.config.config
 import java.util.*
 
 object ExtensionManager {
@@ -18,6 +19,10 @@ object ExtensionManager {
                 failExtensionRegistration(extension)
             }
         }
+
+        extension.getConfigSpecs().forEach {
+            config.addSpec(it)
+        }
     }
 
     private fun failExtensionRegistration(extension: LedgerExtension) {
@@ -25,8 +30,4 @@ object ExtensionManager {
     }
 
     fun getDatabaseExtensionOptional() = databaseExtension
-
-    fun triggerEvent(events: ExtensionEvents) {
-        TODO("DETEKT")
-    }
 }
