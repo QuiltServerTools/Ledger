@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.listeners
 
+import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.BlockBurnCallback
 import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
@@ -69,10 +70,18 @@ private fun onExplode(
         entity
     )
 
-    if (source is TntEntity && source.causingEntity is PlayerEntity) {
-        action.sourceProfile = (source.causingEntity as PlayerEntity).gameProfile
+    if (source is TntEntity) {
+        getTntSource(source, action)
     }
 
     DatabaseManager.logAction(action)
 }
 
+private fun getTntSource(entity: TntEntity, action: ActionType) {
+    if (entity.causingEntity is TntEntity) {
+        getTntSource(entity, action)
+    }
+    if (entity.causingEntity is PlayerEntity) {
+        action.sourceProfile = (entity.causingEntity as PlayerEntity).gameProfile
+    }
+}
