@@ -31,7 +31,7 @@ import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -40,6 +40,7 @@ import kotlin.time.ExperimentalTime
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
 
+    const val DEFAULT_DATABASE = "sqlite"
     val logger: Logger = LogManager.getLogger("Ledger")
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
@@ -67,7 +68,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     private fun serverStarting(server: MinecraftServer) {
         this.server = server
-        DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile())
+        DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
         DatabaseManager.ensureTables()
         ActionRegistry.registerDefaultTypes()
         initListeners()

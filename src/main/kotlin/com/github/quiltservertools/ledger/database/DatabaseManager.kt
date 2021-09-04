@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
+import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.logInfo
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.sql.Column
@@ -42,7 +44,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -66,11 +68,17 @@ object DatabaseManager {
         }
     }
 
-    fun setValues(file: File) {
-        databaseFile = file
-        database = Database.connect(
-            url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
-        )
+    fun setValues(file: File, server: MinecraftServer) {
+        if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
+            // Extension present, load database from it
+            database = ExtensionManager.getDatabaseExtensionOptional().get().getDatabase(server)
+        } else {
+            // No database extension is present, load normally
+            databaseFile = file
+            database = Database.connect(
+                url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
+            )
+        }
     }
 
     fun ensureTables() = transaction {
