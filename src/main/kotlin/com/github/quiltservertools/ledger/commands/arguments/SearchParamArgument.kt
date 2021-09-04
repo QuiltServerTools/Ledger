@@ -1,5 +1,13 @@
 package com.github.quiltservertools.ledger.commands.arguments
 
+import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
+import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
+import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
+import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
+import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
+import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
+import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
+import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
 import com.google.common.collect.HashMultimap
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.StringReader
@@ -14,15 +22,7 @@ import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
-import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
-import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
-import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
-import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
-import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
-import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
-import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
-import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 object SearchParamArgument {
@@ -34,7 +34,8 @@ object SearchParamArgument {
         paramSuggesters["range"] = Parameter(RangeParameter())
         paramSuggesters["object"] = Parameter(ObjectParameter())
         paramSuggesters["world"] = Parameter(DimensionParameter())
-        paramSuggesters["time"] = Parameter(TimeParameter())
+        paramSuggesters["before"] = Parameter(TimeParameter())
+        paramSuggesters["after"] = Parameter(TimeParameter())
     }
 
     fun argument(name: String): RequiredArgumentBuilder<ServerCommandSource, String> {
@@ -141,9 +142,13 @@ object SearchParamArgument {
                         builder.actions!!.add(action)
                     }
                 }
-                "time" -> {
-                    val time = value as Duration
-                    builder.time = time
+                "before" -> {
+                    val time = value as Instant
+                    builder.before = time
+                }
+                "after" -> {
+                    val time = value as Instant
+                    builder.after = time
                 }
             }
         }

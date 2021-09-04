@@ -169,8 +169,14 @@ object DatabaseManager {
             query.andWhere { Tables.Actions.z.between(params.min.z, params.max.z) }
         }
 
-        if (params.time != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(Instant.now().minus(params.time)) }
+
+        if (params.before != null && params.after != null) {
+            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
+                .andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+        } else if (params.before != null) {
+            query.andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+        } else if (params.after != null) {
+            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
         addParameters(

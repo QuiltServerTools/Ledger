@@ -6,15 +6,16 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.ServerCommandSource
 import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 private const val MAX_SIZE = 9
 
-class TimeParameter : SimpleParameter<Duration>() {
+class TimeParameter : SimpleParameter<Instant>() {
     private val units = listOf('s', 'm', 'h', 'd', 'w')
 
     @Suppress("MagicNumber")
-    override fun parse(stringReader: StringReader): Duration {
+    override fun parse(stringReader: StringReader): Instant {
         val i: Int = stringReader.cursor
 
         while (stringReader.canRead() && isCharValid(stringReader.peek())) {
@@ -42,7 +43,7 @@ class TimeParameter : SimpleParameter<Duration>() {
             }
         }
 
-        return duration
+        return Instant.now().minus(duration)
     }
 
     private fun isCharValid(c: Char) = c in '0'..'9' || c in 'a'..'z'
