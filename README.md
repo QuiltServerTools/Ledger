@@ -6,7 +6,7 @@ For a much better guide, visit our [wiki](https://quiltservertools.github.io/Led
 
 A world change logging tool for fabric
 
-Ledger can be found on discord at https://discord.gg/jydqZzkyEa
+Ledger can be found on discord at https://discord.gg/GtwDTTr3pe
 
 ### Install
 
