@@ -73,6 +73,32 @@ object ActionFactory {
         return action
     }
 
+    fun blockModifyAction(
+        world: World,
+        pos: BlockPos,
+        state: BlockState,
+        source: String,
+        entity: BlockEntity? = null
+    ): BlockChangeActionType {
+        val action = BlockChangeActionType("block-modify")
+        setBlockData(action, pos, world, state, Blocks.AIR.defaultState, source, entity)
+
+        return action
+    }
+
+    fun blockModifyAction(
+        world: World,
+        pos: BlockPos,
+        state: BlockState,
+        source: PlayerEntity,
+        entity: BlockEntity? = null
+    ): BlockChangeActionType {
+        val action = blockModifyAction(world, pos, state, PLAYER_SOURCE, entity)
+        action.sourceProfile = source.gameProfile
+
+        return action
+    }
+
     private fun setBlockData(
         action: ActionType,
         pos: BlockPos,

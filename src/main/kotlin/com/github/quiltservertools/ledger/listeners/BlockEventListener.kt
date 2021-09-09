@@ -6,6 +6,7 @@ import com.github.quiltservertools.ledger.callbacks.BlockBurnCallback
 import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockFallCallback
 import com.github.quiltservertools.ledger.callbacks.BlockLandCallback
+import com.github.quiltservertools.ledger.callbacks.BlockModifyCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
@@ -22,6 +23,7 @@ fun registerBlockListeners() {
     BlockBurnCallback.EVENT.register(::onBurn)
     BlockFallCallback.EVENT.register(::onFall)
     BlockLandCallback.EVENT.register(::onLand)
+    BlockModifyCallback.EVENT.register(::onModify)
 }
 
 private fun onLand(world: World, pos: BlockPos, state: BlockState) {
@@ -39,6 +41,28 @@ private fun onFall(world: World, pos: BlockPos, state: BlockState) {
             "gravity"
         )
     )
+}
+
+private fun onModify(world: World, entity: Entity, pos: BlockPos, state: BlockState) {
+    if (entity is PlayerEntity) {
+        DatabaseManager.logAction(
+            ActionFactory.blockModifyAction(
+                world,
+                pos,
+                state,
+                entity
+            )
+        )
+    } else {
+        DatabaseManager.logAction(
+            ActionFactory.blockModifyAction(
+                world,
+                pos,
+                state,
+                Registry.ENTITY_TYPE.getId(entity.type).path
+            )
+        )
+    }
 }
 
 private fun onBurn(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?) {

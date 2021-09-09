@@ -3,17 +3,18 @@
     "package": "com.github.quiltservertools.ledger.mixin",
     "mixins": [
         "DoubleInventoryMixin",
+        "FarmlandTrampleMixin",
         "FlintAndSteelItemMixin",
         "LockableContainerBlockEntityMixin",
         "callbacks.BlockItemMixin",
         "callbacks.ExplosionMixin",
         "callbacks.FallingBlockEntityMixin",
         "callbacks.FireBlockMixin",
+        "callbacks.ItemScattererMixin",
         "callbacks.LivingEntityMixin",
         "callbacks.ScreenHandlerMixin",
-        "callbacks.SlotMixin",
-        "callbacks.ItemScattererMixin",
-        "callbacks.ServerPlayInteractionManagerMixin"
+        "callbacks.ServerPlayInteractionManagerMixin",
+        "callbacks.SlotMixin"
     ],
     "injectors": {
         "defaultRequire": 1
