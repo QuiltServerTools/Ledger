@@ -511,7 +511,7 @@ style:
     active: true
     conversionFunctionPrefix: 'to'
   DataClassShouldBeImmutable:
-    active: true
+    active: false
   EqualsNullCall:
     active: true
   EqualsOnSignatureLine:
