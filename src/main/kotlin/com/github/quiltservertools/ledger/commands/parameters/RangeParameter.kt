@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture
 private const val MAX_SIZE = 9
 
 class RangeParameter : SimpleParameter<Int>() {
-    override fun parse(stringReader: StringReader): Negatable<Int> = Negatable.getNegatable(stringReader, IntegerArgumentType.integer(1))
+    override fun parse(stringReader: StringReader): Negatable<Int> = Negatable.allow(IntegerArgumentType.integer(1).parse(stringReader))
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,

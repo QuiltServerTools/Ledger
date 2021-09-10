@@ -25,8 +25,6 @@ class TimeParameter : SimpleParameter<Instant>() {
 
         val input = stringReader.string.substring(i, stringReader.cursor).lowercase()
 
-        val negative = input.startsWith('!')
-
         val timeRegex = Regex("([0-9]+)([smhdw])")
         val times = timeRegex.findAll(input)
 
@@ -46,11 +44,7 @@ class TimeParameter : SimpleParameter<Instant>() {
             }
         }
 
-        return if (negative) {
-            Negatable.deny(Instant.now().minus(duration))
-        } else {
-            Negatable.allow(Instant.now().minus(duration))
-        }
+        return Negatable.allow(Instant.now().minus(duration))
     }
 
     private fun isCharValid(c: Char) = c in '0'..'9' || c in 'a'..'z'

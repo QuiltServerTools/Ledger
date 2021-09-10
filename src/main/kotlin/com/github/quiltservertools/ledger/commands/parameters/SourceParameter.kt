@@ -30,11 +30,16 @@ class SourceParameter : SimpleParameter<String>() {
         val stringReader = StringReader(builder.input)
         stringReader.cursor = builder.start
 
-        //todo fix not suggestions and queries
-
         val players = context.source.playerNames
         players.add("@")
         // TODO suggest non-player sources
+
+        if (builder.remaining.startsWith('!')) {
+            players.forEach {
+                builder.suggest("!$it")
+            }
+            return builder.buildFuture()
+        }
 
         return CommandSource.suggestMatching(
             players,
