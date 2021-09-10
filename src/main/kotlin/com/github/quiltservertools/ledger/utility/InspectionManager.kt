@@ -11,7 +11,7 @@ import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockPos
-import java.util.UUID
+import java.util.*
 
 private val inspectingUsers = HashSet<UUID>()
 
@@ -48,9 +48,9 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
 
     Ledger.launch(Dispatchers.IO) {
         val params = ActionSearchParams.build {
-            min = pos
-            max = pos
-            worlds = mutableSetOf(source.world.registryKey.value)
+            min = Negatable.allow(pos)
+            max = Negatable.allow(pos)
+            worlds = mutableSetOf(Negatable.allow(source.world.registryKey.value))
         }
 
         Ledger.searchCache[source.name] = params
@@ -77,8 +77,8 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
 suspend fun PlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
     val source = this.commandSource
     val params = ActionSearchParams.build {
-        min = pos
-        max = pos
+        min = Negatable.allow(pos)
+        max = Negatable.allow(pos)
     }
 
     Ledger.searchCache[source.name] = params

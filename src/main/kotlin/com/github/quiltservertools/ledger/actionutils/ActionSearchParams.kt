@@ -1,19 +1,20 @@
 package com.github.quiltservertools.ledger.actionutils
 
+import com.github.quiltservertools.ledger.utility.Negatable
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import java.time.Instant
 
 class ActionSearchParams(
-    val min: BlockPos?,
-    val max: BlockPos?,
-    val before: Instant?,
-    val after: Instant?,
-    val actions: Set<String>?,
-    val objects: Set<Identifier>?,
-    val sourceNames: Set<String>?,
-    val sourcePlayerNames: Set<String>?,
-    val worlds: Set<Identifier>?,
+    val min: Negatable<BlockPos>?,
+    val max: Negatable<BlockPos>?,
+    val before: Negatable<Instant>?,
+    val after: Negatable<Instant>?,
+    var actions: MutableSet<Negatable<String>>?,
+    var objects: MutableSet<Negatable<Identifier>>?,
+    var sourceNames: MutableSet<Negatable<String>>?,
+    var sourcePlayerNames: MutableSet<Negatable<String>>?,
+    var worlds: MutableSet<Negatable<Identifier>>?,
 ) {
     private constructor(builder: Builder) : this(
         builder.min,
@@ -34,15 +35,15 @@ class ActionSearchParams(
     }
 
     class Builder {
-        var min: BlockPos? = null
-        var max: BlockPos? = null
-        var before: Instant? = null
-        var after: Instant? = null
-        var actions: MutableSet<String>? = null
-        var objects: MutableSet<Identifier>? = null
-        var sourceNames: MutableSet<String>? = null
-        var sourcePlayerNames: MutableSet<String>? = null
-        var worlds: MutableSet<Identifier>? = null
+        var min: Negatable<BlockPos>? = null
+        var max: Negatable<BlockPos>? = null
+        var before: Negatable<Instant>? = null
+        var after: Negatable<Instant>? = null
+        var actions: MutableSet<Negatable<String>>? = null
+        var objects: MutableSet<Negatable<Identifier>>? = null
+        var sourceNames: MutableSet<Negatable<String>>? = null
+        var sourcePlayerNames: MutableSet<Negatable<String>>? = null
+        var worlds: MutableSet<Negatable<Identifier>>? = null
 
         fun build() = ActionSearchParams(this)
     }

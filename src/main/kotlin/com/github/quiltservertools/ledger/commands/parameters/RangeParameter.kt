@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.commands.parameters
 
+import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import com.mojang.brigadier.context.CommandContext
@@ -11,7 +12,7 @@ import java.util.concurrent.CompletableFuture
 private const val MAX_SIZE = 9
 
 class RangeParameter : SimpleParameter<Int>() {
-    override fun parse(stringReader: StringReader): Int = IntegerArgumentType.integer(1).parse(stringReader)
+    override fun parse(stringReader: StringReader): Negatable<Int> = Negatable.getNegatable(stringReader, IntegerArgumentType.integer(1))
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,

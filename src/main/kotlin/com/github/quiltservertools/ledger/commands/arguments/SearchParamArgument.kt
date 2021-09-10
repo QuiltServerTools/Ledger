@@ -8,6 +8,7 @@ import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
 import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
 import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
 import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
+import com.github.quiltservertools.ledger.utility.Negatable
 import com.google.common.collect.HashMultimap
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.StringReader
@@ -78,6 +79,7 @@ object SearchParamArgument {
             }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun get(input: String, source: ServerCommandSource): ActionSearchParams {
         val reader = StringReader(input)
         val result = HashMultimap.create<String, Any>()
@@ -97,18 +99,18 @@ object SearchParamArgument {
 
             when (param) {
                 "range" -> {
-                    val range = value as Int - 1
+                    val range = (value as Negatable<Int>).property - 1
                     builder.min =
-                        BlockPos(source.position.subtract(range.toDouble(), range.toDouble(), range.toDouble()))
+                        Negatable.allow(BlockPos(source.position.subtract(range.toDouble(), range.toDouble(), range.toDouble())))
                     builder.max =
-                        BlockPos(source.position.add(range.toDouble(), range.toDouble(), range.toDouble()))
+                        Negatable.deny(BlockPos(source.position.add(range.toDouble(), range.toDouble(), range.toDouble())))
                 }
                 "world" -> {
-                    val world = value as Identifier
+                    val world = value as Negatable<Identifier>
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
                 "object" -> {
-                    val objectId = value as Identifier
+                    val objectId = value as Negatable<Identifier>
                     if (builder.objects == null) {
                         builder.objects = mutableSetOf(objectId)
                     } else {
@@ -116,9 +118,11 @@ object SearchParamArgument {
                     }
                 }
                 "source" -> {
-                    var playerName = value as String
-                    if (playerName.startsWith('@')) {
-                        playerName = playerName.trim('@')
+                    val playerName = value as Negatable<String>
+                    println(playerName.property)
+                    println(playerName.allow)
+                    if (playerName.property.startsWith('@')) {
+                        playerName.property = playerName.property.trim('@')
                         if (builder.sourceNames == null) {
                             builder.sourceNames =
                                 mutableSetOf(playerName)
@@ -135,7 +139,7 @@ object SearchParamArgument {
                     }
                 }
                 "action" -> {
-                    val action = value as String
+                    val action = value as Negatable<String>
                     if (builder.actions == null) {
                         builder.actions = mutableSetOf(action)
                     } else {
@@ -143,11 +147,11 @@ object SearchParamArgument {
                     }
                 }
                 "before" -> {
-                    val time = value as Instant
+                    val time = value as Negatable<Instant>
                     builder.before = time
                 }
                 "after" -> {
-                    val time = value as Instant
+                    val time = value as Negatable<Instant>
                     builder.after = time
                 }
             }
@@ -191,6 +195,6 @@ object SearchParamArgument {
         }
 
         @Throws(CommandSyntaxException::class)
-        fun parse(reader: StringReader) = parameter.parse(reader)!!
+        fun parse(reader: StringReader) = parameter.parse(reader)
     }
 }

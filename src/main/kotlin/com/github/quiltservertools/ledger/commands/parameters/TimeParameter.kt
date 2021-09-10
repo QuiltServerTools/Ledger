@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.commands.parameters
 
+import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
@@ -15,7 +16,7 @@ class TimeParameter : SimpleParameter<Instant>() {
     private val units = listOf('s', 'm', 'h', 'd', 'w')
 
     @Suppress("MagicNumber")
-    override fun parse(stringReader: StringReader): Instant {
+    override fun parse(stringReader: StringReader): Negatable<Instant> {
         val i: Int = stringReader.cursor
 
         while (stringReader.canRead() && isCharValid(stringReader.peek())) {
@@ -23,6 +24,8 @@ class TimeParameter : SimpleParameter<Instant>() {
         }
 
         val input = stringReader.string.substring(i, stringReader.cursor).lowercase()
+
+        val negative = input.startsWith('!')
 
         val timeRegex = Regex("([0-9]+)([smhdw])")
         val times = timeRegex.findAll(input)
@@ -43,7 +46,11 @@ class TimeParameter : SimpleParameter<Instant>() {
             }
         }
 
-        return Instant.now().minus(duration)
+        return if (negative) {
+            Negatable.deny(Instant.now().minus(duration))
+        } else {
+            Negatable.allow(Instant.now().minus(duration))
+        }
     }
 
     private fun isCharValid(c: Char) = c in '0'..'9' || c in 'a'..'z'

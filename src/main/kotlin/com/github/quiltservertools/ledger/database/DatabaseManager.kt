@@ -12,6 +12,7 @@ import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.NbtUtils
+import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,8 +31,11 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.innerJoin
@@ -164,19 +168,19 @@ object DatabaseManager {
             .selectAll()
 
         if (params.min != null && params.max != null) {
-            query.andWhere { Tables.Actions.x.between(params.min.x, params.max.x) }
-            query.andWhere { Tables.Actions.y.between(params.min.y, params.max.y) }
-            query.andWhere { Tables.Actions.z.between(params.min.z, params.max.z) }
+            query.andWhere { Tables.Actions.x.between(params.min.property.x, params.max.property.x) }
+            query.andWhere { Tables.Actions.y.between(params.min.property.y, params.max.property.y) }
+            query.andWhere { Tables.Actions.z.between(params.min.property.z, params.max.property.z) }
         }
 
 
         if (params.before != null && params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
-                .andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after.property) }
+                .andWhere { Tables.Actions.timestamp.lessEq(params.before.property) }
         } else if (params.before != null) {
-            query.andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+            query.andWhere { Tables.Actions.timestamp.lessEq(params.before.property) }
         } else if (params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
+            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after.property) }
         }
 
         addParameters(
@@ -193,13 +197,25 @@ object DatabaseManager {
 
         addParameters(
             query,
-            params.worlds?.map { it.toString() },
+            params.worlds?.map {
+                if (it.allow) {
+                    Negatable.allow(it.property.toString())
+                } else {
+                    Negatable.deny(it.property.toString())
+                }
+            },
             Tables.Worlds.identifier
         )
 
         addParameters(
             query,
-            params.objects?.map { it.toString() },
+            params.objects?.map {
+                if (it.allow) {
+                    Negatable.allow(it.property.toString())
+                } else {
+                    Negatable.deny(it.property.toString())
+                }
+            },
             Tables.ObjectIdentifiers.identifier,
             oldObjectTable[Tables.ObjectIdentifiers.identifier]
         )
@@ -215,15 +231,24 @@ object DatabaseManager {
 
     private fun <E> addParameters(
         query: Query,
-        paramSet: Collection<E>?,
+        paramSet: Collection<Negatable<E>>?,
         column: Column<E>
     ) {
+
         if (paramSet.isNullOrEmpty()) return
 
-        var operator = Op.build { column eq paramSet.first() }
+        var operator = if (paramSet.first().allow) {
+            Op.build { column eq paramSet.first().property }
+        } else {
+            Op.build { column neq paramSet.first().property }
+        }
 
         paramSet.stream().skip(1).forEach { param ->
-            operator = operator.or { column eq param }
+            operator = if (param.allow) {
+                operator.or { column eq param.property }
+            } else {
+                operator.and { column neq param.property }
+            }
         }
 
         query.andWhere { operator }
@@ -231,16 +256,24 @@ object DatabaseManager {
 
     private fun <E> addParameters(
         query: Query,
-        paramSet: Collection<E>?,
+        paramSet: Collection<Negatable<E>>?,
         column: Column<E>,
         orColumn: Column<E>
     ) {
         if (paramSet.isNullOrEmpty()) return
 
-        var operator = Op.build { column eq paramSet.first() or (orColumn eq paramSet.first()) }
+        var operator = if (paramSet.first().allow) {
+            Op.build { column eq paramSet.first().property or (orColumn eq paramSet.first().property) }
+        } else {
+            Op.build { column neq paramSet.first().property and (orColumn neq paramSet.first().property) }
+        }
 
         paramSet.stream().skip(1).forEach { param ->
-            operator = operator.or { column eq param or (orColumn eq param) }
+            operator = if (param.allow) {
+                operator.or { column eq param.property or (orColumn eq param.property) }
+            } else {
+                operator.and { column neq param.property and (orColumn neq param.property) }
+            }
         }
 
         query.andWhere { operator }
@@ -340,6 +373,8 @@ object DatabaseManager {
     private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
         val actionTypes = mutableListOf<ActionType>()
         var totalActions: Long = 0
+
+        addLogger(StdOutSqlLogger)
 
         var query = buildQuery(params)
 
