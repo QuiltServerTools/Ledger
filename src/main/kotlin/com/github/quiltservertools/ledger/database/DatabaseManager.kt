@@ -31,7 +31,9 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
@@ -166,37 +168,37 @@ object DatabaseManager {
             .selectAll()
 
         if (params.min != null && params.max != null) {
-            query.andWhere { Tables.Actions.x.between(params.min.property.x, params.max.property.x) }
-            query.andWhere { Tables.Actions.y.between(params.min.property.y, params.max.property.y) }
-            query.andWhere { Tables.Actions.z.between(params.min.property.z, params.max.property.z) }
+            query.andWhere { Tables.Actions.x.between(params.min.x, params.max.x) }
+            query.andWhere { Tables.Actions.y.between(params.min.y, params.max.y) }
+            query.andWhere { Tables.Actions.z.between(params.min.z, params.max.z) }
         }
 
 
         if (params.before != null && params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after.property) }
-                .andWhere { Tables.Actions.timestamp.lessEq(params.before.property) }
+            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
+                .andWhere { Tables.Actions.timestamp.lessEq(params.before) }
         } else if (params.before != null) {
-            query.andWhere { Tables.Actions.timestamp.lessEq(params.before.property) }
+            query.andWhere { Tables.Actions.timestamp.lessEq(params.before) }
         } else if (params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after.property) }
+            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
-        addParameters(
+        addNegatableParameters(
             query,
             params.sourceNames,
             Tables.Sources.name
         )
 
-        addParameters(
+        addNegatableParameters(
             query,
             params.actions,
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-        addParameters(
+        addNegatableParameters(
             query,
             params.worlds?.map {
-                if (it.allow) {
+                if (it.allowed) {
                     Negatable.allow(it.property.toString())
                 } else {
                     Negatable.deny(it.property.toString())
@@ -208,7 +210,7 @@ object DatabaseManager {
         addParameters(
             query,
             params.objects?.map {
-                if (it.allow) {
+                if (it.allowed) {
                     Negatable.allow(it.property.toString())
                 } else {
                     Negatable.deny(it.property.toString())
@@ -218,7 +220,7 @@ object DatabaseManager {
             oldObjectTable[Tables.ObjectIdentifiers.identifier]
         )
 
-        addParameters(
+        addNegatableParameters(
             query,
             params.sourcePlayerNames,
             Tables.Players.playerName
@@ -227,29 +229,43 @@ object DatabaseManager {
         return query
     }
 
-    private fun <E> addParameters(
+    private fun <E> addNegatableParameters(
         query: Query,
         paramSet: Collection<Negatable<E>>?,
         column: Column<E>
     ) {
+        fun addAllowedParameters(
+            allowed: Collection<E>?
+        ) {
+            if (allowed.isNullOrEmpty()) return
+
+            var operator = Op.build { column eq allowed.first() }
+
+            allowed.stream().skip(1).forEach { param ->
+                operator = operator.or { column eq param }
+            }
+
+            query.andWhere { operator }
+        }
+
+        fun addDeniedParameters(
+            denied: Collection<E>?
+        ) {
+            if (denied.isNullOrEmpty()) return
+
+            var operator = Op.build { column neq denied.first() }
+
+            denied.stream().skip(1).forEach { param ->
+                operator = operator.and { column neq param }
+            }
+
+            query.andWhere { operator }
+        }
 
         if (paramSet.isNullOrEmpty()) return
 
-        var operator = if (paramSet.first().allow) {
-            Op.build { column eq paramSet.first().property }
-        } else {
-            Op.build { column neq paramSet.first().property }
-        }
-
-        paramSet.stream().skip(1).forEach { param ->
-            operator = if (param.allow) {
-                operator.or { column eq param.property }
-            } else {
-                operator.and { column neq param.property }
-            }
-        }
-
-        query.andWhere { operator }
+        addAllowedParameters(paramSet.filter { it.allowed }.map { it.property })
+        addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property })
     }
 
     private fun <E> addParameters(
@@ -258,23 +274,38 @@ object DatabaseManager {
         column: Column<E>,
         orColumn: Column<E>
     ) {
+        fun addAllowedParameters(
+            allowed: Collection<E>?,
+        ) {
+            if (allowed.isNullOrEmpty()) return
+
+            var operator = Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
+
+            allowed.stream().skip(1).forEach { param ->
+                operator = operator.or { column eq param }
+            }
+
+            query.andWhere { operator }
+        }
+
+        fun addDeniedParameters(
+            denied: Collection<E>?
+        ) {
+            if (denied.isNullOrEmpty()) return
+
+            var operator = Op.build { column neq denied.first() and (orColumn neq denied.first()) }
+
+            denied.stream().skip(1).forEach { param ->
+                operator = operator.and { column neq param }
+            }
+
+            query.andWhere { operator }
+        }
+
         if (paramSet.isNullOrEmpty()) return
 
-        var operator = if (paramSet.first().allow) {
-            Op.build { column eq paramSet.first().property or (orColumn eq paramSet.first().property) }
-        } else {
-            Op.build { column neq paramSet.first().property and (orColumn neq paramSet.first().property) }
-        }
-
-        paramSet.stream().skip(1).forEach { param ->
-            operator = if (param.allow) {
-                operator.or { column eq param.property or (orColumn eq param.property) }
-            } else {
-                operator.and { column neq param.property and (orColumn neq param.property) }
-            }
-        }
-
-        query.andWhere { operator }
+        addAllowedParameters(paramSet.filter { it.allowed }.map { it.property })
+        addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property })
     }
 
     fun logAction(action: ActionType) {
@@ -373,6 +404,7 @@ object DatabaseManager {
         var totalActions: Long = 0
 
         var query = buildQuery(params)
+        addLogger(StdOutSqlLogger)
 
         totalActions = query.copy().count()
         if (totalActions == 0L) return SearchResults(actionTypes, params, page, 0)

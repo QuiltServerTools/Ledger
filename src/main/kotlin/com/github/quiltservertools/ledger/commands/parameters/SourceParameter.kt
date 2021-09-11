@@ -1,8 +1,6 @@
 package com.github.quiltservertools.ledger.commands.parameters
 
-import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.brigadier.StringReader
-import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
@@ -11,14 +9,14 @@ import net.minecraft.server.command.ServerCommandSource
 import java.util.concurrent.CompletableFuture
 
 class SourceParameter : SimpleParameter<String>() {
-    override fun parse(stringReader: StringReader): Negatable<String> {
+    override fun parse(stringReader: StringReader): String {
         val i: Int = stringReader.cursor
 
         while (stringReader.canRead() && isCharValid(stringReader.peek())) {
             stringReader.skip()
         }
 
-        return Negatable.getNegatable(StringReader(stringReader.string.substring(i, stringReader.cursor)), StringArgumentType.greedyString())
+        return stringReader.string.substring(i, stringReader.cursor)
     }
 
     private fun isCharValid(c: Char): Boolean = c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_' || c == '!'
@@ -33,13 +31,6 @@ class SourceParameter : SimpleParameter<String>() {
         val players = context.source.playerNames
         players.add("@")
         // TODO suggest non-player sources
-
-        if (builder.remaining.startsWith('!')) {
-            players.forEach {
-                builder.suggest("!$it")
-            }
-            return builder.buildFuture()
-        }
 
         return CommandSource.suggestMatching(
             players,

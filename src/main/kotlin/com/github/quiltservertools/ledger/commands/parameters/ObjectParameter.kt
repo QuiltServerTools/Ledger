@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger.commands.parameters
 
-import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
@@ -21,7 +20,7 @@ class ObjectParameter : SimpleParameter<Identifier>() {
         identifiers.addAll(Registry.ENTITY_TYPE.ids)
     }
 
-    override fun parse(stringReader: StringReader): Negatable<Identifier> = Negatable.getNegatable(stringReader, IdentifierArgumentType.identifier())
+    override fun parse(stringReader: StringReader): Identifier = IdentifierArgumentType.identifier().parse(stringReader)
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>?,

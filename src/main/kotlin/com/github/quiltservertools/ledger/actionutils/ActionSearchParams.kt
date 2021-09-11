@@ -5,11 +5,11 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import java.time.Instant
 
-class ActionSearchParams(
-    val min: Negatable<BlockPos>?,
-    val max: Negatable<BlockPos>?,
-    val before: Negatable<Instant>?,
-    val after: Negatable<Instant>?,
+data class ActionSearchParams(
+    val min: BlockPos?,
+    val max: BlockPos?,
+    val before: Instant?,
+    val after: Instant?,
     var actions: MutableSet<Negatable<String>>?,
     var objects: MutableSet<Negatable<Identifier>>?,
     var sourceNames: MutableSet<Negatable<String>>?,
@@ -35,10 +35,10 @@ class ActionSearchParams(
     }
 
     class Builder {
-        var min: Negatable<BlockPos>? = null
-        var max: Negatable<BlockPos>? = null
-        var before: Negatable<Instant>? = null
-        var after: Negatable<Instant>? = null
+        var min: BlockPos? = null
+        var max: BlockPos? = null
+        var before: Instant? = null
+        var after: Instant? = null
         var actions: MutableSet<Negatable<String>>? = null
         var objects: MutableSet<Negatable<Identifier>>? = null
         var sourceNames: MutableSet<Negatable<String>>? = null

@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.utility
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 
-data class Negatable<T> (var property: T, val allow: Boolean) {
+data class Negatable<T> (val property: T, val allowed: Boolean) {
     companion object {
         fun <U> allow(value: U) = Negatable(value, true)
         fun <U> deny(value: U) = Negatable(value, false)
