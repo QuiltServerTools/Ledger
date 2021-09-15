@@ -119,9 +119,9 @@ object SearchParamArgument {
                     }
                 }
                 "source" -> {
-                    val source = value as Negatable<String>
-                    if (source.property.startsWith('@')) {
-                        val nonPlayer = Negatable(source.property.trim('@'), source.allowed)
+                    val sourceInput = value as Negatable<String>
+                    if (sourceInput.property.startsWith('@')) {
+                        val nonPlayer = Negatable(sourceInput.property.trim('@'), sourceInput.allowed)
                         if (builder.sourceNames == null) {
                             builder.sourceNames =
                                 mutableSetOf(nonPlayer)
@@ -131,9 +131,9 @@ object SearchParamArgument {
                     } else {
                         if (builder.sourcePlayerNames == null) {
                             builder.sourcePlayerNames =
-                                mutableSetOf(source)
+                                mutableSetOf(sourceInput)
                         } else {
-                            builder.sourcePlayerNames!!.add(source)
+                            builder.sourcePlayerNames!!.add(sourceInput)
                         }
                     }
                 }

@@ -253,10 +253,10 @@ object DatabaseManager {
         ) {
             if (denied.isNullOrEmpty()) return
 
-            var operator = Op.build { column neq denied.first() }
+            var operator = Op.build { column neq denied.first() or column.isNull() }
 
             denied.stream().skip(1).forEach { param ->
-                operator = operator.and { column neq param }
+                operator = operator.and { column neq param or column.isNull() }
             }
 
             query.andWhere { operator }
@@ -293,10 +293,10 @@ object DatabaseManager {
         ) {
             if (denied.isNullOrEmpty()) return
 
-            var operator = Op.build { column neq denied.first() and (orColumn neq denied.first()) }
+            var operator = Op.build { column neq denied.first() or column.isNull() and (orColumn neq denied.first() or column.isNull()) }
 
             denied.stream().skip(1).forEach { param ->
-                operator = operator.and { column neq param }
+                operator = operator.and { column neq param or column.isNull() }
             }
 
             query.andWhere { operator }
