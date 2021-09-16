@@ -6,6 +6,7 @@ import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback;
 import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback;
 import com.github.quiltservertools.ledger.utility.HandledSlot;
 import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
+import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -105,9 +106,9 @@ public abstract class SlotMixin implements HandledSlot {
         ItemStack changedStack = oldEmpty ? newStack : stack;
 
         if (oldEmpty) {
-            ItemInsertCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerWorld) player.world, "player", (ServerPlayerEntity) player);
+            ItemInsertCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
         } else {
-            ItemRemoveCallback.Companion.getEVENT().invoker().remove(changedStack, pos, (ServerWorld) player.world, "player", (ServerPlayerEntity) player);
+            ItemRemoveCallback.Companion.getEVENT().invoker().remove(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
         }
     }
 }

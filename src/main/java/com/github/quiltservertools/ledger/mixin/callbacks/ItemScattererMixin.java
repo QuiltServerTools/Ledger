@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin.callbacks;
 
 import com.github.quiltservertools.ledger.actionutils.LocationalInventory;
 import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
@@ -24,7 +25,7 @@ public abstract class ItemScattererMixin {
         ItemStack stack = inventory.getStack(i);
 
         if (!stack.isEmpty() && inventory instanceof LocationalInventory locationalInventory) {
-            ItemRemoveCallback.Companion.getEVENT().invoker().remove(stack, locationalInventory.getLocation(), (ServerWorld) world, "broke", null);
+            ItemRemoveCallback.Companion.getEVENT().invoker().remove(stack, locationalInventory.getLocation(), (ServerWorld) world, Sources.BROKE, null);
         }
     }
 }

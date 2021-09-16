@@ -7,6 +7,7 @@ import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockFallCallback
 import com.github.quiltservertools.ledger.callbacks.BlockLandCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
@@ -26,7 +27,7 @@ fun registerBlockListeners() {
 
 private fun onLand(world: World, pos: BlockPos, state: BlockState) {
     DatabaseManager.logAction(
-        ActionFactory.blockPlaceAction(world, pos, state, "gravity")
+        ActionFactory.blockPlaceAction(world, pos, state, Sources.GRAVITY)
     )
 }
 
@@ -36,7 +37,7 @@ private fun onFall(world: World, pos: BlockPos, state: BlockState) {
             world,
             pos,
             state,
-            "gravity"
+            Sources.GRAVITY
         )
     )
 }
@@ -47,7 +48,7 @@ private fun onBurn(world: World, pos: BlockPos, state: BlockState, entity: Block
             world,
             pos,
             state,
-            "fire",
+            Sources.FIRE,
             entity
         )
     )
@@ -60,7 +61,7 @@ private fun onExplode(
     blockState: BlockState,
     entity: BlockEntity?
 ) {
-    val sourceName = source?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: "explosion"
+    val sourceName = source?.let { Registry.ENTITY_TYPE.getId(it.type).path } ?: Sources.EXPLOSION
 
     val action = ActionFactory.blockBreakAction(
         world,

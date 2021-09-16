@@ -1,5 +1,8 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.Sources
+import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
 import net.minecraft.server.network.ServerPlayerEntity
@@ -14,9 +17,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import com.github.quiltservertools.ledger.actionutils.PLAYER_SOURCE
-import com.github.quiltservertools.ledger.utility.TextColorPallet
-import com.github.quiltservertools.ledger.utility.literal
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -33,7 +33,7 @@ abstract class AbstractActionType : ActionType {
     override var oldObjectIdentifier: Identifier = Identifier("air")
     override var blockState: BlockState? = null
     override var oldBlockState: BlockState? = null
-    override var sourceName: String = "Unknown"
+    override var sourceName: String = Sources.UNKNOWN
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null
     override var rolledBack: Boolean = false
@@ -99,7 +99,7 @@ abstract class AbstractActionType : ActionType {
             return "@$sourceName".literal().setStyle(TextColorPallet.secondary)
         }
 
-        if (sourceName == PLAYER_SOURCE) {
+        if (sourceName == Sources.PLAYER) {
             return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
         }
 
