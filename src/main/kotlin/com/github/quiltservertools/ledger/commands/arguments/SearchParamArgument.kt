@@ -1,5 +1,14 @@
 package com.github.quiltservertools.ledger.commands.arguments
 
+import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
+import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
+import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
+import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
+import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
+import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
+import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
+import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
+import com.github.quiltservertools.ledger.utility.Negatable
 import com.google.common.collect.HashMultimap
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.StringReader
@@ -14,27 +23,20 @@ import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
-import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
-import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
-import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
-import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
-import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
-import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
-import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
-import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
 object SearchParamArgument {
-    private val paramSuggesters = HashMap<String, Parameter>()
+    private val paramSuggesters = HashMap<String, Parameter<*>>()
 
     init {
-        paramSuggesters["action"] = Parameter(ActionParameter())
-        paramSuggesters["source"] = Parameter(SourceParameter())
+        paramSuggesters["action"] = NegatableParameter(ActionParameter())
+        paramSuggesters["source"] = NegatableParameter(SourceParameter())
         paramSuggesters["range"] = Parameter(RangeParameter())
-        paramSuggesters["object"] = Parameter(ObjectParameter())
-        paramSuggesters["world"] = Parameter(DimensionParameter())
-        paramSuggesters["time"] = Parameter(TimeParameter())
+        paramSuggesters["object"] = NegatableParameter(ObjectParameter())
+        paramSuggesters["world"] = NegatableParameter(DimensionParameter())
+        paramSuggesters["before"] = Parameter(TimeParameter())
+        paramSuggesters["after"] = Parameter(TimeParameter())
     }
 
     fun argument(name: String): RequiredArgumentBuilder<ServerCommandSource, String> {
@@ -77,15 +79,17 @@ object SearchParamArgument {
             }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun get(input: String, source: ServerCommandSource): ActionSearchParams {
         val reader = StringReader(input)
         val result = HashMultimap.create<String, Any>()
         while (reader.canRead()) {
             val propertyName = reader.readStringUntil(':').trim(' ')
-            val suggester = paramSuggesters[propertyName]
+            val parameter = paramSuggesters[propertyName]
                 ?: throw SimpleCommandExceptionType(LiteralMessage("Unknown property value: $propertyName"))
                     .create()
-            result.put(propertyName, suggester.parse(reader))
+            val value = if (parameter is NegatableParameter) parameter.parseNegatable(reader) else parameter.parse(reader)
+            result.put(propertyName, value)
         }
 
         val builder = ActionSearchParams.Builder()
@@ -103,11 +107,11 @@ object SearchParamArgument {
                         BlockPos(source.position.add(range.toDouble(), range.toDouble(), range.toDouble()))
                 }
                 "world" -> {
-                    val world = value as Identifier
+                    val world = value as Negatable<Identifier>
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
                 "object" -> {
-                    val objectId = value as Identifier
+                    val objectId = value as Negatable<Identifier>
                     if (builder.objects == null) {
                         builder.objects = mutableSetOf(objectId)
                     } else {
@@ -115,35 +119,39 @@ object SearchParamArgument {
                     }
                 }
                 "source" -> {
-                    var playerName = value as String
-                    if (playerName.startsWith('@')) {
-                        playerName = playerName.trim('@')
+                    val sourceInput = value as Negatable<String>
+                    if (sourceInput.property.startsWith('@')) {
+                        val nonPlayer = Negatable(sourceInput.property.trim('@'), sourceInput.allowed)
                         if (builder.sourceNames == null) {
                             builder.sourceNames =
-                                mutableSetOf(playerName)
+                                mutableSetOf(nonPlayer)
                         } else {
-                            builder.sourceNames!!.add(playerName)
+                            builder.sourceNames!!.add(nonPlayer)
                         }
                     } else {
                         if (builder.sourcePlayerNames == null) {
                             builder.sourcePlayerNames =
-                                mutableSetOf(playerName)
+                                mutableSetOf(sourceInput)
                         } else {
-                            builder.sourcePlayerNames!!.add(playerName)
+                            builder.sourcePlayerNames!!.add(sourceInput)
                         }
                     }
                 }
                 "action" -> {
-                    val action = value as String
+                    val action = value as Negatable<String>
                     if (builder.actions == null) {
                         builder.actions = mutableSetOf(action)
                     } else {
                         builder.actions!!.add(action)
                     }
                 }
-                "time" -> {
-                    val time = value as Duration
-                    builder.time = time
+                "before" -> {
+                    val time = value as Instant
+                    builder.before = time
+                }
+                "after" -> {
+                    val time = value as Instant
+                    builder.after = time
                 }
             }
         }
@@ -166,12 +174,12 @@ object SearchParamArgument {
         return builder
     }
 
-    private class Parameter(private val parameter: SimpleParameter<*>) {
+    private open class Parameter<T> (private val parameter: SimpleParameter<T>) {
 
-        fun listSuggestions(
-            context: CommandContext<ServerCommandSource?>?,
+        open fun listSuggestions(
+            context: CommandContext<ServerCommandSource>,
             builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions>? {
+        ): CompletableFuture<Suggestions> {
             return try {
                 parameter.getSuggestions(context, builder)
             } catch (e: CommandSyntaxException) {
@@ -179,13 +187,39 @@ object SearchParamArgument {
             }
         }
 
-        fun getRemaining(s: String): Int {
+        open fun getRemaining(s: String): Int {
             val reader = StringReader(s)
             parameter.parse(reader)
             return reader.remainingLength
         }
 
         @Throws(CommandSyntaxException::class)
-        fun parse(reader: StringReader) = parameter.parse(reader)!!
+        open fun parse(reader: StringReader) = parameter.parse(reader)
+    }
+
+    private class NegatableParameter<T> (parameter: SimpleParameter<T>): Parameter<T>(parameter) {
+        override fun listSuggestions(
+            context: CommandContext<ServerCommandSource>,
+            builder: SuggestionsBuilder
+        ): CompletableFuture<Suggestions> {
+            val builder = if (builder.remaining.startsWith("!")) builder.createOffset(builder.start + 1) else builder
+            return super.listSuggestions(context, builder)
+        }
+
+        override fun getRemaining(s: String): Int {
+            val input = if (s.startsWith("!")) s.substring(1) else s
+            return super.getRemaining(input)
+        }
+
+        @Throws(CommandSyntaxException::class)
+        fun parseNegatable(reader: StringReader): Negatable<T> {
+            if (reader.string.isEmpty()) return Negatable.allow(parse(reader))
+            return if (reader.string[reader.cursor] == '!') {
+                reader.skip()
+                Negatable.deny(super.parse(reader))
+            } else {
+                Negatable.allow(super.parse(reader))
+            }
+        }
     }
 }

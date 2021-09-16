@@ -1,12 +1,13 @@
 # Parameters
 Parameters are used in many commands such as [search](commands/search.md) and [preview](commands/preview.md).
-They allow you to refine your selection so you only get the actions you want.
-Currently, there are 6 different parameters which can be found below.
+They allow you to refine your selection, so you only get the actions you want.
+Currently, there are 7 different parameters which can be found below.
 
 ## Action
 Key - `action:`  
 Value - `Action Identifier`  
 Multiple Allowed - `Yes`  
+Negative allowed - `Yes`    
 Example - `action:block-break`
 
 This parameter allows you to filter your selection based on the [action type](actions.md).
@@ -15,6 +16,7 @@ An Action Identifier is a string with the group and type divided by a `-`.
 ## Dimension
 Key - `world:`  
 Value - `World Identifier`  
+Negative Allowed - `Yes`  
 Multiple Allowed - `Yes`  
 Example - `world:minecraft:the_end`
 
@@ -23,7 +25,8 @@ An identifier is minecraft's ID system of a namespace and a path divided by `:`.
 
 ## Object
 Key - `object:`  
-Value - `Object Identifier`
+Value - `Object Identifier`  
+Negative Allowed - `Yes`  
 Multiple Allowed - `Yes`  
 Example - `object:minecraft:stone`
 
@@ -34,6 +37,7 @@ An identifier is minecraft's ID system of a namespace and a path divided by `:`.
 ## Range
 Key - `range:`  
 Value - `Integer > 1`  
+Negative Allowed - `No`  
 Multiple Allowed - `No`  
 Example - `range:5`
 
@@ -44,6 +48,7 @@ Use the [dimension parameter](#dimension) to filter by world.
 ## Source
 Key - `source:`  
 Value - `Source Name`  
+Negative Allowed - `Yes`  
 Multiple Allowed - `Yes`  
 Example - `source:Potatoboy9999` `source:@tnt`
 
@@ -52,12 +57,22 @@ To filter based on a specific player, simply use that players name.
 To filter based on any other source, you must use an `@` symbol.
 
 ## Time
-Key - `time:`  
-Value - `Time Duration`  
-Multiple Allowed - `No`  
-Example - `time:3h`
 
-This parameter allows you to filter your selection based on time.
+### Before
+Key - `before:`  
+Value - `Time Duration`  
+Negative Allowed - `No`  
+Multiple Allowed - `No`  
+Example - `before:3h`
+
+### After
+Key - `after:`  
+Value - `Time Duration`  
+Negative Allowed - `No`  
+Multiple Allowed - `No`  
+Example - `after:3h`
+
+These parameters allow you to filter your selection based on time.
 It will select actions within the duration specified.
 You can specify durations with `s`econd, `m`inute, `h`our, `d`ay and `w`eek.
-You can also combine multiple durations for example `7w4d31m42s`.
+You can also combine multiple durations for example `7w4d31m42s`. The `before` parameter selects all results before the point in time that was the provided, and after that point for `after`

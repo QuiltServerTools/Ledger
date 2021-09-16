@@ -508,10 +508,10 @@ style:
   CollapsibleIfStatements:
     active: true
   DataClassContainsFunctions:
-    active: true
+    active: false
     conversionFunctionPrefix: 'to'
   DataClassShouldBeImmutable:
-    active: true
+    active: false
   EqualsNullCall:
     active: true
   EqualsOnSignatureLine:

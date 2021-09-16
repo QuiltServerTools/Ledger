@@ -1,23 +1,26 @@
 package com.github.quiltservertools.ledger.actionutils
 
+import com.github.quiltservertools.ledger.utility.Negatable
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import java.time.Duration
+import java.time.Instant
 
-class ActionSearchParams(
+data class ActionSearchParams(
     val min: BlockPos?,
     val max: BlockPos?,
-    val time: Duration?,
-    val actions: Set<String>?,
-    val objects: Set<Identifier>?,
-    val sourceNames: Set<String>?,
-    val sourcePlayerNames: Set<String>?,
-    val worlds: Set<Identifier>?,
+    val before: Instant?,
+    val after: Instant?,
+    var actions: MutableSet<Negatable<String>>?,
+    var objects: MutableSet<Negatable<Identifier>>?,
+    var sourceNames: MutableSet<Negatable<String>>?,
+    var sourcePlayerNames: MutableSet<Negatable<String>>?,
+    var worlds: MutableSet<Negatable<Identifier>>?,
 ) {
     private constructor(builder: Builder) : this(
         builder.min,
         builder.max,
-        builder.time,
+        builder.before,
+        builder.after,
         builder.actions,
         builder.objects,
         builder.sourceNames,
@@ -25,7 +28,7 @@ class ActionSearchParams(
         builder.worlds
     )
 
-    fun isEmpty() = listOf(min, max, time, actions, objects, sourceNames, sourcePlayerNames, worlds).all { it == null }
+    fun isEmpty() = listOf(min, max, before, after, actions, objects, sourceNames, sourcePlayerNames, worlds).all { it == null }
 
     companion object {
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
@@ -34,12 +37,13 @@ class ActionSearchParams(
     class Builder {
         var min: BlockPos? = null
         var max: BlockPos? = null
-        var time: Duration? = null
-        var actions: MutableSet<String>? = null
-        var objects: MutableSet<Identifier>? = null
-        var sourceNames: MutableSet<String>? = null
-        var sourcePlayerNames: MutableSet<String>? = null
-        var worlds: MutableSet<Identifier>? = null
+        var before: Instant? = null
+        var after: Instant? = null
+        var actions: MutableSet<Negatable<String>>? = null
+        var objects: MutableSet<Negatable<Identifier>>? = null
+        var sourceNames: MutableSet<Negatable<String>>? = null
+        var sourcePlayerNames: MutableSet<Negatable<String>>? = null
+        var worlds: MutableSet<Negatable<Identifier>>? = null
 
         fun build() = ActionSearchParams(this)
     }

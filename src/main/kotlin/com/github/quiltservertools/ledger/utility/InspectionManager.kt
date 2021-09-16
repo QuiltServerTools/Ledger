@@ -50,7 +50,7 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
         val params = ActionSearchParams.build {
             min = pos
             max = pos
-            worlds = mutableSetOf(source.world.registryKey.value)
+            worlds = mutableSetOf(Negatable.allow(source.world.registryKey.value))
         }
 
         Ledger.searchCache[source.name] = params

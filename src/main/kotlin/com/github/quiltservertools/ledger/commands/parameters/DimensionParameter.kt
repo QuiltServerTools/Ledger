@@ -10,12 +10,10 @@ import net.minecraft.util.Identifier
 import java.util.concurrent.CompletableFuture
 
 class DimensionParameter : SimpleParameter<Identifier>() {
-    override fun parse(stringReader: StringReader): Identifier =
-        DimensionArgumentType.dimension().parse(stringReader)
+    override fun parse(stringReader: StringReader): Identifier = DimensionArgumentType.dimension().parse(stringReader)
 
     override fun getSuggestions(
-        context: CommandContext<ServerCommandSource>?,
-        builder: SuggestionsBuilder?
-    ): CompletableFuture<Suggestions> =
-        DimensionArgumentType.dimension().listSuggestions(context, builder)
+        context: CommandContext<ServerCommandSource>,
+        builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> = DimensionArgumentType.dimension().listSuggestions(context, builder)
 }
