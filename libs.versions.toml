@@ -12,7 +12,7 @@ fabric-kotlin = "1.6.3+kotlin.1.5.21"
 fabric-permissions = "0.1-SNAPSHOT"
 translations = "1.4.5+1.17"
 
-exposed = "0.33.1"
+exposed = "0.34.2"
 sqlite-jdbc = "3.36.0.1"
 
 konf = "1.1.2"

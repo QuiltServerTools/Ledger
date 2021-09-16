@@ -181,19 +181,19 @@ object DatabaseManager {
             query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
-        addNegatableParameters(
+        addParameters(
             query,
             params.sourceNames,
             Tables.Sources.name
         )
 
-        addNegatableParameters(
+        addParameters(
             query,
             params.actions,
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-        addNegatableParameters(
+        addParameters(
             query,
             params.worlds?.map {
                 if (it.allowed) {
@@ -218,7 +218,7 @@ object DatabaseManager {
             oldObjectTable[Tables.ObjectIdentifiers.identifier]
         )
 
-        addNegatableParameters(
+        addParameters(
             query,
             params.sourcePlayerNames,
             Tables.Players.playerName
@@ -227,75 +227,51 @@ object DatabaseManager {
         return query
     }
 
-    private fun <E> addNegatableParameters(
-        query: Query,
-        paramSet: Collection<Negatable<E>>?,
-        column: Column<E>
-    ) {
-        fun addAllowedParameters(
-            allowed: Collection<E>?
-        ) {
-            if (allowed.isNullOrEmpty()) return
-
-            var operator = Op.build { column eq allowed.first() }
-
-            allowed.stream().skip(1).forEach { param ->
-                operator = operator.or { column eq param }
-            }
-
-            query.andWhere { operator }
-        }
-
-        fun addDeniedParameters(
-            denied: Collection<E>?
-        ) {
-            if (denied.isNullOrEmpty()) return
-
-            var operator = Op.build { column neq denied.first() or column.isNull() }
-
-            denied.stream().skip(1).forEach { param ->
-                operator = operator.and { column neq param or column.isNull() }
-            }
-
-            query.andWhere { operator }
-        }
-
-        if (paramSet.isNullOrEmpty()) return
-
-        addAllowedParameters(paramSet.filter { it.allowed }.map { it.property })
-        addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property })
-    }
-
     private fun <E> addParameters(
         query: Query,
         paramSet: Collection<Negatable<E>>?,
         column: Column<E>,
-        orColumn: Column<E>
+        orColumn: Column<E>? = null
     ) {
         fun addAllowedParameters(
-            allowed: Collection<E>?,
+            allowed: Collection<E>,
         ) {
-            if (allowed.isNullOrEmpty()) return
+            if (allowed.isEmpty()) return
 
-            var operator = Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
+            var operator = if (orColumn != null) {
+                Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
+            } else {
+                Op.build { column eq allowed.first() }
+            }
 
             allowed.stream().skip(1).forEach { param ->
-                operator = operator.or { column eq param }
+                operator = if (orColumn != null) {
+                    operator.or { column eq param or (orColumn eq param) }
+                } else {
+                    operator.or { column eq param }
+                }
             }
 
             query.andWhere { operator }
         }
 
         fun addDeniedParameters(
-            denied: Collection<E>?
+            denied: Collection<E>
         ) {
-            if (denied.isNullOrEmpty()) return
+            if (denied.isEmpty()) return
 
-            var operator =
-                Op.build { column neq denied.first() or column.isNull() and (orColumn neq denied.first() or column.isNull()) }
+            var operator = if (orColumn != null) {
+                Op.build { column neq denied.first() and (orColumn neq denied.first()) }
+            } else {
+                Op.build { column neq denied.first() or column.isNull() }
+            }
 
             denied.stream().skip(1).forEach { param ->
-                operator = operator.and { column neq param or column.isNull() }
+                operator = if (orColumn != null) {
+                    operator.and { column neq param and (orColumn neq param) }
+                } else {
+                    operator.and { column neq param or column.isNull() }
+                }
             }
 
             query.andWhere { operator }
