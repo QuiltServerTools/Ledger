@@ -6,6 +6,7 @@ import com.github.quiltservertools.ledger.actions.BlockChangeActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
 import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
+import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
@@ -17,8 +18,6 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
-
-const val PLAYER_SOURCE = "player"
 
 object ActionFactory {
     fun blockBreakAction(
@@ -41,7 +40,7 @@ object ActionFactory {
         source: PlayerEntity,
         entity: BlockEntity? = null
     ): BlockChangeActionType {
-        val action = blockBreakAction(world, pos, state, PLAYER_SOURCE, entity)
+        val action = blockBreakAction(world, pos, state, Sources.PLAYER, entity)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -67,7 +66,7 @@ object ActionFactory {
         source: PlayerEntity,
         entity: BlockEntity? = null
     ): BlockChangeActionType {
-        val action = blockPlaceAction(world, pos, state, PLAYER_SOURCE, entity)
+        val action = blockPlaceAction(world, pos, state, Sources.PLAYER, entity)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -106,7 +105,7 @@ object ActionFactory {
         source: PlayerEntity
     ): ItemInsertActionType {
         val action = ItemInsertActionType()
-        setItemData(action, pos, world, stack, PLAYER_SOURCE)
+        setItemData(action, pos, world, stack, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -126,7 +125,7 @@ object ActionFactory {
         source: PlayerEntity
     ): ItemRemoveActionType {
         val action = ItemRemoveActionType()
-        setItemData(action, pos, world, stack, PLAYER_SOURCE)
+        setItemData(action, pos, world, stack, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
 
         return action
@@ -152,7 +151,7 @@ object ActionFactory {
 
         when {
             killer is PlayerEntity -> {
-                setEntityData(action, pos, world, entity, PLAYER_SOURCE)
+                setEntityData(action, pos, world, entity, Sources.PLAYER)
                 action.sourceProfile = killer.gameProfile
             }
             killer != null -> {
