@@ -31,9 +31,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
@@ -48,7 +46,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -293,7 +291,8 @@ object DatabaseManager {
         ) {
             if (denied.isNullOrEmpty()) return
 
-            var operator = Op.build { column neq denied.first() or column.isNull() and (orColumn neq denied.first() or column.isNull()) }
+            var operator =
+                Op.build { column neq denied.first() or column.isNull() and (orColumn neq denied.first() or column.isNull()) }
 
             denied.stream().skip(1).forEach { param ->
                 operator = operator.and { column neq param or column.isNull() }
@@ -404,7 +403,6 @@ object DatabaseManager {
         var totalActions: Long = 0
 
         var query = buildQuery(params)
-        addLogger(StdOutSqlLogger)
 
         totalActions = query.copy().count()
         if (totalActions == 0L) return SearchResults(actionTypes, params, page, 0)
