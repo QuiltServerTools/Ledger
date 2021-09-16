@@ -197,23 +197,19 @@ object SearchParamArgument {
         open fun parse(reader: StringReader) = parameter.parse(reader)
     }
 
-    private class NegatableParameter<T> (private val parameter: SimpleParameter<T>): Parameter<T>(parameter) {
+    private class NegatableParameter<T> (parameter: SimpleParameter<T>): Parameter<T>(parameter) {
         override fun listSuggestions(
             context: CommandContext<ServerCommandSource>,
             builder: SuggestionsBuilder
         ): CompletableFuture<Suggestions> {
             val builder = if (builder.remaining.startsWith("!")) builder.createOffset(builder.start + 1) else builder
-            return try {
-                parameter.getSuggestions(context, builder)
-            } catch (e: CommandSyntaxException) {
-                builder.buildFuture()
-            }
+            return super.listSuggestions(context, builder)
         }
 
         override fun getRemaining(s: String): Int {
             val input = if (s.startsWith("!")) s.substring(1) else s
             val reader = StringReader(input)
-            parameter.parse(reader)
+            super.parse(reader)
             return reader.remainingLength
         }
 
@@ -222,9 +218,9 @@ object SearchParamArgument {
             if (reader.string.isEmpty()) return Negatable.allow(parse(reader))
             return if (reader.string[reader.cursor] == '!') {
                 reader.skip()
-                Negatable.deny(parameter.parse(reader))
+                Negatable.deny(super.parse(reader))
             } else {
-                Negatable.allow(parameter.parse(reader))
+                Negatable.allow(super.parse(reader))
             }
         }
     }

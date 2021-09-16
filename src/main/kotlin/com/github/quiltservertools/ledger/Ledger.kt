@@ -110,6 +110,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = registerCommands(dispatcher)
 
     fun identifier(path: String) = Identifier(MOD_ID, path)
+
+    fun config() = config
 }
 
 fun logDebug(message: String) = Ledger.logger.debug(message)

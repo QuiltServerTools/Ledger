@@ -19,7 +19,7 @@ class SourceParameter : SimpleParameter<String>() {
         return stringReader.string.substring(i, stringReader.cursor)
     }
 
-    private fun isCharValid(c: Char): Boolean = c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_' || c == '!'
+    private fun isCharValid(c: Char): Boolean = c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_'
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,

@@ -25,7 +25,7 @@ An identifier is minecraft's ID system of a namespace and a path divided by `:`.
 
 ## Object
 Key - `object:`  
-Value - `Object Identifier`
+Value - `Object Identifier`  
 Negative Allowed - `Yes`  
 Multiple Allowed - `Yes`  
 Example - `object:minecraft:stone`
@@ -49,7 +49,7 @@ Use the [dimension parameter](#dimension) to filter by world.
 Key - `source:`  
 Value - `Source Name`  
 Negative Allowed - `Yes`  
-Multiple Allowed - `Yes`
+Multiple Allowed - `Yes`  
 Example - `source:Potatoboy9999` `source:@tnt`
 
 This parameter allows you to filter your selection based on the source of the action.
