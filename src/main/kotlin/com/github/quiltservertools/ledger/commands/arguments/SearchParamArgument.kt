@@ -208,9 +208,7 @@ object SearchParamArgument {
 
         override fun getRemaining(s: String): Int {
             val input = if (s.startsWith("!")) s.substring(1) else s
-            val reader = StringReader(input)
-            super.parse(reader)
-            return reader.remainingLength
+            return super.getRemaining(input)
         }
 
         @Throws(CommandSyntaxException::class)

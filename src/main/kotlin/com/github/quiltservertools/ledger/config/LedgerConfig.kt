@@ -6,7 +6,7 @@ import net.fabricmc.loader.api.FabricLoader
 
 const val CONFIG_PATH = "ledger.toml"
 
-val config = Config {
+val config: Config = Config {
     addSpec(DatabaseSpec)
     addSpec(SearchSpec)
     addSpec(ActionsSpec)
