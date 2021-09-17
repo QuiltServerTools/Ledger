@@ -65,6 +65,10 @@ object Tables {
         val sourcePlayer = optReference("player_id", Players.id)
         val extraData = text("extra_data").nullable()
         val rolledBack = bool("rolled_back").clientDefault { false }
+
+        init {
+            index("actions_by_location", false, x, y, z, world)
+        }
     }
 
     class Action(id: EntityID<Int>) : IntEntity(id) {
