@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
+import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -9,7 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback;
 
 @Mixin(BlockItem.class)
 public abstract class BlockItemMixin extends Item {
@@ -28,7 +28,7 @@ public abstract class BlockItemMixin extends Item {
 
         BlockState blockState = context.getWorld().getBlockState(context.getBlockPos());
 
-        PlayerBlockPlaceCallback.Companion.getEVENT().invoker().place(
+        PlayerBlockPlaceCallback.EVENT.invoker().place(
                 context.getWorld(),
                 context.getPlayer(),
                 context.getBlockPos(),

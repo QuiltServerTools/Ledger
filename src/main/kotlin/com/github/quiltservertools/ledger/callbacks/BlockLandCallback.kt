@@ -10,6 +10,7 @@ fun interface BlockLandCallback {
     fun land(world: World, pos: BlockPos, state: BlockState)
 
     companion object {
+        @JvmField
         val EVENT: Event<BlockLandCallback> =
             EventFactory.createArrayBacked(BlockLandCallback::class.java) { listeners ->
                 BlockLandCallback { world, pos, state ->

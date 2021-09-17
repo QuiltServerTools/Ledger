@@ -11,6 +11,7 @@ fun interface EntityKillCallback {
     fun kill(world: World, pos: BlockPos, entity: LivingEntity, source: DamageSource)
 
     companion object {
+        @JvmField
         val EVENT: Event<EntityKillCallback> =
             EventFactory.createArrayBacked(EntityKillCallback::class.java) { listeners ->
                 EntityKillCallback { world, pos, entity, source ->

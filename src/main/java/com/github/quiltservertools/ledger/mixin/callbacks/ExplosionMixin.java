@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback;
 
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin {
@@ -47,7 +46,7 @@ public abstract class ExplosionMixin {
 
         if (blockState.isAir()) return;
 
-        BlockExplodeCallback.Companion.getEVENT().invoker().explode(
+        BlockExplodeCallback.EVENT.invoker().explode(
                 world,
                 entity,
                 blockPos,

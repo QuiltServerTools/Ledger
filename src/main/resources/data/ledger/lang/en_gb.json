@@ -8,13 +8,19 @@
     "text.ledger.footer.page_forward.hover": "Next Page",
     "text.ledger.footer.page_backward": "<<",
     "text.ledger.footer.page_backward.hover": "Previous Page",
+
     "text.ledger.status.queue": "Database Queue: %s",
     "text.ledger.status.queue.busy": "Busy",
     "text.ledger.status.queue.empty": "Empty",
-
     "text.ledger.status.version": "Version: %s",
-    "text.ledger.status.discord": "Click to join the Ledger Discord server",
+    "text.ledger.status.discord": "Discord: %s",
+    "text.ledger.status.discord.join": "Click to Join",
+    "text.ledger.status.db_type": "Database type: %s",
+    "text.ledger.status.wiki": "Wiki: %s",
+    "text.ledger.status.wiki.view": "Click to View",
+
     "text.ledger.preview.start": "Preview starting",
+
     "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
     "text.ledger.action_message.time_diff": "%s ago",
     "text.ledger.action_message.location.hover": "Click to teleport",
@@ -22,6 +28,7 @@
     "text.ledger.rollback.start": "Rolling back %s actions",
     "text.ledger.rollback.finish": "Rollback complete",
     "text.ledger.rollback.fail": "Failed to rollback %s x%s",
+
     "text.ledger.restore.start": "Restoring %s actions",
     "text.ledger.restore.finish": "Restore complete",
     "text.ledger.restore.fail": "Failed to restore %s x%s",
@@ -31,6 +38,7 @@
     "text.ledger.inspect.off": "Disabled",
 
     "text.ledger.database.busy": "Database is currently busy. This may take a moment",
+
     "error.ledger.no_cached_params": "No cached search. Try preforming a search first",
     "error.ledger.command.no_results": "No results for that search",
     "error.ledger.no_more_pages": "No more pages",
@@ -44,10 +52,6 @@
     "text.ledger.action.entity-kill": "killed",
 
     "text.ledger.network.protocols_mismatched": "Protocol versions mismatched: client mod is Ledger protocol version %d and the client version is %d",
-    "text.ledger.status.discord.join": "Click to Join",
-    "text.ledger.status.db_type": "Database type: %s",
-    "text.ledger.status.wiki": "Wiki: %s",
-    "text.ledger.status.wiki.view": "Click to View",
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",
 
     "text.ledger.purge.starting": "------ Starting purge ------",

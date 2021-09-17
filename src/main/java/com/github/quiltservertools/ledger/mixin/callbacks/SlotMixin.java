@@ -53,7 +53,7 @@ public abstract class SlotMixin implements HandledSlot {
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     private void ledgerGetInitialStack(Inventory inventory, int index, int x, int y, CallbackInfo ci) {
-        oldStack = this.getStack().copy();
+        oldStack = this.getStack() == null ? ItemStack.EMPTY : this.getStack().copy();
     }
 
     @Inject(method = "markDirty", at = @At(value = "HEAD"))
@@ -106,9 +106,9 @@ public abstract class SlotMixin implements HandledSlot {
         ItemStack changedStack = oldEmpty ? newStack : stack;
 
         if (oldEmpty) {
-            ItemInsertCallback.Companion.getEVENT().invoker().insert(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+            ItemInsertCallback.EVENT.invoker().insert(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
         } else {
-            ItemRemoveCallback.Companion.getEVENT().invoker().remove(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+            ItemRemoveCallback.EVENT.invoker().remove(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
         }
     }
 }

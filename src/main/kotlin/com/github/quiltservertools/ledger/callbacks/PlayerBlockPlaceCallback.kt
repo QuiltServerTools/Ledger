@@ -20,6 +20,7 @@ fun interface PlayerBlockPlaceCallback {
     )
 
     companion object {
+        @JvmField
         val EVENT: Event<PlayerBlockPlaceCallback> =
             EventFactory.createArrayBacked(PlayerBlockPlaceCallback::class.java) { listeners ->
                 PlayerBlockPlaceCallback { world, player, pos, state, context, entity ->

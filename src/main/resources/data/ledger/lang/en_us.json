@@ -13,7 +13,11 @@
     "text.ledger.status.queue.busy": "Busy",
     "text.ledger.status.queue.empty": "Empty",
     "text.ledger.status.version": "Version: %s",
-    "text.ledger.status.discord": "Click to join the Ledger Discord server",
+    "text.ledger.status.discord": "Discord: %s",
+    "text.ledger.status.discord.join": "Click to Join",
+    "text.ledger.status.db_type": "Database type: %s",
+    "text.ledger.status.wiki": "Wiki: %s",
+    "text.ledger.status.wiki.view": "Click to View",
 
     "text.ledger.preview.start": "Preview starting",
 
@@ -48,10 +52,6 @@
     "text.ledger.action.entity-kill": "killed",
 
     "text.ledger.network.protocols_mismatched": "Protocol versions mismatched: client mod is Ledger protocol version %d and the client version is %d",
-    "text.ledger.status.discord.join": "Click to Join",
-    "text.ledger.status.db_type": "Database type: %s",
-    "text.ledger.status.wiki": "Wiki: %s",
-    "text.ledger.status.wiki.view": "Click to View",
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",
 
     "text.ledger.purge.starting": "------ Starting purge ------",

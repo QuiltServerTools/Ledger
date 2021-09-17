@@ -25,7 +25,7 @@ public abstract class ItemScattererMixin {
         ItemStack stack = inventory.getStack(i);
 
         if (!stack.isEmpty() && inventory instanceof LocationalInventory locationalInventory) {
-            ItemRemoveCallback.Companion.getEVENT().invoker().remove(stack, locationalInventory.getLocation(), (ServerWorld) world, Sources.BROKE, null);
+            ItemRemoveCallback.EVENT.invoker().remove(stack, locationalInventory.getLocation(), (ServerWorld) world, Sources.BROKE, null);
         }
     }
 }
