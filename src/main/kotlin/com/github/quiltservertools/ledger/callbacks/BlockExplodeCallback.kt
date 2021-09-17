@@ -12,6 +12,7 @@ fun interface BlockExplodeCallback {
     fun explode(world: World, source: Entity?, pos: BlockPos, state: BlockState, entity: BlockEntity?)
 
     companion object {
+        @JvmField
         val EVENT: Event<BlockExplodeCallback> =
             EventFactory.createArrayBacked(BlockExplodeCallback::class.java) { listeners ->
                 BlockExplodeCallback { world, source, pos, state, entity ->

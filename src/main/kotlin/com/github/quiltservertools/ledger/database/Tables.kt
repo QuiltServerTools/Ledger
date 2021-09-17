@@ -10,7 +10,7 @@ import java.time.Instant
 
 private const val MAX_PLAYER_NAME_LENGTH = 16
 private const val MAX_ACTION_NAME_LENGTH = 16
-private const val MAX_IDENTIFIER_LENGTH = 200
+private const val MAX_IDENTIFIER_LENGTH = 191
 private const val MAX_SOURCE_NAME_LENGTH = 30
 
 object Tables {

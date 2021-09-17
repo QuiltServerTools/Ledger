@@ -11,6 +11,7 @@ fun interface BlockBurnCallback {
     fun burn(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?)
 
     companion object {
+        @JvmField
         val EVENT: Event<BlockBurnCallback> =
             EventFactory.createArrayBacked(BlockBurnCallback::class.java) { listeners ->
                 BlockBurnCallback { world, pos, state, entity ->

@@ -1,5 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
+import com.github.quiltservertools.ledger.callbacks.BlockFallCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockLandCallback;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.FallingBlockEntity;
@@ -10,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import com.github.quiltservertools.ledger.callbacks.BlockFallCallback;
-import com.github.quiltservertools.ledger.callbacks.BlockLandCallback;
 
 @Mixin(FallingBlockEntity.class)
 public abstract class FallingBlockEntityMixin {
@@ -29,7 +29,7 @@ public abstract class FallingBlockEntityMixin {
     private void ledgerBlockFallInvoker(CallbackInfo ci, Block block, BlockPos blockPos) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
 
-        BlockFallCallback.Companion.getEVENT().invoker().fall(entity.world, blockPos, this.block);
+        BlockFallCallback.EVENT.invoker().fall(entity.world, blockPos, this.block);
     }
 
     @Inject(
@@ -43,6 +43,6 @@ public abstract class FallingBlockEntityMixin {
     private void ledgerBlockLandInvoker(CallbackInfo ci, Block block, BlockPos blockPos2, boolean bl, boolean bl2, BlockState blockState) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
 
-        BlockLandCallback.Companion.getEVENT().invoker().land(entity.world, blockPos2, this.block);
+        BlockLandCallback.EVENT.invoker().land(entity.world, blockPos2, this.block);
     }
 }

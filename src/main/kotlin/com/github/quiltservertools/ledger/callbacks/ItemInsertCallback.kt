@@ -11,6 +11,7 @@ fun interface ItemInsertCallback {
     fun insert(stack: ItemStack, pos: BlockPos, world: ServerWorld, source: String, player: ServerPlayerEntity?)
 
     companion object {
+        @JvmField
         val EVENT: Event<ItemInsertCallback> =
             EventFactory.createArrayBacked(ItemInsertCallback::class.java) { listeners ->
                 ItemInsertCallback { stack, pos, world, source, player ->

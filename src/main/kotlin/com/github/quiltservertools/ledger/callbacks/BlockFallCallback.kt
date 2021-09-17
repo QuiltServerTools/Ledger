@@ -10,6 +10,7 @@ fun interface BlockFallCallback {
     fun fall(world: World, pos: BlockPos, state: BlockState)
 
     companion object {
+        @JvmField
         val EVENT: Event<BlockFallCallback> =
             EventFactory.createArrayBacked(BlockFallCallback::class.java) { listeners ->
                 BlockFallCallback { world, pos, state ->

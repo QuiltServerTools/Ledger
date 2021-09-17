@@ -1,4 +1,4 @@
-package com.github.quiltservertools.ledger.mixin;
+package com.github.quiltservertools.ledger.mixin.callbacks;
 
 import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback;
 import net.minecraft.item.FlintAndSteelItem;
@@ -17,7 +17,7 @@ public abstract class FlintAndSteelItemMixin {
     public void logFlintAndSteelUse(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
         BlockPos pos = context.getBlockPos().offset(context.getSide());
         if (context.getPlayer() != null) {
-            PlayerBlockPlaceCallback.Companion.getEVENT().invoker().place(context.getWorld(), context.getPlayer(), pos, context.getWorld().getBlockState(pos), new ItemPlacementContext(context), null);
+            PlayerBlockPlaceCallback.EVENT.invoker().place(context.getWorld(), context.getPlayer(), pos, context.getWorld().getBlockState(pos), new ItemPlacementContext(context), null);
         }
     }
 }
