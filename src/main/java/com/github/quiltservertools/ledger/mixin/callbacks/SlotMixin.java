@@ -53,11 +53,7 @@ public abstract class SlotMixin implements HandledSlot {
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     private void ledgerGetInitialStack(Inventory inventory, int index, int x, int y, CallbackInfo ci) {
-        if (this.getStack() != null) {
-            oldStack = this.getStack().copy();
-        } else {
-            oldStack = ItemStack.EMPTY;
-        }
+        oldStack = this.getStack() == null ? ItemStack.EMPTY : this.getStack().copy();
     }
 
     @Inject(method = "markDirty", at = @At(value = "HEAD"))
