@@ -1,7 +1,7 @@
 [versions]
 minecraft = "1.17.1"
 yarn-mappings = "1.17.1+build.61"
-fabric-loader = "0.11.7"
+fabric-loader = "0.11.6"
 
 fabric-api = "0.40.1+1.17"
 
