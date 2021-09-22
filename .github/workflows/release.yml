@@ -1,0 +1,29 @@
+name: Release
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set up JDK 16
+              uses: actions/setup-java@v1
+              with:
+                  java-version: 16
+
+            - name: Release versions
+              env:
+                  CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+                  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+              run: ./gradlew release
+
+            - name: Upload GitHub release
+              uses: AButler/upload-release-assets@v2.0
+              with:
+                files: 'build/libs/*.jar;!build/libs/*-sources.jar;!build/libs/*-dev-all.jar'
+                repo-token: ${{ secrets.GITHUB_TOKEN }}

@@ -14,7 +14,6 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.modrinth.minotaur") version "1.2.1"
     id("com.matthewprenger.cursegradle") version "1.4.0"
-    id("org.ajoberstar.grgit") version "4.1.0"
 }
 
 var release = false
