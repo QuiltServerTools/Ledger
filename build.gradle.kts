@@ -253,7 +253,9 @@ val modrinth = task<TaskModrinthUpload>("publishModrinth") {
     addGameVersion(libs.versions.minecraft.get())
     addLoader("fabric")
 
+    // FLK
     addDependency("Ha28R6CL", DependencyType.REQUIRED)
+    // FAPI
     addDependency("P7dR8mSH", DependencyType.REQUIRED)
 
     uploadFile = tasks["remapJar"]
