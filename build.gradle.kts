@@ -216,8 +216,7 @@ curseforge {
             releaseType = "release"
 
             changelogType = "markdown"
-            changelog =
-                "For a list of changes, please refer to https://github.com/QuiltServerTools/Ledger/releases/tag/$modVersion"
+            changelog = System.getenv("CHANGELOG")
 
             addGameVersion(libs.versions.minecraft.get())
             addGameVersion("Fabric")
