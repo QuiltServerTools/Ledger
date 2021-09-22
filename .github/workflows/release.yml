@@ -18,8 +18,9 @@ jobs:
 
             - name: Release versions
               env:
-                  CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+                  CURSEFORGE_TOKEN: ${{ secrets.CF_API_TOKEN }}
                   MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+                  CHANGELOG: ${{ github.event.body }}
               run: ./gradlew release
 
             - name: Upload GitHub release

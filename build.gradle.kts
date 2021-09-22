@@ -249,8 +249,7 @@ val modrinth = task<TaskModrinthUpload>("publishModrinth") {
     projectId = "dohojEfz"
     versionType = VersionType.RELEASE
     version = modVersion
-    changelog =
-        "For a list of changes, please refer to https://github.com/QuiltServerTools/Ledger/releases/tag/$modVersion"
+    changelog = System.getenv("CHANGELOG")
 
     addGameVersion(libs.versions.minecraft.get())
     addLoader("fabric")
