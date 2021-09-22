@@ -43,7 +43,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     const val DEFAULT_DATABASE = "sqlite"
     val logger: Logger = LogManager.getLogger("Ledger")
-    val config: Config = realConfig
+    lateinit var config: Config
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
     val previewCache = ConcurrentHashMap<UUID, Preview>()
@@ -61,7 +61,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                 FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
             )
         }
-        config.validateRequired()
+        realConfig.validateRequired()
+        config = realConfig
 
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
