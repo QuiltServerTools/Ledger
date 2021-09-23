@@ -17,6 +17,7 @@ plugins {
 }
 
 var release = false
+val props = properties
 
 val modId: String by project
 val modName: String by project
@@ -225,45 +226,46 @@ curseforge {
             mainArtifact(tasks["remapJar"])
 
             relations(closureOf<CurseRelation> {
-                requiredDependency("fabric-api")
-                requiredDependency("fabric-language-kotlin")
+                props["cfReqDeps"].toString().split(",").forEach {
+                    requiredDependency(it)
+                }
             })
         })
 
         options(closureOf<Options> {
-            debug = true
             forgeGradleIntegration = false
         })
     }
 }
 
+tasks {
+    register<TaskModrinthUpload>("publishModrinth") {
+        onlyIf { System.getenv().contains("MODRINTH_TOKEN") }
+        dependsOn("build")
 
-val modrinth = task<TaskModrinthUpload>("publishModrinth") {
-    onlyIf { System.getenv().contains("MODRINTH_TOKEN") }
+        group = "upload"
 
-    group = "upload"
+        token = System.getenv("MODRINTH_TOKEN")
 
-    token = System.getenv("MODRINTH_TOKEN")
+        projectId = "LVN9ygNV"
+        versionType = VersionType.RELEASE
+        version = modVersion
+        changelog = System.getenv("CHANGELOG")
 
-    projectId = "dohojEfz"
-    versionType = VersionType.RELEASE
-    version = modVersion
-    changelog = System.getenv("CHANGELOG")
+        addGameVersion(libs.versions.minecraft.get())
+        addLoader("fabric")
 
-    addGameVersion(libs.versions.minecraft.get())
-    addLoader("fabric")
+        props["mrReqDeps"].toString().split(",").forEach {
+            addDependency(it, DependencyType.REQUIRED)
+        }
 
-    // FLK
-    addDependency("Ha28R6CL", DependencyType.REQUIRED)
-    // FAPI
-    addDependency("P7dR8mSH", DependencyType.REQUIRED)
-
-    uploadFile = tasks["remapJar"]
+        uploadFile = remapJar.get().archiveFile.get()
+    }
 }
 
 tasks.register("release") {
     release = true
-    dependsOn("curseforge", modrinth)
+    dependsOn("curseforge", "publishModrinth")
 }
 
 detekt {
