@@ -7,7 +7,7 @@ Permission: `ledger.commands.search`
 
 ### `/ledger search <params>`
 Often, inspecting just one position is not what you want.
-The search command allows you to preform advanced queries on the database.
+The search command allows you to perform advanced queries on the database.
 To refine your search, use search [parameters](../parameters.md).
 After executing your search, you will see all the results and can paginate between them if needed.
 ![Search example](../assets/search-example.png)
