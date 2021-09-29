@@ -1,15 +1,14 @@
 package com.github.quiltservertools.ledger.actionutils
 
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.text.TranslatableText
-import net.minecraft.util.math.BlockPos
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.commands.subcommands.RestoreCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.TextColorPallet
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
+import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.text.TranslatableText
+import net.minecraft.util.math.BlockPos
 
 class Preview(
     private val params: ActionSearchParams,
@@ -30,8 +29,8 @@ class Preview(
 
         for (action in actions) {
             when (type) {
-                Type.ROLLBACK -> action.previewRollback(player.world as ServerWorld, player)
-                Type.RESTORE -> action.previewRestore(player.world as ServerWorld, player)
+                Type.ROLLBACK -> action.previewRollback(player)
+                Type.RESTORE -> action.previewRestore(player)
             }
             positions.add(action.pos)
         }
