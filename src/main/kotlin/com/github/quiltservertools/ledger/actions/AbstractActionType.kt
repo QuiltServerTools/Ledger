@@ -9,6 +9,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
+import net.minecraft.text.LiteralText
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
@@ -136,7 +137,8 @@ abstract class AbstractActionType : ActionType {
             it.withHoverEvent(
                 HoverEvent(
                     HoverEvent.Action.SHOW_TEXT,
-                    TranslatableText("text.ledger.action_message.location.hover")
+                    LiteralText(world?.let { "$it\n" } ?: "")
+                        .append(TranslatableText("text.ledger.action_message.location.hover"))
                 )
             ).withClickEvent(
                 ClickEvent(

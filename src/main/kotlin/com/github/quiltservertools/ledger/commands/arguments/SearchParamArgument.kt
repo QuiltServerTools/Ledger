@@ -105,6 +105,8 @@ object SearchParamArgument {
                         BlockPos(source.position.subtract(range.toDouble(), range.toDouble(), range.toDouble()))
                     builder.max =
                         BlockPos(source.position.add(range.toDouble(), range.toDouble(), range.toDouble()))
+                    val world = Negatable.allow(source.world.registryKey.value)
+                    if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
                 "world" -> {
                     val world = value as Negatable<Identifier>
