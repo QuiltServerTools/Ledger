@@ -80,4 +80,4 @@ The `after` parameter is the same as the `time` parameter in older versions.
 The `before` parameter selects all results before the point in time that was the provided, and after that point for `after`.
 An easy way to remember the difference between `before:1d` and `after:1d` is to think about it like this.
 If you go back in time 1 day, do you want everything that happened `before` then or `after` then.
-Usually you want `before`.
+Usually you want `after`.

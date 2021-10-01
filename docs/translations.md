@@ -4,7 +4,6 @@ The language used is based on the clients selected language and defaults to `en_
 
 ### Supported Languages
 - `en_us`
-- `en_gb`
 - `nl_nl`
 - `ru_ru`
 - `zn_cn`
