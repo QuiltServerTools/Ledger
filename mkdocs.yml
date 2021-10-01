@@ -25,6 +25,7 @@ nav:
   - parameters.md
   - actions.md
   - queue.md
+  - translations.md
   - networking.md
 
 theme:
