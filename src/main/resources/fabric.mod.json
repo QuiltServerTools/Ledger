@@ -30,5 +30,9 @@
         "fabric": ">=${fabricApi}",
         "fabric-language-kotlin": ">=${fabricKotlin}",
         "minecraft": "1.17.x"
+    },
+    "breaks": {
+        "gunpowder": "*",
+        "cardboard": "*"
     }
 }
