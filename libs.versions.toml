@@ -19,6 +19,8 @@ konf = "1.1.2"
 
 wdmcf = "1.0.2"
 
+javalin = "4.0.1"
+
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
 yarn-mappings = { module = "net.fabricmc:yarn", version.ref = "yarn-mappings" }
@@ -40,4 +42,6 @@ konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
 
 wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
+
+javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
 

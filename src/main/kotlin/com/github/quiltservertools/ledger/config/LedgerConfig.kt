@@ -12,6 +12,7 @@ val config: Config = Config {
     addSpec(ActionsSpec)
     addSpec(ColorSpec)
     addSpec(NetworkingSpec)
+    addSpec(WebuiSpec)
 }
     .from.toml.resource(CONFIG_PATH)
     .from.toml.watchFile(FabricLoader.getInstance().configDir.resolve("ledger.toml").toFile())

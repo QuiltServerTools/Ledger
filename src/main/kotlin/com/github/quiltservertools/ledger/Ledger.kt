@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.commands.registerCommands
 import com.github.quiltservertools.ledger.config.CONFIG_PATH
 import com.github.quiltservertools.ledger.config.DatabaseSpec
+import com.github.quiltservertools.ledger.config.WebuiSpec
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.listeners.registerBlockListeners
 import com.github.quiltservertools.ledger.listeners.registerEntityListeners
@@ -13,6 +14,7 @@ import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
 import com.github.quiltservertools.ledger.network.Networking
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.Dispatcher
+import com.github.quiltservertools.ledger.webui.WebUi
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +33,7 @@ import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -88,6 +90,11 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
             DatabaseManager.insertIdentifiers(idSet)
             logInfo("Registry insert complete")
         }
+
+        if (config[WebuiSpec.webui]) {
+            WebUi
+            WebUi.commandSource = server.commandSource
+        }
     }
 
     @OptIn(ExperimentalTime::class)
@@ -99,6 +106,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                     delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
                 }
             }
+        }
+        if (config[WebuiSpec.webui]) {
+            WebUi.shutdown()
         }
     }
 

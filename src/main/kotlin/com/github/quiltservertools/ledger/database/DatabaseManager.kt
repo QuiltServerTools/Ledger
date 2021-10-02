@@ -46,7 +46,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -322,6 +322,10 @@ object DatabaseManager {
         }
     }
 
+    suspend fun getDashboardActions(limit: Int) = execute {
+        selectDashboardActions(limit)
+    }
+
     private fun Transaction.insertActionType(id: String) {
         if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
             val actionIdentifier = Tables.ActionIdentifier.new {
@@ -481,5 +485,14 @@ object DatabaseManager {
         actions.forEach { action ->
             action.delete()
         }
+    }
+
+    private fun Transaction.selectDashboardActions(limit: Int): List<ActionType> {
+        val query = Tables.Actions.selectAll()
+            .andWhere {
+                Tables.Actions.sourcePlayer neq null
+            }.limit(limit)
+
+        return daoToActionType(Tables.Action.wrapRows(query).toList())
     }
 }

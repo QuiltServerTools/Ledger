@@ -19,6 +19,7 @@ object Tables {
         val playerName = varchar("player_name", MAX_PLAYER_NAME_LENGTH)
         val firstJoin = timestamp("first_join").clientDefault { Instant.now() }
         val lastJoin = timestamp("last_join").clientDefault { Instant.now() }
+        val passwordHash = integer("password").nullable()
     }
 
     class Player(id: EntityID<Int>) : IntEntity(id) {

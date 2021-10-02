@@ -35,6 +35,11 @@ objectBlacklist = []
 # Blacklists sources. Ex: "lava", "gravity", "fire", "fall"
 sourceBlacklist = []
 
+[webui]
+# Controls the optional web panel
+webui = false
+webuiPort = 8080
+
 [networking]
 # This section relates to Ledger's ability to interact with client mods for ease of use
 # Networking is enabled by default but you can disable and control it here

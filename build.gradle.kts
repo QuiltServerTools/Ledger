@@ -89,6 +89,10 @@ dependencies {
 
     // Debug
     modRuntime(libs.wdmcf)
+
+    implementation(libs.javalin)
+    implementation("org.webjars.npm:vue:2.6.10")
+
 }
 
 tasks {

@@ -1,0 +1,24 @@
+<html>
+<head>
+    <meta charset="utf8">
+    <script src="/webjars/vue/2.6.10/dist/vue.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    @componentRegistration
+</head>
+<body>
+<main id="main-vue" v-cloak>
+    <nav class="navbar navbar-dark bg-ledger">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="../resources/Ledger-smol.svg" alt="" width="30" height="24">
+                Ledger Panel
+            </a>
+        </div>
+    </nav>
+    @routeComponent
+</main>
+<script>
+    new Vue({el: "#main-vue"});
+</script>
+</body>
+</html>
