@@ -311,7 +311,7 @@ object DatabaseManager {
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
         dbMutex.withLock {
-            newSuspendedTransaction {
+            newSuspendedTransaction(db = database) {
                 body(this)
             }
         }

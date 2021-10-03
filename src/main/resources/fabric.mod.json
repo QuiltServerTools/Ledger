@@ -32,7 +32,6 @@
         "minecraft": "1.17.x"
     },
     "breaks": {
-        "gunpowder": "*",
         "cardboard": "*"
     }
 }
