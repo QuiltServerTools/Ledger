@@ -17,7 +17,7 @@ object MessageUtils {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
         if (source.hasPlayer() && source.player.hasNetworking()) {
-            for(n in results.page..results.pages) {
+            for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
                     val packet = ActionPacket()
@@ -70,6 +70,16 @@ object MessageUtils {
             ).setStyle(TextColorPallet.primary),
             false
         )
+    }
+
+    fun sendPlayerMessage(source: ServerCommandSource, results: List<PlayerResult>) {
+        if (results.isEmpty()) {
+            source.sendFeedback("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary), false)
+        }
+        source.sendFeedback("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary), false)
+        results.forEach {
+            source.sendFeedback(it.toText(), false)
+        }
     }
 
     fun warnBusy(source: ServerCommandSource) {
