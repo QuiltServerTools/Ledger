@@ -26,14 +26,15 @@ object WebUi {
             it.classpathPath(vueDir, this.javaClass)
         }
         app.get("/", VueComponent("dashboard"))
+        app.get("/search", VueComponent("search"))
+        app.get("/search/results", VueComponent("search_results"))
+
         app.error(404, "html", VueComponent("404"))
 
         // API listeners
         app.get("/api/overview", Handlers::handleOverview)
-        app.get("/users", VueComponent("user-overview"))
-        app.error(404, "html", VueComponent("not-found"))
-
-        app.get("/api/users", Handlers::handleOverview)
+        app.get("/api/searchinit", Handlers::searchInit)
+        app.get("/api/search", Handlers::search)
 
         app.start(port)
     }

@@ -1,6 +1,6 @@
 <!--suppress JSAnnotator -->
 <template id="dashboard">
-    <table class="table table-light mx-auto" style="width: 75%;">
+    <table class="table table-dark mx-auto table-bg-dark table-hover" style="width: 75%;">
         <thead>
         <tr>
             <th scope="col">Time</th>
@@ -29,7 +29,7 @@
 Vue.component("dashboard", {
     template: "#dashboard",
     data: () => ({
-        actions: [],
+        actions: []
     }),
     created() {
         fetch("/api/overview")

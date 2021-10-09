@@ -2,6 +2,14 @@
     background-color: #7e56c2;
 }
 
+.table-bg-dark {
+    --bs-table-bg:  #2d303D !important;
+}
+
 body {
     background-color:  #2d303D;
+}
+
+.text-white {
+    color: white;
 }
