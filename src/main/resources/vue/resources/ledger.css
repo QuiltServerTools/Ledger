@@ -13,3 +13,14 @@ body {
 .text-white {
     color: white;
 }
+
+.alert-ledger-light {
+    color: #FFFFFF;
+    background-color: #A570FF;
+    border-color: #422D66;
+}
+.alert-ledger {
+    color: #FFFFFF;
+    background-color: #7e56c2;
+    border-color: #422D66;
+}

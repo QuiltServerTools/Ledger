@@ -3,6 +3,7 @@ package com.github.quiltservertools.ledger.commands
 import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.commands.subcommands.InspectCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PageCommand
+import com.github.quiltservertools.ledger.commands.subcommands.PasswordCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PreviewCommand
 import com.github.quiltservertools.ledger.commands.subcommands.PurgeCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RestoreCommand
@@ -49,6 +50,8 @@ fun registerCommands(dispatcher: Dispatcher) {
     rootNode.addChild(TeleportCommand.build())
 
     rootNode.addChild(PurgeCommand.build())
+
+    rootNode.addChild(PasswordCommand.build())
 
     ExtensionManager.commands.forEach {
         it.registerSubcommands().forEach { command ->

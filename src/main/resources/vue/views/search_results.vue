@@ -18,14 +18,14 @@
                 <td>{{ action.world }}</td>
                 <td>{{ action.x }} {{ action.y }} {{ action.z }}</td>
                 <td>{{ action.identifier }}</td>
-                <td v-if="action.sourceProfile != null">{{ action.sourceProfile }}</td>
-                <td v-else>{{ action.sourceName }}</td>
+                <td v-if="action.sourceProfile !==''">{{ action.sourceProfile }}</td>
+                <td v-else>{{ '@' + action.sourceName }}</td>
                 <td v-if="action.objectString != null">{{ action.objectString }}</td>
                 <td v-else>{{ action.oldObjectString }}</td>
             </tr>
             </tbody>
         </table>
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-toolbar" role="toolbar">
             <div class="btn-group" role="group" aria-label="Pages">
                 <button class="btn btn-outline-info" type="button" v-on:click="showPage(getActivePage() - 1)">
                     Previous page
@@ -59,8 +59,11 @@ Vue.component("search_results", {
     methods: {
         showPage: function (page) {
             this.page = page
-            if (this.page <= 0 || this.page > this.pages) {
+
+            if (this.page <= 0) {
                 this.page = 1
+            } else if (this.page > this.pages) {
+                this.page = this.pages
             }
             fetch("/api/search?page=" + this.page + "&" + window.location.href.substr(window.location.href.indexOf('?') + 1))
                     .then(res => res.json())

@@ -12,6 +12,7 @@ private const val MAX_PLAYER_NAME_LENGTH = 16
 private const val MAX_ACTION_NAME_LENGTH = 16
 private const val MAX_IDENTIFIER_LENGTH = 191
 private const val MAX_SOURCE_NAME_LENGTH = 30
+private const val SHA_1_LENGTH = 40
 
 object Tables {
     object Players : IntIdTable("players") {
@@ -19,7 +20,8 @@ object Tables {
         val playerName = varchar("player_name", MAX_PLAYER_NAME_LENGTH)
         val firstJoin = timestamp("first_join").clientDefault { Instant.now() }
         val lastJoin = timestamp("last_join").clientDefault { Instant.now() }
-        val passwordHash = integer("password").nullable()
+        val passwordHash = varchar("password", SHA_1_LENGTH).nullable()
+        val webUiPerms = byte("web_ui_perms").default(0)
     }
 
     class Player(id: EntityID<Int>) : IntEntity(id) {
@@ -27,6 +29,8 @@ object Tables {
         var playerName by Players.playerName
         var firstJoin by Players.firstJoin
         var lastJoin by Players.lastJoin
+        var passwordHash by Players.passwordHash
+        var webUiPerms by Players.webUiPerms
 
         companion object : IntEntityClass<Player>(Players)
     }

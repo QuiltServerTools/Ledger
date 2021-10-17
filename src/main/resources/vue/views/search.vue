@@ -85,7 +85,8 @@
             </tbody>
         </table>
         <form>
-            <a class="btn btn-outline-info" onclick="sendSearch()">Search</a>
+            <div class="alert alert-ledger-light" ref="query-string" v-if="params"></div>
+            <a class="btn btn-outline-info" v-on:click="sendSearch()">Search</a>
         </form>
     </div>
 </template>
@@ -95,6 +96,7 @@ Vue.component("search", {
     template: "#search",
     data: () => ({
         actions: [],
+        params: ""
     }),
     methods: {
         addParam: function (categoryName) {
@@ -102,40 +104,39 @@ Vue.component("search", {
             let negative = document.getElementById(categoryName + "Negative")
             let isNegative = negative.checked
             if (input != null && input.type === "text") {
-                addParsedParam(categoryName, input.value, isNegative)
+                this.addParsedParam(categoryName, input.value, isNegative)
                 input.value = ""
             }
             else {
                 let radios = document.getElementsByName(categoryName)
                 for (let i = 0; i < radios.length; i++) {
                     if (radios[i].checked) {
-                        addParsedParam(categoryName, radios[i].value, isNegative)
+                        this.addParsedParam(categoryName, radios[i].value, isNegative)
                         radios[i].checked = false
                     }
                 }
             }
             negative.checked = false
+        },
+        sendSearch: function () {
+            window.location.href = "/search/results?" + this.params
+        },
+        addParsedParam: function (key, value, negative) {
+            if (this.params.length !== 0) {
+                this.params += "&"
+            }
+            if (negative) {
+                this.params += key + "=!" + value
+            } else {
+                this.params += key + "=" + value
+            }
+
+            Vue.nextTick(() => {
+                this.$refs["query-string"].innerText = this.params.replaceAll("&", " ").replaceAll("=", ":")
+            })
         }
     }
 })
-
-function sendSearch() {
-    window.location.href = "/search/results?" + params
-}
-
-let params = ""
-
-function addParsedParam(key, value, negative) {
-    if (params.length !== 0) {
-        params += "&"
-    }
-    if (negative) {
-        params += key + "=!" + value
-    } else {
-        params += key + "=" + value
-    }
-}
-
 </script>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

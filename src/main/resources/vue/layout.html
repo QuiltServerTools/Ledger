@@ -14,8 +14,13 @@
                 <img src="../resources/Ledger-smol.svg" alt="" width="30" height="24">
                 Ledger Panel
             </a>
-            <a v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('search') && !window.location.href.includes('results') }" href="../search" id="search">Search</a>
+            <a v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('search') && !window.location.href.includes('results') }"
+               href="../search" id="search">Search</a>
             <a v-if="window.location.href.includes('results')" class="nav-link active" href="#" id="results">Results</a>
+
+            <a class="nav-link" v-if="!window.location.href.includes('login')" href="/logout">
+                Log Out
+            </a>
         </div>
     </nav>
     <br>

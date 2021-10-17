@@ -11,6 +11,7 @@ import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
+import com.github.quiltservertools.ledger.utility.LedgerPlayer
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.authlib.GameProfile
@@ -25,6 +26,7 @@ import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
+import org.apache.commons.codec.digest.DigestUtils
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
@@ -326,6 +328,16 @@ object DatabaseManager {
         selectDashboardActions(limit)
     }
 
+    suspend fun searchPlayer(playerName: String): LedgerPlayer =
+        execute {
+            return@execute LedgerPlayer.fromRow(selectPlayer(playerName))
+        }
+
+    suspend fun updatePlayerPassword(uuid: UUID, password: String) =
+        execute {
+            return@execute updatePlayerPassword(uuid, DigestUtils.sha1Hex(password))
+        }
+
     private fun Transaction.insertActionType(id: String) {
         if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
             val actionIdentifier = Tables.ActionIdentifier.new {
@@ -494,5 +506,11 @@ object DatabaseManager {
             }.limit(limit)
 
         return daoToActionType(Tables.Action.wrapRows(query).toList())
+    }
+
+    private fun Transaction.updatePlayerPassword(uuid: UUID, hash: String) {
+        val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
+
+        player?.passwordHash = hash
     }
 }
