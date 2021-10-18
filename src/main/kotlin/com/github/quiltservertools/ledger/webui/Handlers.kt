@@ -7,11 +7,13 @@ import io.javalin.http.Context
 import kotlinx.coroutines.future.future
 
 object Handlers {
-    @SuppressWarnings("MagicNumber")
+
+    private const val dashboard_size = 30
+
     fun handleOverview(ctx: Context) {
         ctx.future(
             Ledger.future {
-                val results = DatabaseManager.getDashboardActions(12).toSet()
+                val results = DatabaseManager.getDashboardActions(dashboard_size).toSet()
                 return@future results.map {
                     SentAction.fromActionType(it)
                 }

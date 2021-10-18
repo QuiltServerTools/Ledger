@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.database
 
+import at.favre.lib.crypto.bcrypt.BCrypt
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
@@ -26,7 +27,6 @@ import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import org.apache.commons.codec.digest.DigestUtils
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
@@ -61,6 +61,8 @@ object DatabaseManager {
 
     private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
     val actions = _actions.asSharedFlow()
+
+    private const val bcrypt_cost = 12
 
     init {
         Ledger.launch {
@@ -335,7 +337,8 @@ object DatabaseManager {
 
     suspend fun updatePlayerPassword(uuid: UUID, password: String) =
         execute {
-            return@execute updatePlayerPassword(uuid, DigestUtils.sha1Hex(password))
+            val bcryptHashString = BCrypt.withDefaults().hashToString(bcrypt_cost, password.toCharArray())
+            return@execute updatePlayerPassword(uuid, bcryptHashString)
         }
 
     private fun Transaction.insertActionType(id: String) {

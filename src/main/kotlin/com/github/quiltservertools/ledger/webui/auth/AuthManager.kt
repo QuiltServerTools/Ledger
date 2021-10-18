@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.webui.auth
 
+import at.favre.lib.crypto.bcrypt.BCrypt
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.LedgerPlayer
@@ -8,7 +9,6 @@ import io.javalin.core.security.RouteRole
 import io.javalin.http.Context
 import io.javalin.http.Handler
 import kotlinx.coroutines.future.future
-import org.apache.commons.codec.digest.DigestUtils
 import java.util.*
 
 private const val LOGIN_FAILED = 401
@@ -58,7 +58,7 @@ class AuthManager : AccessManager {
                 val password = ctx.formParam("userPassword")?: return@future failLogin(ctx, "Password not supplied")
                 val playerResult = DatabaseManager.searchPlayer(username)
 
-                if (DigestUtils.sha1Hex(password) == playerResult.passwordHash) {
+                if (BCrypt.verifyer().verify(password.toCharArray(), playerResult.passwordHash).verified) {
                     users.add(playerResult)
                     ctx.sessionAttribute("uuid", playerResult.uuid)
                     ctx.redirect("/")
