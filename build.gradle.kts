@@ -92,7 +92,7 @@ dependencies {
 
     implementation(libs.javalin)
     implementation("org.webjars.npm:vue:2.6.10")
-
+    implementation("at.favre.lib:bcrypt:0.9.0")
 }
 
 tasks {
