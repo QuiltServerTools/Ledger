@@ -20,6 +20,8 @@ konf = "1.1.2"
 wdmcf = "1.0.2"
 
 javalin = "4.0.1"
+javalinvue = "2.6.10"
+bcrypt = "0.9.0"
 
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
@@ -44,4 +46,6 @@ konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
 wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
 
 javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
+javalinvue = { module = "org.webjars.npm:vue", version.ref = "javalinvue" }
+bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 

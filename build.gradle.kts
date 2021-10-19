@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("fabric-loom") version "0.8-SNAPSHOT"
+    id("fabric-loom") version "0.9-SNAPSHOT"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.15.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
@@ -90,9 +90,12 @@ dependencies {
     // Debug
     modRuntime(libs.wdmcf)
 
-    implementation(libs.javalin)
-    implementation("org.webjars.npm:vue:2.6.10")
-    implementation("at.favre.lib:bcrypt:0.9.0")
+    // Web UI
+    shadow(libs.javalin)
+    shadow(libs.javalinvue)
+    shadow(libs.bcrypt)
+    include("org.eclipse.jetty:jetty-servlets:11.0.7")
+    include("javax.servlet:javax.servlet-api:4.0.1")
 }
 
 tasks {
@@ -169,8 +172,12 @@ tasks {
         relocate("org.apache.commons.lang3", relocPath + "org.apache.commons.lang3")
         relocate("org.apache.commons.text", relocPath + "org.apache.commons.text")
         relocate("org.reflections", relocPath + "org.reflections")
-        // it appears you cannot relocate sqlite due to the native libraries
-        // relocate("org.sqlite", relocPath + "org.sqlite")
+        minimize {
+            exclude(dependency("org.eclipse.jetty.websocket:.*:.*"))
+            exclude(dependency("com.github.ben-manes.caffeine:.*:.*"))
+            exclude(dependency("org.jetbrains.exposed:.*:.*"))
+            exclude(dependency("org.xerial:.*:.*"))
+        }
     }
 
     compileKotlin {

@@ -10,6 +10,7 @@ import io.javalin.http.HttpCode
 import io.javalin.http.staticfiles.Location
 import io.javalin.plugin.rendering.vue.JavalinVue
 import io.javalin.plugin.rendering.vue.VueComponent
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.command.ServerCommandSource
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -34,7 +35,7 @@ object WebUi {
         val port = config[WebuiSpec.port]
         Ledger.logger.info("Loading WebUI on port $port")
         JavalinVue.rootDirectory {
-            it.classpathPath(vueDir, this.javaClass)
+            it.explicitPath(FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().getPath("/$vueDir"))
         }
 
         app.get("/", VueComponent("dashboard"), WebUiRoles.READ)

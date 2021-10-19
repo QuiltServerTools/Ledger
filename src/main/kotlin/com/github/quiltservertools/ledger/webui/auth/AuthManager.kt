@@ -60,7 +60,7 @@ class AuthManager : AccessManager {
                 val password = ctx.formParam("userPassword")?: return@future failLogin(ctx, "Password not supplied", true)
                 val playerResult = DatabaseManager.searchPlayer(username)
 
-                if (BCrypt.verifyer().verify(password.toCharArray(), playerResult.passwordHash).verified && playerResult.webUiPerms > 0) {
+                if (BCrypt.verifyer().verify(password.toCharArray(), playerResult.passwordHash?: "").verified && playerResult.webUiPerms > 0) {
                     users.add(playerResult)
                     ctx.sessionAttribute("uuid", playerResult.uuid)
                     ctx.redirect("/")
