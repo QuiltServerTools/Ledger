@@ -16,16 +16,20 @@
                     <img src="../resources/Ledger-smol.svg" alt="" width="30" height="24">
                     Ledger Panel
                 </a>
-                <a class v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('search') && !window.location.href.includes('results') }"
-                   href="../search" id="search">Search</a>
+                <a class
+                   v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('search') && !window.location.href.includes('results') }"
+                   href="../search" id="search" v-if="notLogin()">Search</a>
                 <a v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('inspect') && !window.location.href.includes('results') }"
-                   href="../inspect" id="inspect">Inspect</a>
+                   href="../inspect" id="inspect" v-if="notLogin()">Inspect</a>
+                <a v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('users') }"
+                   href="../users" id="users" v-if="notLogin()">Users</a>
                 <a v-if="window.location.href.includes('results')" class="nav-link active " href="#" id="results">Results</a>
             </div>
 
 
             <div class="dropdown" v-if="!window.location.href.includes('login')">
-                <a class="nav-item me-auto" type="button" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false"
+                <a class="nav-item me-auto" type="button" id="dropdownUser" data-bs-toggle="dropdown"
+                   aria-expanded="false"
                    ref="dropdownUser">
                     <img ref="profile_picture" src="../api/pfp" alt="profile" style="height:24px"/>
                 </a>
@@ -47,6 +51,9 @@
     new Vue({
         el: "#main-vue"
     });
+    function notLogin() {
+        return !window.location.href.includes("login")
+    }
 </script>
 </body>
 </html>

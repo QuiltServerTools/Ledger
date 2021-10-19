@@ -12,6 +12,7 @@ import io.javalin.plugin.rendering.vue.JavalinVue
 import io.javalin.plugin.rendering.vue.VueComponent
 import net.minecraft.server.command.ServerCommandSource
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 object WebUi {
 
@@ -35,6 +36,7 @@ object WebUi {
         JavalinVue.rootDirectory {
             it.classpathPath(vueDir, this.javaClass)
         }
+
         app.get("/", VueComponent("dashboard"), WebUiRoles.READ)
         app.get("/search", VueComponent("search"), WebUiRoles.READ)
         app.get("/search/results", VueComponent("search_results"), WebUiRoles.READ)
@@ -43,6 +45,7 @@ object WebUi {
         app.get("/account", VueComponent("account"), WebUiRoles.READ)
         app.get("/inspect", VueComponent("inspect"), WebUiRoles.READ)
         app.get("/inspect/results", VueComponent("inspect_results"), WebUiRoles.READ)
+        app.get("/users", VueComponent("user_manager"), WebUiRoles.ADMIN)
 
         app.error(HttpCode.NOT_FOUND.status, VueComponent("404"))
 
@@ -56,11 +59,16 @@ object WebUi {
         app.post("/api/login", authManager::logIn, WebUiRoles.NO_AUTH)
         app.get("/api/pfp", Handlers::showPfp, WebUiRoles.READ)
         app.get("/api/account", Handlers::account, WebUiRoles.READ)
-
+        app.get("/api/users", Handlers::getUserManager, WebUiRoles.ADMIN)
+        app.get("/api/updateuser", Handlers::updateUser, WebUiRoles.ADMIN)
         app.start(port)
     }
 
     fun shutdown() {
         app.stop()
+    }
+
+    suspend fun reloadUser(uuid: UUID) {
+        authManager.updatePlayer(uuid)
     }
 }

@@ -7,6 +7,7 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.translate
+import com.github.quiltservertools.ledger.webui.WebUi
 import com.mojang.brigadier.arguments.StringArgumentType
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
@@ -30,6 +31,11 @@ object PasswordCommand : BuildableCommand {
         Ledger.launch {
             scs.sendFeedback("text.ledger.password.updated".translate().setStyle(TextColorPallet.secondary), false)
             DatabaseManager.updatePlayerPassword(uuid, value)
+            if (Permissions.check(scs, "ledger.commands.password.admin", CommandConsts.PERMISSION_LEVEL)) {
+                // Player is admin
+                DatabaseManager.updatePlayerPerms(uuid, CommandConsts.PERMISSION_LEVEL.toByte())
+                WebUi.reloadUser(uuid)
+            }
         }
         return 1
     }

@@ -350,6 +350,16 @@ object DatabaseManager {
             return@execute updatePlayerPassword(uuid, bcryptHashString)
         }
 
+    suspend fun getAllPlayers(): List<LedgerPlayer> =
+        execute {
+            return@execute getAllPlayers()
+        }
+
+    suspend fun updatePlayerPerms(uuid: UUID, level: Byte) =
+        execute {
+            return@execute updatePlayerPermissions(uuid, level)
+        }
+
     private fun Transaction.insertActionType(id: String) {
         if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
             val actionIdentifier = Tables.ActionIdentifier.new {
@@ -531,5 +541,15 @@ object DatabaseManager {
         val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
 
         player?.passwordHash = hash
+    }
+
+    private fun Transaction.getAllPlayers(): List<LedgerPlayer> {
+        return Tables.Player.wrapRows(Tables.Players.selectAll().orderBy(Tables.Players.playerName)).toList().map {
+            LedgerPlayer.fromRow(it)
+        }
+    }
+    private fun Transaction.updatePlayerPermissions(uuid: UUID, level: Byte) {
+        val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
+        player?.webUiPerms = level
     }
 }

@@ -23,6 +23,8 @@ class AuthManager : AccessManager {
             Ledger.future {
                 if (hasRole(ctx, routeRoles)) {
                     handler.handle(ctx)
+                } else if (ctx.sessionAttribute<UUID>("uuid") != null) {
+                    failLogin(ctx, "You do not have the perms to access this page", false)
                 } else {
                     ctx.status(LOGIN_FAILED).result("You must log in before accessing the Ledger panel").redirect("http://localhost:8080/login")
                 }
@@ -76,6 +78,12 @@ class AuthManager : AccessManager {
         val uuid = ctx.consumeSessionAttribute<UUID>("uuid")
         users.removeIf { it.uuid == uuid }
         ctx.status(LOGOUT).redirect("/login?logout")
+    }
+
+    suspend fun updatePlayer(uuid: UUID) {
+        users.removeIf { it.uuid == uuid }
+        val player = DatabaseManager.searchPlayer(uuid)
+        users.add(player)
     }
 
     private fun failLogin(ctx: Context, message: String, hasPerms: Boolean) {

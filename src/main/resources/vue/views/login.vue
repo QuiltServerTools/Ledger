@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div class="alert alert-danger" v-if="this.incorrectPass">Incorrect password</div>
-            <div class="alert alert-danger" v-if="this.noAuth">You do not have permission to log in</div>
+            <div class="alert alert-danger" v-if="this.noAuth">You do not have permission to access this page. Please log in with the correct permissions</div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>

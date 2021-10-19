@@ -126,6 +126,24 @@ object Handlers {
             }
         )
     }
+    fun getUserManager(ctx: Context) {
+        ctx.future(
+            Ledger.future {
+                return@future DatabaseManager.getAllPlayers().map { Account.fromLedgerPlayer(it) }
+            }
+        )
+    }
+
+    fun updateUser(ctx: Context) {
+        ctx.future(
+            Ledger.future {
+                val uuid = UUID.fromString(ctx.queryParam("uuid"))
+                DatabaseManager.updatePlayerPerms(uuid,
+                    ctx.queryParam("level")!!.toByte())
+                WebUi.reloadUser(uuid)
+            }
+        )
+    }
 
     private suspend fun getInspectResults(ctx: Context, page: Int): SearchResults {
         val pos = BlockPos(
