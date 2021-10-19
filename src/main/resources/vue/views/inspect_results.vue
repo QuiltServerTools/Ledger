@@ -1,5 +1,5 @@
 <!--suppress JSAnnotator -->
-<template id="search_results">
+<template id="inspect_results">
     <div class="container">
         <table class="table table-dark mx-auto table-bg-dark table-hover" style="width: 75%;">
             <thead>
@@ -59,8 +59,8 @@
 </template>
 <script>
 
-Vue.component("search_results", {
-    template: "#search_results",
+Vue.component("inspect_results", {
+    template: "#inspect_results",
     data: () => ({
         actions: [],
         pages: 1,
@@ -75,7 +75,7 @@ Vue.component("search_results", {
             } else if (this.page > this.pages) {
                 this.page = this.pages
             }
-            fetch("/api/search?page=" + this.page + "&" + window.location.href.substr(window.location.href.indexOf('?') + 1))
+            fetch("/api/inspect?page=" + this.page + "&" + window.location.href.substr(window.location.href.indexOf('?') + 1))
                     .then(res => res.json())
                     .then(res => this.actions = res)
                     .catch(() => alert("Error while fetching actions"));
@@ -94,7 +94,7 @@ Vue.component("search_results", {
         }
     },
     created() {
-        fetch("/api/searchinit?" + window.location.href.substr(window.location.href.indexOf('?') + 1))
+        fetch("/api/inspectinit?" + window.location.href.substr(window.location.href.indexOf('?') + 1))
                 .then(res => this.pages = res)
                 .then(() => this.showPage(1))
                 .catch(() => alert("No results found"));

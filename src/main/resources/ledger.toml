@@ -38,7 +38,7 @@ sourceBlacklist = []
 [webui]
 # Controls the optional web panel
 webui = false
-webuiPort = 8080
+port = 8080
 
 [networking]
 # This section relates to Ledger's ability to interact with client mods for ease of use

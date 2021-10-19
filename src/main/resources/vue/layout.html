@@ -5,22 +5,38 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     @componentRegistration
+    <title>Ledger Panel</title>
 </head>
 <body>
 <main id="main-vue" v-cloak>
     <nav class="navbar navbar-dark bg-ledger sticky-top navbar-expand-lg">
-        <div class="navbar-nav">
-            <a class="navbar-brand" href="../">
-                <img src="../resources/Ledger-smol.svg" alt="" width="30" height="24">
-                Ledger Panel
-            </a>
-            <a v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('search') && !window.location.href.includes('results') }"
-               href="../search" id="search">Search</a>
-            <a v-if="window.location.href.includes('results')" class="nav-link active" href="#" id="results">Results</a>
+        <div class="container-fluid">
+            <div class="navbar-nav">
+                <a class="navbar-brand" href="../">
+                    <img src="../resources/Ledger-smol.svg" alt="" width="30" height="24">
+                    Ledger Panel
+                </a>
+                <a class v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('search') && !window.location.href.includes('results') }"
+                   href="../search" id="search">Search</a>
+                <a v-bind:class=" { 'nav-link': true, 'active': window.location.href.includes('inspect') && !window.location.href.includes('results') }"
+                   href="../inspect" id="inspect">Inspect</a>
+                <a v-if="window.location.href.includes('results')" class="nav-link active " href="#" id="results">Results</a>
+            </div>
 
-            <a class="nav-link" v-if="!window.location.href.includes('login')" href="/logout">
-                Log Out
-            </a>
+
+            <div class="dropdown" v-if="!window.location.href.includes('login')">
+                <a class="nav-item me-auto" type="button" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false"
+                   ref="dropdownUser">
+                    <img ref="profile_picture" src="../api/pfp" alt="profile" style="height:24px"/>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                    <li><a class="dropdown-item" href="../account">My Account</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="../logout">Log out</a></li>
+                </ul>
+            </div>
         </div>
     </nav>
     <br>
@@ -34,3 +50,6 @@
 </script>
 </body>
 </html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>

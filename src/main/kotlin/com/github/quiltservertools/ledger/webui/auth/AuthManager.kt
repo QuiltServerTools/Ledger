@@ -32,13 +32,13 @@ class AuthManager : AccessManager {
 
     private fun hasRole(ctx: Context, routeRoles: MutableSet<RouteRole>): Boolean {
         // Not logged in
-        ctx.sessionAttribute<String>("uuid")?: run {
+        ctx.sessionAttribute<UUID>("uuid")?: run {
             // If route roles contains NO_AUTH, we allow, otherwise deny
             return routeRoles.any { (it as WebUiRoles).level == WebUiRoles.NO_AUTH.level }
         }
 
         // Grab UUID from session storage
-        val uuid: UUID = UUID.fromString(ctx.sessionAttribute("uuid"))
+        val uuid: UUID? = ctx.sessionAttribute("uuid")
 
         // Check if there is a match between the role level of the user and the role level required
         val playerResult = users.find { it.uuid == uuid }
@@ -54,18 +54,20 @@ class AuthManager : AccessManager {
     fun logIn(ctx: Context) {
         ctx.future(
             Ledger.future {
-                val username = ctx.formParam("username") ?: return@future failLogin(ctx, "User not supplied")
-                val password = ctx.formParam("userPassword")?: return@future failLogin(ctx, "Password not supplied")
+                val username = ctx.formParam("username") ?: return@future failLogin(ctx, "User not supplied", true)
+                val password = ctx.formParam("userPassword")?: return@future failLogin(ctx, "Password not supplied", true)
                 val playerResult = DatabaseManager.searchPlayer(username)
 
-                if (BCrypt.verifyer().verify(password.toCharArray(), playerResult.passwordHash).verified) {
+                if (BCrypt.verifyer().verify(password.toCharArray(), playerResult.passwordHash).verified && playerResult.webUiPerms > 0) {
                     users.add(playerResult)
                     ctx.sessionAttribute("uuid", playerResult.uuid)
                     ctx.redirect("/")
                     return@future
+                } else if (playerResult.webUiPerms == 0.toByte()) {
+                    failLogin(ctx, "You do not have the permissions to log in", false)
                 }
 
-                failLogin(ctx, "Incorrect password or username")
+                failLogin(ctx, "Incorrect password or username", true)
             }
         )
     }
@@ -76,7 +78,11 @@ class AuthManager : AccessManager {
         ctx.status(LOGOUT).redirect("/login?logout")
     }
 
-    private fun failLogin(ctx: Context, message: String) {
-        ctx.status(LOGIN_FAILED).result(message).redirect("/login?password")
+    private fun failLogin(ctx: Context, message: String, hasPerms: Boolean) {
+        if (hasPerms) {
+            ctx.status(LOGIN_FAILED).result(message).redirect("/login?password")
+        } else {
+            ctx.status(LOGIN_FAILED).result(message).redirect("/login?auth")
+        }
     }
 }

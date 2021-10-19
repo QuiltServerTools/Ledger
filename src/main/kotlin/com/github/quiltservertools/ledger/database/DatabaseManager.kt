@@ -330,9 +330,18 @@ object DatabaseManager {
         selectDashboardActions(limit)
     }
 
+    suspend fun getDashboardPlayers(limit: Int) = execute {
+        selectDashboardPlayers(limit)
+    }
+
     suspend fun searchPlayer(playerName: String): LedgerPlayer =
         execute {
             return@execute LedgerPlayer.fromRow(selectPlayer(playerName))
+        }
+
+    suspend fun searchPlayer(player: UUID): LedgerPlayer =
+        execute {
+            return@execute LedgerPlayer.fromRow(selectPlayer(player))
         }
 
     suspend fun updatePlayerPassword(uuid: UUID, password: String) =
@@ -509,6 +518,13 @@ object DatabaseManager {
             }.limit(limit)
 
         return daoToActionType(Tables.Action.wrapRows(query).toList())
+    }
+
+    private fun Transaction.selectDashboardPlayers(limit: Int): List<LedgerPlayer> {
+        val query = Tables.Players.selectAll().orderBy(Tables.Players.lastJoin to SortOrder.DESC).limit(limit)
+        return Tables.Player.wrapRows(query).toList().map {
+            LedgerPlayer.fromRow(it)
+        }
     }
 
     private fun Transaction.updatePlayerPassword(uuid: UUID, hash: String) {
