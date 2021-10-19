@@ -35,7 +35,7 @@ object WebUi {
         val port = config[WebuiSpec.port]
         Ledger.logger.info("Loading WebUI on port $port")
         JavalinVue.rootDirectory {
-            it.explicitPath(FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().getPath("/$vueDir"))
+            it.explicitPath(FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().getPath("$vueDir"))
         }
 
         app.get("/", VueComponent("dashboard"), WebUiRoles.READ)
