@@ -3,6 +3,7 @@ package com.github.quiltservertools.ledger.listeners
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.BlockBurnCallback
+import com.github.quiltservertools.ledger.callbacks.BlockDecayCallback
 import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockFallCallback
 import com.github.quiltservertools.ledger.callbacks.BlockLandCallback
@@ -23,6 +24,7 @@ fun registerBlockListeners() {
     BlockBurnCallback.EVENT.register(::onBurn)
     BlockFallCallback.EVENT.register(::onFall)
     BlockLandCallback.EVENT.register(::onLand)
+    BlockDecayCallback.EVENT.register(::onDecay)
 }
 
 private fun onLand(world: World, pos: BlockPos, state: BlockState) {
@@ -76,6 +78,12 @@ private fun onExplode(
     }
 
     DatabaseManager.logAction(action)
+}
+
+fun onDecay(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
+    DatabaseManager.logAction(
+        ActionFactory.blockBreakAction(world, pos, state, Sources.DECAY, entity)
+    )
 }
 
 private fun getTntSource(entity: TntEntity, action: ActionType) {

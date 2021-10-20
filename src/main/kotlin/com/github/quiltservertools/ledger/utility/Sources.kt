@@ -6,5 +6,6 @@ object Sources {
     const val EXPLOSION = "explosion"
     const val PLAYER = "player"
     const val BROKE = "broke"
+    const val DECAY = "decay"
     const val UNKNOWN = "unknown"
 }

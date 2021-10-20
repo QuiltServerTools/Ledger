@@ -1,20 +1,21 @@
 {
-    "required": true,
-    "package": "com.github.quiltservertools.ledger.mixin",
-    "mixins": [
-        "DoubleInventoryMixin",
-        "LockableContainerBlockEntityMixin",
-        "callbacks.BlockItemMixin",
-        "callbacks.ExplosionMixin",
-        "callbacks.FallingBlockEntityMixin",
-        "callbacks.FireBlockMixin",
-        "callbacks.FlintAndSteelItemMixin",
-        "callbacks.ItemScattererMixin",
-        "callbacks.LivingEntityMixin",
-        "callbacks.ScreenHandlerMixin",
-        "callbacks.SlotMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "package": "com.github.quiltservertools.ledger.mixin",
+  "mixins": [
+    "DoubleInventoryMixin",
+    "LockableContainerBlockEntityMixin",
+    "callbacks.BlockItemMixin",
+    "callbacks.ExplosionMixin",
+    "callbacks.FallingBlockEntityMixin",
+    "callbacks.FireBlockMixin",
+    "callbacks.FlintAndSteelItemMixin",
+    "callbacks.ItemScattererMixin",
+    "callbacks.LivingEntityMixin",
+    "callbacks.ScreenHandlerMixin",
+    "callbacks.SlotMixin",
+    "logging.MixinLeavesBlock"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
