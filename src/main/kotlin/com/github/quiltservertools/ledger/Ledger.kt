@@ -83,8 +83,6 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
             .plus(Registry.ENTITY_TYPE.ids)
 
         Ledger.launch {
-            server.saveProperties.generatorOptions.dimensions.ids.forEach { DatabaseManager.registerWorld(it) }
-
             logInfo("Inserting ${idSet.size} registry keys into the database...")
             DatabaseManager.insertIdentifiers(idSet)
             logInfo("Registry insert complete")
