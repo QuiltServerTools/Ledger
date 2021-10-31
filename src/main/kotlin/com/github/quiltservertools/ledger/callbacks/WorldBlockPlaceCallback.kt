@@ -6,8 +6,6 @@ import net.minecraft.block.BlockState
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-@SuppressWarnings("MatchingDeclarationName")
-// Detekt, why?
 fun interface WorldBlockPlaceCallback {
     fun place(
         world: World,
