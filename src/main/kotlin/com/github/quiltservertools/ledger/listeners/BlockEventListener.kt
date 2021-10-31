@@ -7,8 +7,11 @@ import com.github.quiltservertools.ledger.callbacks.BlockDecayCallback
 import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockFallCallback
 import com.github.quiltservertools.ledger.callbacks.BlockLandCallback
+import com.github.quiltservertools.ledger.callbacks.BlockMeltCallback
+import com.github.quiltservertools.ledger.callbacks.WorldBlockPlaceCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.Sources
+import net.minecraft.block.AirBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
@@ -25,6 +28,15 @@ fun registerBlockListeners() {
     BlockFallCallback.EVENT.register(::onFall)
     BlockLandCallback.EVENT.register(::onLand)
     BlockDecayCallback.EVENT.register(::onDecay)
+    BlockMeltCallback.EVENT.register(::onMelt)
+    WorldBlockPlaceCallback.EVENT.register(::onWorldPlace)
+}
+
+fun onWorldPlace(world: World, pos: BlockPos, state: BlockState, source: String) {
+    //fixme pos is displayed correctly when printing here but is not logged correctly
+    DatabaseManager.logAction(
+        ActionFactory.blockPlaceAction(world, pos, state, source, null)
+    )
 }
 
 private fun onLand(world: World, pos: BlockPos, state: BlockState) {
@@ -84,6 +96,17 @@ fun onDecay(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?
     DatabaseManager.logAction(
         ActionFactory.blockBreakAction(world, pos, state, Sources.DECAY, entity)
     )
+}
+
+fun onMelt(world: World, pos: BlockPos, oldState: BlockState, newState: BlockState, entity: BlockEntity?) {
+    DatabaseManager.logAction(
+        ActionFactory.blockBreakAction(world, pos, oldState, Sources.MELT, entity)
+    )
+    if (newState.block !is AirBlock) {
+        DatabaseManager.logAction(
+            ActionFactory.blockPlaceAction(world, pos, newState, Sources.MELT, entity)
+        )
+    }
 }
 
 private fun getTntSource(entity: TntEntity, action: ActionType) {

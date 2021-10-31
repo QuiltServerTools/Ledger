@@ -13,6 +13,8 @@
     "callbacks.LivingEntityMixin",
     "callbacks.ScreenHandlerMixin",
     "callbacks.SlotMixin",
+    "logging.MixinFrostWalkerEnchantment",
+    "logging.MixinIceBlock",
     "logging.MixinLeavesBlock"
   ],
   "injectors": {

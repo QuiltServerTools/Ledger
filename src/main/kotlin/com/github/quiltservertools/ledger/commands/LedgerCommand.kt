@@ -54,6 +54,5 @@ fun registerCommands(dispatcher: Dispatcher) {
         it.registerSubcommands().forEach { command ->
             rootNode.addChild(command.build())
         }
-
     }
 }
