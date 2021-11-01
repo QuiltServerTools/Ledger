@@ -8,6 +8,7 @@ import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockFallCallback
 import com.github.quiltservertools.ledger.callbacks.BlockLandCallback
 import com.github.quiltservertools.ledger.callbacks.BlockMeltCallback
+import com.github.quiltservertools.ledger.callbacks.WorldBlockBreakCallback
 import com.github.quiltservertools.ledger.callbacks.WorldBlockPlaceCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.Sources
@@ -30,10 +31,19 @@ fun registerBlockListeners() {
     BlockDecayCallback.EVENT.register(::onDecay)
     BlockMeltCallback.EVENT.register(::onMelt)
     WorldBlockPlaceCallback.EVENT.register(::onWorldPlace)
+    WorldBlockBreakCallback.EVENT.register(::onWorldBreak)
 }
 
 fun onWorldPlace(world: World, pos: BlockPos, state: BlockState, source: String, player: PlayerEntity?) {
     val action = ActionFactory.blockPlaceAction(world, pos, state, source, null)
+    if (player != null) {
+        action.sourceProfile = player.gameProfile
+    }
+    DatabaseManager.logAction(action)
+}
+
+fun onWorldBreak(world: World, pos: BlockPos, state: BlockState, source: String, player: PlayerEntity?) {
+    val action = ActionFactory.blockBreakAction(world, pos, state, source, null)
     if (player != null) {
         action.sourceProfile = player.gameProfile
     }

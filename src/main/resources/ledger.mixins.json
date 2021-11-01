@@ -13,6 +13,7 @@
     "callbacks.LivingEntityMixin",
     "callbacks.ScreenHandlerMixin",
     "callbacks.SlotMixin",
+    "logging.MixinBambooBlock",
     "logging.MixinFrostWalkerEnchantment",
     "logging.MixinIceBlock",
     "logging.MixinLeavesBlock"
