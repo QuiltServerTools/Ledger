@@ -32,11 +32,12 @@ fun registerBlockListeners() {
     WorldBlockPlaceCallback.EVENT.register(::onWorldPlace)
 }
 
-fun onWorldPlace(world: World, pos: BlockPos, state: BlockState, source: String) {
-    //fixme pos is displayed correctly when printing here but is not logged correctly
-    DatabaseManager.logAction(
-        ActionFactory.blockPlaceAction(world, pos, state, source, null)
-    )
+fun onWorldPlace(world: World, pos: BlockPos, state: BlockState, source: String, player: PlayerEntity?) {
+    val action = ActionFactory.blockPlaceAction(world, pos, state, source, null)
+    if (player != null) {
+        action.sourceProfile = player.gameProfile
+    }
+    DatabaseManager.logAction(action)
 }
 
 private fun onLand(world: World, pos: BlockPos, state: BlockState) {

@@ -15,7 +15,7 @@ fun interface PlayerBlockPlaceCallback {
         player: PlayerEntity,
         pos: BlockPos,
         state: BlockState,
-        context: ItemPlacementContext,
+        context: ItemPlacementContext?,
         entity: BlockEntity?
     )
 

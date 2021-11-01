@@ -82,7 +82,7 @@ private fun onBlockPlace(
     player: PlayerEntity,
     pos: BlockPos,
     state: BlockState,
-    context: ItemPlacementContext,
+    context: ItemPlacementContext?,
     blockEntity: BlockEntity?
 ) {
     DatabaseManager.logAction(

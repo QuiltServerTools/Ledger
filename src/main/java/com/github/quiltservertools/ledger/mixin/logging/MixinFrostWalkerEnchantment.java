@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.FrostWalkerEnchantment;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,7 +21,8 @@ public abstract class MixinFrostWalkerEnchantment {
         BlockPos pos = args.get(0);
         pos = pos.toImmutable();
         if (!(world.getBlockState(pos).getBlock() == Blocks.FROSTED_ICE)) {
-            WorldBlockPlaceCallback.EVENT.invoker().place(world, pos, Blocks.FROSTED_ICE.getDefaultState(), Sources.FROST_WALKER);
+            WorldBlockPlaceCallback.EVENT.invoker().place(world, pos, Blocks.FROSTED_ICE.getDefaultState(), Sources.FROST_WALKER,
+                    entity instanceof PlayerEntity ? (PlayerEntity) entity : null);
         }
     }
 }
