@@ -6,7 +6,7 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.util.Identifier
 
-const val PROPERTIES = "Properties"
+private const val PROPERTIES = "Properties"
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
         val stateTag = NbtHelper.fromBlockState(state)

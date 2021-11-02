@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.item.FlintAndSteelItem;
-import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
@@ -17,7 +17,15 @@ public abstract class FlintAndSteelItemMixin {
     public void logFlintAndSteelUse(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
         BlockPos pos = context.getBlockPos().offset(context.getSide());
         if (context.getPlayer() != null) {
-            PlayerBlockPlaceCallback.EVENT.invoker().place(context.getWorld(), context.getPlayer(), pos, context.getWorld().getBlockState(pos), new ItemPlacementContext(context), null);
+            // Should never be null in vanilla, but maybe in modded?
+            BlockPlaceCallback.EVENT.invoker().place(
+                    context.getWorld(),
+                    context.getBlockPos(),
+                    context.getWorld().getBlockState(pos),
+                    context.getWorld().getBlockEntity(context.getBlockPos()) != null ? context.getWorld().getBlockEntity(context.getBlockPos()) : null,
+                    context.getPlayer() == null ? Sources.REDSTONE : Sources.PLAYER,
+                    context.getPlayer()
+            );
         }
     }
 }

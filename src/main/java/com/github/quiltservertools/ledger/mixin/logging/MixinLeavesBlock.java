@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.logging;
 
-import com.github.quiltservertools.ledger.callbacks.BlockDecayCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import java.util.Random;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.LeavesBlock;
@@ -15,6 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinLeavesBlock {
     @Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     public void logLeafDecay(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
-        BlockDecayCallback.EVENT.invoker().decay(world, pos, state, world.getBlockEntity(pos));
+        BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, state, state.hasBlockEntity() ? world.getBlockEntity(pos) : null, Sources.DECAY);
     }
 }

@@ -2,7 +2,6 @@ package com.github.quiltservertools.ledger.listeners
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
-import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.disableNetworking
 import com.github.quiltservertools.ledger.utility.inspectBlock
@@ -28,7 +27,6 @@ import net.minecraft.world.World
 
 fun registerPlayerListeners() {
     PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
-    PlayerBlockPlaceCallback.EVENT.register(::onBlockPlace)
     ServerPlayConnectionEvents.JOIN.register(::onJoin)
     ServerPlayConnectionEvents.DISCONNECT.register(::onLeave)
     AttackBlockCallback.EVENT.register(::onBlockAttack)

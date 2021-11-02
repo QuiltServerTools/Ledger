@@ -9,5 +9,6 @@ object Sources {
     const val DECAY = "decay"
     const val MELT = "melt"
     const val FROST_WALKER = "frost_walker"
+    const val REDSTONE = "redstone"
     const val UNKNOWN = "unknown"
 }

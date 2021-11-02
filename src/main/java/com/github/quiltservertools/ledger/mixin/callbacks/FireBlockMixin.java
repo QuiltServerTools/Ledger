@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.callbacks.BlockBurnCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import java.util.Random;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -25,7 +26,7 @@ public abstract class FireBlockMixin {
     )
     private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
         if (blockState.getBlock() != Blocks.FIRE) {
-            BlockBurnCallback.EVENT.invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
+            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null, Sources.FIRE);
         }
     }
 
@@ -39,7 +40,7 @@ public abstract class FireBlockMixin {
     )
     private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
         if (blockState.getBlock() != Blocks.FIRE) {
-            BlockBurnCallback.EVENT.invoker().burn(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null);
+            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null, Sources.FIRE);
         }
     }
 }

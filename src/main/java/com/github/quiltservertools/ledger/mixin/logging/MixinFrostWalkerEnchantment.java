@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.mixin.logging;
 
-import com.github.quiltservertools.ledger.callbacks.WorldBlockPlaceCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.FrostWalkerEnchantment;
@@ -21,7 +21,7 @@ public abstract class MixinFrostWalkerEnchantment {
         BlockPos pos = args.get(0);
         pos = pos.toImmutable();
         if (!(world.getBlockState(pos).getBlock() == Blocks.FROSTED_ICE)) {
-            WorldBlockPlaceCallback.EVENT.invoker().place(world, pos, Blocks.FROSTED_ICE.getDefaultState(), Sources.FROST_WALKER,
+            BlockPlaceCallback.EVENT.invoker().place(world, pos, Blocks.FROSTED_ICE.getDefaultState(), null, Sources.FROST_WALKER,
                     entity instanceof PlayerEntity ? (PlayerEntity) entity : null);
         }
     }

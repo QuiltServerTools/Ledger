@@ -1,16 +1,20 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.callbacks.BlockExplodeCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Iterator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,8 +30,7 @@ public abstract class ExplosionMixin {
     private World world;
 
     @Shadow
-    @Final
-    private Entity entity;
+    public abstract @Nullable LivingEntity getCausingEntity();
 
     @Inject(
             method = "affectWorld",
@@ -46,12 +49,21 @@ public abstract class ExplosionMixin {
 
         if (blockState.isAir()) return;
 
-        BlockExplodeCallback.EVENT.invoker().explode(
+        String source;
+        var entity = getCausingEntity();
+        if (entity != null && !(entity instanceof PlayerEntity)) {
+            source = Registry.ENTITY_TYPE.getId(entity.getType()).getPath();
+        } else {
+            source = Sources.EXPLOSION;
+        }
+
+        BlockBreakCallback.EVENT.invoker().breakBlock(
                 world,
-                entity,
                 blockPos,
                 blockState,
-                world.getBlockEntity(blockPos) != null ? world.getBlockEntity(blockPos) : null
+                world.getBlockEntity(blockPos) != null ? world.getBlockEntity(blockPos) : null,
+                source,
+                entity instanceof PlayerEntity player ? player : null
         );
     }
 }

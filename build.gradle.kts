@@ -9,7 +9,7 @@ plugins {
     kotlin("jvm") version "1.5.21"
     id("fabric-loom") version "0.9.+"
     id("maven-publish")
-    id("io.gitlab.arturbosch.detekt") version "1.15.0"
+    id("io.gitlab.arturbosch.detekt") version "1.18.1"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.modrinth.minotaur") version "1.2.1"

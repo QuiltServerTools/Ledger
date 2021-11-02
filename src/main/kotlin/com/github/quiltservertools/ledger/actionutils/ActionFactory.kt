@@ -37,11 +37,12 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: PlayerEntity,
-        entity: BlockEntity? = null
+        player: PlayerEntity,
+        entity: BlockEntity? = null,
+        source: String = Sources.PLAYER
     ): BlockChangeActionType {
-        val action = blockBreakAction(world, pos, state, Sources.PLAYER, entity)
-        action.sourceProfile = source.gameProfile
+        val action = blockBreakAction(world, pos, state, source, entity)
+        action.sourceProfile = player.gameProfile
 
         return action
     }
@@ -63,11 +64,12 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: PlayerEntity,
-        entity: BlockEntity? = null
+        player: PlayerEntity,
+        entity: BlockEntity? = null,
+        source: String = Sources.PLAYER
     ): BlockChangeActionType {
-        val action = blockPlaceAction(world, pos, state, Sources.PLAYER, entity)
-        action.sourceProfile = source.gameProfile
+        val action = blockPlaceAction(world, pos, state, source, entity)
+        action.sourceProfile = player.gameProfile
 
         return action
     }
