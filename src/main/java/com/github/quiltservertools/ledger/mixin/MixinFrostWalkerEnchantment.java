@@ -1,4 +1,4 @@
-package com.github.quiltservertools.ledger.mixin.logging;
+package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
