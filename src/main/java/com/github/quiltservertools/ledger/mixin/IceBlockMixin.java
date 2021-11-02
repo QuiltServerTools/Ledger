@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(IceBlock.class)
-public abstract class MixinIceBlock {
+public abstract class IceBlockMixin {
     // Logs the decay of ice blocks.
 
     // Log decay into air

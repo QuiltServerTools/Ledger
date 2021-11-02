@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(FrostWalkerEnchantment.class)
-public abstract class MixinFrostWalkerEnchantment {
+public abstract class FrostWalkerEnchantmentMixin {
     @ModifyArgs(method = "freezeWater", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
     private static void logFrostWalkerPlacement(Args args, LivingEntity entity, World world, BlockPos entityPos, int level) {
         // Frosted ice block is hardcoded in target class

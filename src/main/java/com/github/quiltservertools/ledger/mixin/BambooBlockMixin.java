@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(BambooBlock.class)
-public abstract class MixinBambooBlock {
+public abstract class BambooBlockMixin {
     @Inject(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;breakBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     public void logBambooBreak(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, state, null, Sources.GRAVITY);
