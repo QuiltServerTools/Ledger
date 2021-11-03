@@ -10,5 +10,6 @@ object Sources {
     const val MELT = "melt"
     const val FROST_WALKER = "frost_walker"
     const val REDSTONE = "redstone"
+    const val FLUID = "fluid"
     const val UNKNOWN = "unknown"
 }
