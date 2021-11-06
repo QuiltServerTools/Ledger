@@ -5,7 +5,6 @@
     "BambooBlockMixin",
     "BlockItemMixin",
     "BlockMixin",
-
     "DoubleInventoryMixin",
     "ExplosionMixin",
     "FallingBlockEntityMixin",
@@ -14,6 +13,7 @@
     "FlintAndSteelItemMixin",
     "FluidBlockMixin",
     "FrostWalkerEnchantmentMixin",
+    "HoeItemMixin",
     "IceBlockMixin",
     "ItemScattererMixin",
     "LeavesBlockMixin",
