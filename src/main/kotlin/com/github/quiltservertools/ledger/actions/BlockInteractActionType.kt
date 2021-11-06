@@ -12,8 +12,7 @@ import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
 class BlockInteractActionType : BlockChangeActionType("block-interact") {
-    override fun getObjectMessage(): Text {
-        val text = TranslatableText(
+    override fun getObjectMessage(): Text = TranslatableText(
             Util.createTranslationKey(
                 this.getTranslationType(),
                 oldObjectIdentifier
@@ -26,24 +25,6 @@ class BlockInteractActionType : BlockChangeActionType("block-interact") {
                 )
             )
         }
-        text.append(" ".literal())
-        text.append(
-            TranslatableText(
-                Util.createTranslationKey(
-                    this.getTranslationType(),
-                    objectIdentifier
-                )
-            ).setStyle(TextColorPallet.secondaryVariant).styled {
-                it.withHoverEvent(
-                    HoverEvent(
-                        HoverEvent.Action.SHOW_TEXT,
-                        oldObjectIdentifier.toString().literal()
-                    )
-                )
-            }
-        )
-        return text
-    }
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
