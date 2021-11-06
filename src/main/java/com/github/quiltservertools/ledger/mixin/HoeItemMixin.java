@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.BlockInteractCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.HoeItem;
@@ -27,9 +27,9 @@ public abstract class HoeItemMixin {
     private static void log(BlockState state, ItemUsageContext context) {
         var player = context.getPlayer();
         if (player != null) {
-            BlockInteractCallback.EVENT.invoker().interactBlock(context.getWorld(), context.getBlockPos(), context.getWorld().getBlockState(context.getBlockPos()), state, null, null, player);
+            BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), context.getBlockPos(), context.getWorld().getBlockState(context.getBlockPos()), state, null, null, player);
         } else {
-            BlockInteractCallback.EVENT.invoker().interactBlock(context.getWorld(), context.getBlockPos(), context.getWorld().getBlockState(context.getBlockPos()), state, null, null, Sources.INTERACT);
+            BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), context.getBlockPos(), context.getWorld().getBlockState(context.getBlockPos()), state, null, null, Sources.INTERACT);
         }
     }
 }

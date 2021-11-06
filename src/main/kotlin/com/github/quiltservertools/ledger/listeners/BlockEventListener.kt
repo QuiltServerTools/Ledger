@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.listeners
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback
-import com.github.quiltservertools.ledger.callbacks.BlockInteractCallback
+import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockMeltCallback
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
@@ -20,7 +20,7 @@ fun registerBlockListeners() {
     BlockMeltCallback.EVENT.register(::onMelt)
     BlockPlaceCallback.EVENT.register(::onBlockPlace)
     BlockBreakCallback.EVENT.register(::onBlockBreak)
-    BlockInteractCallback.EVENT.register(::onInteract)
+    BlockChangeCallback.EVENT.register(::onBlockChange)
 }
 
 fun onBlockPlace(
@@ -56,7 +56,7 @@ fun onBlockBreak(
     DatabaseManager.logAction(action)
 }
 
-fun onInteract(
+fun onBlockChange(
     world: World,
     pos: BlockPos,
     oldState: BlockState,
@@ -67,7 +67,7 @@ fun onInteract(
     player: PlayerEntity?
 ) {
     DatabaseManager.logAction(
-        ActionFactory.blockInteractAction(world, pos, oldState, newState, oldBlockEntity, source, player)
+        ActionFactory.blockChangeAction(world, pos, oldState, newState, oldBlockEntity, source, player)
     )
 }
 

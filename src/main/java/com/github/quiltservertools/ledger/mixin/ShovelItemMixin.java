@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.BlockInteractCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemUsageContext;
@@ -20,9 +20,9 @@ public abstract class ShovelItemMixin {
         BlockPos pos = args.get(0);
         var world = context.getWorld();
         if (player != null) {
-            BlockInteractCallback.EVENT.invoker().interactBlock(world, pos, world.getBlockState(pos), state, null, null, player);
+            BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, world.getBlockState(pos), state, null, null, player);
         } else {
-            BlockInteractCallback.EVENT.invoker().interactBlock(world, pos, world.getBlockState(pos), state, null, null, Sources.INTERACT);
+            BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, world.getBlockState(pos), state, null, null, Sources.INTERACT);
         }
     }
 }

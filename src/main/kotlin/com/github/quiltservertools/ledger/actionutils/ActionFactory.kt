@@ -134,7 +134,7 @@ object ActionFactory {
         return action
     }
 
-    fun blockInteractAction(
+    fun blockChangeAction(
         world: World,
         pos: BlockPos,
         oldState: BlockState,
@@ -145,9 +145,6 @@ object ActionFactory {
     ): ActionType {
         val action = BlockChangeActionType()
         setBlockData(action, pos, world, newState, oldState, source, oldBlockEntity)
-        if (player != null) {
-            action.sourceProfile = player.gameProfile
-        }
         action.sourceProfile = player?.gameProfile
         return action
     }

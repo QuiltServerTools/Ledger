@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.BlockInteractCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
@@ -26,9 +26,9 @@ public abstract class FlintAndSteelItemMixin {
         if (oldState.getBlock().equals(state.getBlock())) {
             // Block types are the same, log interaction
             if (player != null) {
-                BlockInteractCallback.EVENT.invoker().interactBlock(context.getWorld(), pos, oldState, state, be, be, player);
+                BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), pos, oldState, state, be, be, player);
             } else {
-                BlockInteractCallback.EVENT.invoker().interactBlock(context.getWorld(), pos, oldState, state, be, be, Sources.FIRE);
+                BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), pos, oldState, state, be, be, Sources.FIRE);
             }
         } else {
             if (player != null) {
