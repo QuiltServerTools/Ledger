@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.actionutils
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actions.BlockBreakActionType
 import com.github.quiltservertools.ledger.actions.BlockChangeActionType
-import com.github.quiltservertools.ledger.actions.BlockInteractActionType
+import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
 import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
@@ -55,7 +55,7 @@ object ActionFactory {
         source: String,
         entity: BlockEntity? = null
     ): BlockChangeActionType {
-        val action = BlockChangeActionType("block-place")
+        val action = BlockPlaceActionType()
         setBlockData(action, pos, world, state, Blocks.AIR.defaultState, source, entity)
 
         return action
@@ -143,7 +143,7 @@ object ActionFactory {
         source: String,
         player: PlayerEntity?
     ): ActionType {
-        val action = BlockInteractActionType()
+        val action = BlockChangeActionType()
         setBlockData(action, pos, world, newState, oldState, source, oldBlockEntity)
         if (player != null) {
             action.sourceProfile = player.gameProfile

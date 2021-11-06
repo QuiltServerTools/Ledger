@@ -4,7 +4,7 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actions.BlockBreakActionType
 import com.github.quiltservertools.ledger.actions.BlockChangeActionType
-import com.github.quiltservertools.ledger.actions.BlockInteractActionType
+import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
 import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
@@ -33,11 +33,12 @@ object ActionRegistry {
 
     fun registerDefaultTypes() {
         registerActionType { BlockBreakActionType() }
-        registerActionType { BlockChangeActionType("block-place") }
+        registerActionType { BlockPlaceActionType() }
+        registerActionType { BlockChangeActionType() }
         registerActionType { ItemInsertActionType() }
         registerActionType { ItemRemoveActionType() }
         registerActionType { EntityKillActionType() }
-        registerActionType { BlockInteractActionType() }
+        registerActionType { BlockPlaceActionType() }
     }
 
     fun getType(id: String) = actionTypes[id]
