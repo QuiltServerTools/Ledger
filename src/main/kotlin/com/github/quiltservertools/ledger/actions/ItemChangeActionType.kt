@@ -73,12 +73,20 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
         if (world != null && inventory != null) {
             val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-
+            var rbStackSize = rollbackStack.count
             for (i in 0 until inventory.size()) {
                 val stack = inventory.getStack(i)
+
                 if (stack.isItemEqual(rollbackStack)) {
-                    inventory.setStack(i, ItemStack.EMPTY)
-                    return true
+                    if (stack.count <= rbStackSize ) {
+                        val tmpCount = stack.count
+                        inventory.removeStack(i)
+                        rbStackSize =- tmpCount
+                        if (rbStackSize == 0) {
+                            return true}}
+                    else {
+                        inventory.removeStack(i,rbStackSize)
+                        return true} //stack is greater than removal
                 }
             }
         }
@@ -86,19 +94,29 @@ abstract class ItemChangeActionType : AbstractActionType() {
         return false
     }
 
+
     protected fun addItem(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
         if (world != null && inventory != null) {
             val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-
+            var rbStackSize = rollbackStack.count
             for (i in 0 until inventory.size()) {
                 val stack = inventory.getStack(i)
-                if (stack.isEmpty) {
+
+                if (stack.isItemEqual(rollbackStack)) {
+                    if (stack.count + rbStackSize >= stack.maxCount && stack.count != stack.maxCount) {
+                        val tmpCount = stack.count
+                        stack.count = stack.maxCount // should always be set to max value for stack
+                        rbStackSize =- (stack.maxCount - tmpCount)} //update stacksize to reflect allocated items
+                    else if (stack.count + rbStackSize <= stack.maxCount) { // stack does not exceed max so just increment
+                        stack.increment(rbStackSize)
+                        return true}
+                }else if (stack.isEmpty) {
+                    rollbackStack.count = rbStackSize // update count to edited value
                     inventory.setStack(i, rollbackStack)
-                    return true
-                }
+                    return true}
             }
         }
 
