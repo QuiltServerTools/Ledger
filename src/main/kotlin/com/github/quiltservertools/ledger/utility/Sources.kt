@@ -12,5 +12,7 @@ object Sources {
     const val REDSTONE = "redstone"
     const val FLUID = "fluid"
     const val TRAMPLE = "trample"
+    const val EXTINGUISH = "extinguish"
+    const val INTERACT = "interact"
     const val UNKNOWN = "unknown"
 }

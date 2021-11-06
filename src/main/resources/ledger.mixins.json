@@ -5,6 +5,7 @@
     "BambooBlockMixin",
     "BlockItemMixin",
     "BlockMixin",
+
     "DoubleInventoryMixin",
     "ExplosionMixin",
     "FallingBlockEntityMixin",
@@ -19,6 +20,7 @@
     "LivingEntityMixin",
     "LockableContainerBlockEntityMixin",
     "ScreenHandlerMixin",
+    "ShovelItemMixin",
     "SlotMixin"
   ],
   "injectors": {
