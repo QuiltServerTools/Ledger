@@ -19,6 +19,8 @@
     "LeavesBlockMixin",
     "LivingEntityMixin",
     "LockableContainerBlockEntityMixin",
+    "RavagerEntityMixin",
+    "RootedDirtBlockMixin",
     "ScreenHandlerMixin",
     "ShovelItemMixin",
     "SlotMixin"
