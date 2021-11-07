@@ -67,21 +67,23 @@ open class BlockChangeActionType : AbstractActionType() {
                 )
             )
         })
-        text.append("→".literal())
-        text.append(
-            TranslatableText(
-            Util.createTranslationKey(
-                this.getTranslationType(),
-                objectIdentifier
-            )
-        ).setStyle(TextColorPallet.secondaryVariant).styled {
-            it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
-                    objectIdentifier.toString().literal()
-                )
-            )
-        })
+        if (oldObjectIdentifier != objectIdentifier) {
+            text.append("→".literal())
+            text.append(
+                TranslatableText(
+                    Util.createTranslationKey(
+                        this.getTranslationType(),
+                        objectIdentifier
+                    )
+                ).setStyle(TextColorPallet.secondaryVariant).styled {
+                    it.withHoverEvent(
+                        HoverEvent(
+                            HoverEvent.Action.SHOW_TEXT,
+                            objectIdentifier.toString().literal()
+                        )
+                    )
+                })
+        }
         return text
     }
 
