@@ -77,16 +77,19 @@ abstract class ItemChangeActionType : AbstractActionType() {
             for (i in 0 until inventory.size()) {
                 val stack = inventory.getStack(i)
 
-                if (stack.isItemEqual(rollbackStack)) {
-                    if (stack.count <= rbStackSize ) {
-                        val tmpCount = stack.count
+                if (stack.isItemEqual(rollbackStack)) { // item matches
+                    if (stack.count == rbStackSize) {
                         inventory.removeStack(i)
-                        rbStackSize =- tmpCount
-                        if (rbStackSize == 0) {
-                            return true}}
+                        return true
+                    } // stack matches removal amount
+                    else if (stack.count < rbStackSize ) { // stack is smaller than rollback amount
+                        rbStackSize =- stack.count
+                        inventory.removeStack(i)
+                    } // need to loop again as stacksize cant be 0 yet
                     else {
-                        inventory.removeStack(i,rbStackSize)
-                        return true} //stack is greater than removal
+                        stack.count = stack.count - rbStackSize
+                        return true
+                    } //stack is greater than removal
                 }
             }
         }
@@ -106,17 +109,26 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 val stack = inventory.getStack(i)
 
                 if (stack.isItemEqual(rollbackStack)) {
-                    if (stack.count + rbStackSize >= stack.maxCount && stack.count != stack.maxCount) {
-                        val tmpCount = stack.count
-                        stack.count = stack.maxCount // should always be set to max value for stack
-                        rbStackSize =- (stack.maxCount - tmpCount)} //update stacksize to reflect allocated items
-                    else if (stack.count + rbStackSize <= stack.maxCount) { // stack does not exceed max so just increment
+                    if (stack.count == stack.maxCount) {
+                        continue
+                    } // stack is already full skip
+                    else if (stack.count + rbStackSize == stack.maxCount){
+                        stack.count = stack.maxCount
+                        return true
+                    } //stack fits perfectly
+                    else if (stack.count + rbStackSize > stack.maxCount) { // stack can only accept partial
+                        rbStackSize = -(stack.maxCount - stack.count) //reduce by number of items allocated
+                        stack.count = stack.maxCount
+                    } // should always be set to max value for stack
+                    else {
                         stack.increment(rbStackSize)
-                        return true}
+                        return true
+                    } // stack wont exceed max so just increment
                 }else if (stack.isEmpty) {
                     rollbackStack.count = rbStackSize // update count to edited value
                     inventory.setStack(i, rollbackStack)
-                    return true}
+                    return true
+                }
             }
         }
 
