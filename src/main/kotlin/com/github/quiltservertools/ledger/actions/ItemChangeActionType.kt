@@ -83,11 +83,11 @@ abstract class ItemChangeActionType : AbstractActionType() {
                         return true
                     } // stack matches removal amount
                     else if (stack.count < rbStackSize ) { // stack is smaller than rollback amount
-                        rbStackSize =- stack.count
+                        rbStackSize -= stack.count
                         inventory.removeStack(i)
                     } // need to loop again as stacksize cant be 0 yet
                     else {
-                        stack.count = stack.count - rbStackSize
+                        stack.count -= rbStackSize
                         return true
                     } //stack is greater than removal
                 }
@@ -117,7 +117,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
                         return true
                     } //stack fits perfectly
                     else if (stack.count + rbStackSize > stack.maxCount) { // stack can only accept partial
-                        rbStackSize = -(stack.maxCount - stack.count) //reduce by number of items allocated
+                        rbStackSize -= stack.maxCount - stack.count //reduce by number of items allocated
                         stack.count = stack.maxCount
                     } // should always be set to max value for stack
                     else {
