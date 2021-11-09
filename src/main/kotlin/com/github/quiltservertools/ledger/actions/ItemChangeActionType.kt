@@ -70,30 +70,32 @@ abstract class ItemChangeActionType : AbstractActionType() {
     protected fun removeMatchingItem(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
+        if (world == null || inventory == null) { return false }
 
-        if (world != null && inventory != null) {
-            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-            var rbStackSize = rollbackStack.count
-            for (i in 0 until inventory.size()) {
-                val stack = inventory.getStack(i)
+        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+        var rbStackSize = rollbackStack.count
 
-                if (stack.isItemEqual(rollbackStack)) { // item matches
-                    if (stack.count == rbStackSize) {
-                        inventory.removeStack(i)
-                        return true
-                    } // stack matches removal amount
-                    else if (stack.count < rbStackSize ) { // stack is smaller than rollback amount
-                        rbStackSize -= stack.count
-                        inventory.removeStack(i)
-                    } // need to loop again as stacksize cant be 0 yet
-                    else {
-                        stack.count -= rbStackSize
-                        return true
-                    } //stack is greater than removal
-                }
+        for (i in 0 until inventory.size()) {
+            val stack = inventory.getStack(i)
+
+            if (!stack.isItemEqual(rollbackStack)) { continue } // not the same item so skip
+
+            if (stack.count == rbStackSize) { // stack matches removal amount
+                inventory.removeStack(i)
+                return true
+            }
+
+            else if (stack.count < rbStackSize ) { // stack is smaller than rollback amount
+                rbStackSize -= stack.count
+                inventory.removeStack(i)
+            }  // need to loop again as stacksize cant be 0 yet
+
+            else { //stack is greater than removal
+                stack.count -= rbStackSize
+                return true
             }
         }
-
+        // revert state?
         return false
     }
 
@@ -102,36 +104,37 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world != null && inventory != null) {
-            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-            var rbStackSize = rollbackStack.count
-            for (i in 0 until inventory.size()) {
-                val stack = inventory.getStack(i)
+        if (world == null || inventory == null) {return false }
 
-                if (stack.isItemEqual(rollbackStack)) {
-                    if (stack.count == stack.maxCount) {
-                        continue
-                    } // stack is already full skip
-                    else if (stack.count + rbStackSize == stack.maxCount){
-                        stack.count = stack.maxCount
-                        return true
-                    } //stack fits perfectly
-                    else if (stack.count + rbStackSize > stack.maxCount) { // stack can only accept partial
-                        rbStackSize -= stack.maxCount - stack.count //reduce by number of items allocated
-                        stack.count = stack.maxCount
-                    } // should always be set to max value for stack
-                    else {
-                        stack.increment(rbStackSize)
-                        return true
-                    } // stack wont exceed max so just increment
-                }else if (stack.isEmpty) {
-                    rollbackStack.count = rbStackSize // update count to edited value
-                    inventory.setStack(i, rollbackStack)
-                    return true
-                }
+        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+        var rbStackSize = rollbackStack.count
+        for (i in 0 until inventory.size()) {
+            val stack = inventory.getStack(i)
+
+            if (stack.isEmpty) { // empty slot so can just revert to the old state
+                inventory.setStack(i, rollbackStack)
+                return true
+            }
+
+            if (!stack.isItemEqual(rollbackStack) || // not the same item or full so skip
+                stack.count == stack.maxCount) {continue }
+
+            else if (stack.count + rbStackSize == stack.maxCount){ //stack fits perfectly
+                stack.count = stack.maxCount
+                return true
+            }
+
+            else if (stack.count + rbStackSize > stack.maxCount) { // stack can only accept partial amount of items
+                rbStackSize -= stack.maxCount - stack.count //reduce by number of items added
+                stack.count = stack.maxCount
+            }
+
+            else { // stack wont exceed max so just increment
+                stack.increment(rbStackSize)
+                return true
             }
         }
-
+        // revert state?
         return false
     }
 }
