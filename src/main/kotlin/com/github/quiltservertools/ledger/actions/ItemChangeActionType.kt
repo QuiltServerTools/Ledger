@@ -1,5 +1,8 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback
+import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback
+import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
@@ -95,6 +98,9 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 return true
             }
         }
+        rollbackStack.count = rbStackSize // stack size could have changed since.
+        ItemInsertCallback.EVENT.invoker().insert(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
+        // would be better if ledger didnt set actions that fail as reverted
         // revert state?
         return false
     }
@@ -135,6 +141,9 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 return true
             }
         }
+        rollbackStack.count = rbStackSize // stack size could have changed since.
+        ItemRemoveCallback.EVENT.invoker().remove(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
+        // would be better if ledger didnt set actions that fail as reverted
         // revert state?
         return false
     }
