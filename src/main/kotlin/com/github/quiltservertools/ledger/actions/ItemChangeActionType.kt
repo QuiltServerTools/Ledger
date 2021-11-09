@@ -1,5 +1,8 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback
+import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback
+import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
@@ -73,28 +76,29 @@ abstract class ItemChangeActionType : AbstractActionType() {
         if (world == null || inventory == null) { return false }
 
         val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-        var rbStackSize = rollbackStack.count
 
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
 
             if (!stack.isItemEqual(rollbackStack)) { continue } // not the same item so skip
 
-            if (stack.count == rbStackSize) { // stack matches removal amount
+            if (stack.count == rollbackStack.count) { // stack matches removal amount
                 inventory.removeStack(i)
                 return true
             }
 
-            else if (stack.count < rbStackSize ) { // stack is smaller than rollback amount
-                rbStackSize -= stack.count
+            else if (stack.count < rollbackStack.count ) { // stack is smaller than rollback amount
+                rollbackStack.count -= stack.count
                 inventory.removeStack(i)
             }  // need to loop again as stacksize cant be 0 yet
 
             else { //stack is greater than removal
-                stack.count -= rbStackSize
+                stack.count -= rollbackStack.count
                 return true
             }
         }
+        ItemInsertCallback.EVENT.invoker().insert(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
+        // would be better if ledger didnt set actions that fail as reverted
         // revert state?
         return false
     }
@@ -107,12 +111,10 @@ abstract class ItemChangeActionType : AbstractActionType() {
         if (world == null || inventory == null) {return false }
 
         val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-        var rbStackSize = rollbackStack.count
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
 
             if (stack.isEmpty) { // empty slot so can just revert to the old state
-                rollbackStack.count = rbStackSize // stack size could have changed since.
                 inventory.setStack(i, rollbackStack)
                 return true
             }
@@ -120,21 +122,23 @@ abstract class ItemChangeActionType : AbstractActionType() {
             if (!stack.isItemEqual(rollbackStack) || // not the same item or full so skip
                 stack.count == stack.maxCount) {continue }
 
-            else if (stack.count + rbStackSize == stack.maxCount){ //stack fits perfectly
+            else if (stack.count + rollbackStack.count == stack.maxCount){ //stack fits perfectly
                 stack.count = stack.maxCount
                 return true
             }
 
-            else if (stack.count + rbStackSize > stack.maxCount) { // stack can only accept partial amount of items
-                rbStackSize -= stack.maxCount - stack.count //reduce by number of items added
+            else if (stack.count + rollbackStack.count > stack.maxCount) { // stack can only accept partial amount of items
+                rollbackStack.count -= stack.maxCount - stack.count //reduce by number of items added
                 stack.count = stack.maxCount
             }
 
             else { // stack wont exceed max so just increment
-                stack.increment(rbStackSize)
+                stack.increment(rollbackStack.count)
                 return true
             }
         }
+        ItemRemoveCallback.EVENT.invoker().remove(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
+        // would be better if ledger didnt set actions that fail as reverted
         // revert state?
         return false
     }
