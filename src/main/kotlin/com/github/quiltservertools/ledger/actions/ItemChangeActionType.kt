@@ -112,6 +112,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
             val stack = inventory.getStack(i)
 
             if (stack.isEmpty) { // empty slot so can just revert to the old state
+                rollbackStack.count = rbStackSize // stack size could have changed since.
                 inventory.setStack(i, rollbackStack)
                 return true
             }
