@@ -20,7 +20,7 @@ import net.minecraft.util.Identifier
 object Networking {
     // List of players who have a compatible client mod
     private var networkedPlayers = mutableSetOf<ServerPlayerEntity>()
-    const val protocolVersion = 1
+    const val protocolVersion = 2
 
     init {
         if (config[NetworkingSpec.networking]) {
@@ -42,22 +42,6 @@ object Networking {
 
                     receiver.receive(server, player, handler, buf, sender)
         }
-    }
-
-    fun isAllowed(modid: String): Boolean {
-        var allowed = true
-        if (config[NetworkingSpec.allowByDefault]) {
-            if (config[NetworkingSpec.modBlacklist].contains(modid)) {
-                // Mod is blacklisted, disallow
-                allowed = false
-            }
-        } else {
-            if (!config[NetworkingSpec.modWhitelist].contains(modid)) {
-                // Mod is not whitelisted, disallow
-                allowed = false
-            }
-        }
-        return allowed
     }
 
     fun ServerPlayerEntity.hasNetworking() = networkedPlayers.contains(this)
