@@ -73,6 +73,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     protected fun removeMatchingItem(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
+
         if (world == null || inventory == null) { return false }
 
         val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
@@ -82,24 +83,18 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
             if (!stack.isItemEqual(rollbackStack)) { continue } // not the same item so skip
 
-            if (stack.count == rollbackStack.count) { // stack matches removal amount
-                inventory.removeStack(i)
-                return true
-            }
-
-            else if (stack.count < rollbackStack.count ) { // stack is smaller than rollback amount
-                rollbackStack.count -= stack.count
-                inventory.removeStack(i)
-            }  // need to loop again as stacksize cant be 0 yet
-
-            else { //stack is greater than removal
-                stack.count -= rollbackStack.count
-                return true
+            //  0 = remove return // stack matches removal amount
+            // <0 = reduce loop   // stack is smaller than rollback amount
+            // >0 = reduce return // stack is greater than removal
+            when (stack.count - rollbackStack.count) {
+                0                    -> {inventory.removeStack(i); return true }
+                in Int.MIN_VALUE..-1 -> {rollbackStack.count -= stack.count; inventory.removeStack(i)}
+                in 1..Int.MAX_VALUE  -> {stack.count -= rollbackStack.count; return true }
             }
         }
         ItemInsertCallback.EVENT.invoker().insert(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
-        // would be better if ledger didnt set actions that fail as reverted
-        // revert state?
+        // would be better if ledger didn't set actions that fail as reverted
+        // but would need to be able to undo actions here too.
         return false
     }
 
@@ -108,11 +103,12 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world == null || inventory == null) {return false }
+        if (world == null || inventory == null) { return false }
 
         val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
+
 
             if (stack.isEmpty) { // empty slot so can just revert to the old state
                 inventory.setStack(i, rollbackStack)
@@ -120,26 +116,21 @@ abstract class ItemChangeActionType : AbstractActionType() {
             }
 
             if (!stack.isItemEqual(rollbackStack) || // not the same item or full so skip
-                stack.count == stack.maxCount) {continue }
+               stack.count == stack.maxCount) { continue }
 
-            else if (stack.count + rollbackStack.count == stack.maxCount){ //stack fits perfectly
-                stack.count = stack.maxCount
-                return true
-            }
-
-            else if (stack.count + rollbackStack.count > stack.maxCount) { // stack can only accept partial amount of items
-                rollbackStack.count -= stack.maxCount - stack.count //reduce by number of items added
-                stack.count = stack.maxCount
-            }
-
-            else { // stack wont exceed max so just increment
-                stack.increment(rollbackStack.count)
-                return true
+            //  0 = set max return //stack fits perfectly
+            // <0 = increment return // stack won't exceed max so just increment
+            // >0 = set max loop // stack can only accept partial amount of items
+            when (stack.count + rollbackStack.count - stack.maxCount) {
+                0                    -> {stack.count = stack.maxCount; return true }
+                in Int.MIN_VALUE..-1 -> {stack.increment(rollbackStack.count); return true }
+                in 1..Int.MAX_VALUE  -> {rollbackStack.count -= stack.maxCount - stack.count
+                                        stack.count = stack.maxCount }
             }
         }
         ItemRemoveCallback.EVENT.invoker().remove(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
-        // would be better if ledger didnt set actions that fail as reverted
-        // revert state?
+        // would be better if ledger didn't set actions that fail as reverted
+        // but would need to be able to undo actions here too.
         return false
     }
 }
