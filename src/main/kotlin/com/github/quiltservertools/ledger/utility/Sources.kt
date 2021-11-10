@@ -7,5 +7,4 @@ object Sources {
     const val PLAYER = "player"
     const val BROKE = "broke"
     const val UNKNOWN = "unknown"
-    const val ROLLBACKFAIL = "rollback-fail"
 }
