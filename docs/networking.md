@@ -30,6 +30,8 @@ Buf content:
 
 Position: `BlockPos`
 
+Number of pages: `int`
+
 Return packet type: `ledger.action`
 
 ### Search Packet
@@ -39,6 +41,8 @@ Channel: `ledger:search`
 Buf content:
 
 Input: `String`
+
+Pages: `int`
 
 String formatted in the same way as a `/lg search` command would be formatted
 
