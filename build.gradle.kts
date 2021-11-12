@@ -7,9 +7,9 @@ import com.modrinth.minotaur.request.VersionType
 
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("fabric-loom") version "0.9.+"
+    id("fabric-loom") version "0.10.+"
     id("maven-publish")
-    id("io.gitlab.arturbosch.detekt") version "1.15.0"
+    id("io.gitlab.arturbosch.detekt") version "1.18.1"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     id("com.modrinth.minotaur") version "1.2.1"
@@ -60,7 +60,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     mavenCentral()
-    jcenter()
+    mavenLocal()
 }
 
 dependencies {
@@ -95,7 +95,7 @@ dependencies {
     shadow(libs.konf.toml)
 
     // Debug
-    modRuntime(libs.wdmcf)
+    modRuntimeOnly(libs.wdmcf)
 }
 
 tasks {
@@ -192,13 +192,7 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            // add all the jars that should be included when publishing to maven
-            artifact(tasks.jar) {
-                builtBy(tasks.remapJar)
-            }
-            artifact(tasks.getByName("sourcesJar")) {
-                builtBy(tasks.remapSourcesJar)
-            }
+            from(components["java"])
         }
     }
 
