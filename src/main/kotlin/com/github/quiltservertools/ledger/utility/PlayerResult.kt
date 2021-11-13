@@ -2,27 +2,21 @@ package com.github.quiltservertools.ledger.utility
 
 import com.github.quiltservertools.ledger.database.Tables
 import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
+import kotlin.time.ExperimentalTime
 
 data class PlayerResult(val uuid: UUID, val name: String, val firstJoin: Instant, val lastJoin: Instant) {
 
+    @OptIn(ExperimentalTime::class)
     fun toText(): Text {
-        val text = "$name ".literal().setStyle(TextColorPallet.secondaryVariant)
-
-        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-
-        val firstJoinMessage = formatter.format(firstJoin.atZone(TimeZone.getDefault().toZoneId())).literal()
-            .setStyle(TextColorPallet.primary)
-        val lastJoinMessage = formatter.format(lastJoin.atZone(TimeZone.getDefault().toZoneId())).literal()
-            .setStyle(TextColorPallet.primaryVariant)
-
-        text.appendWithSpace(firstJoinMessage)
-        text.appendWithSpace(lastJoinMessage)
-
-        return text
+        return TranslatableText(
+            "text.ledger.player.result",
+            name.literal().setStyle(TextColorPallet.light),
+            MessageUtils.instantToText(firstJoin).setStyle(TextColorPallet.primaryVariant),
+            MessageUtils.instantToText(lastJoin).setStyle(TextColorPallet.primaryVariant)
+        ).setStyle(TextColorPallet.secondary)
     }
 
     companion object {

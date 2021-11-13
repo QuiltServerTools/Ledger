@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
@@ -9,7 +10,6 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
-import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
@@ -17,13 +17,8 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import java.time.Duration
 import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.TimeZone
 import kotlin.time.ExperimentalTime
-import kotlin.time.toKotlinDuration
 
 abstract class AbstractActionType : ActionType {
     override var timestamp: Instant = Instant.now()
@@ -63,36 +58,7 @@ abstract class AbstractActionType : ActionType {
     }
 
     @ExperimentalTime
-    open fun getTimeMessage(): Text {
-        val duration = Duration.between(timestamp, Instant.now()).toKotlinDuration()
-        val text: MutableText = "".literal()
-
-        duration.toComponents { days, hours, minutes, seconds, _ ->
-
-            when {
-                days > 0 -> text.append(days.toString()).append("d")
-                hours > 0 -> text.append(hours.toString()).append("h")
-                minutes > 0 -> text.append(minutes.toString()).append("m")
-                else -> text.append(seconds.toString()).append("s")
-            }
-        }
-
-        val message = TranslatableText("text.ledger.action_message.time_diff", text)
-
-        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-        val timeMessage = formatter.format(timestamp.atZone(TimeZone.getDefault().toZoneId())).literal()
-
-        message.styled {
-            it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
-                    timeMessage
-                )
-            )
-        }
-
-        return message
-    }
+    open fun getTimeMessage(): Text = MessageUtils.instantToText(timestamp)
 
     open fun getSourceMessage(): Text {
         if (sourceProfile == null) {

@@ -8,9 +8,17 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
+import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
+import java.time.Duration
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.toKotlinDuration
 
 object MessageUtils {
     suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
@@ -91,5 +99,36 @@ object MessageUtils {
                 false
             )
         }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun instantToText(time: Instant): MutableText {
+        val duration = Duration.between(time, Instant.now()).toKotlinDuration()
+        val text: MutableText = "".literal()
+
+        duration.toComponents { days, hours, minutes, seconds, _ ->
+
+            when {
+                days > 0 -> text.append(days.toString()).append("d")
+                hours > 0 -> text.append(hours.toString()).append("h")
+                minutes > 0 -> text.append(minutes.toString()).append("m")
+                else -> text.append(seconds.toString()).append("s")
+            }
+        }
+
+        val message = TranslatableText("text.ledger.action_message.time_diff", text)
+
+        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+        val timeMessage = formatter.format(time.atZone(TimeZone.getDefault().toZoneId())).literal()
+
+        message.styled {
+            it.withHoverEvent(
+                HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    timeMessage
+                )
+            )
+        }
+        return message
     }
 }
