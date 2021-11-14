@@ -103,6 +103,11 @@ object DatabaseManager {
         return@execute selectRollbackActions(params)
     }
 
+    suspend fun updateRollbackState(params: ActionSearchParams, updatedActions: List<ActionType>) =
+        execute {
+            updateRollbackedActions(params, updatedActions)
+        }
+
     suspend fun restoreActions(params: ActionSearchParams): List<ActionType> = execute {
         return@execute selectRestoreActions(params)
     }
@@ -422,13 +427,22 @@ object DatabaseManager {
             .orderBy(Tables.Actions.id, SortOrder.DESC)
 
         val actions = Tables.Action.wrapRows(query).toList()
-        for (action in actions) {
-            action.rolledBack = true
-        }
 
         actionTypes.addAll(daoToActionType(actions))
 
         return actionTypes
+    }
+
+    private fun Transaction.updateRollbackedActions(params: ActionSearchParams, updatedActions: List<ActionType>){
+
+        val query = buildQuery(params)
+            .andWhere { Tables.Actions.rolledBack eq false }
+            .orderBy(Tables.Actions.id, SortOrder.DESC)
+        val actionDB = Tables.Action.wrapRows(query).toList()
+
+        updatedActions.zip(actionDB).forEach{ loopBoth ->
+            loopBoth.component2().rolledBack = loopBoth.component1().rolledBack
+        }
     }
 
     private fun Transaction.selectRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
@@ -439,9 +453,6 @@ object DatabaseManager {
             .orderBy(Tables.Actions.id, SortOrder.DESC)
 
         val actions = Tables.Action.wrapRows(query).toList()
-        for (action in actions) {
-            action.rolledBack = false
-        }
 
         actionTypes.addAll(daoToActionType(actions))
 

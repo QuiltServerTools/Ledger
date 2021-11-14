@@ -55,10 +55,8 @@ object RollbackCommand : BuildableCommand {
                 val fails = HashMap<String, Int>()
 
                 for (action in actions) {
-                    if (!action.rollback(context.source.server)) {
-                        fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
-                    }
-                    action.rolledBack = true
+                    action.rolledBack = action.rollback(context.source.server)
+                    if (!action.rolledBack) {fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1}
                 }
 
                 for (entry in fails.entries) {
@@ -78,6 +76,7 @@ object RollbackCommand : BuildableCommand {
                     true
                 )
             }
+            DatabaseManager.updateRollbackState(params,actions)
         }
         return 1
     }
