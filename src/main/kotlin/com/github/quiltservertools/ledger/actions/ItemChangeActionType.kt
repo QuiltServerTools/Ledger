@@ -1,8 +1,5 @@
 package com.github.quiltservertools.ledger.actions
 
-import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback
-import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback
-import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
@@ -92,9 +89,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 in 1..Int.MAX_VALUE  -> {stack.count -= rollbackStack.count; return true }
             }
         }
-        ItemInsertCallback.EVENT.invoker().insert(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
-        // would be better if ledger didn't set actions that fail as reverted
-        // but would need to be able to undo actions here too.
+        // need to be able to undo actions here too.
         return false
     }
 
@@ -118,9 +113,9 @@ abstract class ItemChangeActionType : AbstractActionType() {
             if (!stack.isItemEqual(rollbackStack) || // not the same item or full so skip
                stack.count == stack.maxCount) { continue }
 
-            //  0 = set max return //stack fits perfectly
+            //  0 = set max return   // stack fits perfectly
             // <0 = increment return // stack won't exceed max so just increment
-            // >0 = set max loop // stack can only accept partial amount of items
+            // >0 = set max loop     // stack can only accept partial amount of items
             when (stack.count + rollbackStack.count - stack.maxCount) {
                 0                    -> {stack.count = stack.maxCount; return true }
                 in Int.MIN_VALUE..-1 -> {stack.increment(rollbackStack.count); return true }
@@ -128,9 +123,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
                                         stack.count = stack.maxCount }
             }
         }
-        ItemRemoveCallback.EVENT.invoker().remove(rollbackStack, pos, world, Sources.ROLLBACKFAIL, null)
-        // would be better if ledger didn't set actions that fail as reverted
-        // but would need to be able to undo actions here too.
+        // need to be able to undo actions here too.
         return false
     }
 }
