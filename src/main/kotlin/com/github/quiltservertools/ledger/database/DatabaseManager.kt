@@ -443,6 +443,8 @@ object DatabaseManager {
         updatedActions.zip(actionDB).forEach{ loopBoth ->
             loopBoth.component2().rolledBack = loopBoth.component1().rolledBack
         }
+
+        // i think theres a way to do this just by using the ID of each, could probs also only return in the list of rolledback to
     }
 
     private fun Transaction.selectRestoreActions(params: ActionSearchParams): MutableList<ActionType> {

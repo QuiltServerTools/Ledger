@@ -45,30 +45,15 @@ class RollbackReceiver : Receiver {
 
         Ledger.launch(Dispatchers.IO) {
             MessageUtils.warnBusy(source)
-            if (restore) {
-                val actions = DatabaseManager.restoreActions(params)
+            val actions = if (restore) DatabaseManager.restoreActions(params) else DatabaseManager.rollbackActions(params)
 
-                source.world.launchMain {
+            source.world.launchMain {
 
-                    for (action in actions) {
-                        action.restore(source.server)
-                        action.rolledBack = false
-                    }
-
-                    ResponsePacket.sendResponse(ResponseContent(LedgerPacketTypes.ROLLBACK.id, ResponseCodes.COMPLETED.code), sender)
+                for (action in actions) {
+                    if (restore) action.restore(source.server) else action.rollback(source.server)
                 }
-            } else {
-                val actions = DatabaseManager.rollbackActions(params)
 
-                source.world.launchMain {
-
-                    for (action in actions) {
-                        action.rollback(source.server)
-                        action.rolledBack = true
-                    }
-
-                    ResponsePacket.sendResponse(ResponseContent(LedgerPacketTypes.ROLLBACK.id, ResponseCodes.COMPLETED.code), sender)
-                }
+                ResponsePacket.sendResponse(ResponseContent(LedgerPacketTypes.ROLLBACK.id, ResponseCodes.COMPLETED.code), sender)
             }
         }
 
