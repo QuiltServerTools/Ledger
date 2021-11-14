@@ -83,6 +83,7 @@ object MessageUtils {
     fun sendPlayerMessage(source: ServerCommandSource, results: List<PlayerResult>) {
         if (results.isEmpty()) {
             source.sendFeedback("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary), false)
+            return
         }
         source.sendFeedback("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary), false)
         results.forEach {

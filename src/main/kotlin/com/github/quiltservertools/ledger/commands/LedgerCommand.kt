@@ -52,7 +52,6 @@ fun registerCommands(dispatcher: Dispatcher) {
     rootNode.addChild(PurgeCommand.build())
 
     rootNode.addChild(PlayerCommand.build())
-    rootNode.addChild(BrigadierUtils.buildRedirect("pl", PlayerCommand.build()))
 
     ExtensionManager.commands.forEach {
         it.registerSubcommands().forEach { command ->
