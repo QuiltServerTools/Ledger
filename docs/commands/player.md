@@ -12,8 +12,6 @@ This command searches for the name, first and last join of a player
 
 `/ledger player Potatoboy9999`
 
-`/ledger player Potatoboy9999 yitzy299`
+### Results
 
-### Result format
-
-`<username> <first_join_time> <last_join_time>`
+`<username>: First joined <first_join_time>. Last joined <last_join_time>`
