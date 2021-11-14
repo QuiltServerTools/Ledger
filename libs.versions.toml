@@ -11,7 +11,7 @@ kotlin = "1.5.21"
 fabric-kotlin = "1.6.3+kotlin.1.5.21"
 
 fabric-permissions = "0.1-SNAPSHOT"
-translations = "1.4.7+1.18-pre1"
+translations = "1.4.8+1.18-pre1"
 
 exposed = "0.34.2"
 sqlite-jdbc = "3.36.0.1"
