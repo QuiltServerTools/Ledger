@@ -49,10 +49,6 @@ public abstract class SlotMixin implements HandledSlot {
     @Override
     public void setHandler(@NotNull ScreenHandler handler) {
         this.handler = handler;
-    }
-
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
-    private void ledgerGetInitialStack(Inventory inventory, int index, int x, int y, CallbackInfo ci) {
         oldStack = this.getStack() == null ? ItemStack.EMPTY : this.getStack().copy();
     }
 

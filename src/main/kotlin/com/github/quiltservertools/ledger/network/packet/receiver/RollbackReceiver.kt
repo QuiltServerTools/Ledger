@@ -51,7 +51,7 @@ class RollbackReceiver : Receiver {
                 source.world.launchMain {
 
                     for (action in actions) {
-                        action.restore(source.world)
+                        action.restore(source.server)
                         action.rolledBack = false
                     }
 
@@ -63,7 +63,7 @@ class RollbackReceiver : Receiver {
                 source.world.launchMain {
 
                     for (action in actions) {
-                        action.rollback(source.world)
+                        action.rollback(source.server)
                         action.rolledBack = true
                     }
 

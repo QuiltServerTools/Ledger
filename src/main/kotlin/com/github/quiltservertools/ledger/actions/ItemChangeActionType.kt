@@ -1,5 +1,8 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.getWorld
+import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
 import net.minecraft.block.entity.ChestBlockEntity
@@ -7,14 +10,13 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
-import com.github.quiltservertools.ledger.utility.TextColorPallet
-import com.github.quiltservertools.ledger.utility.literal
 
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
@@ -65,28 +67,38 @@ abstract class ItemChangeActionType : AbstractActionType() {
         return inventory
     }
 
-    protected fun removeMatchingItem(inventory: Inventory): Boolean {
-        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+    protected fun removeMatchingItem(server: MinecraftServer): Boolean {
+        val world = server.getWorld(world)
+        val inventory = world?.let { getInventory(it) }
 
-        for (i in 0 until inventory.size()) {
-            val stack = inventory.getStack(i)
-            if (stack.isItemEqual(rollbackStack)) {
-                inventory.setStack(i, ItemStack.EMPTY)
-                return true
+        if (world != null && inventory != null) {
+            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+
+            for (i in 0 until inventory.size()) {
+                val stack = inventory.getStack(i)
+                if (stack.isItemEqual(rollbackStack)) {
+                    inventory.setStack(i, ItemStack.EMPTY)
+                    return true
+                }
             }
         }
 
         return false
     }
 
-    protected fun addItem(inventory: Inventory): Boolean {
-        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+    protected fun addItem(server: MinecraftServer): Boolean {
+        val world = server.getWorld(world)
+        val inventory = world?.let { getInventory(it) }
 
-        for (i in 0 until inventory.size()) {
-            val stack = inventory.getStack(i)
-            if (stack.isEmpty) {
-                inventory.setStack(i, rollbackStack)
-                return true
+        if (world != null && inventory != null) {
+            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+
+            for (i in 0 until inventory.size()) {
+                val stack = inventory.getStack(i)
+                if (stack.isEmpty) {
+                    inventory.setStack(i, rollbackStack)
+                    return true
+                }
             }
         }
 

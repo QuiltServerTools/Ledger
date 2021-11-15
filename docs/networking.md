@@ -4,7 +4,7 @@ Ledger supports numerous custom packets for interacting with supported client mo
 
 ## Versions
 
-The information on this page is applicable for Ledger Networking version 1, which is the version in Ledger versions `1.1.0` and later
+The information on this page is applicable for Ledger Networking version 2, which is the version in Ledger versions `1.2.0` and later
 
 ## Packet Types
 
@@ -30,6 +30,8 @@ Buf content:
 
 Position: `BlockPos`
 
+Number of pages: `int`
+
 Return packet type: `ledger.action`
 
 ### Search Packet
@@ -39,6 +41,8 @@ Channel: `ledger:search`
 Buf content:
 
 Input: `String`
+
+Pages: `int`
 
 String formatted in the same way as a `/lg search` command would be formatted
 

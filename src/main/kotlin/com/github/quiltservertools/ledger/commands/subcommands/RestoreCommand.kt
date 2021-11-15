@@ -1,10 +1,5 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager
-import net.minecraft.text.TranslatableText
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.commands.BuildableCommand
@@ -17,6 +12,11 @@ import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.launchMain
 import com.github.quiltservertools.ledger.utility.literal
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.lucko.fabric.api.permissions.v0.Permissions
+import net.minecraft.server.command.CommandManager
+import net.minecraft.text.TranslatableText
 
 object RestoreCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -53,7 +53,7 @@ object RestoreCommand : BuildableCommand {
                 val fails = HashMap<String, Int>()
 
                 for (action in actions) {
-                    if (!action.restore(context.source.world)) {
+                    if (!action.restore(context.source.server)) {
                         fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
                     }
                     action.rolledBack = true

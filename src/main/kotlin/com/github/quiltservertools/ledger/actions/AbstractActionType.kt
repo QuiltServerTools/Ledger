@@ -6,8 +6,8 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
+import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
@@ -33,10 +33,10 @@ abstract class AbstractActionType : ActionType {
     override var extraData: String? = null
     override var rolledBack: Boolean = false
 
-    override fun rollback(world: ServerWorld): Boolean = false
-    override fun previewRollback(world: ServerWorld, player: ServerPlayerEntity) = Unit
-    override fun previewRestore(world: ServerWorld, player: ServerPlayerEntity) = Unit
-    override fun restore(world: ServerWorld): Boolean = false
+    override fun rollback(server: MinecraftServer): Boolean = false
+    override fun previewRollback(player: ServerPlayerEntity) = Unit
+    override fun previewRestore(player: ServerPlayerEntity) = Unit
+    override fun restore(server: MinecraftServer): Boolean = false
 
     @ExperimentalTime
     override fun getMessage(): Text {
@@ -102,7 +102,8 @@ abstract class AbstractActionType : ActionType {
             it.withHoverEvent(
                 HoverEvent(
                     HoverEvent.Action.SHOW_TEXT,
-                    TranslatableText("text.ledger.action_message.location.hover")
+                    LiteralText(world?.let { "$it\n" } ?: "")
+                        .append(TranslatableText("text.ledger.action_message.location.hover"))
                 )
             ).withClickEvent(
                 ClickEvent(

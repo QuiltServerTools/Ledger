@@ -35,9 +35,14 @@ object LedgerTest : ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(HANDSHAKE) { client, handler, buf, sender ->
             val protocolVersion = buf.readInt()
-            val isAllowed = buf.readBoolean()
+            val ledgerVersion = buf.readString()
+            val actionsLength = buf.readInt()
             LOGGER.info("Protocol version: {}", protocolVersion)
-            LOGGER.info("Is client mod allowed: {}", isAllowed)
+            LOGGER.info("Ledger version: {}", ledgerVersion)
+            LOGGER.info("Number of types registered: {}", actionsLength)
+            for (i in 0..actionsLength) {
+                LOGGER.info("Action type: {}", buf.readString())
+            }
         }
 
         ClientPlayNetworking.registerGlobalReceiver(ACTION) { client, handler, buf, sender ->

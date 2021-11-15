@@ -1,11 +1,11 @@
 package com.github.quiltservertools.ledger.actions
 
-import net.minecraft.server.world.ServerWorld
+import net.minecraft.server.MinecraftServer
 
 class ItemRemoveActionType : ItemChangeActionType() {
     override val identifier: String = "item-remove"
 
-    override fun rollback(world: ServerWorld) = getInventory(world)?.let { addItem(it) } ?: false
+    override fun rollback(server: MinecraftServer): Boolean = addItem(server)
 
-    override fun restore(world: ServerWorld) = getInventory(world)?.let { removeMatchingItem(it) } ?: false
+    override fun restore(server: MinecraftServer): Boolean = removeMatchingItem(server)
 }

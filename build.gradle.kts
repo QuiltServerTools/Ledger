@@ -1,11 +1,23 @@
+import com.matthewprenger.cursegradle.CurseProject
+import com.matthewprenger.cursegradle.CurseRelation
+import com.matthewprenger.cursegradle.Options
+import com.modrinth.minotaur.TaskModrinthUpload
+import com.modrinth.minotaur.request.Dependency.DependencyType
+import com.modrinth.minotaur.request.VersionType
+
 plugins {
     kotlin("jvm") version "1.5.21"
-    id("fabric-loom") version "0.8-SNAPSHOT"
+    id("fabric-loom") version "0.9.+"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.15.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
     id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.modrinth.minotaur") version "1.2.1"
+    id("com.matthewprenger.cursegradle") version "1.4.0"
 }
+
+var release = false
+val props = properties
 
 val modId: String by project
 val modName: String by project
@@ -23,7 +35,7 @@ sourceSets {
     }
 }
 
-minecraft {
+loom {
     runs {
         create("testmodClient") {
             client()
@@ -36,13 +48,10 @@ minecraft {
 
 configurations.implementation.get().extendsFrom(configurations.shadow.get())
 
-/*
-// Doesn't work, idk why
-val modImplementationAndInclude: Configuration by configurations.creating {
-    extendsFrom(configurations["implementation"])
-    extendsFrom(configurations["include"])
+fun DependencyHandlerScope.modImplementationAndInclude(dep: Any) {
+    modImplementation(dep)
+    include(dep)
 }
- */
 
 repositories {
     maven("https://maven.fabricmc.net/")
@@ -66,12 +75,10 @@ dependencies {
     modImplementation(libs.fabric.api)
 
     // Permissions
-    modImplementation(libs.fabric.permissions)
-    include(libs.fabric.permissions)
+    modImplementationAndInclude(libs.fabric.permissions)
 
     // Translations
-    modImplementation(libs.translations)
-    include(libs.translations)
+    modImplementationAndInclude(libs.translations)
 
     // Kotlin
     modImplementation(libs.fabric.kotlin)
@@ -97,13 +104,13 @@ tasks {
     processResources {
         inputs.property("id", modId)
         inputs.property("name", modName)
-        inputs.property("version", modVersion)
+        inputs.property("version", version)
 
         filesMatching("fabric.mod.json") {
             expand(
                 mapOf(
                     "id" to modId,
-                    "version" to modVersion,
+                    "version" to version,
                     "name" to modName,
                     "fabricLoader" to libs.versions.fabric.loader.get(),
                     "fabricApi" to libs.versions.fabric.api.get(),
@@ -201,6 +208,66 @@ publishing {
     }
 }
 
+curseforge {
+    System.getenv("CURSEFORGE_TOKEN")?.let { CURSEFORGE_API ->
+        apiKey = CURSEFORGE_API
+
+        project(closureOf<CurseProject> {
+            id = "491137"
+            releaseType = "release"
+
+            changelogType = "markdown"
+            changelog = System.getenv("CHANGELOG")
+
+            addGameVersion(libs.versions.minecraft.get())
+            addGameVersion("Fabric")
+            addGameVersion("Java 16")
+
+            mainArtifact(tasks["remapJar"])
+
+            relations(closureOf<CurseRelation> {
+                props["cfReqDeps"].toString().split(",").forEach {
+                    requiredDependency(it)
+                }
+            })
+        })
+
+        options(closureOf<Options> {
+            forgeGradleIntegration = false
+        })
+    }
+}
+
+tasks {
+    register<TaskModrinthUpload>("publishModrinth") {
+        onlyIf { System.getenv().contains("MODRINTH_TOKEN") }
+        dependsOn("build")
+
+        group = "upload"
+
+        token = System.getenv("MODRINTH_TOKEN")
+
+        projectId = "LVN9ygNV"
+        versionType = VersionType.RELEASE
+        version = modVersion
+        changelog = System.getenv("CHANGELOG")
+
+        addGameVersion(libs.versions.minecraft.get())
+        addLoader("fabric")
+
+        props["mrReqDeps"].toString().split(",").forEach {
+            addDependency(it, DependencyType.REQUIRED)
+        }
+
+        uploadFile = remapJar.get().archiveFile.get()
+    }
+}
+
+tasks.register("release") {
+    release = true
+    dependsOn("curseforge", "publishModrinth")
+}
+
 detekt {
     buildUponDefaultConfig = true
     autoCorrect = true
@@ -214,6 +281,8 @@ gitHooks {
 }
 
 fun getVersionMetadata(): String {
+    if (release) return ""
+
     val buildId = System.getenv("GITHUB_RUN_NUMBER")
 
     // CI builds only

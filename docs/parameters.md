@@ -21,7 +21,7 @@ Multiple Allowed - `Yes`
 Example - `world:minecraft:the_end`
 
 This parameter allows you to filter your selection based on the dimension.
-An identifier is minecraft's ID system of a namespace and a path divided by `:`.
+An identifier is Minecraft's ID system of a namespace and a path divided by `:`.
 
 ## Object
 Key - `object:`  
@@ -32,7 +32,7 @@ Example - `object:minecraft:stone`
 
 This parameter allows you to filter your selection based on the object.
 An object is ledger's name for an identifier that could be a block, item or entity.
-An identifier is minecraft's ID system of a namespace and a path divided by `:`.
+An identifier is Minecraft's ID system of a namespace and a path divided by `:`.
 
 ## Range
 Key - `range:`  
@@ -75,4 +75,9 @@ Example - `after:3h`
 These parameters allow you to filter your selection based on time.
 It will select actions within the duration specified.
 You can specify durations with `s`econd, `m`inute, `h`our, `d`ay and `w`eek.
-You can also combine multiple durations for example `7w4d31m42s`. The `before` parameter selects all results before the point in time that was the provided, and after that point for `after`
+You can also combine multiple durations for example `7w4d31m42s`.
+The `after` parameter is the same as the `time` parameter in older versions.
+The `before` parameter selects all results before the point in time that was the provided, and after that point for `after`.
+An easy way to remember the difference between `before:1d` and `after:1d` is to think about it like this.
+If you go back in time 1 day, do you want everything that happened `before` then or `after` then.
+Usually you want `after`.
