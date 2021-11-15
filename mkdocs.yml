@@ -11,6 +11,7 @@ nav:
     - commands/inspect.md
     - commands/search.md
     - commands/page.md
+    - commands/player.md
     - commands/preview.md
     - commands/rollback.md
     - commands/restore.md
