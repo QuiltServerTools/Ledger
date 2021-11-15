@@ -74,22 +74,23 @@ abstract class ItemChangeActionType : AbstractActionType() {
         if (world == null || inventory == null) { return false }
 
         val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+        val stash: MutableList<Int> = mutableListOf()
 
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
 
-            if (!stack.isItemEqual(rollbackStack)) { continue } // not the same item so skip
+            if (!stack.isItemEqual(rollbackStack)) { continue }
+            // not the same item so skip might need to check NBT too
 
-            //  0 = remove return // stack matches removal amount
-            // <0 = reduce loop   // stack is smaller than rollback amount
-            // >0 = reduce return // stack is greater than removal
+            // <0  = reduce rollback stack, add slot to stash and loop
+            // >=0 = reduce, remove stashed, return
             when (stack.count - rollbackStack.count) {
-                0                    -> {inventory.removeStack(i); return true }
-                in Int.MIN_VALUE..-1 -> {rollbackStack.count -= stack.count; inventory.removeStack(i)}
-                in 1..Int.MAX_VALUE  -> {stack.count -= rollbackStack.count; return true }
+                in Int.MIN_VALUE..-1 -> { rollbackStack.count -= stack.count; stash.add(i) } //stack is smaller add to remove list
+                in 0..Int.MAX_VALUE  -> { stack.count -= rollbackStack.count
+                    stash.forEach { inventory.removeStack(it) }
+                    return true }
             }
         }
-        // need to be able to undo actions here too.
         return false
     }
 
@@ -101,29 +102,30 @@ abstract class ItemChangeActionType : AbstractActionType() {
         if (world == null || inventory == null) { return false }
 
         val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+        val stash: MutableList<Int> = mutableListOf()
+
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
 
-
-            if (stack.isEmpty) { // empty slot so can just revert to the old state
+            if (stack.isEmpty) {
                 inventory.setStack(i, rollbackStack)
-                return true
-            }
+                stash.forEach {inventory.setStack(it, ItemStack(rollbackStack.item,rollbackStack.maxCount))}
+                return true }
+            // empty slot so can just add remaining stack and set stashed inv locations to max stack
 
-            if (!stack.isItemEqual(rollbackStack) || // not the same item or full so skip
+            if (!stack.isItemEqual(rollbackStack) ||
                stack.count == stack.maxCount) { continue }
+            // not the same item or full stack so skip
 
-            //  0 = set max return   // stack fits perfectly
-            // <0 = increment return // stack won't exceed max so just increment
-            // >0 = set max loop     // stack can only accept partial amount of items
+            // >0  = reduce rollback stack, add to slot to stash and loop
+            // =<0 = increment final stack, set stashed inv locations to max stack, return
             when (stack.count + rollbackStack.count - stack.maxCount) {
-                0                    -> {stack.count = stack.maxCount; return true }
-                in Int.MIN_VALUE..-1 -> {stack.increment(rollbackStack.count); return true }
-                in 1..Int.MAX_VALUE  -> {rollbackStack.count -= stack.maxCount - stack.count
-                                        stack.count = stack.maxCount }
+                in 1..Int.MAX_VALUE -> { rollbackStack.count -= stack.maxCount - stack.count; stash.add(i) }
+                in Int.MIN_VALUE..0 -> { stack.increment(rollbackStack.count)
+                    stash.forEach { inventory.setStack(it, ItemStack(rollbackStack.item,rollbackStack.maxCount)) }
+                    return true }
             }
         }
-        // need to be able to undo actions here too.
         return false
     }
 }
