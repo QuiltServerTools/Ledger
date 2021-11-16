@@ -85,7 +85,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
             // <0  = reduce rollback stack, add slot to stash and loop
             // >=0 = reduce, remove stashed, return
             when (stack.count - rollbackStack.count) {
-                in Int.MIN_VALUE..-1 -> { rollbackStack.count -= stack.count; stash.add(i) } //stack is smaller add to remove list
+                in Int.MIN_VALUE..-1 -> { rollbackStack.count -= stack.count; stash.add(i) }
                 in 0..Int.MAX_VALUE  -> { stack.count -= rollbackStack.count
                     stash.forEach { inventory.removeStack(it) }
                     return true }
