@@ -1,21 +1,18 @@
 package com.github.quiltservertools.ledger.actionutils
 
-import com.github.quiltservertools.ledger.actions.ActionType
-import com.github.quiltservertools.ledger.actions.BlockBreakActionType
-import com.github.quiltservertools.ledger.actions.BlockChangeActionType
-import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
-import com.github.quiltservertools.ledger.actions.EntityKillActionType
-import com.github.quiltservertools.ledger.actions.ItemInsertActionType
-import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
+import com.github.quiltservertools.ledger.actions.*
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.Entity
+import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
@@ -194,5 +191,19 @@ object ActionFactory {
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
         action.extraData = entity.writeNbt(NbtCompound())?.asString()
+    }
+
+    fun entityEquipAction(
+        playerStack: ItemStack,
+        world: World,
+        pos: BlockPos,
+        entity: Entity,
+        slot: EquipmentSlot.Type,
+        source: String,
+        player: ServerPlayerEntity?): EntityItemChangeActionType {
+
+        val action = EntityItemChangeActionType()
+
+        return action;
     }
 }
