@@ -2,14 +2,11 @@ package com.github.quiltservertools.ledger.mixin.callbacks;
 
 import com.github.quiltservertools.ledger.callbacks.EntityEquipCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityRemoveCallback;
-import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,25 +25,25 @@ public abstract class ArmorStandMixin {
                     target ="Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V")
     ) private void ledgerEquipEntityInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
         ItemStack entityStack = this.getEquippedStack(slot);
-        Entity entity = (Entity) (Object) this;
-        if (entityStack.isEmpty() && playerStack.isEmpty() || entity == null) {return;}
+        LivingEntity entity = (LivingEntity) (Object) this;
+        if (entityStack.isEmpty() && playerStack.isEmpty() || entity == null) {;return;}
         // do nothing no items to swap or entity is non existant
 
         if (entityStack.isEmpty() && !playerStack.isEmpty()) {
-            EntityEquipCallback.EVENT.invoker().equip(playerStack, (ServerWorld) player.world,
-                    entity.getBlockPos(), entity, slot.getType(), Sources.PLAYER, (ServerPlayerEntity) player);
+            EntityEquipCallback.EVENT.invoker().equip(playerStack, player.world,
+                    entity.getBlockPos(), entity, player);
         }
 
         else if (!entityStack.isEmpty() && playerStack.isEmpty()){
-            EntityRemoveCallback.EVENT.invoker().remove(entityStack, (ServerWorld) player.world,
-                    entity.getBlockPos(),entity, slot.getType(), Sources.PLAYER, (ServerPlayerEntity) player);
+            EntityRemoveCallback.EVENT.invoker().remove(entityStack, player.world,
+                    entity.getBlockPos(),entity, player);
         }
         else{
-            EntityRemoveCallback.EVENT.invoker().remove(entityStack, (ServerWorld) player.world,
-                    entity.getBlockPos(),entity, slot.getType(), Sources.PLAYER, (ServerPlayerEntity) player);
+            EntityRemoveCallback.EVENT.invoker().remove(entityStack, player.world,
+                    entity.getBlockPos(),entity, player);
 
-            EntityEquipCallback.EVENT.invoker().equip(playerStack, (ServerWorld) player.world,
-                    entity.getBlockPos(),entity, slot.getType(), Sources.PLAYER, (ServerPlayerEntity) player);
+            EntityEquipCallback.EVENT.invoker().equip(playerStack, player.world,
+                    entity.getBlockPos(),entity, player);
 
         }
 
