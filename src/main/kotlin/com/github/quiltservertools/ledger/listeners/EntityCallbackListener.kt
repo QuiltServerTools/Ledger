@@ -1,22 +1,22 @@
 package com.github.quiltservertools.ledger.listeners
 
+import com.github.quiltservertools.ledger.actionutils.ActionFactory
+import com.github.quiltservertools.ledger.callbacks.EntityEquipCallback
+import com.github.quiltservertools.ledger.callbacks.EntityKillCallback
+import com.github.quiltservertools.ledger.callbacks.EntityRemoveCallback
+import com.github.quiltservertools.ledger.database.DatabaseManager
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import com.github.quiltservertools.ledger.actionutils.ActionFactory
-import com.github.quiltservertools.ledger.callbacks.EntityKillCallback
-import com.github.quiltservertools.ledger.database.DatabaseManager
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
-import net.minecraft.item.ItemStack
-import net.minecraft.server.network.ServerPlayerEntity
 
 
 fun registerEntityListeners() {
     EntityKillCallback.EVENT.register(::onKill)
-    EntityKillCallback.EVENT.register(::onEquip)
-    EntityKillCallback.EVENT.register(::onRemove)
+    EntityEquipCallback.EVENT.register(::onEquip)
+    EntityRemoveCallback.EVENT.register(::onRemove)
 }
 
 private fun onKill(world: World, pos: BlockPos, entity: LivingEntity, source: DamageSource) {
@@ -25,15 +25,15 @@ private fun onKill(world: World, pos: BlockPos, entity: LivingEntity, source: Da
     )
 }
 
-private fun onEquip(playerStack: ItemStack, world: World, pos: BlockPos, entity: Entity, slot: EquipmentSlot.Type, source: String, player: ServerPlayerEntity?) {
+private fun onEquip(playerStack: ItemStack, world: World, pos: BlockPos, entity: LivingEntity, player: PlayerEntity) {
     DatabaseManager.logAction(
-        ActionFactory.entityEquipAction(playerStack, world, pos, entity, slot, source, player)
+        ActionFactory.entityEquipAction(playerStack, world, pos, entity, player)
     )
 }
 
-private fun onRemove(entityStack: ItemStack, world: World, pos: BlockPos, entity: Entity, slot: EquipmentSlot.Type, source: String, player: ServerPlayerEntity?) {
+private fun onRemove(entityStack: ItemStack, world: World, pos: BlockPos, entity: LivingEntity, player: PlayerEntity) {
     DatabaseManager.logAction(
-        ActionFactory.entityRemoveAction(entityStack, world, pos, entity, slot, source, player)
+        ActionFactory.entityRemoveAction(entityStack, world, pos, entity, player)
     )
 }
 

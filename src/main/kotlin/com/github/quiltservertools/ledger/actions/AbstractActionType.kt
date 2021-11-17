@@ -8,11 +8,7 @@ import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.LiteralText
-import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.*
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
