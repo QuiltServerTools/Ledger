@@ -10,7 +10,8 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
-abstract class EntityItemChangeActionType : AbstractActionType() {
+class EntityModifyActionType:  AbstractActionType()  {
+    override val identifier = "entity-modify"
     override fun getTranslationType(): String {
         val item = Registry.ITEM.get(objectIdentifier)
         return if (item is BlockItem) {
@@ -38,13 +39,13 @@ abstract class EntityItemChangeActionType : AbstractActionType() {
         }
     }
 
-    protected fun add(server: MinecraftServer): Boolean {
+    override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
         return false
     }
 
-    protected fun remove(server: MinecraftServer): Boolean {
+    override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
         return false

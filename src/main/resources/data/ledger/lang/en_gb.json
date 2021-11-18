@@ -50,8 +50,7 @@
     "text.ledger.action.item-insert": "added",
     "text.ledger.action.item-remove": "removed",
     "text.ledger.action.entity-kill": "killed",
-    "text.ledger.action.entity-item-a": "added (entity)",
-    "text.ledger.action.entity-item-r": "removed (entity)",
+    "text.ledger.action.entity-modify": "modified",
 
     "text.ledger.network.protocols_mismatched": "Protocol versions mismatched: client mod is Ledger protocol version %d and the client version is %d",
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",
