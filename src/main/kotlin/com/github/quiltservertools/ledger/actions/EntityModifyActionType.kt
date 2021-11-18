@@ -1,10 +1,10 @@
 package com.github.quiltservertools.ledger.actions
 
-import com.github.quiltservertools.ledger.utility.TextColorPallet
-import com.github.quiltservertools.ledger.utility.getWorld
+import com.github.quiltservertools.ledger.utility.*
 import net.minecraft.item.BlockItem
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
+import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
@@ -12,24 +12,46 @@ import net.minecraft.util.registry.Registry
 
 class EntityModifyActionType:  AbstractActionType()  {
     override val identifier = "entity-modify"
+
     override fun getTranslationType(): String {
-        val item = Registry.ITEM.get(objectIdentifier)
+        val item = Registry.ITEM.get(oldObjectIdentifier)
         return if (item is BlockItem) {
             "block"
         } else {
             "item"
         }
     }
-
-    override fun getObjectMessage(): Text {
-        val stack = Registry.ITEM.get(objectIdentifier).defaultStack
+    fun getEntityObjectMessage(): MutableText{
 
         return TranslatableText(
-                Util.createTranslationKey(
-                    getTranslationType(),
-                    objectIdentifier
+            Util.createTranslationKey(
+                "entity",
+                objectIdentifier)
+        ).setStyle(TextColorPallet.secondaryVariant).styled {
+            it.withHoverEvent(
+                HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    objectIdentifier.toString().literal()
                 )
-            ).setStyle(TextColorPallet.secondaryVariant).styled {
+            )
+        }
+    }
+
+    override fun getSourceMessage(): Text {
+        if (sourceProfile == null) {
+            return "@$sourceName".literal().setStyle(TextColorPallet.secondary)
+        }
+        return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
+    }
+
+    fun getItemObjectMessage(): MutableText{
+        val stack = Registry.ITEM.get(oldObjectIdentifier).defaultStack
+
+        return TranslatableText(
+            Util.createTranslationKey(
+                getTranslationType(),
+                oldObjectIdentifier)
+        ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
                     HoverEvent.Action.SHOW_ITEM,
@@ -37,6 +59,22 @@ class EntityModifyActionType:  AbstractActionType()  {
                 )
             )
         }
+    }
+
+    fun getSpacerObjectMessage(): MutableText{
+
+        return TranslatableText(" $sourceName ").setStyle(TextColorPallet.light).styled {
+            it.withHoverEvent(HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                sourceName.toString().literal())
+            )
+        }
+    }
+
+    override fun getObjectMessage(): Text {
+        return getEntityObjectMessage().append(
+            getSpacerObjectMessage()).append(
+            getItemObjectMessage())
     }
 
     override fun rollback(server: MinecraftServer): Boolean {
