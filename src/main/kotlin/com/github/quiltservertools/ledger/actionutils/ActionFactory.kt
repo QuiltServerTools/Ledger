@@ -5,7 +5,7 @@ import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
-import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -157,7 +157,7 @@ object ActionFactory {
         action.extraData = stack.writeNbt(NbtCompound())?.asString()
     }
 
-    fun entityKillAction(world: World, pos: BlockPos, entity: LivingEntity, cause: DamageSource): EntityKillActionType {
+    fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {
         val killer = cause.attacker
         val action = EntityKillActionType()
 
@@ -180,7 +180,7 @@ object ActionFactory {
         action: ActionType,
         pos: BlockPos,
         world: World,
-        entity: LivingEntity,
+        entity: Entity,
         source: String
     ) {
         action.pos = pos
@@ -194,7 +194,7 @@ object ActionFactory {
         playerStack: ItemStack,
         world: World,
         pos: BlockPos,
-        entity: LivingEntity,
+        entity: Entity,
         source: PlayerEntity): EntityItemChangeActionType {
 
         val action = EntityItemInsertActionType()
@@ -208,7 +208,7 @@ object ActionFactory {
         entityStack: ItemStack,
         world: World,
         pos: BlockPos,
-        entity: LivingEntity,
+        entity: Entity,
         source: PlayerEntity): EntityItemChangeActionType {
 
         val action = EntityItemRemoveActionType()
