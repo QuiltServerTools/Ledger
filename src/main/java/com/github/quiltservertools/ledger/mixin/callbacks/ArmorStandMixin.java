@@ -23,7 +23,7 @@ public abstract class ArmorStandMixin {
     @Inject(method = "equip",
             at = @At(value = "INVOKE",
                     target ="Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V")
-    ) private void ledgerEquipEntityInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
+    ) private void ledgerPlayerEntityInteractInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
         ItemStack entityStack = this.getEquippedStack(slot);
         LivingEntity entity = (LivingEntity) (Object) this;
         if (entityStack.isEmpty() && playerStack.isEmpty() || entity == null) {;return;}

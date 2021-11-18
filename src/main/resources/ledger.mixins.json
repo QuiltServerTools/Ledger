@@ -41,6 +41,7 @@
         "blocks.coral.CoralFanBlockMixin",
         "blocks.coral.CoralWallFanBlockMixin"
         "callbacks.ArmorStandMixin",
+        "callbacks.ItemFrameMixin",
     ],
     "injectors": {
         "defaultRequire": 1

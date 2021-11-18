@@ -2,7 +2,7 @@ package com.github.quiltservertools.ledger.callbacks
 
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
@@ -13,7 +13,7 @@ fun interface EntityRemoveCallback {
         stack: ItemStack,
         world: World,
         pos: BlockPos,
-        entity: LivingEntity,
+        entity: Entity,
         player: PlayerEntity
     )
 
