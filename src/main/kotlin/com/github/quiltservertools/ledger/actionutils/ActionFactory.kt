@@ -201,7 +201,7 @@ object ActionFactory {
         setEntityData(action, pos, world, entity, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
         action.sourceName = "Equip"
-        action.objectIdentifier = Registry.ITEM.getId(playerStack.item)// armor stands & item frames only store 1 of any item.
+        action.oldObjectIdentifier = Registry.ITEM.getId(playerStack.item)// armor stands & item frames only store 1 of any item.
 
         return action;
     }
@@ -216,7 +216,7 @@ object ActionFactory {
         setEntityData(action, pos, world, entity, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
         action.sourceName = "Remove"
-        action.objectIdentifier = Registry.ITEM.getId(entityStack.item) // armor stands & item frames only store 1 of any item.
+        action.oldObjectIdentifier = Registry.ITEM.getId(entityStack.item) // armor stands & item frames only store 1 of any item.
 
         return action;
     }
