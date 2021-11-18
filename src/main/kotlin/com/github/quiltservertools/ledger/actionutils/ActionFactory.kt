@@ -195,12 +195,13 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         entity: Entity,
-        source: PlayerEntity): EntityItemChangeActionType {
+        source: PlayerEntity): EntityModifyActionType {
 
-        val action = EntityItemInsertActionType()
+        val action = EntityModifyActionType()
         setEntityData(action, pos, world, entity, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
-        action.objectIdentifier = Registry.ITEM.getId(playerStack.item)
+        action.sourceName = "Equip"
+        action.objectIdentifier = Registry.ITEM.getId(playerStack.item)// armor stands & item frames only store 1 of any item.
 
         return action;
     }
@@ -209,12 +210,13 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         entity: Entity,
-        source: PlayerEntity): EntityItemChangeActionType {
+        source: PlayerEntity): EntityModifyActionType {
 
-        val action = EntityItemRemoveActionType()
+        val action = EntityModifyActionType()
         setEntityData(action, pos, world, entity, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
-        action.objectIdentifier = Registry.ITEM.getId(entityStack.item)
+        action.sourceName = "Remove"
+        action.objectIdentifier = Registry.ITEM.getId(entityStack.item) // armor stands & item frames only store 1 of any item.
 
         return action;
     }
