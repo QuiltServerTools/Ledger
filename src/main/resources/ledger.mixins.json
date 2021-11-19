@@ -11,6 +11,7 @@
     "FarmlandBlockMixin",
     "FireBlockMixin",
     "FlintAndSteelItemMixin",
+    "FlowerPotBlockMixin",
     "FluidBlockMixin",
     "FrostWalkerEnchantmentMixin",
     "HoeItemMixin",
