@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(SnowGolemEntity.class)
-public class SnowGolemEntityMixin {
+public abstract class SnowGolemEntityMixin {
     @ModifyArgs(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
     public void logSnowGolemSnow(Args args) {
         BlockPos pos = args.get(0);
