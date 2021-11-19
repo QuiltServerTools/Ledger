@@ -1,7 +1,10 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.utility.*
+import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
+import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.item.BlockItem
+import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
@@ -21,8 +24,8 @@ class EntityModifyActionType:  AbstractActionType()  {
             "item"
         }
     }
-    fun getEntityObjectMessage(): MutableText{
 
+    private fun getEntityObjectMessage(): MutableText{
         return TranslatableText(
             Util.createTranslationKey(
                 "entity",
@@ -44,7 +47,7 @@ class EntityModifyActionType:  AbstractActionType()  {
         return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
     }
 
-    fun getItemObjectMessage(): MutableText{
+    private fun getItemObjectMessage(): MutableText{
         val stack = Registry.ITEM.get(oldObjectIdentifier).defaultStack
 
         return TranslatableText(
@@ -61,12 +64,12 @@ class EntityModifyActionType:  AbstractActionType()  {
         }
     }
 
-    fun getSpacerObjectMessage(): MutableText{
+    private fun getSpacerObjectMessage(): MutableText{
 
-        return TranslatableText(" $sourceName ").setStyle(TextColorPallet.light).styled {
+        return TranslatableText(" @$sourceName ").setStyle(TextColorPallet.light).styled {
             it.withHoverEvent(HoverEvent(
                 HoverEvent.Action.SHOW_TEXT,
-                sourceName.toString().literal())
+                sourceName.literal())
             )
         }
     }
@@ -77,10 +80,27 @@ class EntityModifyActionType:  AbstractActionType()  {
             getItemObjectMessage())
     }
 
+
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
+        val tag = StringNbtReader.parse(extraData)
+        if (tag.containsUuid("UUID")) {
+            val uuid = tag.getUuid("UUID")
+            val entity = world?.getEntity(uuid) ?: return false
+            val items = entity.itemsEquipped
+            val rollbackItem = Registry.ITEM.get(oldObjectIdentifier).defaultStack // need to trace back nbt from entity for item nbt too for equipstack
+            when (sourceName) {
+                "Remove" -> if (entity is ArmorStandEntity) {
+                    val slot = getPreferredEquipmentSlot(rollbackItem); // what items does this break with?
+                    // should check if slot is ocupied, should not enter state below others that have not also rolled back
+                    entity.equipStack(slot,rollbackItem); return true }
 
-        return false
+                "Equip" -> items.forEach { if (it.isItemEqual(rollbackItem)) {
+                    it.decrement(1); return true }
+                    }
+                }
+        }
+            return false
     }
 
     override fun restore(server: MinecraftServer): Boolean {
@@ -89,3 +109,4 @@ class EntityModifyActionType:  AbstractActionType()  {
         return false
     }
 }
+
