@@ -23,7 +23,8 @@
     "RootedDirtBlockMixin",
     "ScreenHandlerMixin",
     "ShovelItemMixin",
-    "SlotMixin"
+    "SlotMixin",
+    "SnowGolemEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
