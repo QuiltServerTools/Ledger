@@ -6,6 +6,7 @@
     "BambooBlockMixin",
     "BlockItemMixin",
     "BlockMixin",
+    "DaylightDetectorBlockMixin",
     "DoubleInventoryMixin",
     "ExplosionMixin",
     "FallingBlockEntityMixin",
