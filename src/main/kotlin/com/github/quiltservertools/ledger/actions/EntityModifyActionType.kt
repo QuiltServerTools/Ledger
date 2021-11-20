@@ -4,7 +4,10 @@ import com.github.quiltservertools.ledger.utility.*
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
 import net.minecraft.entity.decoration.ArmorStandEntity
+import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.item.BlockItem
+import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
@@ -92,57 +95,38 @@ class EntityModifyActionType:  AbstractActionType()  {
 
             // oldObjectIdentitifer contains the item that was removed from entity
             val rollbackItem = Registry.ITEM.get(oldObjectIdentifier).defaultStack
+            if (entity is ArmorStandEntity) {
 
-            when (sourceName) {
-                "Remove" -> if (entity is ArmorStandEntity) {
-                    // what items does this break with?
-                    val slot = getPreferredEquipmentSlot(rollbackItem)
-                    // load nbt to seperate entity to grab item data from the prefered slot.
-                    val entityDummy : ArmorStandEntity = EntityType.ARMOR_STAND.create(world)!!
-                    entityDummy.readNbt(tag)
-                    // the slot should be empty currently as if something is in the slot you would be overwriting it.
-                    // also check the rollback item is the same type as in the equipped slot
-                    val entityDummyItem = entityDummy.getEquippedStack(slot)
-                    if (entity.getEquippedStack(slot).isEmpty && rollbackItem.isOf(entityDummyItem.item)) {
-                        entity.equipStack(slot,entityDummyItem); return true }}
+                // what items does this break with?
+                val slot = getPreferredEquipmentSlot(rollbackItem)
+                // load nbt to seperate entity to grab item data from the prefered slot.
+                val entityDummy: ArmorStandEntity = EntityType.ARMOR_STAND.create(world)!!
+                entityDummy.readNbt(tag)
+                val entityDummyItem = entityDummy.getEquippedStack(slot)
 
-                "Equip" -> items.forEach { if (it.isItemEqual(rollbackItem)) {
-                    it.decrement(1); return true }
-                    }
+                when (sourceName) {
+                    "Remove" -> if (entity.getEquippedStack(slot).isEmpty && rollbackItem.isOf(entityDummyItem.item)) {
+                        entity.equipStack(slot, entityDummyItem); return true }
+                    "Equip" -> items.forEach { if (it.isItemEqual(rollbackItem)) {
+                        it.decrement(1); return true }}
                 }
-        }
+            }else if (entity is ItemFrameEntity){
+
+                val entityDummy: ItemFrameEntity = EntityType.ITEM_FRAME.create(world)!!
+                entityDummy.readNbt(tag)
+                val entityDummyItem = entityDummy.heldItemStack
+
+                when(sourceName) {
+                    "Remove" -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = entityDummyItem; return true }
+                    "Equip"  -> { entity.heldItemStack = ItemStack(Items.AIR); return true}
+                }
+            }
             return false
+        }
+        return false
     }
 
     override fun restore(server: MinecraftServer): Boolean {
-        val world = server.getWorld(world)
-        val tag = StringNbtReader.parse(extraData)
-        if (tag.containsUuid("UUID")) {
-            val uuid = tag.getUuid("UUID")
-            val entity = world?.getEntity(uuid) ?: return false
-            val items = entity.itemsEquipped
-
-            // oldObjectIdentitifer contains the item that was removed from entity
-            val rollbackItem = Registry.ITEM.get(oldObjectIdentifier).defaultStack
-
-            when (sourceName) {
-                "Equip" -> if (entity is ArmorStandEntity) {
-                    // what items does this break with?
-                    val slot = getPreferredEquipmentSlot(rollbackItem)
-                    // load nbt to seperate entity to grab item data from the prefered slot.
-                    val entityDummy : ArmorStandEntity = EntityType.ARMOR_STAND.create(world)!!
-                    entityDummy.readNbt(tag)
-                    // the slot should be empty currently as if something is in the slot you would be overwriting it.
-                    // also check the rollback item is the same type as in the equipped slot
-                    val entityDummyItem = entityDummy.getEquippedStack(slot)
-                    if (entity.getEquippedStack(slot).isEmpty && rollbackItem.isOf(entityDummyItem.item)) {
-                        entity.equipStack(slot,entityDummyItem); return true }}
-
-                "Remove" -> items.forEach { if (it.isItemEqual(rollbackItem)) {
-                    it.decrement(1); return true }
-                }
-            }
-        }
         return false
     }
 }
