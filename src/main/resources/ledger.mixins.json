@@ -29,7 +29,8 @@
     "ScreenHandlerMixin",
     "ShovelItemMixin",
     "SlotMixin",
-    "SnowGolemEntityMixin"
+    "SnowGolemEntityMixin",
+    "SpongeBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

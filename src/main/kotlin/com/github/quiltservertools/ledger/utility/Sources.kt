@@ -16,5 +16,6 @@ object Sources {
     const val INTERACT = "interact"
     const val GROW = "grow"
     const val SNOW_GOLEM = "snow_golem"
+    const val SPONGE = "sponge"
     const val UNKNOWN = "unknown"
 }
