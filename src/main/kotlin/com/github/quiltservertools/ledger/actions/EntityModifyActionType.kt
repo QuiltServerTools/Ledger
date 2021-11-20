@@ -1,13 +1,14 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.utility.*
-import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
@@ -52,7 +53,7 @@ class EntityModifyActionType:  AbstractActionType()  {
     }
 
     private fun getItemObjectMessage(): MutableText{
-        val stack = Registry.ITEM.get(oldObjectIdentifier).defaultStack
+        val stack = ItemStack.fromNbt(StringNbtReader.parse(extraData).get("Item") as NbtCompound?)
 
         return TranslatableText(
             Util.createTranslationKey(
@@ -87,37 +88,27 @@ class EntityModifyActionType:  AbstractActionType()  {
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val tag = StringNbtReader.parse(extraData)
-        if (tag.containsUuid("UUID")) {
-            val uuid = tag.getUuid("UUID")
+        val entityNbt = StringNbtReader.parse(extraData).get("Entity") as NbtCompound
+        if (entityNbt.containsUuid("UUID")) {
+            val uuid = entityNbt.getUuid("UUID")
             val entity = world?.getEntity(uuid) ?: return false
-            val items = entity.itemsEquipped
 
-            // oldObjectIdentitifer contains the item that was removed from entity
-            val rollbackItem = Registry.ITEM.get(oldObjectIdentifier).defaultStack
+            val itemNbt = StringNbtReader.parse(extraData).get("Item") as NbtCompound
+            val rollbackStack = ItemStack.fromNbt(itemNbt)
+
             if (entity is ArmorStandEntity) {
-
                 // what items does this break with?
-                val slot = getPreferredEquipmentSlot(rollbackItem)
-                // load nbt to seperate entity to grab item data from the prefered slot.
-                val entityDummy: ArmorStandEntity = EntityType.ARMOR_STAND.create(world)!!
-                entityDummy.readNbt(tag)
-                val entityDummyItem = entityDummy.getEquippedStack(slot)
+                val slot = getPreferredEquipmentSlot(rollbackStack)
 
                 when (sourceName) {
-                    "Remove" -> if (entity.getEquippedStack(slot).isEmpty && rollbackItem.isOf(entityDummyItem.item)) {
-                        entity.equipStack(slot, entityDummyItem); return true }
-                    "Equip" -> items.forEach { if (it.isItemEqual(rollbackItem)) {
-                        it.decrement(1); return true }}
+                    "Remove" -> if (entity.getEquippedStack(slot).isEmpty) {
+                        entity.equipStack(slot, rollbackStack); return true }
+                    "Equip" -> {entity.equipStack(slot, ItemStack(Items.AIR)); return true }
                 }
             }else if (entity is ItemFrameEntity){
 
-                val entityDummy: ItemFrameEntity = EntityType.ITEM_FRAME.create(world)!!
-                entityDummy.readNbt(tag)
-                val entityDummyItem = entityDummy.heldItemStack
-
                 when(sourceName) {
-                    "Remove" -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = entityDummyItem; return true }
+                    "Remove" -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
                     "Equip"  -> { entity.heldItemStack = ItemStack(Items.AIR); return true}
                 }
             }
@@ -127,6 +118,34 @@ class EntityModifyActionType:  AbstractActionType()  {
     }
 
     override fun restore(server: MinecraftServer): Boolean {
+        val world = server.getWorld(world)
+        val entityNbt = StringNbtReader.parse(extraData).get("Entity") as NbtCompound
+        if (entityNbt.containsUuid("UUID")) {
+            val uuid = entityNbt.getUuid("UUID")
+            val entity = world?.getEntity(uuid) ?: return false
+
+            val itemNbt = StringNbtReader.parse(extraData).get("Item") as NbtCompound
+            val rollbackStack = ItemStack.fromNbt(itemNbt)
+
+            if (entity is ArmorStandEntity) {
+                // what items does this break with?
+                val slot = getPreferredEquipmentSlot(rollbackStack)
+
+                when (sourceName) {
+                    "Equip" ->  if (entity.getEquippedStack(slot).isEmpty){
+                        entity.equipStack(slot, rollbackStack); return true }
+                    "Remove" -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                }
+
+            }else if (entity is ItemFrameEntity){
+                Ledger.logger.info(sourceName)
+                when(sourceName) {
+                    "Equip"  -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
+                    "Remove" -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
+                }
+            }
+            return false
+        }
         return false
     }
 }
