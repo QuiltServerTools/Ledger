@@ -190,6 +190,28 @@ object ActionFactory {
         action.extraData = entity.writeNbt(NbtCompound())?.asString()
     }
 
+
+    private fun setEntityItemData(
+        action: ActionType,
+        pos: BlockPos,
+        world: World,
+        entity: Entity,
+        itemStack: ItemStack,
+        source: String
+    ) {
+        action.pos = pos
+        action.world = world.registryKey.value
+        action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.oldObjectIdentifier = Registry.ITEM.getId(itemStack.item)
+        action.sourceName = source
+        val b = NbtCompound()
+        b.put("Item",itemStack.writeNbt(NbtCompound()))
+        b.put("Entity",entity.writeNbt(NbtCompound()))
+        action.extraData = b.toString()
+
+
+    }
+
     fun entityEquipAction(
         playerStack: ItemStack,
         world: World,
@@ -198,10 +220,8 @@ object ActionFactory {
         source: PlayerEntity): EntityModifyActionType {
 
         val action = EntityModifyActionType()
-        setEntityData(action, pos, world, entity, Sources.PLAYER)
+        setEntityItemData(action, pos, world, entity, playerStack,"Equip")
         action.sourceProfile = source.gameProfile
-        action.sourceName = "Equip"
-        action.oldObjectIdentifier = Registry.ITEM.getId(playerStack.item)// armor stands & item frames only store 1 of any item.
 
         return action;
     }
@@ -213,10 +233,8 @@ object ActionFactory {
         source: PlayerEntity): EntityModifyActionType {
 
         val action = EntityModifyActionType()
-        setEntityData(action, pos, world, entity, Sources.PLAYER)
+        setEntityItemData(action, pos, world, entity, entityStack,"Remove")
         action.sourceProfile = source.gameProfile
-        action.sourceName = "Remove"
-        action.oldObjectIdentifier = Registry.ITEM.getId(entityStack.item) // armor stands & item frames only store 1 of any item.
 
         return action;
     }
