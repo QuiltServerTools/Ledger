@@ -6,12 +6,12 @@ import com.modrinth.minotaur.request.Dependency.DependencyType
 import com.modrinth.minotaur.request.VersionType
 
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.6.0"
     id("fabric-loom") version "0.10.+"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.18.1"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.modrinth.minotaur") version "1.2.1"
     id("com.matthewprenger.cursegradle") version "1.4.0"
 }
