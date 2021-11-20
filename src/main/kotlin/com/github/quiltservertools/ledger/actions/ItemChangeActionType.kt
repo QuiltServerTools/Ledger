@@ -79,7 +79,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         for (i in 0 until inventory.size()) {
             val stack = inventory.getStack(i)
 
-            if (!stack.isItemEqual(rollbackStack)) { continue }
+            if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt)) { continue }
             // not the same item so skip might need to check NBT too
 
             // <0  = reduce rollback stack, add slot to stash and loop
@@ -113,7 +113,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 return true }
             // empty slot so can just add remaining stack and set stashed inv locations to max stack
 
-            if (!stack.isItemEqual(rollbackStack) ||
+            if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt) ||
                stack.count == stack.maxCount) { continue }
             // not the same item or full stack so skip
 
