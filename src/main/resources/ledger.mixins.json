@@ -2,6 +2,7 @@
   "required": true,
   "package": "com.github.quiltservertools.ledger.mixin",
   "mixins": [
+    "AxeItemMixin",
     "BambooBlockMixin",
     "BlockItemMixin",
     "BlockMixin",
@@ -15,6 +16,7 @@
     "FluidBlockMixin",
     "FrostWalkerEnchantmentMixin",
     "HoeItemMixin",
+    "HoneycombItemMixin",
     "IceBlockMixin",
     "ItemScattererMixin",
     "LeavesBlockMixin",
