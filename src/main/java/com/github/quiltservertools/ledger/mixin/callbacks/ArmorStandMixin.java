@@ -1,9 +1,11 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
 import com.github.quiltservertools.ledger.callbacks.EntityEquipCallback;
+import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityRemoveCallback;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -23,30 +25,28 @@ public abstract class ArmorStandMixin {
     @Inject(method = "equip",
             at = @At(value = "INVOKE",
                     target ="Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V")
-    ) private void ledgerPlayerEntityInteractInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
+    ) private void ledgerArmorStandInteractInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
         ItemStack entityStack = this.getEquippedStack(slot);
-        LivingEntity entity = (LivingEntity) (Object) this;
+        Entity entity = (Entity) (Object) this;
         if (entityStack.isEmpty() && playerStack.isEmpty() || entity == null) {;return;}
         // do nothing no items to swap or entity is non existant
 
-        if (entityStack.isEmpty() && !playerStack.isEmpty()) {
+        if (entityStack.isEmpty()) {
             EntityEquipCallback.EVENT.invoker().equip(playerStack, player.world,
                     entity.getBlockPos(), entity, player);
         }
 
-        else if (!entityStack.isEmpty() && playerStack.isEmpty()){
+        else if (playerStack.isEmpty()){
             EntityRemoveCallback.EVENT.invoker().remove(entityStack, player.world,
                     entity.getBlockPos(),entity, player);
         }
-        else{
-            EntityRemoveCallback.EVENT.invoker().remove(entityStack, player.world,
-                    entity.getBlockPos(),entity, player);
 
-            EntityEquipCallback.EVENT.invoker().equip(playerStack, player.world,
-                    entity.getBlockPos(),entity, player);
+    }
 
-        }
-
+    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;kill()V")
+    ) private void ledgerArmorStandKillInvoker(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir){
+        Entity entity = (Entity) (Object) this;
+        EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(),entity,source);
     }
 }
 
