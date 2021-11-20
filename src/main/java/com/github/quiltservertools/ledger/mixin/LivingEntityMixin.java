@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +16,7 @@ public abstract class LivingEntityMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getAttacker()Lnet/minecraft/entity/Entity;")
     )
     private void ledgerEntityKillInvoker(DamageSource source, CallbackInfo ci) {
-        LivingEntity entity = (LivingEntity) (Object) this;
+        Entity entity = (Entity) (Object) this;
 
         EntityKillCallback.EVENT.invoker().kill(
                 entity.world, entity.getBlockPos(), entity, source
