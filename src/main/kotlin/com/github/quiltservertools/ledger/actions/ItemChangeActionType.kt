@@ -80,13 +80,14 @@ abstract class ItemChangeActionType : AbstractActionType() {
             val stack = inventory.getStack(i)
 
             if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt)) { continue }
-            // not the same item so skip might need to check NBT too
+            // not the same item + nbt so skip
 
-            // <0  = reduce rollback stack, add slot to stash and loop
+            // < 0  = reduce rollback stack, add slot to stash and loop
             // >=0 = reduce, remove stashed, return
-            when (stack.count - rollbackStack.count) {
-                in Int.MIN_VALUE..-1 -> { rollbackStack.count -= stack.count; stash.add(i) }
-                in 0..Int.MAX_VALUE  -> { stack.count -= rollbackStack.count
+            val remainingStackCount = stack.count - rollbackStack.count
+            when{
+                remainingStackCount < 0  -> { rollbackStack.count -= stack.count; stash.add(i) }
+                remainingStackCount >= 0 -> { stack.count -= rollbackStack.count
                     stash.forEach { inventory.removeStack(it) }
                     return true }
             }
@@ -115,13 +116,14 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
             if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt) ||
                stack.count == stack.maxCount) { continue }
-            // not the same item or full stack so skip
+            // not the same item + nbt or full stack so skip
 
-            // >0  = reduce rollback stack, add to slot to stash and loop
+            // > 0 = reduce rollback stack, add to slot to stash and loop
             // =<0 = increment final stack, set stashed inv locations to max stack, return
-            when (stack.count + rollbackStack.count - stack.maxCount) {
-                in 1..Int.MAX_VALUE -> { rollbackStack.count -= stack.maxCount - stack.count; stash.add(i) }
-                in Int.MIN_VALUE..0 -> { stack.increment(rollbackStack.count)
+            val remainingStackCount = stack.count + rollbackStack.count - stack.maxCount
+            when {
+                remainingStackCount > 0  -> { rollbackStack.count -= stack.maxCount - stack.count; stash.add(i) }
+                remainingStackCount <= 0 -> { stack.increment(rollbackStack.count)
                     stash.forEach { inventory.setStack(it, ItemStack(rollbackStack.item,rollbackStack.maxCount)) }
                     return true }
             }
