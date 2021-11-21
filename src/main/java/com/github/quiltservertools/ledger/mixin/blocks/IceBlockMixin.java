@@ -1,4 +1,4 @@
-package com.github.quiltservertools.ledger.mixin;
+package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockMeltCallback;
 import net.minecraft.block.BlockState;
