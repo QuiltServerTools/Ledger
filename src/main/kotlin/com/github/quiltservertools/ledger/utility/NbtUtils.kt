@@ -18,6 +18,7 @@ const val UUID = "UUID" // Entity
 const val ITEMROTATION = "ItemRotation" // Entity
 const val ARMORITEMS = "ArmorItems" // Entity
 const val HANDITEMS = "HandItems" // Entity
+const val ITEM = "Item" // Entity
 const val ROTATION = "Rotation" // Entity
 const val POSE = "Pose" // Entity
 
@@ -75,12 +76,14 @@ object NbtUtils {
 
         if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
         if (storedNBT.contains(ITEMROTATION)) entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
+        Ledger.logger.info(storedNBT)
 
         if (actionType == EntityKillActionType().identifier){ // add this to spawn too // needs some way to skip over defaults
             if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.get(ROTATION))
             if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.get(POSE))
             if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
             if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
+            if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
     }
 
 
@@ -100,6 +103,7 @@ object NbtUtils {
         if (tagNbt.contains(POSE)) entityTag.put(POSE, tagNbt.get(POSE))
         if (tagNbt.contains(HANDITEMS)) entityTag.put(HANDITEMS, tagNbt.getCompound(HANDITEMS))
         if (tagNbt.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, tagNbt.getCompound(ARMORITEMS))
+        if (tagNbt.contains(ITEM)) entityTag.put(ITEM, tagNbt.get(ITEM))
 
 
         return entityTag
