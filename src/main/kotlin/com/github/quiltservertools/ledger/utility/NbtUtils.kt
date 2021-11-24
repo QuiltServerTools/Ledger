@@ -15,12 +15,13 @@ const val PROPERTIES = "Properties" // BlockState
 const val COUNT = "Count" // ItemStack
 const val TAG = "tag" // ItemStack
 const val UUID = "UUID" // Entity
-const val ITEMROTATION = "ItemRotation" // Entity
+const val ITEMROTATION = "ItemRotation" // DecorationEntity
 const val ARMORITEMS = "ArmorItems" // Entity
 const val HANDITEMS = "HandItems" // Entity
-const val ITEM = "Item" // Entity
+const val ITEM = "Item" // DecorationEntity
 const val ROTATION = "Rotation" // Entity
-const val POSE = "Pose" // Entity
+const val FACING = "Facing" // DecorationEntity
+const val POSE = "Pose" // ArmorStandEntity
 
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
@@ -84,6 +85,7 @@ object NbtUtils {
             if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
             if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
             if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
+            if (storedNBT.contains(FACING)) entityTag.putByte(FACING, storedNBT.getByte(FACING))
     }
 
 
@@ -95,15 +97,16 @@ object NbtUtils {
 
         if (tag == null) { return null}
 
-        val tagNbt = StringNbtReader.parse(tag)
+        val storedNBT = StringNbtReader.parse(tag)
 
-        if (tagNbt.contains(UUID)) entityTag.putUuid(UUID, tagNbt.getUuid(UUID))
-        if (tagNbt.contains(ITEMROTATION)) entityTag.putByte(ITEMROTATION, tagNbt.getByte(ITEMROTATION))
-        if (tagNbt.contains(ROTATION)) entityTag.putFloat(ROTATION, tagNbt.getFloat(ROTATION))
-        if (tagNbt.contains(POSE)) entityTag.put(POSE, tagNbt.get(POSE))
-        if (tagNbt.contains(HANDITEMS)) entityTag.put(HANDITEMS, tagNbt.getCompound(HANDITEMS))
-        if (tagNbt.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, tagNbt.getCompound(ARMORITEMS))
-        if (tagNbt.contains(ITEM)) entityTag.put(ITEM, tagNbt.get(ITEM))
+        if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
+        if (storedNBT.contains(ITEMROTATION)) entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
+        if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.get(ROTATION))
+        if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.get(POSE))
+        if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.getCompound(HANDITEMS))
+        if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.getCompound(ARMORITEMS))
+        if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
+        if (storedNBT.contains(FACING)) entityTag.putByte(FACING, storedNBT.getByte(FACING))
 
 
         return entityTag

@@ -26,7 +26,7 @@ class EntityKillActionType : AbstractActionType() {
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
             entity.setPos(pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.1, pos.z.toDouble() + 0.5)
-            //edited detekt to do this
+            //edited detekt to do this some reason item frames will not spawn back in
             if (entity is LivingEntity) {
                 entity.health = entity.defaultMaxHealth.toFloat()
             }
