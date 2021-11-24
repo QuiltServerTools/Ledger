@@ -1,5 +1,7 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.NbtUtils
+import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
@@ -19,9 +21,11 @@ class EntityKillActionType : AbstractActionType() {
         val entityType = Registry.ENTITY_TYPE.getOrEmpty(objectIdentifier)
         if (entityType.isPresent) {
             val entity = entityType.get().create(world)!!
-            entity.readNbt(StringNbtReader.parse(extraData))
+
+            entity.readNbt(StringNbtReader.parse(NbtUtils.entityFromProperties(extraData)!!.toString()))
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
+            entity.setPos(pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.1, pos.z.toDouble() + 0.5)
             if (entity is LivingEntity) {
                 entity.health = entity.defaultMaxHealth.toFloat()
             }
@@ -37,17 +41,13 @@ class EntityKillActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val tag = StringNbtReader.parse(extraData)
-        if (tag.containsUuid("UUID")) {
-            val uuid = tag.getUuid("UUID")
-            val entity = world?.getEntity(uuid)
+        val uuid = NbtUtils.entityFromProperties(extraData)!!.getUuid(UUID) ?: return false
+        val entity = world?.getEntity(uuid)
 
-            if (entity != null) {
-                entity.remove(Entity.RemovalReason.DISCARDED)
-                return true
-            }
+        if (entity != null) {
+            entity.remove(Entity.RemovalReason.DISCARDED)
+            return true
         }
-
         return false
     }
 }
