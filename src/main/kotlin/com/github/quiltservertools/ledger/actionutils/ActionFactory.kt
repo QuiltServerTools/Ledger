@@ -188,7 +188,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
-        action.extraData = entity.writeNbt(NbtCompound())?.asString()
+        action.extraData = setEntitySpecialData(entity,action.identifier).toString()
     }
 
 
@@ -212,7 +212,7 @@ object ActionFactory {
             if (setLightItemData(itemStack) != null) {
                extraData.copyFrom(setLightItemData(itemStack))}
         }
-        extraData.copyFrom(setUUIDData(entity))
+        extraData.copyFrom(setEntitySpecialData(entity,action.identifier))
         action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
@@ -220,7 +220,7 @@ object ActionFactory {
 
     private fun setLightItemData(itemStack: ItemStack ) = NbtUtils.itemToProperties(itemStack)
 
-    private fun setUUIDData(entity: Entity) = NbtUtils.entityUUIDToProperties(entity)
+    private fun setEntitySpecialData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
 
     fun entityEquipAction(
         playerStack: ItemStack,

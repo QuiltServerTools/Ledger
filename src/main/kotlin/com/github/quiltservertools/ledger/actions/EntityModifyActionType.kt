@@ -7,7 +7,6 @@ import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
@@ -86,7 +85,7 @@ class EntityModifyActionType:  AbstractActionType()  {
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val uuid = NbtUtils.entityUUIDFromProperties(StringNbtReader.parse(extraData)) ?: return false
+        val uuid = NbtUtils.entityFromProperties(extraData)!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid) ?: return false
 
         val rollbackStack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
@@ -112,7 +111,7 @@ class EntityModifyActionType:  AbstractActionType()  {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val uuid = NbtUtils.entityUUIDFromProperties(StringNbtReader.parse(extraData)) ?: return false
+        val uuid = NbtUtils.entityFromProperties(extraData)!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid) ?: return false
 
         val rollbackStack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
