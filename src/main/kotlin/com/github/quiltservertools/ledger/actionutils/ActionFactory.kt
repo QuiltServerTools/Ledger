@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.actionutils
 
 import com.github.quiltservertools.ledger.actions.*
+import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
@@ -154,7 +155,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = stack.writeNbt(NbtCompound())?.asString()
+        action.extraData = setLightItemData(stack).toString()
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {
@@ -196,21 +197,30 @@ object ActionFactory {
         pos: BlockPos,
         world: World,
         entity: Entity,
-        itemStack: ItemStack,
+        itemStack: ItemStack?,
         source: String
     ) {
         action.pos = pos
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
-        action.oldObjectIdentifier = Registry.ITEM.getId(itemStack.item)
         action.sourceName = source
-        val b = NbtCompound()
-        b.put("Item",itemStack.writeNbt(NbtCompound()))
-        b.put("Entity",entity.writeNbt(NbtCompound()))
-        action.extraData = b.toString()
+
+        val extraData = NbtCompound()
+
+        if (itemStack != null) {
+            action.oldObjectIdentifier = Registry.ITEM.getId(itemStack.item)
+            if (setLightItemData(itemStack) != null) {
+               extraData.copyFrom(setLightItemData(itemStack))}
+        }
+        extraData.copyFrom(setUUIDData(entity))
+        action.extraData = extraData.toString()
 
 
     }
+
+    private fun setLightItemData(itemStack: ItemStack ) = NbtUtils.itemToProperties(itemStack)
+
+    private fun setUUIDData(entity: Entity) = NbtUtils.entityUUIDToProperties(entity)
 
     fun entityEquipAction(
         playerStack: ItemStack,
