@@ -213,7 +213,7 @@ object ActionFactory {
                extraData.copyFrom(setLightItemData(itemStack))}
         }
         extraData.copyFrom(setUUIDData(entity))
-        action.extraData = extraData.toString()
+        action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
     }

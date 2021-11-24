@@ -49,7 +49,7 @@ object NbtUtils {
 
         itemTag.putString("id", name.toString())
 
-        if (tag == "null") { // lmao
+        if (tag == null) {
             itemTag.putByte(COUNT, 1);
             return ItemStack.fromNbt(itemTag)
         }
@@ -73,5 +73,4 @@ object NbtUtils {
     }
 
     fun entityUUIDFromProperties(tag: NbtCompound) = if (!tag.contains(UUID)) null else tag.getUuid(UUID)
-    }
 }
