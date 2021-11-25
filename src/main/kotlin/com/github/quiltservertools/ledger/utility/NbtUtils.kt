@@ -42,9 +42,9 @@ object NbtUtils {
     fun itemToProperties(item: ItemStack): NbtCompound? {
         val itemTag = NbtCompound()
 
-        val a = item.writeNbt(NbtCompound())
+        val storedNBT = item.writeNbt(NbtCompound())
 
-        Ledger.logger.info(a)
+        Ledger.logger.info(storedNBT)
 
         if (item.count > 1) { itemTag.putByte(COUNT, item.count.toByte()) }
         if (item.nbt != null) { itemTag.put(TAG, item.nbt) }
@@ -72,22 +72,37 @@ object NbtUtils {
         return ItemStack.fromNbt(itemTag)
     }
 
-    //idk at some point need to look into what is needed here. surely we dont need every single nbt to be logged
+    //This monster will find non default NBT tags & log them
     fun entityToProperties(entity: Entity, actionType: String): NbtCompound? {
         val entityTag = NbtCompound()
         val storedNBT = entity.writeNbt(NbtCompound())
 
-        if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
-        if (storedNBT.contains(ITEMROTATION)) entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
-        Ledger.logger.info(storedNBT)
+        val defaultNBT = entity.type.create(entity.world)!!.writeNbt(NbtCompound())
 
-        if (actionType == EntityKillActionType().identifier) { // add this to spawn too // needs some way to skip over defaults
-            if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.get(ROTATION))
-            if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.get(POSE))
-            if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
-            if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
-            if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
-            if (storedNBT.contains(FACING)) entityTag.putByte(FACING, storedNBT.getByte(FACING))
+        if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
+        if (storedNBT.contains(ITEMROTATION) && defaultNBT.getByte(ITEMROTATION) != storedNBT.getByte(ITEMROTATION)) {
+            entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
+        }
+
+        if (actionType == EntityKillActionType().identifier) {
+            if (storedNBT.contains(ROTATION) && defaultNBT.get(ROTATION) != storedNBT.get(ROTATION)) {
+                entityTag.put(ROTATION, storedNBT.get(ROTATION))
+            }
+            if (storedNBT.contains(POSE) && defaultNBT.get(POSE) != storedNBT.get(POSE)) {
+                entityTag.put(POSE, storedNBT.get(POSE))
+            }
+            if (storedNBT.contains(HANDITEMS) && defaultNBT.get(HANDITEMS) != storedNBT.get(HANDITEMS)) {
+                entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
+            }
+            if (storedNBT.contains(ARMORITEMS) && defaultNBT.get(ARMORITEMS) != storedNBT.get(ARMORITEMS)) {
+                entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
+            }
+            if (storedNBT.contains(ITEM) && defaultNBT.get(ITEM) != storedNBT.get(ITEM)) {
+                entityTag.put(ITEM, storedNBT.get(ITEM))
+            }
+            if (storedNBT.contains(FACING) && defaultNBT.getByte(FACING) != storedNBT.getByte(FACING)) {
+                entityTag.putByte(FACING, storedNBT.getByte(FACING))
+            }
         }
 
 
@@ -97,20 +112,24 @@ object NbtUtils {
     fun entityFromProperties(tag: String?): NbtCompound? {
         val entityTag = NbtCompound()
 
-        if (tag == null) { return null }
+        if (tag == null) {
+            return null
+        }
 
         val storedNBT = StringNbtReader.parse(tag)
 
         if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
-        if (storedNBT.contains(ITEMROTATION)) entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
+        if (storedNBT.contains(ITEMROTATION)) entityTag.put(ITEMROTATION, storedNBT.get(ITEMROTATION))
         if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.get(ROTATION))
         if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.get(POSE))
-        if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.getCompound(HANDITEMS))
-        if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.getCompound(ARMORITEMS))
+        if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
+        if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
         if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
         if (storedNBT.contains(FACING)) entityTag.putByte(FACING, storedNBT.getByte(FACING))
 
 
         return entityTag
     }
+
+
 }

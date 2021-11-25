@@ -1,13 +1,11 @@
 package com.github.quiltservertools.ledger.listeners
 
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
-import com.github.quiltservertools.ledger.callbacks.EntityEquipCallback
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback
-import com.github.quiltservertools.ledger.callbacks.EntityRemoveCallback
+import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -15,8 +13,7 @@ import net.minecraft.world.World
 
 fun registerEntityListeners() {
     EntityKillCallback.EVENT.register(::onKill)
-    EntityEquipCallback.EVENT.register(::onEquip)
-    EntityRemoveCallback.EVENT.register(::onRemove)
+    EntityModifyCallback.EVENT.register(::onModify)
 }
 
 private fun onKill(world: World, pos: BlockPos, entity: Entity, source: DamageSource) {
@@ -25,15 +22,16 @@ private fun onKill(world: World, pos: BlockPos, entity: Entity, source: DamageSo
     )
 }
 
-private fun onEquip(playerStack: ItemStack, world: World, pos: BlockPos, entity: Entity, player: PlayerEntity) {
+private fun onModify(
+    sourceType: String,
+    world: World,
+    pos: BlockPos,
+    entity: Entity,
+    itemStack: ItemStack?,
+    entityActor: Entity?) {
     DatabaseManager.logAction(
-        ActionFactory.entityEquipAction(playerStack, world, pos, entity, player)
+        ActionFactory.entityModifyAction(sourceType, world, pos, entity, itemStack, entityActor)
     )
 }
 
-private fun onRemove(entityStack: ItemStack, world: World, pos: BlockPos, entity: Entity, player: PlayerEntity) {
-    DatabaseManager.logAction(
-        ActionFactory.entityRemoveAction(entityStack, world, pos, entity, player)
-    )
-}
 

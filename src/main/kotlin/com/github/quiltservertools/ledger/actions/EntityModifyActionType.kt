@@ -15,8 +15,14 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
+const val EQUIP = "equip"
+const val REMOVE = "remove"
+const val ROTATE = "rotate"
+
 class EntityModifyActionType : AbstractActionType() {
     override val identifier = "entity-modify"
+
+
 
     override fun getTranslationType(): String {
         val item = Registry.ITEM.get(oldObjectIdentifier)
@@ -100,18 +106,18 @@ class EntityModifyActionType : AbstractActionType() {
             val slot = getPreferredEquipmentSlot(rollbackStack)
 
             when (sourceName) {
-                "Remove" -> {
+                REMOVE-> {
                     if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true
                 }
-                "Equip" -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                EQUIP -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
         } else if (entity is ItemFrameEntity) {
 
             when (sourceName) {
-                "Remove" -> {
+                REMOVE -> {
                     if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true
                 }
-                "Equip" -> {
+                EQUIP -> {
                     entity.heldItemStack = ItemStack(Items.AIR); return true
                 }
             }
@@ -131,18 +137,18 @@ class EntityModifyActionType : AbstractActionType() {
             val slot = getPreferredEquipmentSlot(rollbackStack)
 
             when (sourceName) {
-                "Equip" -> {
+                EQUIP -> {
                     if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true
                 }
-                "Remove" -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                REMOVE-> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
         } else if (entity is ItemFrameEntity) {
 
             when (sourceName) {
-                "Equip" -> {
+                EQUIP -> {
                     if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true
                 }
-                "Remove" -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
+                REMOVE -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
             }
         }
         return false

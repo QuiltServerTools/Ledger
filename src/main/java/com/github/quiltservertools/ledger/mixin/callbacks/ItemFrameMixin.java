@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.callbacks.EntityEquipCallback;
+import com.github.quiltservertools.ledger.actions.EntityModifyActionTypeKt;
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
-import com.github.quiltservertools.ledger.callbacks.EntityRemoveCallback;
+import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ItemFrameEntity;
@@ -24,32 +24,40 @@ public abstract class ItemFrameMixin {
     @Shadow
     public abstract ItemStack getHeldItemStack();
 
-    @Inject(method = "dropHeldStack",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
-    )
-    private void ledgerItemFrameRemoveInvoker(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
-        ItemStack itemStack = this.getHeldItemStack();
-        if (itemStack.isEmpty() || entityActor == null) { return; } // removed nothing or destroyed by block
-
-        Entity entity = (Entity) (Object) this;
-
-        EntityRemoveCallback.EVENT.invoker().remove(itemStack, entity.world,
-                entity.getBlockPos(), entity, entityActor);
-    }
-
     @Inject(method = "interact",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
     )
     private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        ItemStack itemStack = player.getStackInHand(hand);
+        ItemStack playerStack = player.getStackInHand(hand);
+        Entity entity = (Entity) (Object) this;
+        EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.EQUIP, player.world,
+                entity.getBlockPos(), entity, playerStack, player);
+    }
+
+    @Inject(method = "interact",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V")
+    )
+    private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+        ItemStack entityStack = this.getHeldItemStack();
+        Entity entity = (Entity) (Object) this;
+        EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.ROTATE, player.world,
+                entity.getBlockPos(), entity, entityStack , player);
+    }
+
+    @Inject(method = "dropHeldStack",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
+    )
+    private void ledgerItemFrameRemoveInvoker(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
+        ItemStack entityStack = this.getHeldItemStack();
+        if (entityStack.isEmpty() || entityActor == null) { return; } // removed nothing or destroyed by block
+
         Entity entity = (Entity) (Object) this;
 
-        if (itemStack.isEmpty()) { var detekt = "begone"; } //EntityRotateItem
-
-        EntityEquipCallback.EVENT.invoker().equip(itemStack, player.world,
-                entity.getBlockPos(), entity, player);
+        EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.REMOVE, entityActor.world,
+                entity.getBlockPos(),entity, entityStack, entityActor);
     }
 
     @Inject(method = "damage",

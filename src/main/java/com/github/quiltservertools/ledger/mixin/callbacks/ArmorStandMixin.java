@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.callbacks.EntityEquipCallback;
+import com.github.quiltservertools.ledger.actions.EntityModifyActionTypeKt;
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
-import com.github.quiltservertools.ledger.callbacks.EntityRemoveCallback;
+import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.damage.DamageSource;
@@ -32,13 +32,13 @@ public abstract class ArmorStandMixin {
         // do nothing no items to swap or entity is non existant
 
         if (entityStack.isEmpty()) {
-            EntityEquipCallback.EVENT.invoker().equip(playerStack, player.world,
-                    entity.getBlockPos(), entity, player);
+            EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.EQUIP, player.world,
+                    entity.getBlockPos(), entity, playerStack, player);
         }
 
         else if (playerStack.isEmpty()){
-            EntityRemoveCallback.EVENT.invoker().remove(entityStack, player.world,
-                    entity.getBlockPos(),entity, player);
+            EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.REMOVE, player.world,
+                    entity.getBlockPos(),entity, entityStack, player);
         }
 
     }

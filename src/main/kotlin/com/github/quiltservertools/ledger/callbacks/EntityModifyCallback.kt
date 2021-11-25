@@ -7,22 +7,22 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-fun interface EntityRemoveCallback {
-    fun remove(
-        stack: ItemStack,
+fun interface EntityModifyCallback {
+    fun modify(
+        sourceType: String,
         world: World,
         pos: BlockPos,
         entity: Entity,
-        entityActor: Entity
-    )
+        itemStack: ItemStack?,
+        entityActor: Entity?)
 
     companion object {
         @JvmField
-        val EVENT: Event<EntityRemoveCallback> =
-            EventFactory.createArrayBacked(EntityRemoveCallback::class.java) { listeners ->
-                EntityRemoveCallback { stack, world, pos, entity, player ->
+        val EVENT: Event<EntityModifyCallback> =
+            EventFactory.createArrayBacked(EntityModifyCallback::class.java) { listeners ->
+                EntityModifyCallback {actionType, world, pos, entity, itemStack, entityActor ->
                     for (listener in listeners) {
-                        listener.remove(stack, world, pos, entity, player)
+                        listener.modify(actionType, world, pos, entity, itemStack, entityActor)
                     }
                 }
             }

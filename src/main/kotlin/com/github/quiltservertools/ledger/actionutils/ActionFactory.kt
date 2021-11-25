@@ -223,31 +223,21 @@ object ActionFactory {
 
     private fun setEntityExtraData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
 
-    fun entityEquipAction(
-        playerStack: ItemStack,
+    fun entityModifyAction(
+        sourceType: String,
         world: World,
         pos: BlockPos,
         entity: Entity,
-        source: PlayerEntity): EntityModifyActionType {
-
+        itemStack: ItemStack?,
+        entityActor: Entity?): EntityModifyActionType {
         val action = EntityModifyActionType()
-        setEntityItemData(action, pos, world, entity, playerStack,"Equip")
-        action.sourceProfile = source.gameProfile
+
+        setEntityItemData(action, pos, world, entity, itemStack,sourceType)
+
+        if (entityActor is PlayerEntity) { action.sourceProfile = entityActor.gameProfile }
 
         return action
-    }
-    fun entityRemoveAction(
-        entityStack: ItemStack,
-        world: World,
-        pos: BlockPos,
-        entity: Entity,
-        source: PlayerEntity): EntityModifyActionType {
 
-        val action = EntityModifyActionType()
-        setEntityItemData(action, pos, world, entity, entityStack,"Remove")
-        action.sourceProfile = source.gameProfile
-
-        return action
     }
 }
 
