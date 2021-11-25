@@ -10,6 +10,9 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.registry.Registry
 
+const val OFFSETXZ = 0.5
+const val OFFSETY = 0.1
+
 class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
 
@@ -25,8 +28,8 @@ class EntityKillActionType : AbstractActionType() {
             entity.readNbt(StringNbtReader.parse(NbtUtils.entityFromProperties(extraData)!!.toString()))
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
-            entity.setPos(pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.1, pos.z.toDouble() + 0.5)
-            //edited detekt to do this some reason item frames will not spawn back in
+            entity.setPosition(pos.x.toDouble() + OFFSETXZ, pos.y.toDouble() + OFFSETY, pos.z.toDouble() + OFFSETXZ)
+            // do not use setPos, does not affect DecorationEntity
             if (entity is LivingEntity) {
                 entity.health = entity.defaultMaxHealth.toFloat()
             }
