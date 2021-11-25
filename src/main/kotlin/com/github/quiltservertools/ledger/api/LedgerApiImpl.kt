@@ -9,18 +9,14 @@ import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
 import java.util.concurrent.CompletableFuture
 
-object DatabaseApi {
-    @JvmStatic
-    fun searchActions(params: ActionSearchParams, page: Int): CompletableFuture<SearchResults> {
-        return Ledger.future {
-            return@future DatabaseManager.searchActions(params, page)
-        }
-    }
+internal object LedgerApiImpl : LedgerApi {
+    override fun searchActions(params: ActionSearchParams, page: Int): CompletableFuture<SearchResults> =
+        Ledger.future { DatabaseManager.searchActions(params, page) }
 
-    @JvmStatic
-    fun logAction(action: ActionType) {
-        Ledger.launch {
-            DatabaseManager.logAction(action)
-        }
+    override fun countActions(params: ActionSearchParams): CompletableFuture<Long> =
+        Ledger.future { DatabaseManager.countActions(params) }
+
+    override fun logAction(action: ActionType) {
+        Ledger.launch { DatabaseManager.logAction(action) }
     }
 }

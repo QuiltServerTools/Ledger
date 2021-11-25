@@ -99,6 +99,10 @@ object DatabaseManager {
         return@execute selectActionsSearch(params, page)
     }
 
+    suspend fun countActions(params: ActionSearchParams): Long = execute {
+        return@execute countActions(params)
+    }
+
     suspend fun rollbackActions(params: ActionSearchParams): List<ActionType> = execute {
         return@execute selectRollbackActions(params)
     }
@@ -397,6 +401,8 @@ object DatabaseManager {
 
         return SearchResults(actionTypes, params, page, totalPages)
     }
+
+    private fun Transaction.countActions(params: ActionSearchParams): Long = buildQuery(params).copy().count()
 
     private fun Transaction.selectActionsPreview(
         params: ActionSearchParams,
