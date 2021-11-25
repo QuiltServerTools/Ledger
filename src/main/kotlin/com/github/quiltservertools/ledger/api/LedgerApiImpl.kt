@@ -16,6 +16,12 @@ internal object LedgerApiImpl : LedgerApi {
     override fun countActions(params: ActionSearchParams): CompletableFuture<Long> =
         Ledger.future { DatabaseManager.countActions(params) }
 
+    override fun rollbackActions(params: ActionSearchParams): CompletableFuture<List<ActionType>> =
+        Ledger.future { DatabaseManager.rollbackActions(params) }
+
+    override fun restoreActions(params: ActionSearchParams): CompletableFuture<List<ActionType>> =
+        Ledger.future { DatabaseManager.restoreActions(params) }
+
     override fun logAction(action: ActionType) {
         Ledger.launch { DatabaseManager.logAction(action) }
     }

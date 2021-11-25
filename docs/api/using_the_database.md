@@ -8,7 +8,7 @@ The database extension API is extremely simple - it is designed to allow other d
 
 ### What language?
 
-While we would stronly recommend Kotlin, which gains you access to all of our database methods, removing the need for an API, it is possible to write using Java with our DatabaseApi class. Please see the Java section.
+While we would strongly recommend Kotlin, which grants  you access to all of our database methods, removing the need for an API, it is possible to write using Java with our LedgerApi. Please see the Java section.
 
 ### Negatable parameters
 
@@ -50,17 +50,20 @@ object LedgerExamples {
 
 ## Java
 
+With Java, you can access our database with the API which can be obtained with `Ledger.getApi()`.
+You can see the API [here](https://github.com/QuiltServerTools/Ledger/blob/master/src/main/java/com/github/quiltservertools/ledger/api/LedgerApi.java).
+
 ```java
 public class LedgerExamples {
     public SearchResults getSearchResults(ServerWorld world) {
         // Create parameters
-        ActionSearchParams.Builder builder = new ActionSearchParams.Builder();
-        List<Identifier> worlds = new ArrayList<>();
-        worlds.put(world.getRegistryKey().getValue());
-        builder.setWorlds(worlds);
+        ActionSearchParams.Builder params = new ActionSearchParams.Builder();
+        Set<Negatable<Identifier>> worlds = new HashSet<>();
+        worlds.add(Negatable.allow(world.getRegistryKey().getValue()));
+        params.setWorlds(worlds);
         // Run search
-        CompletableFuture<SearchResults> future = DatabaseApi.searchActions(params.build());
-        // Block thread for result
+        CompletableFuture<SearchResults> future = Ledger.getApi().searchActions(params.build(), 0);
+        // Blocks thread for result
         SearchResults results = future.get();
     }
     
@@ -71,9 +74,9 @@ public class LedgerExamples {
                        ItemPlacementContext context,
                        BlockEntity entity) {
         // Create action
-        ActionType action = ActionFactory.blockPlaceAction(world, pos, state, player, entity);
+        ActionType action = ActionFactory.INSTANCE.blockPlaceAction(world, pos, state, player, entity);
         // Log the action
-        DatabaseApi.logAction(action);
+        Ledger.getApi().logAction(action);
     }
 }
 ```

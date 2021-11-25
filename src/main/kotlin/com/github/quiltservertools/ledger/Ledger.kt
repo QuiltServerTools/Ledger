@@ -42,10 +42,12 @@ import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-
     const val DEFAULT_DATABASE = "sqlite"
-    val logger: Logger = LogManager.getLogger("Ledger")
+
+    @JvmStatic
     val api: LedgerApi = LedgerApiImpl
+
+    val logger: Logger = LogManager.getLogger("Ledger")
     lateinit var config: Config
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
