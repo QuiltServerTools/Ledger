@@ -25,8 +25,9 @@ const val POSE = "Pose" // ArmorStandEntity
 
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
-        val stateTag = NbtHelper.fromBlockState(state)
         if (state.block.defaultState == state) return null // Don't store default block state
+
+        val stateTag = NbtHelper.fromBlockState(state)
         return if (stateTag.contains(PROPERTIES, NbtType.COMPOUND)) stateTag.getCompound(PROPERTIES) else null
     }
 
@@ -45,8 +46,8 @@ object NbtUtils {
 
         Ledger.logger.info(a)
 
-        if (item.count > 1) itemTag.putByte(COUNT, item.count.toByte())
-        if (item.nbt != null) itemTag.put(TAG, item.nbt)
+        if (item.count > 1) { itemTag.putByte(COUNT, item.count.toByte()) }
+        if (item.nbt != null) { itemTag.put(TAG, item.nbt) }
 
         return if (itemTag.isEmpty) null else itemTag
     }
@@ -66,11 +67,12 @@ object NbtUtils {
         if (tagNbt.contains(COUNT)) { itemTag.putByte(COUNT, tagNbt.getByte(COUNT)) }
         else { itemTag.putByte(COUNT, 1) }
 
-        if (tagNbt.contains(TAG)) itemTag.put(TAG, tagNbt.getCompound(TAG))
+        if (tagNbt.contains(TAG)) { itemTag.put(TAG, tagNbt.getCompound(TAG)) }
 
         return ItemStack.fromNbt(itemTag)
     }
-//idk at some point need to look into what is needed here. surely we dont need every single nbt to be logged
+
+    //idk at some point need to look into what is needed here. surely we dont need every single nbt to be logged
     fun entityToProperties(entity: Entity, actionType: String): NbtCompound? {
         val entityTag = NbtCompound()
         val storedNBT = entity.writeNbt(NbtCompound())
@@ -79,14 +81,14 @@ object NbtUtils {
         if (storedNBT.contains(ITEMROTATION)) entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
         Ledger.logger.info(storedNBT)
 
-        if (actionType == EntityKillActionType().identifier){ // add this to spawn too // needs some way to skip over defaults
+        if (actionType == EntityKillActionType().identifier) { // add this to spawn too // needs some way to skip over defaults
             if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.get(ROTATION))
             if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.get(POSE))
             if (storedNBT.contains(HANDITEMS)) entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
             if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
             if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
             if (storedNBT.contains(FACING)) entityTag.putByte(FACING, storedNBT.getByte(FACING))
-    }
+        }
 
 
         return if (entityTag.isEmpty) null else entityTag
@@ -95,7 +97,7 @@ object NbtUtils {
     fun entityFromProperties(tag: String?): NbtCompound? {
         val entityTag = NbtCompound()
 
-        if (tag == null) { return null}
+        if (tag == null) { return null }
 
         val storedNBT = StringNbtReader.parse(tag)
 

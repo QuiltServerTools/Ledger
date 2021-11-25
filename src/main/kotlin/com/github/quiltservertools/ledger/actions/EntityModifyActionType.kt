@@ -15,7 +15,7 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
-class EntityModifyActionType:  AbstractActionType()  {
+class EntityModifyActionType : AbstractActionType() {
     override val identifier = "entity-modify"
 
     override fun getTranslationType(): String {
@@ -27,11 +27,12 @@ class EntityModifyActionType:  AbstractActionType()  {
         }
     }
 
-    private fun getEntityObjectMessage(): MutableText{
+    private fun getEntityObjectMessage(): MutableText {
         return TranslatableText(
             Util.createTranslationKey(
                 "entity",
-                objectIdentifier)
+                objectIdentifier
+            )
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
@@ -49,13 +50,14 @@ class EntityModifyActionType:  AbstractActionType()  {
         return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
     }
 
-    private fun getItemObjectMessage(): MutableText{
+    private fun getItemObjectMessage(): MutableText {
         val stack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
 
         return TranslatableText(
             Util.createTranslationKey(
                 getTranslationType(),
-                oldObjectIdentifier)
+                oldObjectIdentifier
+            )
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
@@ -66,20 +68,23 @@ class EntityModifyActionType:  AbstractActionType()  {
         }
     }
 
-    private fun getSpacerObjectMessage(): MutableText{
+    private fun getSourceObjectMessage(): MutableText {
 
         return TranslatableText(" @$sourceName ").setStyle(TextColorPallet.light).styled {
-            it.withHoverEvent(HoverEvent(
-                HoverEvent.Action.SHOW_TEXT,
-                sourceName.literal())
+            it.withHoverEvent(
+                HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    sourceName.literal()
+                )
             )
         }
     }
 
     override fun getObjectMessage(): Text {
         return getEntityObjectMessage().append(
-            getSpacerObjectMessage()).append(
-            getItemObjectMessage())
+            getSourceObjectMessage()).append(
+            getItemObjectMessage()
+        )
     }
 
 
@@ -95,15 +100,20 @@ class EntityModifyActionType:  AbstractActionType()  {
             val slot = getPreferredEquipmentSlot(rollbackStack)
 
             when (sourceName) {
-                "Remove" -> if (entity.getEquippedStack(slot).isEmpty) {
-                    entity.equipStack(slot, rollbackStack); return true }
-                "Equip" -> {entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                "Remove" -> {
+                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true
+                }
+                "Equip" -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
-        }else if (entity is ItemFrameEntity){
+        } else if (entity is ItemFrameEntity) {
 
-            when(sourceName) {
-                "Remove" -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
-                "Equip"  -> { entity.heldItemStack = ItemStack(Items.AIR); return true}
+            when (sourceName) {
+                "Remove" -> {
+                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true
+                }
+                "Equip" -> {
+                    entity.heldItemStack = ItemStack(Items.AIR); return true
+                }
             }
         }
         return false
@@ -121,15 +131,18 @@ class EntityModifyActionType:  AbstractActionType()  {
             val slot = getPreferredEquipmentSlot(rollbackStack)
 
             when (sourceName) {
-                "Equip" -> if (entity.getEquippedStack(slot).isEmpty) {
-                    entity.equipStack(slot, rollbackStack); return true }
-                "Remove" -> {entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                "Equip" -> {
+                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true
+                }
+                "Remove" -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
-        }else if (entity is ItemFrameEntity){
+        } else if (entity is ItemFrameEntity) {
 
-            when(sourceName) {
-                "Equip" -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
-                "Remove"  -> { entity.heldItemStack = ItemStack(Items.AIR); return true}
+            when (sourceName) {
+                "Equip" -> {
+                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true
+                }
+                "Remove" -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
             }
         }
         return false

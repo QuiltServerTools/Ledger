@@ -21,34 +21,42 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemFrameEntity.class)
 public abstract class ItemFrameMixin {
 
-    @Shadow protected abstract ItemStack getHeldItemStack();
+    @Shadow
+    public abstract ItemStack getHeldItemStack();
 
     @Inject(method = "dropHeldStack",
             at = @At(value = "INVOKE",
-                    target ="Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
-    )private void ledgerItemFrameRemoveInvoker(@Nullable Entity player, boolean alwaysDrop, CallbackInfo ci){
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
+    )
+    private void ledgerItemFrameRemoveInvoker(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
         ItemStack itemStack = this.getHeldItemStack();
-        if (itemStack.isEmpty() || player == null) {return;} // removed nothing or destroyed by block
+        if (itemStack.isEmpty() || entityActor == null) { return; } // removed nothing or destroyed by block
 
         Entity entity = (Entity) (Object) this;
+
         EntityRemoveCallback.EVENT.invoker().remove(itemStack, entity.world,
-                entity.getBlockPos(),entity, ((PlayerEntity) player));
+                entity.getBlockPos(), entity, entityActor);
     }
 
     @Inject(method = "interact",
             at = @At(value = "INVOKE",
-                    target ="Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
-    )private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
+    )
+    private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack itemStack = player.getStackInHand(hand);
         Entity entity = (Entity) (Object) this;
+
+        if (itemStack.isEmpty()) { var detekt = "begone"; } //EntityRotateItem
+
         EntityEquipCallback.EVENT.invoker().equip(itemStack, player.world,
-                entity.getBlockPos(),entity, player);
+                entity.getBlockPos(), entity, player);
     }
 
     @Inject(method = "damage",
             at = @At(value = "RETURN")
-    )private void ledgerItemFrameKillInvoker(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir){
-        if (cir.getReturnValue() == Boolean.TRUE){
+    )
+    private void ledgerItemFrameKillInvoker(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValue() == Boolean.TRUE) {
             Entity entity = (Entity) (Object) this;
             EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, source);
         }
@@ -56,10 +64,11 @@ public abstract class ItemFrameMixin {
 
     @Inject(method = "canStayAttached",
             at = @At(value = "RETURN")
-    )private void ledgerItemFrameKillInvoker(CallbackInfoReturnable<Boolean> cir){
-        if (cir.getReturnValue() == Boolean.FALSE){
+    )
+    private void ledgerItemFrameKillInvoker(CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValue() == Boolean.FALSE) {
             Entity entity = (Entity) (Object) this;
-            EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, DamageSource.magic(entity,entity));
+            EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, DamageSource.magic(entity, entity));
         }
     }
 }
