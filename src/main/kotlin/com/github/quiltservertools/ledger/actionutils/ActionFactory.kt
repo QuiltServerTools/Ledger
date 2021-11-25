@@ -155,7 +155,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = setLightItemData(stack).toString()
+        action.extraData = setItemExtraData(stack).toString()
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {
@@ -188,7 +188,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
-        action.extraData = setEntitySpecialData(entity,action.identifier).toString()
+        action.extraData = setEntityExtraData(entity,action.identifier).toString()
     }
 
 
@@ -209,18 +209,19 @@ object ActionFactory {
 
         if (itemStack != null) {
             action.oldObjectIdentifier = Registry.ITEM.getId(itemStack.item)
-            if (setLightItemData(itemStack) != null) {
-               extraData.copyFrom(setLightItemData(itemStack))}
+            if (setItemExtraData(itemStack) != null) {
+               extraData.copyFrom(setItemExtraData(itemStack))
+            }
         }
-        extraData.copyFrom(setEntitySpecialData(entity,action.identifier))
+        extraData.copyFrom(setEntityExtraData(entity,action.identifier))
         action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
     }
 
-    private fun setLightItemData(itemStack: ItemStack ) = NbtUtils.itemToProperties(itemStack)
+    private fun setItemExtraData(itemStack: ItemStack ) = NbtUtils.itemToProperties(itemStack)
 
-    private fun setEntitySpecialData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
+    private fun setEntityExtraData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
 
     fun entityEquipAction(
         playerStack: ItemStack,
@@ -233,7 +234,7 @@ object ActionFactory {
         setEntityItemData(action, pos, world, entity, playerStack,"Equip")
         action.sourceProfile = source.gameProfile
 
-        return action;
+        return action
     }
     fun entityRemoveAction(
         entityStack: ItemStack,
@@ -246,7 +247,7 @@ object ActionFactory {
         setEntityItemData(action, pos, world, entity, entityStack,"Remove")
         action.sourceProfile = source.gameProfile
 
-        return action;
+        return action
     }
 }
 
