@@ -107,19 +107,16 @@ class EntityModifyActionType : AbstractActionType() {
 
             when (sourceName) {
                 REMOVE-> {
-                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true
-                }
+                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 EQUIP -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
         } else if (entity is ItemFrameEntity) {
 
             when (sourceName) {
                 REMOVE -> {
-                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true
-                }
-                EQUIP -> {
-                    entity.heldItemStack = ItemStack(Items.AIR); return true
-                }
+                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
+                EQUIP -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
+                ROTATE -> { entity.rotation = entity.rotation - 1 ; return true } // can only ever rotate by 1
             }
         }
         return false
@@ -138,17 +135,16 @@ class EntityModifyActionType : AbstractActionType() {
 
             when (sourceName) {
                 EQUIP -> {
-                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true
-                }
+                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 REMOVE-> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
         } else if (entity is ItemFrameEntity) {
 
             when (sourceName) {
                 EQUIP -> {
-                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true
-                }
+                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
                 REMOVE -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
+                ROTATE -> { entity.rotation = entity.rotation + 1 ; return true }
             }
         }
         return false

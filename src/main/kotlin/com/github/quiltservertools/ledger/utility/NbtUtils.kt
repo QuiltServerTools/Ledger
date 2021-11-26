@@ -80,11 +80,11 @@ object NbtUtils {
         val defaultNBT = entity.type.create(entity.world)!!.writeNbt(NbtCompound())
 
         if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
-        if (storedNBT.contains(ITEMROTATION) && defaultNBT.getByte(ITEMROTATION) != storedNBT.getByte(ITEMROTATION)) {
-            entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
-        }
 
         if (actionType == EntityKillActionType().identifier) {
+            if (storedNBT.contains(ITEMROTATION) && defaultNBT.getByte(ITEMROTATION) != storedNBT.getByte(ITEMROTATION)) {
+                entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
+            }
             if (storedNBT.contains(ROTATION) && defaultNBT.get(ROTATION) != storedNBT.get(ROTATION)) {
                 entityTag.put(ROTATION, storedNBT.get(ROTATION))
             }
