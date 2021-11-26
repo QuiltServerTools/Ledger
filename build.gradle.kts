@@ -99,7 +99,7 @@ dependencies {
 }
 
 tasks {
-    val javaVersion = JavaVersion.VERSION_16
+    val javaVersion = JavaVersion.VERSION_17
 
     processResources {
         inputs.property("id", modId)
@@ -215,7 +215,7 @@ curseforge {
 
             addGameVersion(libs.versions.minecraft.get())
             addGameVersion("Fabric")
-            addGameVersion("Java 16")
+            addGameVersion("Java 17")
 
             mainArtifact(tasks["remapJar"])
 
