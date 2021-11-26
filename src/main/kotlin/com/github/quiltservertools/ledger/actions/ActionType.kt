@@ -10,6 +10,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import java.time.Instant
+import kotlin.time.ExperimentalTime
 
 interface ActionType {
     val identifier: String
@@ -30,6 +31,7 @@ interface ActionType {
     fun previewRollback(player: ServerPlayerEntity)
     fun previewRestore(player: ServerPlayerEntity)
     fun getTranslationType(): String
+    @ExperimentalTime
     fun getMessage(): Text
 
     fun isBlacklisted() = config[ActionsSpec.typeBlacklist].contains(identifier) ||

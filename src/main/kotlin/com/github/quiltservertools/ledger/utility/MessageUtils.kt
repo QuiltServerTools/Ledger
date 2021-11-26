@@ -11,8 +11,10 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
+import kotlin.time.ExperimentalTime
 
 object MessageUtils {
+    @OptIn(ExperimentalTime::class)
     suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
