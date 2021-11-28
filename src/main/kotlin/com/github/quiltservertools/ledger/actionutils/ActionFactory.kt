@@ -224,12 +224,13 @@ object ActionFactory {
     private fun setEntityExtraData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
 
     fun entityModifyAction(
-        sourceType: String,
         world: World,
         pos: BlockPos,
         entity: Entity,
         itemStack: ItemStack?,
-        entityActor: Entity?): EntityModifyActionType {
+        entityActor: Entity?,
+        sourceType: String
+    ): EntityModifyActionType {
         val action = EntityModifyActionType()
 
         setEntityItemData(action, pos, world, entity, itemStack,sourceType)

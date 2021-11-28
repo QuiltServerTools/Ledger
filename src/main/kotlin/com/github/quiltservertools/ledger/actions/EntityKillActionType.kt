@@ -29,16 +29,12 @@ class EntityKillActionType : AbstractActionType() {
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
             entity.setPosition(pos.x.toDouble() + OFFSETXZ, pos.y.toDouble() + OFFSETY, pos.z.toDouble() + OFFSETXZ)
-            // do not use setPos, does not affect DecorationEntity
-            if (entity is LivingEntity) {
-                entity.health = entity.defaultMaxHealth.toFloat()
-            }
+            // do not use setPos, does not affect DecorationEntity.
+            if (entity is LivingEntity) { entity.health = entity.defaultMaxHealth.toFloat() }
 
             world?.spawnEntity(entity)
-
             return true
         }
-
         return false
     }
 

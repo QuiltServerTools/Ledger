@@ -9,20 +9,21 @@ import net.minecraft.world.World
 
 fun interface EntityModifyCallback {
     fun modify(
-        sourceType: String,
         world: World,
         pos: BlockPos,
         entity: Entity,
         itemStack: ItemStack?,
-        entityActor: Entity?)
+        entityActor: Entity?,
+        sourceType: String
+    )
 
     companion object {
         @JvmField
         val EVENT: Event<EntityModifyCallback> =
             EventFactory.createArrayBacked(EntityModifyCallback::class.java) { listeners ->
-                EntityModifyCallback {actionType, world, pos, entity, itemStack, entityActor ->
+                EntityModifyCallback {world, pos, entity, itemStack, entityActor, sourceType->
                     for (listener in listeners) {
-                        listener.modify(actionType, world, pos, entity, itemStack, entityActor)
+                        listener.modify(world, pos, entity, itemStack, entityActor, sourceType)
                     }
                 }
             }

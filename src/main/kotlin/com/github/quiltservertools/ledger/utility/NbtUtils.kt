@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger.utility
 
-import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
 import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.BlockState
@@ -41,12 +40,8 @@ object NbtUtils {
 
     fun itemToProperties(item: ItemStack): NbtCompound? {
         val itemTag = NbtCompound()
-
-        val storedNBT = item.writeNbt(NbtCompound())
-
-        Ledger.logger.info(storedNBT)
-
         if (item.count > 1) { itemTag.putByte(COUNT, item.count.toByte()) }
+        // don't log the item count if there is only 1 item. the log itself indicates there must be at least 1
         if (item.nbt != null) { itemTag.put(TAG, item.nbt) }
 
         return if (itemTag.isEmpty) null else itemTag
@@ -54,18 +49,16 @@ object NbtUtils {
 
     fun itemFromProperties(tag: String?, name: Identifier): ItemStack {
         val itemTag = NbtCompound()
-
         itemTag.putString("id", name.toString())
 
         if (tag == null) {
-            itemTag.putByte(COUNT, 1);
+            itemTag.putByte(COUNT, 1)
             return ItemStack.fromNbt(itemTag)
         }
-
         val tagNbt = StringNbtReader.parse(tag)
-
         if (tagNbt.contains(COUNT)) { itemTag.putByte(COUNT, tagNbt.getByte(COUNT)) }
         else { itemTag.putByte(COUNT, 1) }
+        // item was missing count tag. if it's been logged then it must have a single item
 
         if (tagNbt.contains(TAG)) { itemTag.put(TAG, tagNbt.getCompound(TAG)) }
 
@@ -77,47 +70,44 @@ object NbtUtils {
         val entityTag = NbtCompound()
         val storedNBT = entity.writeNbt(NbtCompound())
 
-        val defaultNBT = entity.type.create(entity.world)!!.writeNbt(NbtCompound())
-
-        if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
-
+        entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
+        // only store UUID for actions that do not remove the entity.
         if (actionType == EntityKillActionType().identifier) {
-            if (storedNBT.contains(ITEMROTATION) && defaultNBT.getByte(ITEMROTATION) != storedNBT.getByte(ITEMROTATION)) {
+            val defaultNBT = entity.type.create(entity.world)!!.writeNbt(NbtCompound())
+
+            if (defaultNBT.getByte(ITEMROTATION) != storedNBT.getByte(ITEMROTATION)) {
                 entityTag.putByte(ITEMROTATION, storedNBT.getByte(ITEMROTATION))
             }
-            if (storedNBT.contains(ROTATION) && defaultNBT.get(ROTATION) != storedNBT.get(ROTATION)) {
+            if (defaultNBT.get(ROTATION) != storedNBT.get(ROTATION)) {
                 entityTag.put(ROTATION, storedNBT.get(ROTATION))
             }
-            if (storedNBT.contains(POSE) && defaultNBT.get(POSE) != storedNBT.get(POSE)) {
+            if (defaultNBT.get(POSE) != storedNBT.get(POSE)) {
                 entityTag.put(POSE, storedNBT.get(POSE))
             }
-            if (storedNBT.contains(HANDITEMS) && defaultNBT.get(HANDITEMS) != storedNBT.get(HANDITEMS)) {
+            if (defaultNBT.get(HANDITEMS) != storedNBT.get(HANDITEMS)) {
                 entityTag.put(HANDITEMS, storedNBT.get(HANDITEMS))
             }
-            if (storedNBT.contains(ARMORITEMS) && defaultNBT.get(ARMORITEMS) != storedNBT.get(ARMORITEMS)) {
+            if (defaultNBT.get(ARMORITEMS) != storedNBT.get(ARMORITEMS)) {
                 entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
             }
-            if (storedNBT.contains(ITEM) && defaultNBT.get(ITEM) != storedNBT.get(ITEM)) {
+            if (defaultNBT.get(ITEM) != storedNBT.get(ITEM)) {
                 entityTag.put(ITEM, storedNBT.get(ITEM))
             }
-            if (storedNBT.contains(FACING) && defaultNBT.getByte(FACING) != storedNBT.getByte(FACING)) {
+            if (defaultNBT.getByte(FACING) != storedNBT.getByte(FACING)) {
                 entityTag.putByte(FACING, storedNBT.getByte(FACING))
             }
         }
-
 
         return if (entityTag.isEmpty) null else entityTag
     }
 
     fun entityFromProperties(tag: String?): NbtCompound? {
         val entityTag = NbtCompound()
-
         if (tag == null) {
             return null
         }
 
         val storedNBT = StringNbtReader.parse(tag)
-
         if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
         if (storedNBT.contains(ITEMROTATION)) entityTag.put(ITEMROTATION, storedNBT.get(ITEMROTATION))
         if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.get(ROTATION))
@@ -126,7 +116,6 @@ object NbtUtils {
         if (storedNBT.contains(ARMORITEMS)) entityTag.put(ARMORITEMS, storedNBT.get(ARMORITEMS))
         if (storedNBT.contains(ITEM)) entityTag.put(ITEM, storedNBT.get(ITEM))
         if (storedNBT.contains(FACING)) entityTag.putByte(FACING, storedNBT.getByte(FACING))
-
 
         return entityTag
     }

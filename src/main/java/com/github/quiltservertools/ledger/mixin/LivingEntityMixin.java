@@ -16,7 +16,7 @@ public abstract class LivingEntityMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;getAttacker()Lnet/minecraft/entity/Entity;")
     )
     private void ledgerEntityKillInvoker(DamageSource source, CallbackInfo ci) {
-        Entity entity = (Entity) (Object) this;
+        LivingEntity entity = (LivingEntity) (Object) this;
 
         EntityKillCallback.EVENT.invoker().kill(
                 entity.world, entity.getBlockPos(), entity, source

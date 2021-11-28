@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.actions.EntityModifyActionTypeKt;
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ItemFrameEntity;
@@ -31,8 +31,7 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack playerStack = player.getStackInHand(hand);
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.EQUIP, player.world,
-                entity.getBlockPos(), entity, playerStack, player);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, playerStack, player, Sources.EQUIP);
     }
 
     @Inject(method = "interact",
@@ -42,8 +41,7 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack entityStack = this.getHeldItemStack();
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.ROTATE, player.world,
-                entity.getBlockPos(), entity, entityStack , player);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, entityStack, player, Sources.ROTATE);
     }
 
     @Inject(method = "dropHeldStack",
@@ -53,11 +51,8 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameRemoveInvoker(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
         ItemStack entityStack = this.getHeldItemStack();
         if (entityStack.isEmpty() || entityActor == null) { return; } // removed nothing or destroyed by block
-
         Entity entity = (Entity) (Object) this;
-
-        EntityModifyCallback.EVENT.invoker().modify(EntityModifyActionTypeKt.REMOVE, entityActor.world,
-                entity.getBlockPos(),entity, entityStack, entityActor);
+        EntityModifyCallback.EVENT.invoker().modify(entityActor.world, entity.getBlockPos(), entity, entityStack, entityActor, Sources.REMOVE);
     }
 
     @Inject(method = "damage",
@@ -77,6 +72,7 @@ public abstract class ItemFrameMixin {
         if (cir.getReturnValue() == Boolean.FALSE) {
             Entity entity = (Entity) (Object) this;
             EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, DamageSource.magic(entity, entity));
+            // the DamageSource is cursed
         }
     }
 }
