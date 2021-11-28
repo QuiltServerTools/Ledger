@@ -41,6 +41,8 @@ class SearchReceiver : Receiver {
         val input = buf.readString()
         val params = SearchParamArgument.get(input, source)
 
+        val pages = buf.readInt()
+
         if (params.isEmpty()) {
             ResponsePacket.sendResponse(
                 ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.ERROR.code),
@@ -60,13 +62,16 @@ class SearchReceiver : Receiver {
             MessageUtils.warnBusy(source)
             val results = DatabaseManager.searchActions(params, 1)
 
-            MessageUtils.sendSearchResults(
-                source,
-                results,
-                TranslatableText(
-                    "text.ledger.header.search"
-                ).setStyle(TextColorPallet.primary)
-            )
+            for (i in 1..pages) {
+                val page = DatabaseManager.searchActions(results.searchParams, i)
+                MessageUtils.sendSearchResults(
+                    source,
+                    page,
+                    TranslatableText(
+                        "text.ledger.header.search"
+                    ).setStyle(TextColorPallet.primary)
+                )
+            }
 
             ResponsePacket.sendResponse(
                 ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.COMPLETED.code),

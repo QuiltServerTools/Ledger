@@ -4,60 +4,61 @@ repo_url: https://github.com/QuiltServerTools/Ledger
 repo_name: QuiltServerTools/Ledger
 
 nav:
-    - index.md
-    - install.md
-    -   Commands:
-            - commands/root.md
-            - commands/inspect.md
-            - commands/search.md
-            - commands/page.md
-            - commands/preview.md
-            - commands/rollback.md
-            - commands/restore.md
-            - commands/purge.md
-            - commands/status.md
-            - commands/teleport.md
-    -   Extensions:
-            - extensions/extensions.md
-            - extensions/extension_development.md
-    -   API:
-            - api/extension_development.md
-            - api/using_the_database.md
-    - config.md
-    - themes.md
-    - parameters.md
-    - actions.md
-    - queue.md
-    - translations.md
-    - networking.md
+  - index.md
+  - install.md
+  - Commands:
+    - commands/root.md
+    - commands/inspect.md
+    - commands/search.md
+    - commands/page.md
+    - commands/player.md
+    - commands/preview.md
+    - commands/rollback.md
+    - commands/restore.md
+    - commands/purge.md
+    - commands/status.md
+    - commands/teleport.md
+  - Extensions:
+    - extensions/extensions.md
+    - extensions/extension_development.md
+  - API:
+    - api/extension_development.md
+    - api/using_the_database.md
+  - config.md
+  - themes.md
+  - parameters.md
+  - actions.md
+  - queue.md
+  - translations.md
+  - networking.md
 
 theme:
-    name: material
-    logo: assets/Ledger-smol.svg
-    favicon: assets/Ledger-smol.svg
-    features:
-    icon:
-        repo: fontawesome/brands/github
-    palette:
-        -   media: "(prefers-color-scheme: light)"
-            primary: deep purple
-            scheme: slate
-            toggle:
-                icon: material/weather-sunny
-                name: Switch to light mode
-        -   media: "(prefers-color-scheme: light)"
-            primary: deep purple
-            scheme: default
-            toggle:
-                icon: material/weather-night
-                name: Switch to dark mode
+  name: material
+  logo: assets/Ledger-smol.svg
+  favicon: assets/Ledger-smol.svg
+  features:
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      primary: deep purple
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      primary: deep purple
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
 
 markdown_extensions:
-    - pymdownx.highlight
-    - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.superfences
 
 plugins:
-    - search
+  - search
 extra:
-    version:
-        provider: mike
+  version:
+    provider: mike

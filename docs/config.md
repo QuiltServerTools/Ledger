@@ -92,14 +92,8 @@ sourceBlacklist = []
 
 [networking]
 # This section relates to Ledger's ability to interact with client mods for ease of use
-# Networking is enabled by default but you can disable and control it here
+# Networking is enabled by default but you can disable it here
 
 # Change to true to allow Ledger client mod packets
 networking = true
-# Controls whether a mod should be allowed or denyed by default
-allowByDefault = true
-# Whitelists mods to bypass the allowByDefault. Ex: ["my_client", "ledger_mod"]
-modWhitelist = []
-# Disallows mods even if allowByDefault is enabled. Ex: ["my_client", "ledger_mod"]
-modBlacklist = []
 ```

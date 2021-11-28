@@ -1,6 +1,7 @@
-package com.github.quiltservertools.ledger.mixin.callbacks;
+package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.PlayerBlockPlaceCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -23,18 +24,15 @@ public abstract class BlockItemMixin extends Item {
             cancellable = true
     )
     public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
-        if (context.getPlayer() == null) return;
-        // TODO deal with dispenser placements (create separate event?)
-
         BlockState blockState = context.getWorld().getBlockState(context.getBlockPos());
 
-        PlayerBlockPlaceCallback.EVENT.invoker().place(
+        BlockPlaceCallback.EVENT.invoker().place(
                 context.getWorld(),
-                context.getPlayer(),
                 context.getBlockPos(),
                 blockState,
-                context,
-                context.getWorld().getBlockEntity(context.getBlockPos()) != null ? context.getWorld().getBlockEntity(context.getBlockPos()) : null
+                context.getWorld().getBlockEntity(context.getBlockPos()) != null ? context.getWorld().getBlockEntity(context.getBlockPos()) : null,
+                context.getPlayer() == null ? Sources.REDSTONE : Sources.PLAYER,
+                context.getPlayer()
         );
     }
 }

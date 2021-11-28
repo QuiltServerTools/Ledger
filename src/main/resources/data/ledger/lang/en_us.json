@@ -47,6 +47,7 @@
 
     "text.ledger.action.block-place": "placed",
     "text.ledger.action.block-break": "broke",
+    "text.ledger.action.block-change": "changed",
     "text.ledger.action.item-insert": "added",
     "text.ledger.action.item-remove": "removed",
     "text.ledger.action.entity-kill": "killed",
@@ -55,5 +56,7 @@
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",
 
     "text.ledger.purge.starting": "------ Starting purge ------",
-    "text.ledger.purge.complete": "------ Completed purge ------"
+    "text.ledger.purge.complete": "------ Completed purge ------",
+
+    "text.ledger.player.result": "%1$s: First joined %2$s. Last joined: %3$s"
 }

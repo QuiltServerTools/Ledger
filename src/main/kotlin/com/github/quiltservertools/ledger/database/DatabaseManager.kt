@@ -13,6 +13,7 @@ import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
+import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,7 +47,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -326,6 +327,11 @@ object DatabaseManager {
         }
     }
 
+    suspend fun searchPlayers(players: Set<GameProfile>): List<PlayerResult> =
+        execute {
+            return@execute selectPlayers(players)
+        }
+
     private fun Transaction.insertActionType(id: String) {
         if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
             val actionIdentifier = Tables.ActionIdentifier.new {
@@ -487,5 +493,13 @@ object DatabaseManager {
         actions.forEach { action ->
             action.delete()
         }
+    }
+
+    private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
+        val query = Tables.Players.selectAll()
+
+        addParameters(query, players.map { Negatable.allow(it.id) }, Tables.Players.playerId)
+
+        return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
 }
