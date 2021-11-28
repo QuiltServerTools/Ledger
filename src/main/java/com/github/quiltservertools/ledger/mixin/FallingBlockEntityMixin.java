@@ -1,7 +1,8 @@
-package com.github.quiltservertools.ledger.mixin.callbacks;
+package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.BlockFallCallback;
-import com.github.quiltservertools.ledger.callbacks.BlockLandCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
+import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.FallingBlockEntity;
@@ -29,7 +30,7 @@ public abstract class FallingBlockEntityMixin {
     private void ledgerBlockFallInvoker(CallbackInfo ci, Block block, BlockPos blockPos) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
 
-        BlockFallCallback.EVENT.invoker().fall(entity.world, blockPos, this.block);
+        BlockBreakCallback.EVENT.invoker().breakBlock(entity.world, blockPos, this.block, this.block.hasBlockEntity() ? entity.world.getBlockEntity(blockPos) : null, Sources.GRAVITY);
     }
 
     @Inject(
@@ -43,6 +44,6 @@ public abstract class FallingBlockEntityMixin {
     private void ledgerBlockLandInvoker(CallbackInfo ci, Block block, BlockPos blockPos2, boolean bl, boolean bl2, double d, BlockState blockState) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
 
-        BlockLandCallback.EVENT.invoker().land(entity.world, blockPos2, this.block);
+        BlockPlaceCallback.EVENT.invoker().place(entity.world, blockPos2, this.block, null, Sources.GRAVITY);
     }
 }

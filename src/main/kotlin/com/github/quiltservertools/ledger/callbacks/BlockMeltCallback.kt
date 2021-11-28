@@ -7,16 +7,16 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-fun interface BlockBurnCallback {
-    fun burn(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?)
+fun interface BlockMeltCallback {
+    fun melt(world: World, pos: BlockPos, oldState: BlockState, newState: BlockState, entity: BlockEntity?)
 
     companion object {
         @JvmField
-        val EVENT: Event<BlockBurnCallback> =
-            EventFactory.createArrayBacked(BlockBurnCallback::class.java) { listeners ->
-                BlockBurnCallback { world, pos, state, entity ->
+        val EVENT: Event<BlockMeltCallback> =
+            EventFactory.createArrayBacked(BlockMeltCallback::class.java) { listeners ->
+                BlockMeltCallback { world, pos, oldState, newState, entity ->
                     for (listener in listeners) {
-                        listener.burn(world, pos, state, entity)
+                        listener.melt(world, pos, oldState, newState, entity)
                     }
                 }
             }

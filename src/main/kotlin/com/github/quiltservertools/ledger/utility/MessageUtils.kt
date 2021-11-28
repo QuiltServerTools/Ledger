@@ -8,10 +8,17 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
+import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
+import java.time.Duration
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
 import kotlin.time.ExperimentalTime
+import kotlin.time.toKotlinDuration
 
 object MessageUtils {
     @OptIn(ExperimentalTime::class)
@@ -19,7 +26,7 @@ object MessageUtils {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
         if (source.hasPlayer() && source.player.hasNetworking()) {
-            for(n in results.page..results.pages) {
+            for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
                     val packet = ActionPacket()
@@ -74,6 +81,17 @@ object MessageUtils {
         )
     }
 
+    fun sendPlayerMessage(source: ServerCommandSource, results: List<PlayerResult>) {
+        if (results.isEmpty()) {
+            source.sendFeedback("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary), false)
+            return
+        }
+        source.sendFeedback("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary), false)
+        results.forEach {
+            source.sendFeedback(it.toText(), false)
+        }
+    }
+
     fun warnBusy(source: ServerCommandSource) {
         if (DatabaseManager.dbMutex.isLocked) {
             source.sendFeedback(
@@ -83,5 +101,36 @@ object MessageUtils {
                 false
             )
         }
+    }
+
+    @OptIn(ExperimentalTime::class)
+    fun instantToText(time: Instant): MutableText {
+        val duration = Duration.between(time, Instant.now()).toKotlinDuration()
+        val text: MutableText = "".literal()
+
+        duration.toComponents { days, hours, minutes, seconds, _ ->
+
+            when {
+                days > 0 -> text.append(days.toString()).append("d")
+                hours > 0 -> text.append(hours.toString()).append("h")
+                minutes > 0 -> text.append(minutes.toString()).append("m")
+                else -> text.append(seconds.toString()).append("s")
+            }
+        }
+
+        val message = TranslatableText("text.ledger.action_message.time_diff", text)
+
+        val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+        val timeMessage = formatter.format(time.atZone(TimeZone.getDefault().toZoneId())).literal()
+
+        message.styled {
+            it.withHoverEvent(
+                HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    timeMessage
+                )
+            )
+        }
+        return message
     }
 }

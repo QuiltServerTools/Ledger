@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.network.packet.receiver
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.commands.CommandConsts
+import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
 import com.github.quiltservertools.ledger.network.packet.Receiver
 import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
@@ -35,12 +36,17 @@ class InspectReceiver : Receiver {
         val pos = buf.readBlockPos()
         ResponsePacket.sendResponse(ResponseContent(LedgerPacketTypes.INSPECT_POS.id, ResponseCodes.EXECUTING.code), sender)
 
+        val pages = buf.readInt()
+
         Ledger.launch {
             val results = player.getInspectResults(pos)
-            results.actions.forEach { action ->
-                val packet = ActionPacket()
-                packet.populate(action)
-                sender.sendPacket(packet.channel, packet.buf)
+            for (i in 1..pages) {
+                val page = DatabaseManager.searchActions(results.searchParams, i)
+                page.actions.forEach { action ->
+                    val packet = ActionPacket()
+                    packet.populate(action)
+                    sender.sendPacket(packet.channel, packet.buf)
+                }
             }
             ResponsePacket.sendResponse(ResponseContent(LedgerPacketTypes.INSPECT_POS.id, ResponseCodes.COMPLETED.code), sender)
         }

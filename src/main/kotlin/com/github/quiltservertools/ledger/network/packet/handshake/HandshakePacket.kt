@@ -17,8 +17,11 @@ class HandshakePacket: LedgerPacket<HandshakeContent> {
         // Ledger Version
         buf.writeString(content.ledgerVersion)
 
-        // Is client mod allowed
-        val allowed = content.allowed
-        buf.writeBoolean(allowed)
+        // We tell the client mod how many actions we are writing
+        buf.writeInt(content.actions.size)
+
+        for (action in content.actions) {
+            buf.writeString(action)
+        }
     }
 }
