@@ -1,6 +1,9 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.utility.*
+import com.github.quiltservertools.ledger.utility.Sources.EQUIP
+import com.github.quiltservertools.ledger.utility.Sources.REMOVE
+import com.github.quiltservertools.ledger.utility.Sources.ROTATE
 import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
@@ -15,14 +18,8 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
-const val EQUIP = "equip"
-const val REMOVE = "remove"
-const val ROTATE = "rotate"
-
 class EntityModifyActionType : AbstractActionType() {
     override val identifier = "entity-modify"
-
-
 
     override fun getTranslationType(): String {
         val item = Registry.ITEM.get(oldObjectIdentifier)
@@ -102,21 +99,17 @@ class EntityModifyActionType : AbstractActionType() {
         val rollbackStack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
 
         if (entity is ArmorStandEntity) {
-            // what items does this break with?
             val slot = getPreferredEquipmentSlot(rollbackStack)
-
             when (sourceName) {
-                REMOVE-> {
-                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
+                REMOVE-> { if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 EQUIP -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
         } else if (entity is ItemFrameEntity) {
-
             when (sourceName) {
-                REMOVE -> {
-                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
+                REMOVE -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
                 EQUIP -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
-                ROTATE -> { entity.rotation = entity.rotation - 1 ; return true } // can only ever rotate by 1
+                ROTATE -> { entity.rotation = entity.rotation - 1 ; return true }
+                // can only ever rotate by 1
             }
         }
         return false
@@ -130,19 +123,14 @@ class EntityModifyActionType : AbstractActionType() {
         val rollbackStack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
 
         if (entity is ArmorStandEntity) {
-            // what items does this break with?
             val slot = getPreferredEquipmentSlot(rollbackStack)
-
             when (sourceName) {
-                EQUIP -> {
-                    if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
+                EQUIP -> { if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 REMOVE-> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
             }
         } else if (entity is ItemFrameEntity) {
-
             when (sourceName) {
-                EQUIP -> {
-                    if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
+                EQUIP -> { if (entity.heldItemStack.isEmpty) entity.heldItemStack = rollbackStack; return true }
                 REMOVE -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
                 ROTATE -> { entity.rotation = entity.rotation + 1 ; return true }
             }

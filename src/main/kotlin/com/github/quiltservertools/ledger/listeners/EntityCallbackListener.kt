@@ -23,14 +23,14 @@ private fun onKill(world: World, pos: BlockPos, entity: Entity, source: DamageSo
 }
 
 private fun onModify(
-    sourceType: String,
     world: World,
     pos: BlockPos,
     entity: Entity,
     itemStack: ItemStack?,
-    entityActor: Entity?) {
+    entityActor: Entity?,
+    sourceType: String) {
     DatabaseManager.logAction(
-        ActionFactory.entityModifyAction(sourceType, world, pos, entity, itemStack, entityActor)
+        ActionFactory.entityModifyAction(world, pos, entity, itemStack, entityActor, sourceType)
     )
 }
 
