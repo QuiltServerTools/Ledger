@@ -21,6 +21,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
 object MessageUtils {
+    @OptIn(ExperimentalTime::class)
     suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages

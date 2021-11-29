@@ -41,7 +41,7 @@ public abstract class FallingBlockEntityMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
-    private void ledgerBlockLandInvoker(CallbackInfo ci, Block block, BlockPos blockPos2, boolean bl, boolean bl2, BlockState blockState) {
+    private void ledgerBlockLandInvoker(CallbackInfo ci, Block block, BlockPos blockPos2, boolean bl, boolean bl2, double d, BlockState blockState) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
 
         BlockPlaceCallback.EVENT.invoker().place(entity.world, blockPos2, this.block, null, Sources.GRAVITY);

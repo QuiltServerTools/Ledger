@@ -29,7 +29,7 @@
         "fabricloader": ">=${fabricLoader}",
         "fabric": ">=${fabricApi}",
         "fabric-language-kotlin": ">=${fabricKotlin}",
-        "minecraft": "1.17.x"
+        "minecraft": "1.18.x"
     },
     "breaks": {
         "cardboard": "*"
