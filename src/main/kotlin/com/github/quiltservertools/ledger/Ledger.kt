@@ -2,6 +2,8 @@ package com.github.quiltservertools.ledger
 
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.api.LedgerApi
+import com.github.quiltservertools.ledger.api.LedgerApiImpl
 import com.github.quiltservertools.ledger.commands.registerCommands
 import com.github.quiltservertools.ledger.config.CONFIG_PATH
 import com.github.quiltservertools.ledger.config.DatabaseSpec
@@ -40,8 +42,11 @@ import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-
     const val DEFAULT_DATABASE = "sqlite"
+
+    @JvmStatic
+    val api: LedgerApi = LedgerApiImpl
+
     val logger: Logger = LogManager.getLogger("Ledger")
     lateinit var config: Config
     lateinit var server: MinecraftServer

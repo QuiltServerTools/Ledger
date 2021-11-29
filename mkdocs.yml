@@ -20,7 +20,9 @@ nav:
     - commands/teleport.md
   - Extensions:
     - extensions/extensions.md
-    - extensions/extension_development.md
+  - API:
+    - api/extension_development.md
+    - api/using_the_database.md
   - config.md
   - themes.md
   - parameters.md
