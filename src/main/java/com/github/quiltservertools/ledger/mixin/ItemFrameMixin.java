@@ -1,4 +1,4 @@
-package com.github.quiltservertools.ledger.mixin.callbacks;
+package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
