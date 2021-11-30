@@ -22,6 +22,8 @@
         "ShovelItemMixin",
         "SlotMixin",
         "SnowGolemEntityMixin",
+        "ArmorStandMixin",
+        "ItemFrameMixin",
         "blocks.AbstractPlantPartBlockMixin",
         "blocks.AbstractPlantStemBlockMixin",
         "blocks.BambooBlockMixin",
@@ -40,8 +42,6 @@
         "blocks.coral.CoralBlockMixin",
         "blocks.coral.CoralFanBlockMixin",
         "blocks.coral.CoralWallFanBlockMixin"
-        "callbacks.ArmorStandMixin",
-        "callbacks.ItemFrameMixin",
     ],
     "injectors": {
         "defaultRequire": 1
