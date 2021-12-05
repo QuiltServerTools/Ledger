@@ -4,8 +4,11 @@ import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -34,16 +37,6 @@ public abstract class ItemFrameMixin {
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, playerStack, player, Sources.EQUIP);
     }
 
-    @Inject(method = "interact",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V")
-    )
-    private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        ItemStack entityStack = this.getHeldItemStack();
-        Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, entityStack, player, Sources.ROTATE);
-    }
-
     @Inject(method = "dropHeldStack",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
@@ -55,8 +48,19 @@ public abstract class ItemFrameMixin {
         EntityModifyCallback.EVENT.invoker().modify(entityActor.world, entity.getBlockPos(), entity, entityStack, entityActor, Sources.REMOVE);
     }
 
+    @Inject(method = "interact",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V")
+    )
+    private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+        ItemStack entityStack = this.getHeldItemStack();
+        Entity entity = (Entity) (Object) this;
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, player, Sources.ROTATE);
+    }
+
     @Inject(method = "damage",
-            at = @At(value = "RETURN")
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/AbstractDecorationEntity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z")
     )
     private void ledgerItemFrameKillInvoker(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() == Boolean.TRUE) {
@@ -71,8 +75,7 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameKillInvoker(CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() == Boolean.FALSE) {
             Entity entity = (Entity) (Object) this;
-            EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, DamageSource.magic(entity, entity));
-            // the DamageSource is cursed
+            EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, DamageSource.magic(entity,entity));
         }
     }
 }

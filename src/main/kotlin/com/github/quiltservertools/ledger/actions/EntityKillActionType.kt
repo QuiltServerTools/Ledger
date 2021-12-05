@@ -10,8 +10,8 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.registry.Registry
 
-const val OFFSETXZ = 0.5
-const val OFFSETY = 0.1
+//const val OFFSETXZ = 0.5
+//const val OFFSETY = 0.1
 
 class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
@@ -25,10 +25,10 @@ class EntityKillActionType : AbstractActionType() {
         if (entityType.isPresent) {
             val entity = entityType.get().create(world)!!
 
-            entity.readNbt(StringNbtReader.parse(NbtUtils.entityFromProperties(extraData)!!.toString()))
+            entity.readNbt(StringNbtReader.parse(extraData))
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
-            entity.setPosition(pos.x.toDouble() + OFFSETXZ, pos.y.toDouble() + OFFSETY, pos.z.toDouble() + OFFSETXZ)
+            //entity.setPosition(pos.x.toDouble() + OFFSETXZ, pos.y.toDouble() + OFFSETY, pos.z.toDouble() + OFFSETXZ)
             // do not use setPos, does not affect DecorationEntity.
             if (entity is LivingEntity) { entity.health = entity.defaultMaxHealth.toFloat() }
 

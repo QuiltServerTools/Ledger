@@ -15,6 +15,7 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
+import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
@@ -48,7 +49,11 @@ class EntityModifyActionType : AbstractActionType() {
 
     override fun getSourceMessage(): Text {
         if (sourceProfile == null) {
-            return "@$sourceName".literal().setStyle(TextColorPallet.secondary)
+            return TranslatableText("@").append(TranslatableText(
+                Util.createTranslationKey(
+                    "entity",
+                    objectIdentifier
+                ))).setStyle(TextColorPallet.secondary)
         }
         return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
     }
@@ -85,16 +90,16 @@ class EntityModifyActionType : AbstractActionType() {
 
     override fun getObjectMessage(): Text {
         return getEntityObjectMessage().append(
-            getSourceObjectMessage()).append(
-            getItemObjectMessage()
-        )
+            if (oldObjectIdentifier != Identifier("minecraft:air")) {
+                getSourceObjectMessage().append(getItemObjectMessage())
+            } else {getSourceObjectMessage()})
     }
 
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val uuid = NbtUtils.entityFromProperties(extraData)!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid) ?: return false
+        val rollbackEntity = NbtUtils.entityFromProperties(extraData) ?: return false
+        val entity = world?.getEntity(rollbackEntity.getUuid(UUID) ) ?: return false
 
         val rollbackStack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
 
@@ -103,6 +108,7 @@ class EntityModifyActionType : AbstractActionType() {
             when (sourceName) {
                 REMOVE-> { if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 EQUIP -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                ROTATE -> { entity.readCustomDataFromNbt(rollbackEntity) ; return true}
             }
         } else if (entity is ItemFrameEntity) {
             when (sourceName) {
@@ -117,8 +123,8 @@ class EntityModifyActionType : AbstractActionType() {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val uuid = NbtUtils.entityFromProperties(extraData)!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid) ?: return false
+        val rollbackEntity = NbtUtils.entityFromProperties(extraData) ?: return false
+        val entity = world?.getEntity(rollbackEntity.getUuid(UUID)) ?: return false
 
         val rollbackStack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
 
@@ -127,6 +133,7 @@ class EntityModifyActionType : AbstractActionType() {
             when (sourceName) {
                 EQUIP -> { if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 REMOVE-> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
+                ROTATE -> { entity.readCustomDataFromNbt(rollbackEntity) ; return true}
             }
         } else if (entity is ItemFrameEntity) {
             when (sourceName) {

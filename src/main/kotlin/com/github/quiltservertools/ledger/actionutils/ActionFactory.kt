@@ -188,7 +188,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
-        action.extraData = setEntityExtraData(entity,action.identifier).toString()
+        action.extraData = entity.writeNbt(NbtCompound())?.asString()
     }
 
 
@@ -213,7 +213,7 @@ object ActionFactory {
                extraData.copyFrom(setItemExtraData(itemStack))
             }
         }
-        extraData.copyFrom(setEntityExtraData(entity,action.identifier))
+        extraData.copyFrom(setEntityExtraData(entity,source))
         action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
@@ -221,7 +221,7 @@ object ActionFactory {
 
     private fun setItemExtraData(itemStack: ItemStack ) = NbtUtils.itemToProperties(itemStack)
 
-    private fun setEntityExtraData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
+    private fun setEntityExtraData(entity: Entity, sourceType: String) = NbtUtils.entityToProperties(entity, sourceType)
 
     fun entityModifyAction(
         world: World,
