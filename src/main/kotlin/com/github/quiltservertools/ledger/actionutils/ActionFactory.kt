@@ -188,7 +188,57 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
-        action.extraData = entity.writeNbt(NbtCompound())?.asString()
+        action.extraData = setEntityExtraData(entity,action.identifier).toString()
+    }
+
+
+    private fun setEntityItemData(
+        action: ActionType,
+        pos: BlockPos,
+        world: World,
+        entity: Entity,
+        itemStack: ItemStack?,
+        source: String
+    ) {
+        action.pos = pos
+        action.world = world.registryKey.value
+        action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.sourceName = source
+
+        val extraData = NbtCompound()
+
+        if (itemStack != null) {
+            action.oldObjectIdentifier = Registry.ITEM.getId(itemStack.item)
+            if (setItemExtraData(itemStack) != null) {
+               extraData.copyFrom(setItemExtraData(itemStack))
+            }
+        }
+        extraData.copyFrom(setEntityExtraData(entity,action.identifier))
+        action.extraData = if (extraData.isEmpty) null else extraData.toString()
+
+
+    }
+
+    private fun setItemExtraData(itemStack: ItemStack ) = NbtUtils.itemToProperties(itemStack)
+
+    private fun setEntityExtraData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
+
+    fun entityModifyAction(
+        world: World,
+        pos: BlockPos,
+        entity: Entity,
+        itemStack: ItemStack?,
+        entityActor: Entity?,
+        sourceType: String
+    ): EntityModifyActionType {
+        val action = EntityModifyActionType()
+
+        setEntityItemData(action, pos, world, entity, itemStack,sourceType)
+
+        if (entityActor is PlayerEntity) { action.sourceProfile = entityActor.gameProfile }
+
+        return action
+
     }
 
 
