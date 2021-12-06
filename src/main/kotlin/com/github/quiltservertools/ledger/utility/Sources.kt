@@ -14,6 +14,7 @@ object Sources {
     const val TRAMPLE = "trample"
     const val EXTINGUISH = "extinguish"
     const val INTERACT = "interact"
+    const val CONSUME = "consume"
     const val GROW = "grow"
     const val SNOW_GOLEM = "snow_golem"
     const val SPONGE = "sponge"
