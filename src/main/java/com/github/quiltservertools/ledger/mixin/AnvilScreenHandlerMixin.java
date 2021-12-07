@@ -24,8 +24,8 @@ public abstract class AnvilScreenHandlerMixin {
 
     @Inject(method = "method_24922",
             at = @At(value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z",
-            shift = At.Shift.AFTER),
+                    target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z",
+                    shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
             private static void ledgerLogAnvilDestroy(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState blockState) {
         BlockBreakCallback.EVENT.invoker().breakBlock(
