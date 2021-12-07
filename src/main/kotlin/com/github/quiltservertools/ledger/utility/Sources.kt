@@ -7,6 +7,7 @@ object Sources {
     const val PLAYER = "player"
     const val BROKE = "broke"
     const val DECAY = "decay"
+    const val DRY = "dry"
     const val MELT = "melt"
     const val FROST_WALKER = "frost_walker"
     const val REDSTONE = "redstone"
