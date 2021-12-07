@@ -43,7 +43,7 @@ public abstract class BlockItemMixin extends Item {
                 context.getPlayer()
         );
         BlockState newState = context.getWorld().getBlockState(context.getBlockPos());
-        if (blockState != newState && newState == Blocks.SPONGE.getDefaultState()) {
+        if (blockState != newState && newState.getBlock() == Blocks.SPONGE) {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     context.getWorld(),
                     blockPos,
