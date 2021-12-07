@@ -5,7 +5,6 @@
     "AnvilScreenHandlerMixin",
     "AreaHelperMixin",
     "AxeItemMixin",
-    "BedBlockMixin",
     "BlockItemMixin",
     "BlockMixin",
     "CauldronBehaviorMixin",
