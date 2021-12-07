@@ -68,7 +68,7 @@ open class BlockChangeActionType : AbstractActionType() {
             )
         })
         if (oldObjectIdentifier != objectIdentifier) {
-            text.append("→".literal())
+            text.append(" → ".literal())
             text.append(
                 TranslatableText(
                     Util.createTranslationKey(

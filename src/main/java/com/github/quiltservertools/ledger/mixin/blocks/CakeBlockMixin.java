@@ -2,11 +2,10 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.Ledger;
 import com.github.quiltservertools.ledger.LedgerKt;
+import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CakeBlock;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
@@ -26,18 +25,44 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class CakeBlockMixin {
     @Shadow @Final public static IntProperty BITES;
 
+    private static BlockState realCakeState;
+
     @Inject(method = "tryEat",at = @At(value = "RETURN",ordinal = 1))
-            private static void ledgerLogCakeEat(WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
-                    BlockChangeCallback.EVENT.invoker().changeBlock(
-                            player.world,
-                            pos,
-                            state,
-                            state.with(BITES, state.get(BITES) - 1),
-                            null,
-                            null,
-                            Sources.CONSUME,
-                            player);
-                    //do candle log in own mixin.
+    private static void ledgerLogCakeEat(
+            WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
+
+        if (realCakeState.getBlock() instanceof CandleCakeBlock) {
+            BlockBreakCallback.EVENT.invoker().breakBlock(
+                    player.world,
+                    pos,
+                    state,
+                    null,
+                    Sources.CONSUME,
+                    player);
+
+            BlockChangeCallback.EVENT.invoker().changeBlock(
+                    player.world,
+                    pos,
+                    Blocks.CAKE.getDefaultState(),
+                    Blocks.CAKE.getDefaultState().with(BITES, state.get(BITES) + 1),
+                    null,
+                    null, Sources.CONSUME, player);
+        }else {
+            BlockChangeCallback.EVENT.invoker().changeBlock(
+                    player.world,
+                    pos,
+                    state,
+                    state.with(BITES, state.get(BITES) + 1),
+                    null,
+                    null, Sources.CONSUME, player);
+        }
 
     }
+    @Inject(method = "tryEat",at = @At(value = "HEAD"))
+    private static void ledgerRealCakeState(
+            WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
+        realCakeState = world.getBlockState(pos);
+    }
+
+
 }
