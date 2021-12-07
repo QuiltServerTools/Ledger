@@ -1,10 +1,8 @@
 package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
-import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.JukeboxBlock;
 import net.minecraft.item.*;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
@@ -13,7 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
 

@@ -3,9 +3,7 @@ package com.github.quiltservertools.ledger.mixin;
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.block.AnvilBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.AnvilScreenHandler;
 import net.minecraft.util.math.BlockPos;
@@ -15,8 +13,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.Objects;
 
 @Mixin(AnvilScreenHandler.class)
 public abstract class AnvilScreenHandlerMixin {

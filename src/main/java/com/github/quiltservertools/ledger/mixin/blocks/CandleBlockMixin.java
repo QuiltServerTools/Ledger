@@ -1,17 +1,11 @@
 package com.github.quiltservertools.ledger.mixin.blocks;
 
-import com.github.quiltservertools.ledger.LedgerKt;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
-import com.github.quiltservertools.ledger.utility.EndCrystalDuck;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.*;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -22,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractCandleBlock.class)
 public abstract class CandleBlockMixin {
