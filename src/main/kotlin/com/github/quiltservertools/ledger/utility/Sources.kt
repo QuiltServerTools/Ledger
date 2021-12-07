@@ -8,6 +8,7 @@ object Sources {
     const val BROKE = "broke"
     const val DECAY = "decay"
     const val DRY = "dry"
+    const val WET = "wet"
     const val MELT = "melt"
     const val FROST_WALKER = "frost_walker"
     const val REDSTONE = "redstone"
