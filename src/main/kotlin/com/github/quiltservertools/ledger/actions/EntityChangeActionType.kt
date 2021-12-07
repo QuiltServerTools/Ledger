@@ -11,16 +11,13 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.server.MinecraftServer
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.MutableText
-import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.*
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
-class EntityModifyActionType : AbstractActionType() {
-    override val identifier = "entity-modify"
+class EntityChangeActionType : AbstractActionType() {
+    override val identifier = "entity-change"
 
     override fun getTranslationType(): String {
         val item = Registry.ITEM.get(oldObjectIdentifier)
@@ -31,68 +28,42 @@ class EntityModifyActionType : AbstractActionType() {
         }
     }
 
-    private fun getEntityObjectMessage(): MutableText {
-        return TranslatableText(
-            Util.createTranslationKey(
-                "entity",
-                objectIdentifier
-            )
-        ).setStyle(TextColorPallet.secondaryVariant).styled {
-            it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
-                    objectIdentifier.toString().literal()
-                )
-            )
-        }
-    }
-
-    override fun getSourceMessage(): Text {
-        if (sourceProfile == null) {
-            return TranslatableText("@").append(TranslatableText(
+    override fun getObjectMessage(): Text {
+        val text = LiteralText("")
+        text.append(
+            TranslatableText(
                 Util.createTranslationKey(
                     "entity",
                     objectIdentifier
-                ))).setStyle(TextColorPallet.secondary)
-        }
-        return sourceProfile!!.name.literal().setStyle(TextColorPallet.secondary)
-    }
-
-    private fun getItemObjectMessage(): MutableText {
-        val stack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
-
-        return TranslatableText(
-            Util.createTranslationKey(
-                getTranslationType(),
-                oldObjectIdentifier
-            )
-        ).setStyle(TextColorPallet.secondaryVariant).styled {
-            it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_ITEM,
-                    HoverEvent.ItemStackContent(stack)
                 )
-            )
-        }
-    }
-
-    private fun getSourceObjectMessage(): MutableText {
-
-        return TranslatableText(" @$sourceName ").setStyle(TextColorPallet.light).styled {
-            it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
-                    sourceName.literal()
+            ).setStyle(TextColorPallet.secondaryVariant).styled {
+                it.withHoverEvent(
+                    HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        objectIdentifier.toString().literal()
+                    )
                 )
-            )
-        }
-    }
+            })
 
-    override fun getObjectMessage(): Text {
-        return getEntityObjectMessage().append(
-            if (oldObjectIdentifier != Identifier("minecraft:air")) {
-                getSourceObjectMessage().append(getItemObjectMessage())
-            } else {getSourceObjectMessage()})
+        if (oldObjectIdentifier != Identifier.tryParse("minecraft:air")) {
+            val stack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
+            text.append(" with ".literal())
+            text.append(
+                TranslatableText(
+                    Util.createTranslationKey(
+                        this.getTranslationType(),
+                        oldObjectIdentifier
+                    )
+                ).setStyle(TextColorPallet.secondaryVariant).styled {
+                    it.withHoverEvent(
+                        HoverEvent(
+                            HoverEvent.Action.SHOW_ITEM,
+                            HoverEvent.ItemStackContent(stack)
+                        )
+                    )
+                })
+        }
+        return text
     }
 
 
@@ -108,7 +79,6 @@ class EntityModifyActionType : AbstractActionType() {
             when (sourceName) {
                 REMOVE-> { if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 EQUIP -> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
-                ROTATE -> { entity.readCustomDataFromNbt(rollbackEntity) ; return true}
             }
         } else if (entity is ItemFrameEntity) {
             when (sourceName) {
@@ -133,7 +103,6 @@ class EntityModifyActionType : AbstractActionType() {
             when (sourceName) {
                 EQUIP -> { if (entity.getEquippedStack(slot).isEmpty) entity.equipStack(slot, rollbackStack); return true }
                 REMOVE-> { entity.equipStack(slot, ItemStack(Items.AIR)); return true }
-                ROTATE -> { entity.readCustomDataFromNbt(rollbackEntity) ; return true}
             }
         } else if (entity is ItemFrameEntity) {
             when (sourceName) {

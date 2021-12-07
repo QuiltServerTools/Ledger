@@ -33,7 +33,7 @@ object ActionRegistry {
         registerActionType { ItemRemoveActionType() }
         registerActionType { EntityKillActionType() }
         registerActionType { BlockPlaceActionType() }
-        registerActionType { EntityModifyActionType() }
+        registerActionType { EntityChangeActionType() }
     }
 
     fun getType(id: String) = actionTypes[id]
