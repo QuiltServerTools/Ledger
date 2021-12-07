@@ -2,10 +2,7 @@ package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.LedgerKt;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
-import com.github.quiltservertools.ledger.database.Tables;
 import com.github.quiltservertools.ledger.utility.Sources;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.cauldron.CauldronBehavior;
@@ -19,7 +16,6 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.function.Predicate;
