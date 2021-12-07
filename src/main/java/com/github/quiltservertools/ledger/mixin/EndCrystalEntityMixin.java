@@ -27,7 +27,7 @@ public abstract class EndCrystalEntityMixin implements EndCrystalDuck {
     public void correctEndCrystalEntitySource(Args args, DamageSource source, float amount) {
         if (source.getSource() instanceof PlayerEntity) {
             this.causingPlayer = (PlayerEntity) source.getSource();
-        } else if (source.getSource() instanceof ProjectileEntity) {
+        } else if (source.getSource() instanceof ProjectileEntity && ((ProjectileEntity) source.getSource()).getOwner() instanceof PlayerEntity) {
             this.causingPlayer = (PlayerEntity) ((ProjectileEntity) source.getSource()).getOwner();
         }
         args.set(0, (EndCrystalEntity) (Object) this);
