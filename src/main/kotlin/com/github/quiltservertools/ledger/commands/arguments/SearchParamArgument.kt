@@ -88,7 +88,8 @@ object SearchParamArgument {
             val parameter = paramSuggesters[propertyName]
                 ?: throw SimpleCommandExceptionType(LiteralMessage("Unknown property value: $propertyName"))
                     .create()
-            val value = if (parameter is NegatableParameter) parameter.parseNegatable(reader) else parameter.parse(reader)
+            val value =
+                if (parameter is NegatableParameter) parameter.parseNegatable(reader) else parameter.parse(reader)
             result.put(propertyName, value)
         }
 
@@ -113,11 +114,17 @@ object SearchParamArgument {
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
                 "object" -> {
-                    val objectId = value as Negatable<Identifier>
+                    val objectIds = (value as Negatable<List<Identifier>>).property.map {
+                        when (value.allowed) {
+                            true -> Negatable.allow(it)
+                            false -> Negatable.deny(it)
+                        }
+                    }.toMutableSet()
+
                     if (builder.objects == null) {
-                        builder.objects = mutableSetOf(objectId)
+                        builder.objects = objectIds
                     } else {
-                        builder.objects!!.add(objectId)
+                        builder.objects!!.addAll(objectIds)
                     }
                 }
                 "source" -> {
@@ -176,7 +183,7 @@ object SearchParamArgument {
         return builder
     }
 
-    private open class Parameter<T> (private val parameter: SimpleParameter<T>) {
+    private open class Parameter<T>(private val parameter: SimpleParameter<T>) {
 
         open fun listSuggestions(
             context: CommandContext<ServerCommandSource>,
@@ -199,7 +206,7 @@ object SearchParamArgument {
         open fun parse(reader: StringReader) = parameter.parse(reader)
     }
 
-    private class NegatableParameter<T> (parameter: SimpleParameter<T>): Parameter<T>(parameter) {
+    private class NegatableParameter<T>(parameter: SimpleParameter<T>) : Parameter<T>(parameter) {
         override fun listSuggestions(
             context: CommandContext<ServerCommandSource>,
             builder: SuggestionsBuilder
