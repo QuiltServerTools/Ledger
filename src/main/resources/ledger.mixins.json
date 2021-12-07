@@ -44,6 +44,7 @@
     "blocks.LeverBlockMixin",
     "blocks.NoteBlockMixin",
     "blocks.RootedDirtBlockMixin",
+    "blocks.ScaffoldingBlockMixin",
     "blocks.SpongeBlockMixin",
     "blocks.SpreadableBlockMixin",
     "blocks.coral.CoralBlockBlockMixin",

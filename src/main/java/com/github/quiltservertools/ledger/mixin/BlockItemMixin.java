@@ -36,9 +36,9 @@ public abstract class BlockItemMixin extends Item {
     public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir, ItemPlacementContext i, BlockState blockState, BlockPos blockPos, World world) {
         BlockPlaceCallback.EVENT.invoker().place(
                 context.getWorld(),
-                context.getBlockPos(),
+                blockPos,
                 blockState,
-                context.getWorld().getBlockEntity(context.getBlockPos()) != null ? context.getWorld().getBlockEntity(context.getBlockPos()) : null,
+                context.getWorld().getBlockEntity(blockPos) != null ? context.getWorld().getBlockEntity(blockPos) : null,
                 context.getPlayer() == null ? Sources.REDSTONE : Sources.PLAYER,
                 context.getPlayer()
         );
@@ -46,7 +46,7 @@ public abstract class BlockItemMixin extends Item {
         if (blockState != newState && newState == Blocks.SPONGE.getDefaultState()) {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     context.getWorld(),
-                    context.getBlockPos(),
+                    blockPos,
                     blockState,
                     newState,
                     null,
