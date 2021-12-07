@@ -28,6 +28,7 @@
     "blocks.BambooBlockMixin",
     "blocks.CakeBlockMixin",
     "blocks.CandleBlockMixin",
+    "blocks.CauldronBlockMixin",
     "blocks.DaylightDetectorBlockMixin",
     "blocks.FarmlandBlockMixin",
     "blocks.FireBlockMixin",
