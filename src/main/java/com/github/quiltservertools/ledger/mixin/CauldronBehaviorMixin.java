@@ -39,27 +39,32 @@ public interface CauldronBehaviorMixin {
         LedgerKt.logInfo("full drain");
         ledgerLogDrainCauldron(world, pos, state, player);
     }
-    @Inject(method = "method_32209",at = @At(value = "HEAD"))
+    @Inject(method = "method_32209",at = @At(value = "TAIL"))
     private static void ledgerLogLeatherDrainCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
         LedgerKt.logInfo("leather clean");
         //ledgerLogDrainCauldron(world, pos, state, player);
     }
-    @Inject(method = "method_32214",at = @At(value = "HEAD"))
+    @Inject(method = "method_32214",at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/player/PlayerEntity;setStackInHand(Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;)V"))
     private static void ledgerLogBannerDrainCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
         LedgerKt.logInfo("banner clean");
        // ledgerLogDrainCauldron(world, pos, state, player);
     }
-    @Inject(method = "method_32215",at = @At(value = "HEAD"))
+    @Inject(method = "method_32215",at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/player/PlayerEntity;setStackInHand(Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;)V"))
     private static void ledgerLogShulkerDrainCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
         LedgerKt.logInfo("shulker clean");
        // ledgerLogDrainCauldron(world, pos, state, player);
     }
     @Inject(method = "method_32216",at = @At(value = "HEAD"))
-    private static void ledgerLogBottleFillCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
+    private static void ledgerLogBottleFillEmptyCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
         LedgerKt.logInfo("water bottle");
         ledgerLogFillCauldron(world, pos, state, player);
     }
-    @Inject(method = "method_32220",at = @At(value = "HEAD"))
+    @Inject(method = "method_32219",at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/player/PlayerEntity;setStackInHand(Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;)V"))
+    private static void ledgerLogBottleFillWaterCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
+        LedgerKt.logInfo("water bottle bruh");
+        ledgerLogFillCauldron(world, pos, state, player);
+    }
+    @Inject(method = "method_32220",at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/player/PlayerEntity;setStackInHand(Lnet/minecraft/util/Hand;Lnet/minecraft/item/ItemStack;)V"))
     private static void ledgerLogBottleDrainCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, CallbackInfoReturnable<ActionResult> cir) {
         LedgerKt.logInfo("empty bottle drain");
         ledgerLogDrainCauldron(world, pos, state, player);
