@@ -25,44 +25,48 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class CakeBlockMixin {
     @Shadow @Final public static IntProperty BITES;
 
-    private static BlockState realCakeState;
-
-    @Inject(method = "tryEat",at = @At(value = "RETURN",ordinal = 1))
+    @Inject(method = "tryEat",at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/WorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     private static void ledgerLogCakeEat(
             WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
-
-        if (realCakeState.getBlock() instanceof CandleCakeBlock) {
-            BlockBreakCallback.EVENT.invoker().breakBlock(
-                    player.world,
-                    pos,
-                    state,
-                    null,
-                    Sources.CONSUME,
-                    player);
-
-            BlockChangeCallback.EVENT.invoker().changeBlock(
-                    player.world,
-                    pos,
-                    Blocks.CAKE.getDefaultState(),
-                    Blocks.CAKE.getDefaultState().with(BITES, state.get(BITES) + 1),
-                    null,
-                    null, Sources.CONSUME, player);
-        }else {
-            BlockChangeCallback.EVENT.invoker().changeBlock(
-                    player.world,
-                    pos,
-                    state,
-                    state.with(BITES, state.get(BITES) + 1),
-                    null,
-                    null, Sources.CONSUME, player);
-        }
-
+        BlockChangeCallback.EVENT.invoker().changeBlock(
+                player.world,
+                pos,
+                world.getBlockState(pos),
+                state.with(BITES, state.get(BITES) + 1),
+                null,
+                null,
+                Sources.CONSUME,
+                player);
     }
-    @Inject(method = "tryEat",at = @At(value = "HEAD"))
-    private static void ledgerRealCakeState(
+    @Inject(method = "tryEat",at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/WorldAccess;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z",
+            shift = At.Shift.AFTER))
+    private static void ledgerLogCakeEatAndRemove(
             WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
-        realCakeState = world.getBlockState(pos);
+        BlockChangeCallback.EVENT.invoker().changeBlock(
+                player.world,
+                pos,
+                state,
+                world.getBlockState(pos),
+                null,
+                null,
+                Sources.CONSUME,
+                player);
     }
-
-
+    @Inject(method = "onUse",at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
+            shift = At.Shift.AFTER))
+    private void ledgerLogCakeAddCandle(
+            BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
+        BlockChangeCallback.EVENT.invoker().changeBlock(
+                player.world,
+                pos,
+                state,
+                world.getBlockState(pos),
+                null,
+                null,
+                Sources.PLACED,
+                player);
+    }
 }
