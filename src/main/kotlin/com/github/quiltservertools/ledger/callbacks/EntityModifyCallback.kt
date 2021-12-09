@@ -11,7 +11,8 @@ fun interface EntityModifyCallback {
     fun modify(
         world: World,
         pos: BlockPos,
-        entity: Entity,
+        oldEntity: Entity,
+        newEntity: Entity?,
         itemStack: ItemStack?,
         entityActor: Entity?,
         sourceType: String
@@ -21,9 +22,9 @@ fun interface EntityModifyCallback {
         @JvmField
         val EVENT: Event<EntityModifyCallback> =
             EventFactory.createArrayBacked(EntityModifyCallback::class.java) { listeners ->
-                EntityModifyCallback {world, pos, entity, itemStack, entityActor, sourceType->
+                EntityModifyCallback {world, pos, oldEntity, newEntity, itemStack, entityActor, sourceType->
                     for (listener in listeners) {
-                        listener.modify(world, pos, entity, itemStack, entityActor, sourceType)
+                        listener.modify(world, pos, oldEntity, newEntity, itemStack, entityActor, sourceType)
                     }
                 }
             }

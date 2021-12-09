@@ -38,10 +38,10 @@ public abstract class ArmorStandMixin {
         // do nothing no items to swap or entity is non-existent
 
         if (entityStack.isEmpty()) {
-            EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, playerStack, player, Sources.EQUIP);
+            EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, playerStack, player, Sources.EQUIP);
         }
         else if (playerStack.isEmpty()){
-            EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, entityStack, player, Sources.REMOVE);
+            EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, entityStack, player, Sources.REMOVE);
         }
 
     }

@@ -188,30 +188,35 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
         action.extraData = setEntityExtraData(entity, source).toString()
+        action.sourceName = source
     }
 
 
-    private fun setEntityItemData(
+    private fun setEntityChangeData(
         action: ActionType,
         pos: BlockPos,
         world: World,
         entity: Entity,
+        newEntity: Entity?,
         itemStack: ItemStack?,
         source: String
     ) {
         action.pos = pos
         action.world = world.registryKey.value
-        action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.oldObjectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
 
         val extraData = NbtCompound()
 
         if (itemStack != null) {
-            action.oldObjectIdentifier = Registry.ITEM.getId(itemStack.item)
+            action.objectIdentifier = Registry.ITEM.getId(itemStack.item)
             if (setItemExtraData(itemStack) != null) {
                 extraData.copyFrom(setItemExtraData(itemStack))
             }
+        } else if (newEntity != null) {
+            action.objectIdentifier = Registry.ENTITY_TYPE.getId(newEntity.type)
         }
         extraData.copyFrom(setEntityExtraData(entity, source))
+        action.sourceName = source
         action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
@@ -219,25 +224,24 @@ object ActionFactory {
 
     private fun setItemExtraData(itemStack: ItemStack) = NbtUtils.itemToProperties(itemStack)
 
-    private fun setEntityExtraData(entity: Entity, source: String) = NbtUtils.entityToProperties(entity, source)
+    private fun setEntityExtraData(entity: Entity, source: String) = NbtUtils.entityToProperties(entity,source)
 
     fun entityChangeAction(
         world: World,
         pos: BlockPos,
         entity: Entity,
+        newEntity: Entity?,
         itemStack: ItemStack?,
         entityActor: Entity?,
         sourceType: String
     ): EntityChangeActionType {
         val action = EntityChangeActionType()
 
-        setEntityItemData(action, pos, world, entity, itemStack, sourceType)
+        setEntityChangeData(action, pos, world, entity, newEntity, itemStack, sourceType)
 
         if (entityActor is PlayerEntity) {
             action.sourceProfile = entityActor.gameProfile
         }
-
-        action.sourceName = sourceType
 
         return action
 

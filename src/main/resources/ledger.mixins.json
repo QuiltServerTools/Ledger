@@ -27,6 +27,7 @@
     "ShovelItemMixin",
     "SlotMixin",
     "SnowGolemEntityMixin",
+    "VillagerEntityMixin",
     "blocks.AbstractPlantPartBlockMixin",
     "blocks.AbstractPlantStemBlockMixin",
     "blocks.BambooBlockMixin",

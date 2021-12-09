@@ -8,6 +8,7 @@ import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.inventory.Inventory
+import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
@@ -21,7 +22,7 @@ import net.minecraft.util.registry.Registry
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
         val item = Registry.ITEM.get(objectIdentifier)
-        return if (item is BlockItem) {
+        return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {
             "item"

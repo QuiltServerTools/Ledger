@@ -35,6 +35,6 @@ public abstract class EvokerEntityMixin {
         if(sheepEntity.getColor() == DyeColor.RED) {return;}
         // multiple evokers target the same sheep
         LivingEntity entity = this.field_7268;
-        EntityModifyCallback.EVENT.invoker().modify(this.field_7268.world, sheepEntity.getBlockPos(), sheepEntity, Items.RED_DYE.getDefaultStack(), entity, Sources.DYE);
+        EntityModifyCallback.EVENT.invoker().modify(this.field_7268.world, sheepEntity.getBlockPos(), sheepEntity, null, Items.RED_DYE.getDefaultStack(), entity, Sources.DYE);
     }
 }

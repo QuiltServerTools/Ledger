@@ -26,11 +26,12 @@ private fun onModify(
     world: World,
     pos: BlockPos,
     entity: Entity,
+    newEntity: Entity?,
     itemStack: ItemStack?,
     entityActor: Entity?,
     sourceType: String) {
     DatabaseManager.logAction(
-        ActionFactory.entityChangeAction(world, pos, entity, itemStack, entityActor, sourceType)
+        ActionFactory.entityChangeAction(world, pos, entity, newEntity, itemStack, entityActor, sourceType)
     )
 }
 

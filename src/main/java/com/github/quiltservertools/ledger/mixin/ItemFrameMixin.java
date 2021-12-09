@@ -34,7 +34,7 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack playerStack = player.getStackInHand(hand);
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, playerStack, player, Sources.EQUIP);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, playerStack, player, Sources.EQUIP);
     }
 
     @Inject(method = "dropHeldStack",
@@ -45,7 +45,7 @@ public abstract class ItemFrameMixin {
         ItemStack entityStack = this.getHeldItemStack();
         if (entityStack.isEmpty() || entityActor == null) { return; } // removed nothing or destroyed by block
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(entityActor.world, entity.getBlockPos(), entity, entityStack, entityActor, Sources.REMOVE);
+        EntityModifyCallback.EVENT.invoker().modify(entityActor.world, entity.getBlockPos(), entity, null,entityStack, entityActor, Sources.REMOVE);
     }
 
     @Inject(method = "interact",
@@ -55,7 +55,7 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack entityStack = this.getHeldItemStack();
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, player, Sources.ROTATE);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null,null, player, Sources.ROTATE);
     }
 
     @Inject(method = "damage",

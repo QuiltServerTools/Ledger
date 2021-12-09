@@ -9,9 +9,7 @@ import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.entity.passive.SheepEntity
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
+import net.minecraft.item.*
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.*
 import net.minecraft.util.DyeColor
@@ -25,11 +23,11 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun getTranslationType(): String {
         val item = Registry.ITEM.get(oldObjectIdentifier)
-        return if (item is BlockItem) {
+        return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
-        } else {
+        } else if (true){
             "item"
-        }
+        }else {"entity"}
     }
 
     override fun getObjectMessage(): Text {
@@ -38,25 +36,25 @@ class EntityChangeActionType : AbstractActionType() {
             TranslatableText(
                 Util.createTranslationKey(
                     "entity",
-                    objectIdentifier
+                    oldObjectIdentifier
                 )
             ).setStyle(TextColorPallet.secondaryVariant).styled {
                 it.withHoverEvent(
                     HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
-                        objectIdentifier.toString().literal()
+                        oldObjectIdentifier.toString().literal()
                     )
                 )
             })
 
-        if (oldObjectIdentifier != Identifier.tryParse("minecraft:air")) {
-            val stack = NbtUtils.itemFromProperties(extraData, oldObjectIdentifier)
+        if (objectIdentifier != Identifier.tryParse("minecraft:air")) {
+            val stack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
             text.append(" with ".literal())
             text.append(
                 TranslatableText(
                     Util.createTranslationKey(
                         this.getTranslationType(),
-                        oldObjectIdentifier
+                        objectIdentifier
                     )
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
