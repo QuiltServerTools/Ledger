@@ -187,8 +187,7 @@ object ActionFactory {
         action.pos = pos
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
-        action.sourceName = source
-        action.extraData = setEntityExtraData(entity, action.identifier).toString()
+        action.extraData = setEntityExtraData(entity, source).toString()
     }
 
 
@@ -203,7 +202,6 @@ object ActionFactory {
         action.pos = pos
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
-        action.sourceName = source
 
         val extraData = NbtCompound()
 
@@ -213,7 +211,7 @@ object ActionFactory {
                 extraData.copyFrom(setItemExtraData(itemStack))
             }
         }
-        extraData.copyFrom(setEntityExtraData(entity, action.identifier))
+        extraData.copyFrom(setEntityExtraData(entity, source))
         action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
@@ -221,9 +219,9 @@ object ActionFactory {
 
     private fun setItemExtraData(itemStack: ItemStack) = NbtUtils.itemToProperties(itemStack)
 
-    private fun setEntityExtraData(entity: Entity, actionType: String) = NbtUtils.entityToProperties(entity, actionType)
+    private fun setEntityExtraData(entity: Entity, source: String) = NbtUtils.entityToProperties(entity, source)
 
-    fun entityModifyAction(
+    fun entityChangeAction(
         world: World,
         pos: BlockPos,
         entity: Entity,
@@ -238,6 +236,8 @@ object ActionFactory {
         if (entityActor is PlayerEntity) {
             action.sourceProfile = entityActor.gameProfile
         }
+
+        action.sourceName = sourceType
 
         return action
 

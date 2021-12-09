@@ -21,5 +21,7 @@ object Sources {
     const val EQUIP = "equip"
     const val REMOVE = "remove"
     const val ROTATE = "rotate"
+    const val SHEAR = "shear"
+    const val DYE = "dye"
     const val UNKNOWN = "unknown"
 }

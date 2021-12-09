@@ -30,7 +30,7 @@ private fun onModify(
     entityActor: Entity?,
     sourceType: String) {
     DatabaseManager.logAction(
-        ActionFactory.entityModifyAction(world, pos, entity, itemStack, entityActor, sourceType)
+        ActionFactory.entityChangeAction(world, pos, entity, itemStack, entityActor, sourceType)
     )
 }
 

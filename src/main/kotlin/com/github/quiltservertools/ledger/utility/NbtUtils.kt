@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.utility
 import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
-import net.minecraft.entity.decoration.ArmorStandEntity
+import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
@@ -14,12 +14,9 @@ const val PROPERTIES = "Properties" // BlockState
 const val COUNT = "Count" // ItemStack
 const val TAG = "tag" // ItemStack
 const val UUID = "UUID" // Entity
-const val ITEMROTATION = "ItemRotation" // DecorationEntity
-const val ARMORITEMS = "ArmorItems" // Entity
-const val HANDITEMS = "HandItems" // Entity
-const val ITEM = "Item" // DecorationEntity
 const val ROTATION = "Rotation" // Entity
-const val FACING = "Facing" // DecorationEntity
+const val COLOR = "Color" // SheepEntity
+const val SHEARED = "Sheared" // SheepEntity
 const val POSE = "Pose" // ArmorStandEntity
 
 object NbtUtils {
@@ -71,10 +68,14 @@ object NbtUtils {
 
         entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
 
-        if (sourceType == Sources.ROTATE && entity is ArmorStandEntity){
-            entityTag.put(POSE, storedNBT.getCompound(POSE))
-            entityTag.put(ROTATION, storedNBT.getCompound(ROTATION))
+        if (sourceType == Sources.DYE && entity is SheepEntity){
+            entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
         }
+        if (sourceType == Sources.SHEAR && entity is SheepEntity){
+            entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
+            entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
+        }
+
 
         return if (entityTag.isEmpty) null else entityTag
     }
@@ -88,6 +89,8 @@ object NbtUtils {
         if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
         if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.getCompound(POSE))
         if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.getCompound(ROTATION))
+        if (storedNBT.contains(COLOR)) entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
+        if (storedNBT.contains(SHEARED)) entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
 
 
 

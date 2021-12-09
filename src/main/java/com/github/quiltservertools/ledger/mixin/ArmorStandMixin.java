@@ -28,8 +28,6 @@ public abstract class ArmorStandMixin {
 
     @Shadow public abstract ItemStack getEquippedStack(EquipmentSlot slot);
 
-    private boolean hasChanged;
-
     @Inject(method = "equip",
             at = @At(value = "INVOKE",
                     target ="Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V")

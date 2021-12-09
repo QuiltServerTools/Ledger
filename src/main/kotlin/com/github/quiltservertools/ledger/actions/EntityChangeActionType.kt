@@ -4,17 +4,21 @@ import com.github.quiltservertools.ledger.utility.*
 import com.github.quiltservertools.ledger.utility.Sources.EQUIP
 import com.github.quiltservertools.ledger.utility.Sources.REMOVE
 import com.github.quiltservertools.ledger.utility.Sources.ROTATE
+import com.github.quiltservertools.ledger.utility.Sources.SHEAR
 import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
 import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
+import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.*
+import net.minecraft.util.DyeColor
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
+import kotlin.experimental.and
 
 class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
@@ -87,6 +91,12 @@ class EntityChangeActionType : AbstractActionType() {
                 ROTATE -> { entity.rotation = entity.rotation - 1 ; return true }
                 // can only ever rotate by 1
             }
+        } else if (entity is SheepEntity) {
+            when (sourceName) {
+                SHEAR -> entity.isSheared = false
+            }
+            entity.color = DyeColor.byId((rollbackEntity.getByte(COLOR) and 0xF).toInt())
+            return true
         }
         return false
     }
@@ -110,6 +120,12 @@ class EntityChangeActionType : AbstractActionType() {
                 REMOVE -> { entity.heldItemStack = ItemStack(Items.AIR); return true }
                 ROTATE -> { entity.rotation = entity.rotation + 1 ; return true }
             }
+        } else if (entity is SheepEntity) {
+            when (sourceName) {
+                SHEAR -> entity.isSheared = true
+            }
+            entity.color = DyeColor.byId((rollbackEntity.getByte(COLOR) and 0xF).toInt())
+            return true
         }
         return false
     }
