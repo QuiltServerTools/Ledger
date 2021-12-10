@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger.actions
 
-import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import net.minecraft.entity.Entity
@@ -36,7 +35,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val uuid = NbtUtils.entityFromProperties(extraData)!!.getUuid(UUID) ?: return false
+        val uuid = StringNbtReader.parse(extraData)!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
         if (entity != null) {

@@ -13,6 +13,7 @@ import net.minecraft.entity.passive.CatEntity
 import net.minecraft.entity.passive.SheepEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.item.*
+import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.*
 import net.minecraft.util.DyeColor
@@ -73,8 +74,8 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val rollbackEntity = NbtUtils.entityFromProperties(extraData) ?: return false
-        val entity = world?.getEntity(rollbackEntity.getUuid(UUID)) ?: return false
+        val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
+        val entity = world?.getEntity(rollbackExtraData.getUuid(UUID)) ?: return false
 
         val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
 
@@ -116,19 +117,19 @@ class EntityChangeActionType : AbstractActionType() {
                     return true
                 }
                 DYE -> {
-                    entity.color = DyeColor.byId(rollbackEntity.getByte(COLOR).toInt())
+                    entity.color = DyeColor.byId(rollbackExtraData.getByte(COLOR).toInt())
                     return true
                 }
             }
             is WolfEntity -> when (sourceName) {
                 DYE -> {
-                    entity.collarColor = DyeColor.byId(rollbackEntity.getByte(COLLARCOLOR).toInt())
+                    entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
                     return true
                 }
             }
             is CatEntity -> when (sourceName) {
                     DYE -> {
-                        entity.collarColor = DyeColor.byId(rollbackEntity.getByte(COLLARCOLOR).toInt())
+                        entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
                         return true
                     }
                 }
@@ -138,8 +139,8 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val rollbackEntity = NbtUtils.entityFromProperties(extraData) ?: return false
-        val entity = world?.getEntity(rollbackEntity.getUuid(UUID)) ?: return false
+        val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
+        val entity = world?.getEntity(rollbackExtraData.getUuid(UUID)) ?: return false
 
         val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
 

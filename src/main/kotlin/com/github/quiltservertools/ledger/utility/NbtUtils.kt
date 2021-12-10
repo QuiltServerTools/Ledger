@@ -16,11 +16,9 @@ const val PROPERTIES = "Properties" // BlockState
 const val COUNT = "Count" // ItemStack
 const val TAG = "tag" // ItemStack
 const val UUID = "UUID" // Entity
-const val ROTATION = "Rotation" // Entity
 const val COLOR = "Color" // SheepEntity
 const val COLLARCOLOR = "CollarColor" // WolfEntity
 const val SHEARED = "Sheared" // SheepEntity
-const val POSE = "Pose" // ArmorStandEntity
 
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
@@ -75,33 +73,14 @@ object NbtUtils {
             entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
         }
         if (sourceType == Sources.SHEAR && entity is SheepEntity){
-            entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
+            entityTag.putByte(COLOR, storedNBT.getByte(COLOR)) // i think this is needed
             entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
         }
         if (sourceType == Sources.DYE && entity is WolfEntity || entity is CatEntity){
             entityTag.putByte(COLLARCOLOR, storedNBT.getByte(COLLARCOLOR))
         }
 
-
         return if (entityTag.isEmpty) null else entityTag
-    }
-
-    fun entityFromProperties(tag: String?): NbtCompound? {
-        val entityTag = NbtCompound()
-        if (tag == null) {
-            return null
-        }
-        val storedNBT = StringNbtReader.parse(tag)
-        if (storedNBT.contains(UUID)) entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
-        if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.getCompound(POSE))
-        if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.getCompound(ROTATION))
-        if (storedNBT.contains(COLOR)) entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
-        if (storedNBT.contains(COLLARCOLOR)) entityTag.putByte(COLLARCOLOR, storedNBT.getByte(COLLARCOLOR))
-        if (storedNBT.contains(SHEARED)) entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
-
-
-
-        return entityTag
     }
 
 
