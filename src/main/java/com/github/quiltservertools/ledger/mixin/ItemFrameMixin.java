@@ -53,7 +53,6 @@ public abstract class ItemFrameMixin {
                     target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V")
     )
     private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        ItemStack entityStack = this.getHeldItemStack();
         Entity entity = (Entity) (Object) this;
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null,null, player, Sources.ROTATE);
     }

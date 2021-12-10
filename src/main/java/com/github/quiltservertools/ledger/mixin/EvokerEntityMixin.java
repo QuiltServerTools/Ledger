@@ -30,7 +30,6 @@ public abstract class EvokerEntityMixin {
     @Inject(method = "castSpell", at = @At(value = "INVOKE_ASSIGN",
             target = "Lnet/minecraft/entity/mob/EvokerEntity;getWololoTarget()Lnet/minecraft/entity/passive/SheepEntity;"),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    @SuppressWarnings("Method")
     public void ledgerEvokerDyeSheep(CallbackInfo ci, SheepEntity sheepEntity) {
         if(sheepEntity.getColor() == DyeColor.RED) {return;}
         // multiple evokers target the same sheep

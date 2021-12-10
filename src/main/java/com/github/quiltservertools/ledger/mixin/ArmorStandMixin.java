@@ -34,15 +34,14 @@ public abstract class ArmorStandMixin {
     ) private void ledgerArmorStandInteractInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
         ItemStack entityStack = this.getEquippedStack(slot);
         LivingEntity entity = (LivingEntity) (Object) this;
-        if (entityStack.isEmpty() && playerStack.isEmpty() || entity == null) { return; }
-        // do nothing no items to swap or entity is non-existent
 
-        if (entityStack.isEmpty()) {
+        if (!playerStack.isEmpty()) {
             EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, playerStack, player, Sources.EQUIP);
         }
-        else if (playerStack.isEmpty()){
+        if (!entityStack.isEmpty()){
             EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, entityStack, player, Sources.REMOVE);
         }
+        //both fire when swapping items untested
 
     }
 
