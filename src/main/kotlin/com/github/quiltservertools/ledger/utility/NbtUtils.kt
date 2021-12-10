@@ -3,7 +3,9 @@ package com.github.quiltservertools.ledger.utility
 import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
+import net.minecraft.entity.passive.CatEntity
 import net.minecraft.entity.passive.SheepEntity
+import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
@@ -16,6 +18,7 @@ const val TAG = "tag" // ItemStack
 const val UUID = "UUID" // Entity
 const val ROTATION = "Rotation" // Entity
 const val COLOR = "Color" // SheepEntity
+const val COLLARCOLOR = "CollarColor" // WolfEntity
 const val SHEARED = "Sheared" // SheepEntity
 const val POSE = "Pose" // ArmorStandEntity
 
@@ -75,6 +78,9 @@ object NbtUtils {
             entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
             entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
         }
+        if (sourceType == Sources.DYE && entity is WolfEntity || entity is CatEntity){
+            entityTag.putByte(COLLARCOLOR, storedNBT.getByte(COLLARCOLOR))
+        }
 
 
         return if (entityTag.isEmpty) null else entityTag
@@ -90,6 +96,7 @@ object NbtUtils {
         if (storedNBT.contains(POSE)) entityTag.put(POSE, storedNBT.getCompound(POSE))
         if (storedNBT.contains(ROTATION)) entityTag.put(ROTATION, storedNBT.getCompound(ROTATION))
         if (storedNBT.contains(COLOR)) entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
+        if (storedNBT.contains(COLLARCOLOR)) entityTag.putByte(COLLARCOLOR, storedNBT.getByte(COLLARCOLOR))
         if (storedNBT.contains(SHEARED)) entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
 
 

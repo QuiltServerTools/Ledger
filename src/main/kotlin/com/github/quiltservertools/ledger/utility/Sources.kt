@@ -23,5 +23,6 @@ object Sources {
     const val ROTATE = "rotate"
     const val SHEAR = "shear"
     const val DYE = "dye"
+    const val LIGHTNING = "lightning"
     const val UNKNOWN = "unknown"
 }
