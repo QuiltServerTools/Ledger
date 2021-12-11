@@ -19,28 +19,18 @@ import static net.minecraft.block.LeveledCauldronBlock.LEVEL;
 public abstract class LeveledCauldronBlockMixin {
 
     @Inject(method = "decrementFluidLevel",at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
+            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
+            shift = At.Shift.AFTER))
     private static void ledgerLogDecrementLevelCauldron(BlockState state, World world, BlockPos pos, CallbackInfo ci) {
         LedgerKt.logInfo("decrementFluidLevel");
-        if (state.get(LEVEL) == 1) {
-            BlockChangeCallback.EVENT.invoker().changeBlock(
-                    world,
-                    pos,
-                    state,
-                    Blocks.CAULDRON.getDefaultState(),
-                    null,
-                    null,
-                    Sources.DRAIN);
-        }else {
-            BlockChangeCallback.EVENT.invoker().changeBlock(
-                    world,
-                    pos,
-                    world.getBlockState(pos),
-                    state.with(LEVEL, state.get(LEVEL) - 1),
-                    null,
-                    null,
-                    Sources.DRAIN);
-            //use world.getBlockState as BlockState is potentially spoofed
-        }
+        BlockChangeCallback.EVENT.invoker().changeBlock(
+                world,
+                pos,
+                state,
+                world.getBlockState(pos),
+                null,
+                null,
+                Sources.DRAIN);
+            //Untested
     }
 }
