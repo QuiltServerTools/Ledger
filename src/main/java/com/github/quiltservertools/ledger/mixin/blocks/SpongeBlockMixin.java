@@ -27,7 +27,7 @@ public abstract class SpongeBlockMixin {
 
     @ModifyArgs(method = "absorbWater", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;"))
-    public void logWaterSource(Args args){
+    public void logWaterDrainSource(Args args){
         ServerWorld world = args.get(0);
         BlockPos pos = args.get(1);
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
@@ -35,7 +35,7 @@ public abstract class SpongeBlockMixin {
 
     @Inject(method = "update", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void logWaterSource(World world, BlockPos pos, CallbackInfo ci){
+    public void logSpongeToWetSponge(World world, BlockPos pos, CallbackInfo ci){
         if (world.getBlockState(pos) == Blocks.WET_SPONGE.getDefaultState()) {return;}
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, world.getBlockState(pos), Blocks.WET_SPONGE.getDefaultState(), null,null, Sources.WET);
     }
