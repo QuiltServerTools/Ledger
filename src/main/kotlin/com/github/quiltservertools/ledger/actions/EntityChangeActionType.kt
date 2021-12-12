@@ -11,6 +11,7 @@ import net.minecraft.entity.decoration.ArmorStandEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.entity.passive.CatEntity
 import net.minecraft.entity.passive.SheepEntity
+import net.minecraft.entity.passive.SnowGolemEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.item.*
 import net.minecraft.nbt.StringNbtReader
@@ -71,7 +72,6 @@ class EntityChangeActionType : AbstractActionType() {
         return text
     }
 
-
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
@@ -97,7 +97,7 @@ class EntityChangeActionType : AbstractActionType() {
             is ItemFrameEntity -> when (sourceName) {
                 REMOVE -> {
                     if (entity.heldItemStack.isEmpty) {
-                        entity.heldItemStack = rollbackStack;
+                        entity.heldItemStack = rollbackStack
                         return true
                     }
                 }
@@ -110,7 +110,6 @@ class EntityChangeActionType : AbstractActionType() {
                     return true
                 } // can only ever rotate by 1
             }
-
             is SheepEntity -> when (sourceName) {
                 SHEAR -> {
                     entity.isSheared = false
@@ -128,11 +127,17 @@ class EntityChangeActionType : AbstractActionType() {
                 }
             }
             is CatEntity -> when (sourceName) {
-                    DYE -> {
-                        entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
-                        return true
-                    }
+                DYE -> {
+                    entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
+                    return true
                 }
+            }
+            is SnowGolemEntity -> when (sourceName) {
+                SHEAR -> {
+                    entity.setHasPumpkin(rollbackExtraData.getBoolean(PUMPKIN))
+                    return true
+                }
+            }
         }
         return false
     }
@@ -146,59 +151,63 @@ class EntityChangeActionType : AbstractActionType() {
 
         when (entity) {
             is ArmorStandEntity -> when (sourceName) {
-                    EQUIP -> {
-                        val slot = getPreferredEquipmentSlot(rollbackStack)
-                        if (entity.getEquippedStack(slot).isEmpty) {
-                            entity.equipStack(slot, rollbackStack)
-                            return true
-                        }
-                    }
-                    REMOVE -> {
-                        val slot = getPreferredEquipmentSlot(rollbackStack)
-                        entity.equipStack(slot, ItemStack(Items.AIR))
+                EQUIP -> {
+                    val slot = getPreferredEquipmentSlot(rollbackStack)
+                    if (entity.getEquippedStack(slot).isEmpty) {
+                        entity.equipStack(slot, rollbackStack)
                         return true
                     }
                 }
+                REMOVE -> {
+                    val slot = getPreferredEquipmentSlot(rollbackStack)
+                    entity.equipStack(slot, ItemStack(Items.AIR))
+                    return true
+                }
+            }
             is ItemFrameEntity -> when (sourceName) {
-                    EQUIP -> {
-                        if (entity.heldItemStack.isEmpty) {
-                            entity.heldItemStack = rollbackStack;
-                            return true
-                        }
-                    }
-                    REMOVE -> {
-                        entity.heldItemStack = ItemStack(Items.AIR)
+                EQUIP -> {
+                    if (entity.heldItemStack.isEmpty) {
+                        entity.heldItemStack = rollbackStack
                         return true
                     }
-                    ROTATE -> {
-                        entity.rotation = entity.rotation + 1
-                        return true
-                    } // can only ever rotate by 1
                 }
-
+                REMOVE -> {
+                    entity.heldItemStack = ItemStack(Items.AIR)
+                    return true
+                }
+                ROTATE -> {
+                    entity.rotation = entity.rotation + 1
+                    return true
+                } // can only ever rotate by 1
+            }
             is SheepEntity -> when (sourceName) {
-                    SHEAR -> {
-                        entity.isSheared = true
-                        return true
-                    }
-                    DYE -> {
-                        entity.color = (rollbackStack.item as DyeItem).color
-                        return true
-                    }
+                SHEAR -> {
+                    entity.isSheared = true
+                    return true
                 }
+                DYE -> {
+                    entity.color = (rollbackStack.item as DyeItem).color
+                    return true
+                }
+            }
             is WolfEntity -> when (sourceName) {
-                    DYE -> {
-                        entity.collarColor = (rollbackStack.item as DyeItem).color
-                        return true
-                    }
+                DYE -> {
+                    entity.collarColor = (rollbackStack.item as DyeItem).color
+                    return true
                 }
+            }
             is CatEntity -> when (sourceName) {
-                    DYE -> {
-                        entity.collarColor = (rollbackStack.item as DyeItem).color
-                        return true
-                    }
+                DYE -> {
+                    entity.collarColor = (rollbackStack.item as DyeItem).color
+                    return true
                 }
-
+            }
+            is SnowGolemEntity -> when (sourceName) {
+                SHEAR -> {
+                    entity.setHasPumpkin(!rollbackExtraData.getBoolean(PUMPKIN))
+                    return true
+                }
+            }
         }
         return false
     }

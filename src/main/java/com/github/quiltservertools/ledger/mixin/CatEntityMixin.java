@@ -22,7 +22,6 @@ public abstract class CatEntityMixin {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null,player.getStackInHand(hand), player, Sources.DYE);
     }
-
 }
 
 

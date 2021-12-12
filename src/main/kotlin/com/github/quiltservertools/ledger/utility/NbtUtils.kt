@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.entity.Entity
 import net.minecraft.entity.passive.CatEntity
 import net.minecraft.entity.passive.SheepEntity
+import net.minecraft.entity.passive.SnowGolemEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
@@ -19,6 +20,7 @@ const val UUID = "UUID" // Entity
 const val COLOR = "Color" // SheepEntity
 const val COLLARCOLOR = "CollarColor" // WolfEntity
 const val SHEARED = "Sheared" // SheepEntity
+const val PUMPKIN = "Pumpkin" // SheepEntity
 
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
@@ -75,6 +77,9 @@ object NbtUtils {
         if (sourceType == Sources.SHEAR && entity is SheepEntity){
             entityTag.putByte(COLOR, storedNBT.getByte(COLOR)) // i think this is needed
             entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
+        }
+        if (sourceType == Sources.SHEAR && entity is SnowGolemEntity){
+            entityTag.putBoolean(PUMPKIN, storedNBT.getBoolean(PUMPKIN))
         }
         if (sourceType == Sources.DYE && entity is WolfEntity || entity is CatEntity){
             entityTag.putByte(COLLARCOLOR, storedNBT.getByte(COLLARCOLOR))

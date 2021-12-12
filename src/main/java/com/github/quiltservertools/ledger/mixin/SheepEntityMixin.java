@@ -29,7 +29,6 @@ public abstract class SheepEntityMixin {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null,null, player, Sources.SHEAR);
     }
-
 }
 
 

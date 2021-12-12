@@ -21,6 +21,5 @@ public abstract class DyeItemMixin {
     @Inject(method = "useOnEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SheepEntity;setColor(Lnet/minecraft/util/DyeColor;)V"))
     private void ledgerPlayerDyeSheep(ItemStack stack, PlayerEntity player, LivingEntity entity, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity,null, stack, player, Sources.DYE);
-
     }
 }
