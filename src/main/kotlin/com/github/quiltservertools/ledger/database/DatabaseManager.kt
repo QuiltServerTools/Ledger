@@ -16,6 +16,7 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -47,7 +48,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -316,6 +317,10 @@ object DatabaseManager {
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
         dbMutex.withLock {
+            while (Ledger.server.overworld.savingDisabled) {
+                delay(timeMillis = 1000)
+            }
+
             newSuspendedTransaction(db = database) {
                 body(this)
             }
