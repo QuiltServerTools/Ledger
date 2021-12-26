@@ -115,10 +115,7 @@ object SearchParamArgument {
                 }
                 "object" -> {
                     val objectIds = (value as Negatable<List<Identifier>>).property.map {
-                        when (value.allowed) {
-                            true -> Negatable.allow(it)
-                            false -> Negatable.deny(it)
-                        }
+                        if (value.allowed) Negatable.allow(it) else Negatable.deny(it)
                     }.toMutableSet()
 
                     if (builder.objects == null) {
