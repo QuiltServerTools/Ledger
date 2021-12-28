@@ -416,9 +416,11 @@ object DatabaseManager {
     ): MutableList<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
+        val isRestore = type == Preview.Type.RESTORE
+
         val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq (type == Preview.Type.RESTORE) }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
+            .andWhere { Tables.Actions.rolledBack eq isRestore }
+            .orderBy(Tables.Actions.id, if(isRestore) SortOrder.ASC else SortOrder.DESC )
 
         val actions = Tables.Action.wrapRows(query).toList()
         actionTypes.addAll(daoToActionType(actions))
@@ -448,7 +450,7 @@ object DatabaseManager {
 
         val query = buildQuery(params)
             .andWhere { Tables.Actions.rolledBack eq true }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
+            .orderBy(Tables.Actions.id, SortOrder.ASC)
 
         val actions = Tables.Action.wrapRows(query).toList()
         for (action in actions) {
