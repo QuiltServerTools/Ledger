@@ -52,7 +52,7 @@ object RestoreCommand : BuildableCommand {
             context.source.world.launchMain {
                 val fails = HashMap<String, Int>()
 
-                for (action in actions) {
+                for (action in actions.reversed()) {
                     if (!action.restore(context.source.server)) {
                         fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
                     }
