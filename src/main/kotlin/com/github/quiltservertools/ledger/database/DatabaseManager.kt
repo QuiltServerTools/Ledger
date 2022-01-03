@@ -6,6 +6,8 @@ import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.api.ExtensionManager
+import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
+import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.logInfo
@@ -94,6 +96,25 @@ object DatabaseManager {
             Tables.Worlds
         )
         logInfo("Tables created")
+    }
+
+    fun autoPurge(server: MinecraftServer) {
+        if (config[DatabaseSpec.autoPurgeParams].isNotEmpty()) {
+            val entries = config[DatabaseSpec.autoPurgeParams]
+            var input = ""
+            entries.forEach {
+                if (input.isNotEmpty()) {
+                    input = input.plus(" ")
+                }
+                input = input.plus(it)
+            }
+            val params = SearchParamArgument.get(input, server.commandSource)
+            Ledger.logger.info("Starting automatic purge with parameters $input")
+            transaction {
+                this.purgeActions(params)
+            }
+            Ledger.logger.info("Completed automatic purge")
+        }
     }
 
     suspend fun searchActions(params: ActionSearchParams, page: Int): SearchResults = execute {
