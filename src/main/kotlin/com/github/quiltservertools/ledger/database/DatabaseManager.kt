@@ -17,6 +17,7 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -334,6 +335,10 @@ object DatabaseManager {
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
         dbMutex.withLock {
+            while (Ledger.server.overworld.savingDisabled) {
+                delay(timeMillis = 1000)
+            }
+
             newSuspendedTransaction(db = database) {
                 body(this)
             }
@@ -434,9 +439,11 @@ object DatabaseManager {
     ): MutableList<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
+        val isRestore = type == Preview.Type.RESTORE
+
         val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq (type == Preview.Type.RESTORE) }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
+            .andWhere { Tables.Actions.rolledBack eq isRestore }
+            .orderBy(Tables.Actions.id, if(isRestore) SortOrder.ASC else SortOrder.DESC )
 
         val actions = Tables.Action.wrapRows(query).toList()
         actionTypes.addAll(daoToActionType(actions))
@@ -466,7 +473,7 @@ object DatabaseManager {
 
         val query = buildQuery(params)
             .andWhere { Tables.Actions.rolledBack eq true }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
+            .orderBy(Tables.Actions.id, SortOrder.ASC)
 
         val actions = Tables.Action.wrapRows(query).toList()
         for (action in actions) {
