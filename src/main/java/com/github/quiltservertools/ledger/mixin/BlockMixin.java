@@ -20,7 +20,7 @@ public abstract class BlockMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;breakBlock(Lnet/minecraft/util/math/BlockPos;ZLnet/minecraft/entity/Entity;I)Z"))
     private static void ledgerTryLogSupportedBlockBreak(BlockState state, BlockState newState, WorldAccess worldAccess, BlockPos pos, int flags, int maxUpdateDepth, CallbackInfo ci) {
         if (worldAccess instanceof World world) {
-            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.toImmutable(), state, null, Sources.GRAVITY);
+            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.toImmutable(), state, state.hasBlockEntity() ? world.getBlockEntity(pos) : null, Sources.GRAVITY);
         }
     }
 }
