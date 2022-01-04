@@ -6,7 +6,6 @@ import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.api.ExtensionManager
-import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
 import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
@@ -39,6 +38,7 @@ import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
@@ -49,6 +49,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.math.ceil
 
@@ -98,22 +99,14 @@ object DatabaseManager {
         logInfo("Tables created")
     }
 
-    fun autoPurge(server: MinecraftServer) {
-        if (config[DatabaseSpec.autoPurgeParams].isNotEmpty()) {
-            val entries = config[DatabaseSpec.autoPurgeParams]
-            var input = ""
-            entries.forEach {
-                if (input.isNotEmpty()) {
-                    input = input.plus(" ")
-                }
-                input = input.plus(it)
-            }
-            val params = SearchParamArgument.get(input, server.commandSource)
-            Ledger.logger.info("Starting automatic purge with parameters $input")
+    fun autoPurge() {
+        if (config[DatabaseSpec.autoPurgeDays] > 0) {
             transaction {
-                this.purgeActions(params)
+                Tables.Actions.deleteWhere {
+                    Tables.Actions.timestamp lessEq Instant.now().minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                }
             }
-            Ledger.logger.info("Completed automatic purge")
+            Ledger.logger.info("Deleting actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
         }
     }
 

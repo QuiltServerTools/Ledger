@@ -78,7 +78,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         this.server = server
         DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
         DatabaseManager.ensureTables()
-        DatabaseManager.autoPurge(server)
+        DatabaseManager.autoPurge()
         ActionRegistry.registerDefaultTypes()
         initListeners()
         Networking
