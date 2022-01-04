@@ -3,6 +3,8 @@
 queueTimeoutMin = 5
 # The amount of time between checking if the queue is empty when the server stops
 queueCheckDelaySec = 10
+# Automatically purge entries older than the number of days specified. Set to -1 to disable
+autoPurgeDays = -1
 
 [search]
 # Number of actions to show per page
