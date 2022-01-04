@@ -101,12 +101,16 @@ object DatabaseManager {
 
     fun autoPurge() {
         if (config[DatabaseSpec.autoPurgeDays] > 0) {
-            transaction {
-                Tables.Actions.deleteWhere {
-                    Tables.Actions.timestamp lessEq Instant.now().minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+            Ledger.launch {
+                execute {
+                    Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
+                    val deleted = Tables.Actions.deleteWhere {
+                        Tables.Actions.timestamp lessEq Instant.now()
+                            .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                    }
+                    Ledger.logger.info("Successfully purged $deleted actions")
                 }
             }
-            Ledger.logger.info("Deleting actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
         }
     }
 
