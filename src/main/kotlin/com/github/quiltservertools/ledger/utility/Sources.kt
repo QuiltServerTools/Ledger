@@ -18,5 +18,11 @@ object Sources {
     const val SNOW_GOLEM = "snow_golem"
     const val SPONGE = "sponge"
     const val PORTAL = "portal"
+    const val EQUIP = "equip"
+    const val REMOVE = "remove"
+    const val ROTATE = "rotate"
+    const val SHEAR = "shear"
+    const val DYE = "dye"
+    const val LIGHTNING = "lightning"
     const val UNKNOWN = "unknown"
 }

@@ -1,17 +1,12 @@
 package com.github.quiltservertools.ledger.actionutils
 
-import com.github.quiltservertools.ledger.actions.ActionType
-import com.github.quiltservertools.ledger.actions.BlockBreakActionType
-import com.github.quiltservertools.ledger.actions.BlockChangeActionType
-import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
-import com.github.quiltservertools.ledger.actions.EntityKillActionType
-import com.github.quiltservertools.ledger.actions.ItemInsertActionType
-import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
+import com.github.quiltservertools.ledger.actions.*
+import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
-import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -160,10 +155,10 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = stack.writeNbt(NbtCompound())?.asString()
+        action.extraData = setItemExtraData(stack).toString()
     }
 
-    fun entityKillAction(world: World, pos: BlockPos, entity: LivingEntity, cause: DamageSource): EntityKillActionType {
+    fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {
         val killer = cause.attacker
         val action = EntityKillActionType()
 
@@ -186,13 +181,69 @@ object ActionFactory {
         action: ActionType,
         pos: BlockPos,
         world: World,
-        entity: LivingEntity,
+        entity: Entity,
         source: String
     ) {
         action.pos = pos
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.extraData = setEntityExtraData(entity, source).toString()
         action.sourceName = source
-        action.extraData = entity.writeNbt(NbtCompound())?.asString()
+    }
+
+
+    private fun setEntityChangeData(
+        action: ActionType,
+        pos: BlockPos,
+        world: World,
+        entity: Entity,
+        newEntity: Entity?,
+        itemStack: ItemStack?,
+        source: String
+    ) {
+        action.pos = pos
+        action.world = world.registryKey.value
+        action.oldObjectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+
+        val extraData = NbtCompound()
+
+        if (itemStack != null) {
+            action.objectIdentifier = Registry.ITEM.getId(itemStack.item)
+            if (setItemExtraData(itemStack) != null) {
+                extraData.copyFrom(setItemExtraData(itemStack))
+            }
+        } else if (newEntity != null) {
+            action.objectIdentifier = Registry.ENTITY_TYPE.getId(newEntity.type)
+        }
+        extraData.copyFrom(setEntityExtraData(entity, source))
+        action.sourceName = source
+        action.extraData = if (extraData.isEmpty) null else extraData.toString()
+
+
+    }
+
+    private fun setItemExtraData(itemStack: ItemStack) = NbtUtils.itemToProperties(itemStack)
+
+    private fun setEntityExtraData(entity: Entity, source: String) = NbtUtils.entityToProperties(entity,source)
+
+    fun entityChangeAction(
+        world: World,
+        pos: BlockPos,
+        entity: Entity,
+        newEntity: Entity?,
+        itemStack: ItemStack?,
+        entityActor: Entity?,
+        sourceType: String
+    ): EntityChangeActionType {
+        val action = EntityChangeActionType()
+
+        setEntityChangeData(action, pos, world, entity, newEntity, itemStack, sourceType)
+
+        if (entityActor is PlayerEntity) {
+            action.sourceProfile = entityActor.gameProfile
+        }
+
+        return action
+
     }
 }

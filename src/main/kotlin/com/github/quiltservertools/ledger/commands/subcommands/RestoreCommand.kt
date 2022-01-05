@@ -51,8 +51,9 @@ object RestoreCommand : BuildableCommand {
 
             context.source.world.launchMain {
                 val fails = HashMap<String, Int>()
-
-                for (action in actions) {
+                // TODO
+                // WARN changed to reverse action list so Entity item transfers can restore correctly, check this does not affect anything else
+                for (action in actions.reversed()) {
                     if (!action.restore(context.source.server)) {
                         fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
                     }
