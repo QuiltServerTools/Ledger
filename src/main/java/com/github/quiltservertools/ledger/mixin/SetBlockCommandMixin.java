@@ -3,8 +3,6 @@ package com.github.quiltservertools.ledger.mixin;
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.function.Predicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.pattern.CachedBlockPosition;
@@ -18,32 +16,26 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import java.util.function.Predicate;
 
 @Mixin(SetBlockCommand.class)
 public abstract class SetBlockCommandMixin {
-    private final static ThreadLocal<BlockState> oldState = new ThreadLocal<>();
-    private final static ThreadLocal<BlockEntity> oldBlockEntity = new ThreadLocal<>();
+    @ModifyArgs(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/command/argument/BlockStateArgument;setBlockState(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;I)Z"))
+    private static void logSetBlockChange(Args args, ServerCommandSource source, BlockPos pos, BlockStateArgument block, SetBlockCommand.Mode mode, @Nullable Predicate<CachedBlockPosition> condition) {
+        ServerWorld world = args.get(0);
 
-    @Inject(method = "execute", at = @At("HEAD"))
-    private static void storePreviousState(ServerCommandSource source, BlockPos pos, BlockStateArgument block, SetBlockCommand.Mode mode, @Nullable Predicate<CachedBlockPosition> condition, CallbackInfoReturnable<Integer> cir) {
-        ServerWorld world = source.getWorld();
-
-        oldState.set(world.getBlockState(pos));
-        oldBlockEntity.set(world.getBlockEntity(pos));
-    }
-
-    @Inject(method = "execute", at = @At("RETURN"))
-    private static void logSetBlockChange(ServerCommandSource source, BlockPos pos, BlockStateArgument block, SetBlockCommand.Mode mode, @Nullable Predicate<CachedBlockPosition> condition, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
+        BlockState oldState = world.getBlockState(pos);
+        BlockEntity oldBlockEntity = world.getBlockEntity(pos);
+        BlockState newState = block.getBlockState();
         Entity entity = source.getEntity();
         PlayerEntity player = entity instanceof PlayerEntity ? (PlayerEntity) entity : null;
 
-        ServerWorld world = source.getWorld();
-        if (!oldState.get().isAir()) {
-            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, oldState.get(), oldBlockEntity.get(), Sources.COMMAND, player);
+        if (!oldState.isAir()) {
+            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.toImmutable(), oldState, oldBlockEntity, Sources.COMMAND, player);
         }
 
-        BlockPlaceCallback.EVENT.invoker().place(world, pos, block.getBlockState(), null, Sources.COMMAND, player);
+        BlockPlaceCallback.EVENT.invoker().place(world, pos.toImmutable(), newState, null, Sources.COMMAND, player);
     }
 }
