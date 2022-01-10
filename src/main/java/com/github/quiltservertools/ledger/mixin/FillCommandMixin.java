@@ -17,9 +17,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(FillCommand.class)
-public class FillCommandMixin {
+public abstract class FillCommandMixin {
     @Redirect(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/command/argument/BlockStateArgument;setBlockState(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;I)Z"))
-    private static boolean setBlockState(BlockStateArgument blockStateArgument, ServerWorld world, BlockPos pos, int flags, ServerCommandSource source) {
+    private static boolean logFillChange(BlockStateArgument blockStateArgument, ServerWorld world, BlockPos pos, int flags, ServerCommandSource source) {
         BlockState oldState = world.getBlockState(pos);
         BlockEntity oldBlockEntity = world.getBlockEntity(pos);
 
@@ -30,10 +30,10 @@ public class FillCommandMixin {
             PlayerEntity player = entity instanceof PlayerEntity ? (PlayerEntity) entity : null;
 
             if (!oldState.isAir()) {
-                BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, oldState, oldBlockEntity, Sources.COMMAND, player);
+                BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.toImmutable(), oldState, oldBlockEntity, Sources.COMMAND, player);
             }
 
-            BlockPlaceCallback.EVENT.invoker().place(world, pos, newState, null, Sources.COMMAND, player);
+            BlockPlaceCallback.EVENT.invoker().place(world, pos.toImmutable(), newState, null, Sources.COMMAND, player);
         }
 
         return success;

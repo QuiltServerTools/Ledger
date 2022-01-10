@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SetBlockCommand.class)
-public class SetBlockCommandMixin {
+public abstract class SetBlockCommandMixin {
     private final static ThreadLocal<BlockState> oldState = new ThreadLocal<>();
     private final static ThreadLocal<BlockEntity> oldBlockEntity = new ThreadLocal<>();
 
