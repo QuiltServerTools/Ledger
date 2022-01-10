@@ -1,8 +1,10 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.command.argument.BlockStateArgument;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,6 +21,7 @@ public class FillCommandMixin {
     @Redirect(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/command/argument/BlockStateArgument;setBlockState(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;I)Z"))
     private static boolean setBlockState(BlockStateArgument blockStateArgument, ServerWorld world, BlockPos pos, int flags, ServerCommandSource source) {
         BlockState oldState = world.getBlockState(pos);
+        BlockEntity oldBlockEntity = world.getBlockEntity(pos);
 
         boolean success = blockStateArgument.setBlockState(world, pos, flags);
         if (success) {
@@ -26,7 +29,11 @@ public class FillCommandMixin {
             Entity entity = source.getEntity();
             PlayerEntity player = entity instanceof PlayerEntity ? (PlayerEntity) entity : null;
 
-            BlockChangeCallback.EVENT.invoker().changeBlock(source.getWorld(), pos.toImmutable(), oldState, newState, null, null, Sources.COMMAND + "/fill", player);
+            if (!oldState.isAir()) {
+                BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, oldState, oldBlockEntity, Sources.COMMAND, player);
+            }
+
+            BlockPlaceCallback.EVENT.invoker().place(world, pos, newState, null, Sources.COMMAND, player);
         }
 
         return success;
