@@ -335,7 +335,7 @@ object DatabaseManager {
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
         dbMutex.withLock {
-            while (Ledger.server.overworld.savingDisabled) {
+            while (Ledger.server.overworld?.savingDisabled != false) {
                 delay(timeMillis = 1000)
             }
 
