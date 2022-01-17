@@ -3,6 +3,8 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.SpongeBlock;
 import net.minecraft.server.world.ServerWorld;
@@ -33,10 +35,14 @@ public abstract class SpongeBlockMixin {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
     }
 
-    @Inject(method = "update", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void logSpongeToWetSponge(World world, BlockPos pos, CallbackInfo ci){
+    @Inject(method = "neighborUpdate", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/block/SpongeBlock;update(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
+    public void logSpongeToWetSponge(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean notify, CallbackInfo ci){
         if (world.getBlockState(pos) == Blocks.WET_SPONGE.getDefaultState()) {return;}
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, world.getBlockState(pos), Blocks.WET_SPONGE.getDefaultState(), null,null, Sources.WET);
+        // this needs to log ONLY when water comes into contact with dry sponge
+        // if the sponge is placed into water it should not fire as the blockitemmixin will handle it atm.
+        // its gross but sponge logic is just weird. 'onBlockAdded' changes blockstate during 'placed' and occurs before being placed so logs are wrong
+        // maybe theres something in the water class to handle this correctly.
     }
 }

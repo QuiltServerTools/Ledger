@@ -65,7 +65,7 @@ public abstract class CampfireBlockMixin {
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     private void logCampfireProjectileIgnite(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci){
         CampfireBlockEntity blockEntity = (CampfireBlockEntity) world.getBlockEntity(hit.getBlockPos());
-            BlockChangeCallback.EVENT.invoker().changeBlock(world,hit.getBlockPos(),state,state.with(LIT, Boolean.TRUE), blockEntity, null, Sources.IGNITE);
+            BlockChangeCallback.EVENT.invoker().changeBlock(world,hit.getBlockPos(),state,state.with(LIT, Boolean.TRUE), blockEntity, null, Sources.FIRE);
     }
 
 }

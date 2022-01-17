@@ -26,7 +26,7 @@ public abstract class FlintAndSteelItemMixin {
         if (oldState.getBlock().equals(state.getBlock())) {
             // Block types are the same, log interaction
             if (player != null) {
-                BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), pos, oldState, state, be, be, Sources.IGNITE, player);
+                BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), pos, oldState, state, be, be, player);
             } else {
                 BlockChangeCallback.EVENT.invoker().changeBlock(context.getWorld(), pos, oldState, state, be, be, Sources.FIRE);
             }

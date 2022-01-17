@@ -40,6 +40,6 @@ public abstract class CandleBlockMixin {
                 hit.getBlockPos(),
                 state,
                 state.with(LIT, !state.get(LIT)),
-                null, null, Sources.IGNITE);
+                null, null, Sources.FIRE);
     }
 }

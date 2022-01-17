@@ -43,7 +43,6 @@ public abstract class LeveledCauldronBlockMixin {
                     playerEntity);
             playerEntity = null;
 
-
         }else {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     world,
@@ -61,16 +60,12 @@ public abstract class LeveledCauldronBlockMixin {
     private void ledgerLogPlayerExtinguish(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
         if (entity instanceof PlayerEntity) {
             playerEntity = (PlayerEntity) entity;
-            // i guess
         }
     }
-
-
 
     @Inject(method = "fillFromDripstone",at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",shift = At.Shift.AFTER))
     private void ledgerLogIncrementLevelCauldron(BlockState state, World world, BlockPos pos, Fluid fluid, CallbackInfo ci) {
-        LedgerKt.logInfo("fillFromDripstone");
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
@@ -78,13 +73,12 @@ public abstract class LeveledCauldronBlockMixin {
                 world.getBlockState(pos),
                 null,
                 null,
-                Sources.FILL_DRIP);
+                Sources.DRIP);
     }
 
     @Inject(method = "precipitationTick",at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",shift = At.Shift.AFTER))
     private void ledgerLogIncrementLevelCauldron(BlockState state, World world, BlockPos pos, Biome.Precipitation precipitation, CallbackInfo ci) {
-        LedgerKt.logInfo("precipitationTick");
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
@@ -92,7 +86,7 @@ public abstract class LeveledCauldronBlockMixin {
                 world.getBlockState(pos),
                 null,
                 null,
-                Sources.FILL_RAIN_SNOW);
+                Sources.SNOW);
     }
 
 }

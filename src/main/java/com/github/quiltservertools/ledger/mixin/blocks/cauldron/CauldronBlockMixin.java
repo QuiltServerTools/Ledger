@@ -23,7 +23,6 @@ public abstract class CauldronBlockMixin {
     @Inject(method = "fillFromDripstone",at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",shift = At.Shift.AFTER))
     private void ledgerLogIncrementLevelCauldron(BlockState state, World world, BlockPos pos, Fluid fluid, CallbackInfo ci) {
-        LedgerKt.logInfo("fillFromDripstone");
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
@@ -31,13 +30,12 @@ public abstract class CauldronBlockMixin {
                 world.getBlockState(pos),
                 null,
                 null,
-                Sources.FILL_DRIP);
+                Sources.DRIP);
     }
 
     @Inject(method = "precipitationTick",at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",shift = At.Shift.AFTER))
     private void ledgerLogIncrementLevelCauldron(BlockState state, World world, BlockPos pos, Biome.Precipitation precipitation, CallbackInfo ci) {
-        LedgerKt.logInfo("precipitationTick");
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
@@ -45,7 +43,7 @@ public abstract class CauldronBlockMixin {
                 world.getBlockState(pos),
                 null,
                 null,
-                Sources.FILL_RAIN_SNOW);
+                Sources.SNOW);
     }
 
 }

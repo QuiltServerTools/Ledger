@@ -30,7 +30,7 @@ public abstract class FarmlandBlockMixin {
 
     @Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
     public void logRandomDecay(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
-        logFarmland(world, state, pos, Sources.DRY,null);
+        logFarmland(world, state, pos, Sources.TRAMPLE, null);
     }
 
     private void logFarmland(World world, BlockState state, BlockPos pos, String sources, Entity entity) {

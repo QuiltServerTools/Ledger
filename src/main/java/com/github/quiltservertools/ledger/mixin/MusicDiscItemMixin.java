@@ -19,9 +19,7 @@ import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
 public abstract class MusicDiscItemMixin{
 
     @Inject(method = "useOnBlock", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/block/JukeboxBlock;setRecord(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/item/ItemStack;)V",
-            shift = At.Shift.AFTER),
-            cancellable = true)
+            target = "Lnet/minecraft/block/JukeboxBlock;setRecord(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/item/ItemStack;)V"))
     public void ledgerPlayerPlaceBlockCallback(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
         World world = context.getWorld();
         BlockPos pos = context.getBlockPos();
