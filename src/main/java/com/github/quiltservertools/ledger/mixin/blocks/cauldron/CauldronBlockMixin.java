@@ -1,13 +1,9 @@
 package com.github.quiltservertools.ledger.mixin.blocks.cauldron;
 
-import com.github.quiltservertools.ledger.LedgerKt;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CauldronBlock;
-import net.minecraft.block.LeveledCauldronBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

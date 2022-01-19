@@ -47,6 +47,7 @@
     "blocks.ScaffoldingBlockMixin",
     "blocks.SpongeBlockMixin",
     "blocks.SpreadableBlockMixin",
+    "blocks.WetSpongeBlockMixin",
     "blocks.cauldron.CauldronBehaviorMixin",
     "blocks.cauldron.CauldronBlockMixin",
     "blocks.cauldron.LeveledCauldronBlockMixin",
