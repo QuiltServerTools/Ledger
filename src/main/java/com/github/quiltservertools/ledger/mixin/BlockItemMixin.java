@@ -30,7 +30,7 @@ public abstract class BlockItemMixin extends Item {
     public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, CallbackInfoReturnable<ActionResult> cir) {
         World world = context.getWorld();
         BlockPos pos = context.getBlockPos();
-        BlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos); // if order can be fixed would need to be local capture of blockState1, this will be modified state after onBlockAdded
         PlayerEntity player = context.getPlayer();
         BlockPlaceCallback.EVENT.invoker().place(
                 world,
