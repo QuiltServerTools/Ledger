@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.mixin;
 
+import com.github.quiltservertools.ledger.LedgerKt;
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
@@ -23,7 +24,7 @@ public abstract class BlockItemMixin extends Item {
     }
 
     @Inject(method = "place(Lnet/minecraft/item/ItemPlacementContext;Lnet/minecraft/block/BlockState;)Z",
-            at = @At(value = "TAIL"))
+            at = @At(value = "HEAD"))
     public void ledgerPlayerPlaceBlockCallback(ItemPlacementContext context, BlockState state, CallbackInfoReturnable<Boolean> cir) {
         World world = context.getWorld();
         BlockPos pos = context.getBlockPos();
