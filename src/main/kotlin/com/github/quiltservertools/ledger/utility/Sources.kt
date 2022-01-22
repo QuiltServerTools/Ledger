@@ -27,6 +27,5 @@ object Sources {
     const val SNOW_GOLEM = "snow_golem"
     const val SPONGE = "sponge"
     const val PORTAL = "portal"
-    const val PLACED = "placed"
     const val UNKNOWN = "unknown"
 }

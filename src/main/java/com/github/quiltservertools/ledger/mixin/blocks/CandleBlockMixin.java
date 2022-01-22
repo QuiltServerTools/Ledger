@@ -33,7 +33,8 @@ public abstract class CandleBlockMixin {
                 state,
                 state.with(LIT, !state.get(LIT)),
                 null,
-                null, Sources.EXTINGUISH, player);
+                null,
+                Sources.EXTINGUISH, player);
     }
 
     @Inject(method = "onProjectileHit", at = @At(value = "RETURN"))
@@ -43,6 +44,8 @@ public abstract class CandleBlockMixin {
                 hit.getBlockPos(),
                 state,
                 state.with(LIT, !state.get(LIT)),
-                null, null, Sources.FIRE);
+                null,
+                null,
+                Sources.FIRE);
     }
 }

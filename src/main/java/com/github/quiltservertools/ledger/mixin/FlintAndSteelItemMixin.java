@@ -32,9 +32,9 @@ public abstract class FlintAndSteelItemMixin {
             }
         } else {
             if (player != null) {
-                BlockPlaceCallback.EVENT.invoker().place(world, pos, state, be, Sources.FIRE, player);
+                BlockPlaceCallback.EVENT.invoker().place( world, pos, state, be, Sources.FIRE, player);
             } else {
-                BlockPlaceCallback.EVENT.invoker().place(world, pos, state, be, Sources.FIRE);
+                BlockPlaceCallback.EVENT.invoker().place( world, pos, state, be, Sources.FIRE);
             }
         }
     }

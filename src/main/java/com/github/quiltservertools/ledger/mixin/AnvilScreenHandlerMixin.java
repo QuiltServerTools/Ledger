@@ -11,41 +11,38 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(AnvilScreenHandler.class)
 public abstract class AnvilScreenHandlerMixin {
 
-
     @Inject(method = "method_24922",
-            at = @At(value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z",
-                    shift = At.Shift.AFTER),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private static void ledgerLogAnvilDestroy(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState blockState) {
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
+    private static void ledgerLogAnvilBreak(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci) {
         BlockBreakCallback.EVENT.invoker().breakBlock(
                 world,
                 pos,
-                blockState,
+                world.getBlockState(pos),
                 null,
                 Sources.DECAY,
                 player);
     }
 
-
     @Inject(method = "method_24922",
-            at = @At(value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z",
-                    shift = At.Shift.AFTER),
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private static void ledgerLogAnvilDamageOnUse(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState blockState) {
+    private static void ledgerLogAnvilChange(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState oldBlockState, BlockState newBlockState) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
-                blockState,
-                world.getBlockState(pos),
-                null,
+                oldBlockState,
+                newBlockState,
+                world.getBlockEntity(pos),
                 null,
                 Sources.DECAY,
                 player);
