@@ -36,7 +36,7 @@ public abstract class AnvilScreenHandlerMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     private static void ledgerLogAnvilChange(Args args, PlayerEntity player, World world, BlockPos pos) {
-        BlockState newBlockState = args.get(2);
+        BlockState newBlockState = args.get(1);
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
