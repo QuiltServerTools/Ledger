@@ -35,27 +35,24 @@ public abstract class CampfireBlockMixin {
     @Inject(method = "onUse", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/util/Identifier;)V"),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    public void logCampfireAddItem(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir, BlockEntity blockEntity) {
-        CampfireBlockEntity newEntity = (CampfireBlockEntity) world.getBlockEntity(pos);
-        BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, world.getBlockState(pos), blockEntity, newEntity, Sources.INSERT, player);
+    public void logCampfireAddItem(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir, BlockEntity oldBlockEntity) {
+        BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, world.getBlockState(pos), oldBlockEntity, world.getBlockEntity(pos), Sources.INSERT, player);
     }
 
     @Inject(method = "extinguish", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/WorldAccess;emitGameEvent(Lnet/minecraft/entity/Entity;Lnet/minecraft/world/event/GameEvent;Lnet/minecraft/util/math/BlockPos;)V"))
-    private static void logCampfireExtinguish(Entity entity, WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
-        CampfireBlockEntity blockEntity = (CampfireBlockEntity) world.getBlockEntity(pos);
+    private static void logCampfireExtinguish(Entity entity, WorldAccess world, BlockPos pos, BlockState blockState, CallbackInfo ci) {
         if (entity instanceof PlayerEntity player) {
-            BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, state, state.with(LIT, Boolean.FALSE), blockEntity, null, Sources.EXTINGUISH, player);
+            BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, blockState, blockState.with(LIT, Boolean.FALSE), world.getBlockEntity(pos), null, Sources.EXTINGUISH, player);
         } else {
-            BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, state, state.with(LIT, Boolean.FALSE), blockEntity, null, Sources.EXTINGUISH);
+            BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, blockState, blockState.with(LIT, Boolean.FALSE), world.getBlockEntity(pos), null, Sources.EXTINGUISH);
         }
     }
 
     @Inject(method = "onProjectileHit", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    private void logCampfireProjectileIgnite(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci) {
-        CampfireBlockEntity blockEntity = (CampfireBlockEntity) world.getBlockEntity(hit.getBlockPos());
-        BlockChangeCallback.EVENT.invoker().changeBlock(world, hit.getBlockPos(), state, state.with(LIT, Boolean.TRUE), blockEntity, null, Sources.FIRE);
+    private void logCampfireProjectileIgnite(World world, BlockState blockState, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci) {
+        BlockChangeCallback.EVENT.invoker().changeBlock(world, hit.getBlockPos(), blockState, blockState.with(LIT, Boolean.TRUE), world.getBlockEntity(hit.getBlockPos()), null, Sources.FIRE);
     }
 
 }

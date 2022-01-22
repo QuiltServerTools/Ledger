@@ -27,13 +27,13 @@ public abstract class JukeBoxBlockMixin {
 
     @Inject(method = "onUse", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/JukeboxBlock;removeRecord(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
-    private void ledgerLogDiscRemoved(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+    private void ledgerLogDiscRemoved(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand,
                                       BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
-                state,
-                state.with(HAS_RECORD, false),
+                blockState,
+                blockState.with(HAS_RECORD, false),
                 world.getBlockEntity(pos),
                 null,
                 Sources.INTERACT,

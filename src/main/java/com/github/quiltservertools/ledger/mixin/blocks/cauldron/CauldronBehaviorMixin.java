@@ -22,16 +22,16 @@ import java.util.function.Predicate;
 @Mixin(CauldronBehavior.class)
 public interface CauldronBehaviorMixin {
 
-    @Inject(method = "fillCauldron", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
-    private static void ledgerLogFillCauldron(World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, BlockState state,
-                                              SoundEvent soundEvent, CallbackInfoReturnable<ActionResult> cir) {
-        ledgerLogFillCauldron(world, pos, world.getBlockState(pos), state, player);
-    }
-
     @Inject(method = "emptyCauldron", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
     private static void ledgerLogFullDrainCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, ItemStack output,
                                                    Predicate<BlockState> predicate, SoundEvent soundEvent, CallbackInfoReturnable<ActionResult> cir) {
         ledgerLogDrainCauldron(world, pos, state, player);
+    }
+
+    @Inject(method = "fillCauldron", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
+    private static void ledgerLogFillCauldron(World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack stack, BlockState state,
+                                              SoundEvent soundEvent, CallbackInfoReturnable<ActionResult> cir) {
+        ledgerLogFillCauldron(world, pos, world.getBlockState(pos), state, player);
     }
 
     @Inject(method = "method_32219", at = @At(value = "INVOKE",

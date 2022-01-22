@@ -25,8 +25,6 @@ public abstract class LeveledCauldronBlockMixin {
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
             shift = At.Shift.AFTER))
     private static void ledgerLogDecrementLevelCauldron(BlockState state, World world, BlockPos pos, CallbackInfo ci) {
-        LedgerKt.logInfo("decrementFluidLevel");
-
         if (playerEntity != null) {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     world,

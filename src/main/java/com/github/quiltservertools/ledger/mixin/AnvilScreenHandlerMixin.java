@@ -32,15 +32,15 @@ public abstract class AnvilScreenHandlerMixin {
                 player);
     }
 
-    @Inject(method = "method_24922",
+    @ModifyArgs(method = "method_24922",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private static void ledgerLogAnvilChange(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState oldBlockState, BlockState newBlockState) {
+                    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
+    private static void ledgerLogAnvilChange(Args args, PlayerEntity player, World world, BlockPos pos) {
+        BlockState newBlockState = args.get(2);
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
-                oldBlockState,
+                world.getBlockState(pos),
                 newBlockState,
                 world.getBlockEntity(pos),
                 null,

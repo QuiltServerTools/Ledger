@@ -27,7 +27,7 @@ public abstract class MusicDiscItemMixin {
         BlockState blockState = world.getBlockState(pos);
 
         BlockChangeCallback.EVENT.invoker().changeBlock(
-                context.getWorld(),
+                world,
                 pos,
                 blockState.with(HAS_RECORD, false),
                 blockState,

@@ -20,25 +20,25 @@ import java.util.Random;
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
     @Inject(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
-    public void logFarmlandTrampling(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance, CallbackInfo ci) {
-        logFarmland(world, state, pos, entity);
+    public void logFarmlandTrampling(World world, BlockState blockState, BlockPos pos, Entity entity, float fallDistance, CallbackInfo ci) {
+        logFarmland(world, blockState, pos, entity);
     }
 
     @Inject(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
-    public void logBlockAbove(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
-        logFarmland(world, state, pos, null);
+    public void logBlockAbove(BlockState blockState, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
+        logFarmland(world, blockState, pos, null);
     }
 
     @Inject(method = "randomTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
-    public void logRandomDecay(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
-        logFarmland(world, state, pos, null);
+    public void logRandomDecay(BlockState blockState, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
+        logFarmland(world, blockState, pos, null);
     }
 
-    private void logFarmland(World world, BlockState state, BlockPos pos, Entity entity) {
+    private void logFarmland(World world, BlockState blockState, BlockPos pos, Entity entity) {
         if (entity instanceof PlayerEntity player) {
-            BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, Blocks.DIRT.getDefaultState(), null, null, Sources.TRAMPLE, player);
+            BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, Blocks.DIRT.getDefaultState(), null, null, Sources.TRAMPLE, player);
         } else {
-            BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, Blocks.DIRT.getDefaultState(), null, null, Sources.TRAMPLE);
+            BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, Blocks.DIRT.getDefaultState(), null, null, Sources.TRAMPLE);
         }
     }
 }
