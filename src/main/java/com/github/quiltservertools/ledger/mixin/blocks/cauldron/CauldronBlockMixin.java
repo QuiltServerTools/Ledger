@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(CauldronBlock.class)
 public abstract class CauldronBlockMixin {
 
-    @Inject(method = "fillFromDripstone",at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",shift = At.Shift.AFTER))
+    @Inject(method = "fillFromDripstone", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", shift = At.Shift.AFTER))
     private void ledgerLogIncrementLevelCauldron(BlockState state, World world, BlockPos pos, Fluid fluid, CallbackInfo ci) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
@@ -29,8 +29,8 @@ public abstract class CauldronBlockMixin {
                 Sources.DRIP);
     }
 
-    @Inject(method = "precipitationTick",at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",shift = At.Shift.AFTER))
+    @Inject(method = "precipitationTick", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", shift = At.Shift.AFTER))
     private void ledgerLogIncrementLevelCauldron(BlockState state, World world, BlockPos pos, Biome.Precipitation precipitation, CallbackInfo ci) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,

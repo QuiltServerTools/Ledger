@@ -2,7 +2,8 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.block.*;
+import net.minecraft.block.AbstractCandleBlock;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.state.property.BooleanProperty;
@@ -20,10 +21,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractCandleBlock.class)
 public abstract class CandleBlockMixin {
 
-    @Shadow @Final public static BooleanProperty LIT;
+    @Shadow
+    @Final
+    public static BooleanProperty LIT;
 
-    @Inject(method = "extinguish",at = @At(value = "RETURN"))
-            private static void ledgerLogCandleExtinguish(PlayerEntity player, BlockState state, WorldAccess world, BlockPos pos, CallbackInfo ci) {
+    @Inject(method = "extinguish", at = @At(value = "RETURN"))
+    private static void ledgerLogCandleExtinguish(PlayerEntity player, BlockState state, WorldAccess world, BlockPos pos, CallbackInfo ci) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 (World) world,
                 pos,
@@ -33,7 +36,7 @@ public abstract class CandleBlockMixin {
                 null, Sources.EXTINGUISH, player);
     }
 
-    @Inject(method = "onProjectileHit",at = @At(value = "RETURN"))
+    @Inject(method = "onProjectileHit", at = @At(value = "RETURN"))
     private void ledgerLogCandleLit(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
