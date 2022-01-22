@@ -21,12 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(JukeboxBlock.class)
 public abstract class JukeBoxBlockMixin {
 
-    @Shadow @Final public static BooleanProperty HAS_RECORD;
+    @Shadow
+    @Final
+    public static BooleanProperty HAS_RECORD;
 
-    @Inject(method = "onUse",at = @At(value = "INVOKE",
+    @Inject(method = "onUse", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/JukeboxBlock;removeRecord(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
-            private void ledgerLogDiscRemoved(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
-                                                          BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
+    private void ledgerLogDiscRemoved(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand,
+                                      BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 pos,
@@ -34,7 +36,7 @@ public abstract class JukeBoxBlockMixin {
                 state.with(HAS_RECORD, false),
                 world.getBlockEntity(pos),
                 null,
-                Sources.REMOVE,
+                Sources.INTERACT,
                 player);
     }
 }

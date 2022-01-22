@@ -2,7 +2,8 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.block.*;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.CakeBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
@@ -20,9 +21,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CakeBlock.class)
 public abstract class CakeBlockMixin {
-    @Shadow @Final public static IntProperty BITES;
+    @Shadow
+    @Final
+    public static IntProperty BITES;
 
-    @Inject(method = "tryEat",at = @At(value = "INVOKE",
+    @Inject(method = "tryEat", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/WorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     private static void ledgerLogCakeEat(
             WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
@@ -36,7 +39,8 @@ public abstract class CakeBlockMixin {
                 Sources.CONSUME,
                 player);
     }
-    @Inject(method = "tryEat",at = @At(value = "INVOKE",
+
+    @Inject(method = "tryEat", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/WorldAccess;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z",
             shift = At.Shift.AFTER))
     private static void ledgerLogCakeEatAndRemove(
@@ -51,7 +55,8 @@ public abstract class CakeBlockMixin {
                 Sources.CONSUME,
                 player);
     }
-    @Inject(method = "onUse",at = @At(value = "INVOKE",
+
+    @Inject(method = "onUse", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
             shift = At.Shift.AFTER))
     private void ledgerLogCakeAddCandle(
@@ -63,7 +68,7 @@ public abstract class CakeBlockMixin {
                 world.getBlockState(pos),
                 null,
                 null,
-                Sources.PLACED,
+                Sources.INTERACT,
                 player);
     }
 }

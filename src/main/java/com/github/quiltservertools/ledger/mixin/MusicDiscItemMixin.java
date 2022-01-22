@@ -3,7 +3,8 @@ package com.github.quiltservertools.ledger.mixin;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
-import net.minecraft.item.*;
+import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.MusicDiscItem;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -16,11 +17,11 @@ import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
 
 
 @Mixin(MusicDiscItem.class)
-public abstract class MusicDiscItemMixin{
+public abstract class MusicDiscItemMixin {
 
     @Inject(method = "useOnBlock", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/JukeboxBlock;setRecord(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/item/ItemStack;)V"))
-    public void ledgerPlayerPlaceBlockCallback(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
+    public void ledgerPlayerInsertMusicDisc(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
         World world = context.getWorld();
         BlockPos pos = context.getBlockPos();
         BlockState blockState = world.getBlockState(pos);
@@ -32,7 +33,7 @@ public abstract class MusicDiscItemMixin{
                 blockState,
                 null,
                 world.getBlockEntity(pos),
-                Sources.INSERT,
+                Sources.INTERACT,
                 context.getPlayer());
     }
 }

@@ -2,7 +2,6 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import java.util.Random;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FarmlandBlock;
@@ -15,6 +14,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Random;
 
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin {
@@ -36,7 +37,7 @@ public abstract class FarmlandBlockMixin {
     private void logFarmland(World world, BlockState state, BlockPos pos, String sources, Entity entity) {
         if (entity instanceof PlayerEntity player) {
             BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, Blocks.DIRT.getDefaultState(), null, null, Sources.TRAMPLE, player);
-        }else {
+        } else {
             BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, Blocks.DIRT.getDefaultState(), null, null, sources);
         }
     }

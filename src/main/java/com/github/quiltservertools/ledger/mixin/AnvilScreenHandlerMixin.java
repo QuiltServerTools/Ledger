@@ -23,7 +23,7 @@ public abstract class AnvilScreenHandlerMixin {
                     target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z",
                     shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-            private static void ledgerLogAnvilDestroy(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState blockState) {
+    private static void ledgerLogAnvilDestroy(PlayerEntity player, World world, BlockPos pos, CallbackInfo ci, BlockState blockState) {
         BlockBreakCallback.EVENT.invoker().breakBlock(
                 world,
                 pos,

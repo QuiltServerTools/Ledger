@@ -21,7 +21,6 @@ public abstract class BlockMixin {
     private static void ledgerTryLogSupportedBlockBreak(BlockState state, BlockState newState, WorldAccess worldAccess, BlockPos pos, int flags, int maxUpdateDepth, CallbackInfo ci) {
         if (worldAccess instanceof World world) {
             BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.toImmutable(), state, null, Sources.GRAVITY);
-            // this triggers on doors and beds but will lack the player source so #12 bed restore issue
         }
     }
 }

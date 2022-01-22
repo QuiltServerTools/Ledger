@@ -4,7 +4,6 @@ import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DirtPathBlock;
-import net.minecraft.block.SpreadableBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +16,7 @@ import java.util.Random;
 @Mixin(DirtPathBlock.class)
 public abstract class DirtPathBlockMixin {
 
-    @Inject(method = "scheduledTick",at = @At(value = "INVOKE",
+    @Inject(method = "scheduledTick", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V",
             shift = At.Shift.AFTER))
     private void ledgerLogPathToDirt(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {

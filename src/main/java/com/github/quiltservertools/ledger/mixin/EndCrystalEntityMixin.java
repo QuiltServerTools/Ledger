@@ -25,10 +25,10 @@ public abstract class EndCrystalEntityMixin implements EndCrystalDuck {
 
     @ModifyArgs(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/world/explosion/Explosion$DestructionType;)Lnet/minecraft/world/explosion/Explosion;"))
     public void correctEndCrystalEntitySource(Args args, DamageSource source, float amount) {
-        if (source.getSource() instanceof PlayerEntity) {
-            this.causingPlayer = (PlayerEntity) source.getSource();
-        } else if (source.getSource() instanceof ProjectileEntity && ((ProjectileEntity) source.getSource()).getOwner() instanceof PlayerEntity) {
-            this.causingPlayer = (PlayerEntity) ((ProjectileEntity) source.getSource()).getOwner();
+        if (source.getSource() instanceof PlayerEntity player) {
+            this.causingPlayer = player;
+        } else if (source.getSource() instanceof ProjectileEntity projectile && projectile.getOwner() instanceof PlayerEntity player) {
+            this.causingPlayer = player;
         }
         args.set(0, (EndCrystalEntity) (Object) this);
     }
