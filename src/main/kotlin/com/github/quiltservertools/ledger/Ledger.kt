@@ -33,7 +33,7 @@ import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -78,6 +78,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         this.server = server
         DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
         DatabaseManager.ensureTables()
+        DatabaseManager.autoPurge()
         ActionRegistry.registerDefaultTypes()
         initListeners()
         Networking

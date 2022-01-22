@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -73,6 +74,13 @@ public abstract class ExplosionMixin {
                 }
             }
             source = Sources.EXPLOSION;
+        }
+
+        if (this.entity instanceof CreeperEntity creeper) {
+            var target = creeper.getTarget();
+            if (target instanceof PlayerEntity player) {
+                entity = player;
+            }
         }
 
         BlockBreakCallback.EVENT.invoker().breakBlock(

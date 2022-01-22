@@ -112,7 +112,6 @@ tasks {
                     "id" to modId,
                     "version" to version,
                     "name" to modName,
-                    "fabricLoader" to libs.versions.fabric.loader.get(),
                     "fabricApi" to libs.versions.fabric.api.get(),
                     "fabricKotlin" to libs.versions.fabric.kotlin.get(),
                 )

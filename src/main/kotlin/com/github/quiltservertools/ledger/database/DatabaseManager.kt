@@ -6,6 +6,7 @@ import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.api.ExtensionManager
+import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.logInfo
@@ -16,6 +17,7 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -37,6 +39,7 @@ import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
@@ -47,6 +50,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.math.ceil
 
@@ -94,6 +98,21 @@ object DatabaseManager {
             Tables.Worlds
         )
         logInfo("Tables created")
+    }
+
+    fun autoPurge() {
+        if (config[DatabaseSpec.autoPurgeDays] > 0) {
+            Ledger.launch {
+                execute {
+                    Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
+                    val deleted = Tables.Actions.deleteWhere {
+                        Tables.Actions.timestamp lessEq Instant.now()
+                            .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                    }
+                    Ledger.logger.info("Successfully purged $deleted actions")
+                }
+            }
+        }
     }
 
     suspend fun searchActions(params: ActionSearchParams, page: Int): SearchResults = execute {
@@ -316,6 +335,10 @@ object DatabaseManager {
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
         dbMutex.withLock {
+            while (Ledger.server.overworld?.savingDisabled != false) {
+                delay(timeMillis = 1000)
+            }
+
             newSuspendedTransaction(db = database) {
                 body(this)
             }
@@ -416,9 +439,11 @@ object DatabaseManager {
     ): MutableList<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
+        val isRestore = type == Preview.Type.RESTORE
+
         val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq (type == Preview.Type.RESTORE) }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
+            .andWhere { Tables.Actions.rolledBack eq isRestore }
+            .orderBy(Tables.Actions.id, if(isRestore) SortOrder.ASC else SortOrder.DESC )
 
         val actions = Tables.Action.wrapRows(query).toList()
         actionTypes.addAll(daoToActionType(actions))
@@ -448,7 +473,7 @@ object DatabaseManager {
 
         val query = buildQuery(params)
             .andWhere { Tables.Actions.rolledBack eq true }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
+            .orderBy(Tables.Actions.id, SortOrder.ASC)
 
         val actions = Tables.Action.wrapRows(query).toList()
         for (action in actions) {
