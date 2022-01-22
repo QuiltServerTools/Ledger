@@ -44,8 +44,8 @@ public abstract class CampfireBlockMixin {
             target = "Lnet/minecraft/world/WorldAccess;emitGameEvent(Lnet/minecraft/entity/Entity;Lnet/minecraft/world/event/GameEvent;Lnet/minecraft/util/math/BlockPos;)V"))
     private static void logCampfireExtinguish(Entity entity, WorldAccess world, BlockPos pos, BlockState state, CallbackInfo ci) {
         CampfireBlockEntity blockEntity = (CampfireBlockEntity) world.getBlockEntity(pos);
-        if (entity instanceof PlayerEntity) {
-            BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, state, state.with(LIT, Boolean.FALSE), blockEntity, null, Sources.EXTINGUISH, (PlayerEntity) entity);
+        if (entity instanceof PlayerEntity player) {
+            BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, state, state.with(LIT, Boolean.FALSE), blockEntity, null, Sources.EXTINGUISH, player);
         } else {
             BlockChangeCallback.EVENT.invoker().changeBlock((World) world, pos, state, state.with(LIT, Boolean.FALSE), blockEntity, null, Sources.EXTINGUISH);
         }

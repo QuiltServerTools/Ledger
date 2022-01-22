@@ -40,7 +40,7 @@ public abstract class SpongeBlockMixin {
         World world = args.get(1);
         BlockPos pos = args.get(2);
         preBlockState = world.getBlockState(pos);
-        // first invocation will be sponge, all after it will be wet sponge
+        // first invocation will be sponge, all others after will be wet sponge
         // because sponges will execute this method & absorbWater for every face in contact with water.
     }
 

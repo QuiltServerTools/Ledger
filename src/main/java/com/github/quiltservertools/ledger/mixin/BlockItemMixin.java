@@ -34,7 +34,7 @@ public abstract class BlockItemMixin extends Item {
                 world,
                 pos,
                 world.getBlockState(pos),
-                world.getBlockEntity(context.getBlockPos()),
+                world.getBlockEntity(pos),
                 player == null ? Sources.REDSTONE : Sources.PLAYER,
                 player
         );
