@@ -17,7 +17,7 @@ import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
 
 
 @Mixin(MusicDiscItem.class)
-public abstract class MusicDiscItemMixin{
+public abstract class MusicDiscItemMixin {
 
     @Inject(method = "useOnBlock", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/JukeboxBlock;setRecord(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/item/ItemStack;)V"))
