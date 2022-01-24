@@ -1,20 +1,20 @@
 [versions]
-minecraft = "1.17.1"
-yarn-mappings = "1.17.1+build.61"
-fabric-loader = "0.11.6"
+minecraft = "1.18.1"
+yarn-mappings = "1.18.1+build.17"
+fabric-loader = "0.12.12"
 
-fabric-api = "0.40.1+1.17"
+fabric-api = "0.43.1+1.18"
 
 # Kotlin
-kotlin = "1.5.21"
+kotlin = "1.6.0"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.6.3+kotlin.1.5.21"
+fabric-kotlin = "1.7.0+kotlin.1.6.0"
 
 fabric-permissions = "0.1-SNAPSHOT"
-translations = "1.4.5+1.17"
+translations = "1.4.8+1.18-pre1"
 
-exposed = "0.34.2"
-sqlite-jdbc = "3.36.0.1"
+exposed = "0.36.2"
+sqlite-jdbc = "3.36.0.3"
 
 konf = "1.1.2"
 

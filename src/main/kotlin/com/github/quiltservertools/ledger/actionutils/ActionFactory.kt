@@ -3,6 +3,7 @@ package com.github.quiltservertools.ledger.actionutils
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actions.BlockBreakActionType
 import com.github.quiltservertools.ledger.actions.BlockChangeActionType
+import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
 import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
@@ -37,11 +38,12 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: PlayerEntity,
-        entity: BlockEntity? = null
+        player: PlayerEntity,
+        entity: BlockEntity? = null,
+        source: String = Sources.PLAYER
     ): BlockChangeActionType {
-        val action = blockBreakAction(world, pos, state, Sources.PLAYER, entity)
-        action.sourceProfile = source.gameProfile
+        val action = blockBreakAction(world, pos, state, source, entity)
+        action.sourceProfile = player.gameProfile
 
         return action
     }
@@ -53,7 +55,7 @@ object ActionFactory {
         source: String,
         entity: BlockEntity? = null
     ): BlockChangeActionType {
-        val action = BlockChangeActionType("block-place")
+        val action = BlockPlaceActionType()
         setBlockData(action, pos, world, state, Blocks.AIR.defaultState, source, entity)
 
         return action
@@ -63,11 +65,12 @@ object ActionFactory {
         world: World,
         pos: BlockPos,
         state: BlockState,
-        source: PlayerEntity,
-        entity: BlockEntity? = null
+        player: PlayerEntity,
+        entity: BlockEntity? = null,
+        source: String = Sources.PLAYER
     ): BlockChangeActionType {
-        val action = blockPlaceAction(world, pos, state, Sources.PLAYER, entity)
-        action.sourceProfile = source.gameProfile
+        val action = blockPlaceAction(world, pos, state, source, entity)
+        action.sourceProfile = player.gameProfile
 
         return action
     }
@@ -88,7 +91,7 @@ object ActionFactory {
         action.blockState = state
         action.oldBlockState = oldState
         action.sourceName = source
-        action.extraData = entity?.writeNbt(NbtCompound())?.asString()
+        action.extraData = entity?.createNbt()?.asString()
     }
 
     fun itemInsertAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemInsertActionType {
@@ -128,6 +131,21 @@ object ActionFactory {
         setItemData(action, pos, world, stack, Sources.PLAYER)
         action.sourceProfile = source.gameProfile
 
+        return action
+    }
+
+    fun blockChangeAction(
+        world: World,
+        pos: BlockPos,
+        oldState: BlockState,
+        newState: BlockState,
+        oldBlockEntity: BlockEntity?,
+        source: String,
+        player: PlayerEntity?
+    ): ActionType {
+        val action = BlockChangeActionType()
+        setBlockData(action, pos, world, newState, oldState, source, oldBlockEntity)
+        action.sourceProfile = player?.gameProfile
         return action
     }
 

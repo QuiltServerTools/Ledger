@@ -6,12 +6,12 @@ import com.modrinth.minotaur.request.Dependency.DependencyType
 import com.modrinth.minotaur.request.VersionType
 
 plugins {
-    kotlin("jvm") version "1.5.21"
-    id("fabric-loom") version "0.9.+"
+    kotlin("jvm") version "1.6.0"
+    id("fabric-loom") version "0.10.+"
     id("maven-publish")
-    id("io.gitlab.arturbosch.detekt") version "1.15.0"
+    id("io.gitlab.arturbosch.detekt") version "1.18.1"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.modrinth.minotaur") version "1.2.1"
     id("com.matthewprenger.cursegradle") version "1.4.0"
 }
@@ -60,7 +60,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     mavenCentral()
-    jcenter()
+    mavenLocal()
 }
 
 dependencies {
@@ -95,11 +95,11 @@ dependencies {
     shadow(libs.konf.toml)
 
     // Debug
-    modRuntime(libs.wdmcf)
+    modRuntimeOnly(libs.wdmcf)
 }
 
 tasks {
-    val javaVersion = JavaVersion.VERSION_16
+    val javaVersion = JavaVersion.VERSION_17
 
     processResources {
         inputs.property("id", modId)
@@ -112,7 +112,6 @@ tasks {
                     "id" to modId,
                     "version" to version,
                     "name" to modName,
-                    "fabricLoader" to libs.versions.fabric.loader.get(),
                     "fabricApi" to libs.versions.fabric.api.get(),
                     "fabricKotlin" to libs.versions.fabric.kotlin.get(),
                 )
@@ -192,13 +191,7 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            // add all the jars that should be included when publishing to maven
-            artifact(tasks.jar) {
-                builtBy(tasks.remapJar)
-            }
-            artifact(tasks.getByName("sourcesJar")) {
-                builtBy(tasks.remapSourcesJar)
-            }
+            from(components["java"])
         }
     }
 
@@ -221,7 +214,7 @@ curseforge {
 
             addGameVersion(libs.versions.minecraft.get())
             addGameVersion("Fabric")
-            addGameVersion("Java 16")
+            addGameVersion("Java 17")
 
             mainArtifact(tasks["remapJar"])
 
