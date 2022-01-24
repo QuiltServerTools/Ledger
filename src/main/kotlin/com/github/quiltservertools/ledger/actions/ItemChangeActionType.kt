@@ -48,7 +48,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         }
     }
 
-    protected fun getInventory(world: ServerWorld): Inventory? {
+    private fun getInventory(world: ServerWorld): Inventory? {
         var inventory: Inventory? = null
         val blockState = world.getBlockState(pos)
         val block = blockState.block
@@ -71,25 +71,33 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world == null || inventory == null) { return false }
+        if (world != null && inventory != null) {
 
-        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-        val stash: MutableList<Int> = mutableListOf()
+            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+            val stash: MutableList<Int> = mutableListOf()
 
-        for (i in 0 until inventory.size()) {
-            val stack = inventory.getStack(i)
+            for (i in 0 until inventory.size()) {
+                val stack = inventory.getStack(i)
 
-            if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt)) { continue }
-            // not the same item + nbt so skip
+                if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt)) {
+                    continue
+                }
+                // not the same item + nbt so skip
 
-            // < 0  = reduce rollback stack, add slot to stash and loop
-            // >=0 = reduce, remove stashed, return
-            val remainingStackCount = stack.count - rollbackStack.count
-            when{
-                remainingStackCount < 0  -> { rollbackStack.count -= stack.count; stash.add(i) }
-                remainingStackCount >= 0 -> { stack.count -= rollbackStack.count
-                    stash.forEach { inventory.removeStack(it) }
-                    return true }
+                //  < 0 = reduce rollback stack, add slot to stash and loop
+                // == 0 = reduce, remove stashed, return
+                val remainingStackCount = stack.count - rollbackStack.count
+                when {
+                    remainingStackCount < 0 -> {
+                        rollbackStack.count -= stack.count
+                        stash.add(i)
+                    }
+                    remainingStackCount == 0 -> {
+                        stack.count -= rollbackStack.count
+                        stash.forEach { inventory.removeStack(it) }
+                        return true
+                    }
+                }
             }
         }
         return false
@@ -100,32 +108,41 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world == null || inventory == null) { return false }
+        if (world != null && inventory != null) {
 
-        val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
-        val stash: MutableList<Int> = mutableListOf()
+            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+            val stash: MutableList<Int> = mutableListOf()
 
-        for (i in 0 until inventory.size()) {
-            val stack = inventory.getStack(i)
+            for (i in 0 until inventory.size()) {
+                val stack = inventory.getStack(i)
 
-            if (stack.isEmpty) {
-                inventory.setStack(i, rollbackStack)
-                stash.forEach {inventory.setStack(it, ItemStack(rollbackStack.item,rollbackStack.maxCount))}
-                return true }
-            // empty slot so can just add remaining stack and set stashed inv locations to max stack
+                if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt) ||
+                    stack.count == stack.maxCount) {
+                    continue
+                }
+                // not the same item + nbt or full stack so skip
 
-            if (!(stack.isItemEqual(rollbackStack) && stack.nbt == rollbackStack.nbt) ||
-               stack.count == stack.maxCount) { continue }
-            // not the same item + nbt or full stack so skip
+                if (stack.isEmpty) {
+                    inventory.setStack(i, rollbackStack)
+                    stash.forEach { inventory.setStack(it, ItemStack(rollbackStack.item, rollbackStack.maxCount)) }
+                    return true
+                }
+                // empty slot so can just add remaining stack and set stashed inv locations to max stack
 
-            // > 0 = reduce rollback stack, add to slot to stash and loop
-            // =<0 = increment final stack, set stashed inv locations to max stack, return
-            val remainingStackCount = stack.count + rollbackStack.count - stack.maxCount
-            when {
-                remainingStackCount > 0  -> { rollbackStack.count -= stack.maxCount - stack.count; stash.add(i) }
-                remainingStackCount <= 0 -> { stack.increment(rollbackStack.count)
-                    stash.forEach { inventory.setStack(it, ItemStack(rollbackStack.item,rollbackStack.maxCount)) }
-                    return true }
+                //  > 0 = reduce rollback stack, add to slot to stash and loop
+                // == 0 = increment final stack, set stashed inv locations to max stack, return
+                val remainingStackCount = stack.count + rollbackStack.count - stack.maxCount
+                when {
+                    remainingStackCount > 0 -> {
+                        rollbackStack.count -= stack.maxCount - stack.count
+                        stash.add(i)
+                    }
+                    remainingStackCount == 0 -> {
+                        stack.increment(rollbackStack.count)
+                        stash.forEach { inventory.setStack(it, ItemStack(rollbackStack.item, rollbackStack.maxCount)) }
+                        return true
+                    }
+                }
             }
         }
         return false
