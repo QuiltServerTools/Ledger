@@ -1,7 +1,5 @@
-package com.github.quiltservertools.ledger.mixin;
+package com.github.quiltservertools.ledger.mixin.callbacks;
 
-import com.github.quiltservertools.ledger.utility.HandledSlot;
-import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -16,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.github.quiltservertools.ledger.utility.HandledSlot;
+import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
