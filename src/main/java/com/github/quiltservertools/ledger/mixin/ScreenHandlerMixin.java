@@ -42,6 +42,8 @@ public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
         ((HandledSlot) this.getSlot(index)).setHandler((ScreenHandler) (Object) this);
         this.player = (ServerPlayerEntity) player;
         // onslotclick executes also when exiting a screenhandler -999
+        // breaking on shift click from player inv into chest, index is of player inv and not of sink index
+        // maybe manage from ScreenHandler "insertItem"
     }
 
     @Inject(method = "dropInventory", at = @At(value = "HEAD"))

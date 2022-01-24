@@ -66,7 +66,9 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
         return inventory
     }
-
+    @Suppress("SENSELESS_COMPARISON")
+    // `remainingStackCount >= 0` incorrectly assumes this is always true. stacks may have fewer items available than the rollback stack
+    // the for loop will then find the next empty slot or partial stack that meets the condition to return
     protected fun removeMatchingItem(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
@@ -85,14 +87,14 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 // not the same item + nbt so skip
 
                 //  < 0 = reduce rollback stack, add slot to stash and loop
-                // == 0 = reduce, remove stashed, return
+                // >= 0 = reduce, remove stashed, return
                 val remainingStackCount = stack.count - rollbackStack.count
                 when {
                     remainingStackCount < 0 -> {
                         rollbackStack.count -= stack.count
                         stash.add(i)
                     }
-                    remainingStackCount == 0 -> {
+                    remainingStackCount >= 0 -> {
                         stack.count -= rollbackStack.count
                         stash.forEach { inventory.removeStack(it) }
                         return true
@@ -103,7 +105,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
         return false
     }
 
-
+    @Suppress("SENSELESS_COMPARISON")
+    // `remainingStackCount <= 0` incorrectly assumes this is always true.
     protected fun addItem(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
@@ -130,14 +133,14 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 // empty slot so can just add remaining stack and set stashed inv locations to max stack
 
                 //  > 0 = reduce rollback stack, add to slot to stash and loop
-                // == 0 = increment final stack, set stashed inv locations to max stack, return
+                // <= 0 = increment final stack, set stashed inv locations to max stack, return
                 val remainingStackCount = stack.count + rollbackStack.count - stack.maxCount
                 when {
                     remainingStackCount > 0 -> {
                         rollbackStack.count -= stack.maxCount - stack.count
                         stash.add(i)
                     }
-                    remainingStackCount == 0 -> {
+                    remainingStackCount <= 0 -> {
                         stack.increment(rollbackStack.count)
                         stash.forEach { inventory.setStack(it, ItemStack(rollbackStack.item, rollbackStack.maxCount)) }
                         return true
