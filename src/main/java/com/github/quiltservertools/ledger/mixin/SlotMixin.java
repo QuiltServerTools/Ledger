@@ -87,9 +87,8 @@ public abstract class SlotMixin implements HandledSlot {
             ItemInsertCallback.EVENT.invoker().insert(newStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
         } else if (newStack.isEmpty()) {
             ItemRemoveCallback.EVENT.invoker().remove(oldStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
-        }
+        } else {
 
-        if (!newStack.isEmpty() && !oldStack.isEmpty()) { // prevents non 0 count air
             if (oldStack.getItem() == newStack.getItem()) {
                 int newCount = newStack.getCount();
                 int oldCount = oldStack.getCount();
@@ -102,7 +101,7 @@ public abstract class SlotMixin implements HandledSlot {
                     ItemStack newOldStack = oldStack.copy();
                     newOldStack.setCount(oldCount - newCount);
                     ItemRemoveCallback.EVENT.invoker().remove(newOldStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
-                } // equal values are ignored, they dont do anything (no change)
+                } // equal values are ignored, they don't do anything (no change)
 
             } else { // Ctrl + 12345... swap. split up actions
                 ItemRemoveCallback.EVENT.invoker().remove(oldStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
