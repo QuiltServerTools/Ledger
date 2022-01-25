@@ -79,17 +79,17 @@ public abstract class SlotMixin implements HandledSlot {
     }
 
     @Unique
-    private void logChange(PlayerEntity player, ItemStack oldStack, ItemStack newStack, BlockPos pos) {
+    private void logChange(ServerPlayerEntity player, ItemStack oldStack, ItemStack newStack, BlockPos pos) {
 
         if (newStack.isEmpty() && oldStack.isEmpty()) {return;}
 
         if (oldStack.isEmpty()) {
-            ItemInsertCallback.EVENT.invoker().insert(newStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+            ItemInsertCallback.EVENT.invoker().insert(newStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
         } else if (newStack.isEmpty()) {
-            ItemRemoveCallback.EVENT.invoker().remove(oldStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+            ItemRemoveCallback.EVENT.invoker().remove(oldStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
         }
 
-        if (!newStack.isEmpty() && !oldStack.isEmpty()) {
+        if (!newStack.isEmpty() && !oldStack.isEmpty()) { // prevents non 0 count air
             if (oldStack.getItem() == newStack.getItem()) {
                 int newCount = newStack.getCount();
                 int oldCount = oldStack.getCount();
@@ -97,16 +97,16 @@ public abstract class SlotMixin implements HandledSlot {
                 if (newCount > oldCount) { // add items to partial stack
                     ItemStack newNewStack = newStack.copy();
                     newNewStack.setCount(newCount - oldCount);
-                    ItemInsertCallback.EVENT.invoker().insert(newNewStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+                    ItemInsertCallback.EVENT.invoker().insert(newNewStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
                 } else if (newCount < oldCount) { // right-click remove items
                     ItemStack newOldStack = oldStack.copy();
                     newOldStack.setCount(oldCount - newCount);
-                    ItemRemoveCallback.EVENT.invoker().remove(newOldStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
-                }
+                    ItemRemoveCallback.EVENT.invoker().remove(newOldStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
+                } // equal values are ignored, they dont do anything (no change)
 
             } else { // Ctrl + 12345... swap. split up actions
-                ItemRemoveCallback.EVENT.invoker().remove(oldStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
-                ItemInsertCallback.EVENT.invoker().insert(newStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+                ItemRemoveCallback.EVENT.invoker().remove(oldStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
+                ItemInsertCallback.EVENT.invoker().insert(newStack, pos, (ServerWorld) player.world, Sources.PLAYER, player);
             }
         }
     }
