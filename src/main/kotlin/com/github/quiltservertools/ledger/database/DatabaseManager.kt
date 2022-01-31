@@ -51,7 +51,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -189,10 +189,10 @@ object DatabaseManager {
             .innerJoin(Tables.Sources)
             .selectAll()
 
-        if (params.min != null && params.max != null) {
-            query.andWhere { Tables.Actions.x.between(params.min.x, params.max.x) }
-            query.andWhere { Tables.Actions.y.between(params.min.y, params.max.y) }
-            query.andWhere { Tables.Actions.z.between(params.min.z, params.max.z) }
+        if (params.bounds != null) {
+            query.andWhere { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
+            query.andWhere { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
+            query.andWhere { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
         }
 
 

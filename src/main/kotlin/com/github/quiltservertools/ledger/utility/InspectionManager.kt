@@ -6,11 +6,17 @@ import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
+import net.minecraft.block.ChestBlock
+import net.minecraft.block.enums.ChestType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
 import java.util.UUID
 
 private val inspectingUsers = HashSet<UUID>()
@@ -47,9 +53,17 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
     val source = this
 
     Ledger.launch(Dispatchers.IO) {
+        var area = BlockBox(pos)
+
+        val state = source.world.getBlockState(pos)
+        if (state.isOf(Blocks.CHEST)) {
+            getOtherChestSide(state, pos)?.let {
+                area = BlockBox.create(pos, it)
+            }
+        }
+
         val params = ActionSearchParams.build {
-            min = pos
-            max = pos
+            bounds = area
             worlds = mutableSetOf(Negatable.allow(source.world.registryKey.value))
         }
 
@@ -74,11 +88,24 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
     }
 }
 
+private fun getOtherChestSide(state: BlockState, pos: BlockPos): BlockPos? {
+    val type = state.get(ChestBlock.CHEST_TYPE)
+    return if (type != ChestType.SINGLE) {
+        // We now need to query other container results in the same chest
+        val facing = state.get(ChestBlock.FACING)
+        if (type == ChestType.RIGHT) {
+            // Chest is right, so left as you look at it
+            pos.offset(facing.rotateCounterclockwise(Direction.Axis.Y))
+        } else {
+            pos.offset(facing.rotateClockwise(Direction.Axis.Y))
+        }
+    } else null
+}
+
 suspend fun PlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
     val source = this.commandSource
     val params = ActionSearchParams.build {
-        min = pos
-        max = pos
+        bounds = BlockBox(pos)
     }
 
     Ledger.searchCache[source.name] = params
