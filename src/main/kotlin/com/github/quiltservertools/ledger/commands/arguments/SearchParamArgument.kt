@@ -22,7 +22,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.util.Identifier
+import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3i
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
 
@@ -102,10 +104,10 @@ object SearchParamArgument {
             when (param) {
                 "range" -> {
                     val range = value as Int - 1
-                    builder.min =
-                        BlockPos(source.position.subtract(range.toDouble(), range.toDouble(), range.toDouble()))
-                    builder.max =
-                        BlockPos(source.position.add(range.toDouble(), range.toDouble(), range.toDouble()))
+                    builder.bounds = BlockBox.create(
+                        BlockPos(source.position).subtract(Vec3i(range, range, range)),
+                        BlockPos(source.position).add(Vec3i(range, range, range))
+                    )
                     val world = Negatable.allow(source.world.registryKey.value)
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
