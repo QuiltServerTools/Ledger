@@ -13,7 +13,7 @@ class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
 
     override fun getTranslationType(): String {
-        val item = Registry.ITEM.get(oldObjectIdentifier)
+        val item = Registry.ITEM.get(Identifier(extraData))
         return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {
@@ -27,25 +27,25 @@ class EntityChangeActionType : AbstractActionType() {
             TranslatableText(
                 Util.createTranslationKey(
                     "entity",
-                    oldObjectIdentifier
+                    objectIdentifier
                 )
             ).setStyle(TextColorPallet.secondaryVariant).styled {
                 it.withHoverEvent(
                     HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
-                        oldObjectIdentifier.toString().literal()
+                        objectIdentifier.toString().literal()
                     )
                 )
             })
 
-        if (objectIdentifier != Identifier.tryParse("minecraft:air")) {
-            val stack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+        if (Identifier(extraData!!) != Identifier.tryParse("minecraft:air")) {
+            val stack = NbtUtils.itemFromProperties(null, Identifier(extraData))
             text.append(" with ".literal())
             text.append(
                 TranslatableText(
                     Util.createTranslationKey(
                         this.getTranslationType(),
-                        objectIdentifier
+                        Identifier(extraData)
                     )
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
