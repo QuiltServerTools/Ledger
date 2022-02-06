@@ -12,6 +12,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
@@ -20,6 +21,9 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(SnowGolemEntity.class)
 public abstract class SnowGolemEntityMixin {
+    @Unique
+    private NbtCompound oldEntityTags;
+
     @ModifyArgs(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
     public void logSnowGolemSnow(Args args) {
         BlockPos pos = args.get(0);
@@ -29,8 +33,15 @@ public abstract class SnowGolemEntityMixin {
 
     @Inject(method = "interactMob",
             at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V"))
-    private void ledgerDogCollarColour(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
+    private void ledgerOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
         LivingEntity entity = (LivingEntity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), new NbtCompound(), entity, null, player, Sources.SHEAR);
+        oldEntityTags = entity.writeNbt(new NbtCompound());
+    }
+
+    @Inject(method = "interactMob",
+            at = @At(value = "INVOKE_ASSIGN",target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V"))
+    private void ledgerSnowGolemPumpkinShear(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
+        LivingEntity entity = (LivingEntity) (Object) this;
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.SHEAR);
     }
 }

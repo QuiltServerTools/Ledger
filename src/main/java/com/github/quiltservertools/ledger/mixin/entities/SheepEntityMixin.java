@@ -15,6 +15,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -22,12 +23,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SheepEntity.class)
 public abstract class SheepEntityMixin {
+    @Unique
+    private NbtCompound oldEntityTags;
 
     @Inject(method = "interactMob",
             at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/passive/SheepEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V"))
+    private void ledgerLogOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
+        LivingEntity entity = (LivingEntity) (Object) this;
+        oldEntityTags = entity.writeNbt(new NbtCompound());
+    }
+
+    @Inject(method = "interactMob",
+            at = @At(value = "INVOKE_ASSIGN",target = "Lnet/minecraft/entity/passive/SheepEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V"))
     private void ledgerSheepWoolShear(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
         LivingEntity entity = (LivingEntity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), new NbtCompound(), entity,null, player, Sources.SHEAR);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), oldEntityTags, entity,null, player, Sources.SHEAR);
     }
 }
 
