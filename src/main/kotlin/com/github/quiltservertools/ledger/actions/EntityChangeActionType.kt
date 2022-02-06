@@ -1,23 +1,10 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.utility.*
-import com.github.quiltservertools.ledger.utility.Sources.DYE
-import com.github.quiltservertools.ledger.utility.Sources.EQUIP
-import com.github.quiltservertools.ledger.utility.Sources.REMOVE
-import com.github.quiltservertools.ledger.utility.Sources.ROTATE
-import com.github.quiltservertools.ledger.utility.Sources.SHEAR
-import net.minecraft.entity.LivingEntity.getPreferredEquipmentSlot
-import net.minecraft.entity.decoration.ArmorStandEntity
-import net.minecraft.entity.decoration.ItemFrameEntity
-import net.minecraft.entity.passive.CatEntity
-import net.minecraft.entity.passive.SheepEntity
-import net.minecraft.entity.passive.SnowGolemEntity
-import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.item.*
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.*
-import net.minecraft.util.DyeColor
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
@@ -74,141 +61,170 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
-        val entity = world?.getEntity(rollbackExtraData.getUuid(UUID)) ?: return false
+        //val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
 
-        val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+        //val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
 
-        when (entity) {
-            is ArmorStandEntity -> when (sourceName) {
-                REMOVE -> {
-                    val slot = getPreferredEquipmentSlot(rollbackStack)
-                    if (entity.getEquippedStack(slot).isEmpty) {
-                        entity.equipStack(slot, rollbackStack)
-                        return true
-                    }
-                }
-                EQUIP -> {
-                    val slot = getPreferredEquipmentSlot(rollbackStack)
-                    entity.equipStack(slot, ItemStack(Items.AIR))
-                    return true
-                }
-            }
-            is ItemFrameEntity -> when (sourceName) {
-                REMOVE -> {
-                    if (entity.heldItemStack.isEmpty) {
-                        entity.heldItemStack = rollbackStack
-                        return true
-                    }
-                }
-                EQUIP -> {
-                    entity.heldItemStack = ItemStack(Items.AIR)
-                    return true
-                }
-                ROTATE -> {
-                    entity.rotation = entity.rotation - 1
-                    return true
-                } // can only ever rotate by 1
-            }
-            is SheepEntity -> when (sourceName) {
-                SHEAR -> {
-                    entity.isSheared = false
-                    return true
-                }
-                DYE -> {
-                    entity.color = DyeColor.byId(rollbackExtraData.getByte(COLOR).toInt())
-                    return true
-                }
-            }
-            is WolfEntity -> when (sourceName) {
-                DYE -> {
-                    entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
-                    return true
-                }
-            }
-            is CatEntity -> when (sourceName) {
-                DYE -> {
-                    entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
-                    return true
-                }
-            }
-            is SnowGolemEntity -> when (sourceName) {
-                SHEAR -> {
-                    entity.setHasPumpkin(rollbackExtraData.getBoolean(PUMPKIN))
-                    return true
-                }
-            }
+        val oldEntity = StringNbtReader.parse(oldEntityState);
+        val uuid = oldEntity!!.getUuid(UUID) ?: return false
+        val entity = world?.getEntity(uuid)
+
+        if (entity != null) {
+            entity.readNbt(oldEntity)
+            return true
         }
+        // dont spawn entity. it should have died after
         return false
     }
+
+
+//        when (entity) {
+//            is ArmorStandEntity -> when (sourceName) {
+//                REMOVE -> {
+//                    val slot = getPreferredEquipmentSlot(rollbackStack)
+//                    if (entity.getEquippedStack(slot).isEmpty) {
+//                        entity.equipStack(slot, rollbackStack)
+//                        return true
+//                    }
+//                }
+//                EQUIP -> {
+//                    val slot = getPreferredEquipmentSlot(rollbackStack)
+//                    entity.equipStack(slot, ItemStack(Items.AIR))
+//                    return true
+//                }
+//            }
+//            is ItemFrameEntity -> when (sourceName) {
+//                REMOVE -> {
+//                    if (entity.heldItemStack.isEmpty) {
+//                        entity.heldItemStack = rollbackStack
+//                        return true
+//                    }
+//                }
+//                EQUIP -> {
+//                    entity.heldItemStack = ItemStack(Items.AIR)
+//                    return true
+//                }
+//                ROTATE -> {
+//                    entity.rotation = entity.rotation - 1
+//                    return true
+//                } // can only ever rotate by 1
+//            }
+//            is SheepEntity -> when (sourceName) {
+//                SHEAR -> {
+//                    entity.isSheared = false
+//                    return true
+//                }
+//                DYE -> {
+//                    entity.color = DyeColor.byId(rollbackExtraData.getByte(COLOR).toInt())
+//                    return true
+//                }
+//            }
+//            is WolfEntity -> when (sourceName) {
+//                DYE -> {
+//                    entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
+//                    return true
+//                }
+//            }
+//            is CatEntity -> when (sourceName) {
+//                DYE -> {
+//                    entity.collarColor = DyeColor.byId(rollbackExtraData.getByte(COLLARCOLOR).toInt())
+//                    return true
+//                }
+//            }
+//            is SnowGolemEntity -> when (sourceName) {
+//                SHEAR -> {
+//                    entity.setHasPumpkin(rollbackExtraData.getBoolean(PUMPKIN))
+//                    return true
+//                }
+//            }
+//        }
+//        return false
+//    }
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
-        val entity = world?.getEntity(rollbackExtraData.getUuid(UUID)) ?: return false
+        //val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
 
-        val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+        //val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
 
-        when (entity) {
-            is ArmorStandEntity -> when (sourceName) {
-                EQUIP -> {
-                    val slot = getPreferredEquipmentSlot(rollbackStack)
-                    if (entity.getEquippedStack(slot).isEmpty) {
-                        entity.equipStack(slot, rollbackStack)
-                        return true
-                    }
-                }
-                REMOVE -> {
-                    val slot = getPreferredEquipmentSlot(rollbackStack)
-                    entity.equipStack(slot, ItemStack(Items.AIR))
-                    return true
-                }
-            }
-            is ItemFrameEntity -> when (sourceName) {
-                EQUIP -> {
-                    if (entity.heldItemStack.isEmpty) {
-                        entity.heldItemStack = rollbackStack
-                        return true
-                    }
-                }
-                REMOVE -> {
-                    entity.heldItemStack = ItemStack(Items.AIR)
-                    return true
-                }
-                ROTATE -> {
-                    entity.rotation = entity.rotation + 1
-                    return true
-                } // can only ever rotate by 1
-            }
-            is SheepEntity -> when (sourceName) {
-                SHEAR -> {
-                    entity.isSheared = true
-                    return true
-                }
-                DYE -> {
-                    entity.color = (rollbackStack.item as DyeItem).color
-                    return true
-                }
-            }
-            is WolfEntity -> when (sourceName) {
-                DYE -> {
-                    entity.collarColor = (rollbackStack.item as DyeItem).color
-                    return true
-                }
-            }
-            is CatEntity -> when (sourceName) {
-                DYE -> {
-                    entity.collarColor = (rollbackStack.item as DyeItem).color
-                    return true
-                }
-            }
-            is SnowGolemEntity -> when (sourceName) {
-                SHEAR -> {
-                    entity.setHasPumpkin(!rollbackExtraData.getBoolean(PUMPKIN))
-                    return true
-                }
-            }
+        val newEntity = StringNbtReader.parse(entityState);
+        val uuid = newEntity!!.getUuid(UUID) ?: return false
+        val entity = world?.getEntity(uuid)
+
+        if (entity != null) {
+            entity.readNbt(newEntity)
+            return true
         }
+        // dont spawn entity. it should have died after
         return false
     }
 }
+//        val world = server.getWorld(world)
+//        val rollbackExtraData = StringNbtReader.parse(extraData) ?: return false
+//        val entity = world?.getEntity(rollbackExtraData.getUuid(UUID)) ?: return false
+//
+//        val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+//
+//        when (entity) {
+//            is ArmorStandEntity -> when (sourceName) {
+//                EQUIP -> {
+//                    val slot = getPreferredEquipmentSlot(rollbackStack)
+//                    if (entity.getEquippedStack(slot).isEmpty) {
+//                        entity.equipStack(slot, rollbackStack)
+//                        return true
+//                    }
+//                }
+//                REMOVE -> {
+//                    val slot = getPreferredEquipmentSlot(rollbackStack)
+//                    entity.equipStack(slot, ItemStack(Items.AIR))
+//                    return true
+//                }
+//            }
+//            is ItemFrameEntity -> when (sourceName) {
+//                EQUIP -> {
+//                    if (entity.heldItemStack.isEmpty) {
+//                        entity.heldItemStack = rollbackStack
+//                        return true
+//                    }
+//                }
+//                REMOVE -> {
+//                    entity.heldItemStack = ItemStack(Items.AIR)
+//                    return true
+//                }
+//                ROTATE -> {
+//                    entity.rotation = entity.rotation + 1
+//                    return true
+//                } // can only ever rotate by 1
+//            }
+//            is SheepEntity -> when (sourceName) {
+//                SHEAR -> {
+//                    entity.isSheared = true
+//                    return true
+//                }
+//                DYE -> {
+//                    entity.color = (rollbackStack.item as DyeItem).color
+//                    return true
+//                }
+//            }
+//            is WolfEntity -> when (sourceName) {
+//                DYE -> {
+//                    entity.collarColor = (rollbackStack.item as DyeItem).color
+//                    return true
+//                }
+//            }
+//            is CatEntity -> when (sourceName) {
+//                DYE -> {
+//                    entity.collarColor = (rollbackStack.item as DyeItem).color
+//                    return true
+//                }
+//            }
+//            is SnowGolemEntity -> when (sourceName) {
+//                SHEAR -> {
+//                    entity.setHasPumpkin(!rollbackExtraData.getBoolean(PUMPKIN))
+//                    return true
+//                }
+//            }
+//        }
+//        return false
+//    }
+//}

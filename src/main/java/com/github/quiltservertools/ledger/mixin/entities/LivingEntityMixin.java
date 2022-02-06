@@ -1,4 +1,4 @@
-package com.github.quiltservertools.ledger.mixin;
+package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import net.minecraft.entity.LivingEntity;

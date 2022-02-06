@@ -25,6 +25,8 @@ interface ActionType {
     var sourceProfile: GameProfile?
     var extraData: String?
     var rolledBack: Boolean
+    var entityState: String?
+    var oldEntityState: String?
 
     fun rollback(server: MinecraftServer): Boolean
     fun restore(server: MinecraftServer): Boolean

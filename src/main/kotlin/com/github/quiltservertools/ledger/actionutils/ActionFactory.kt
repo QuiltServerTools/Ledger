@@ -155,7 +155,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = setItemExtraData(stack).toString()
+        action.extraData = NbtUtils.itemToProperties(stack)?.asString()
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {
@@ -187,7 +187,7 @@ object ActionFactory {
         action.pos = pos
         action.world = world.registryKey.value
         action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
-        action.extraData = setEntityExtraData(entity, source).toString()
+        action.extraData = entity.writeNbt(NbtCompound())?.asString()
         action.sourceName = source
     }
 
@@ -196,8 +196,8 @@ object ActionFactory {
         action: ActionType,
         pos: BlockPos,
         world: World,
+        oldEntityTags: NbtCompound,
         entity: Entity,
-        newEntity: Entity?,
         itemStack: ItemStack?,
         source: String
     ) {
@@ -205,39 +205,41 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.oldObjectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
 
-        val extraData = NbtCompound()
-
         if (itemStack != null) {
             action.objectIdentifier = Registry.ITEM.getId(itemStack.item)
-            if (setItemExtraData(itemStack) != null) {
-                extraData.copyFrom(setItemExtraData(itemStack))
-            }
-        } else if (newEntity != null) {
-            action.objectIdentifier = Registry.ENTITY_TYPE.getId(newEntity.type)
+            // kinda gross tbh
+            action.extraData = NbtUtils.itemToProperties(itemStack)?.asString()
         }
-        extraData.copyFrom(setEntityExtraData(entity, source))
+        action.oldEntityState = "oldEntityTags.asString()"
+        action.entityState = "entity.writeNbt(NbtCompound())?.asString()"
         action.sourceName = source
-        action.extraData = if (extraData.isEmpty) null else extraData.toString()
 
 
     }
 
-    private fun setItemExtraData(itemStack: ItemStack) = NbtUtils.itemToProperties(itemStack)
-
-    private fun setEntityExtraData(entity: Entity, source: String) = NbtUtils.entityToProperties(entity,source)
-
     fun entityChangeAction(
         world: World,
         pos: BlockPos,
+        oldEntityTags: NbtCompound,
         entity: Entity,
-        newEntity: Entity?,
         itemStack: ItemStack?,
         entityActor: Entity?,
         sourceType: String
     ): EntityChangeActionType {
         val action = EntityChangeActionType()
 
-        setEntityChangeData(action, pos, world, entity, newEntity, itemStack, sourceType)
+        action.pos = pos
+        action.world = world.registryKey.value
+        action.oldObjectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+
+        if (itemStack != null) {
+            action.objectIdentifier = Registry.ITEM.getId(itemStack.item)
+            // kinda gross tbh
+            action.extraData = NbtUtils.itemToProperties(itemStack)?.asString()
+        }
+        action.oldEntityState = oldEntityTags.asString()
+        action.entityState = entity.writeNbt(NbtCompound())?.asString()
+        action.sourceName = sourceType
 
         if (entityActor is PlayerEntity) {
             action.sourceProfile = entityActor.gameProfile

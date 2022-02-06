@@ -1,4 +1,4 @@
-package com.github.quiltservertools.ledger.mixin;
+package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.utility.EndCrystalDuck;
 import net.minecraft.entity.damage.DamageSource;

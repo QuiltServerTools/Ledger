@@ -1,16 +1,14 @@
-package com.github.quiltservertools.ledger.mixin;
+package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemFrameEntity.class)
-public abstract class ItemFrameMixin {
+public abstract class ItemFrameEntityMixin {
 
     @Shadow
     public abstract ItemStack getHeldItemStack();
@@ -34,7 +32,7 @@ public abstract class ItemFrameMixin {
     private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack playerStack = player.getStackInHand(hand);
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null, playerStack, player, Sources.EQUIP);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), new NbtCompound(), entity, playerStack, player, Sources.EQUIP);
     }
 
     @Inject(method = "dropHeldStack",
@@ -45,7 +43,7 @@ public abstract class ItemFrameMixin {
         ItemStack entityStack = this.getHeldItemStack();
         if (entityStack.isEmpty() || entityActor == null) { return; } // removed nothing or destroyed by block
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(entityActor.world, entity.getBlockPos(), entity, null,entityStack, entityActor, Sources.REMOVE);
+        EntityModifyCallback.EVENT.invoker().modify(entityActor.world, entity.getBlockPos(), new NbtCompound(), entity,entityStack, entityActor, Sources.REMOVE);
     }
 
     @Inject(method = "interact",
@@ -54,7 +52,7 @@ public abstract class ItemFrameMixin {
     )
     private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), entity, null,null, player, Sources.ROTATE);
+        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), new NbtCompound(), entity,null, player, Sources.ROTATE);
     }
 
     @Inject(method = "damage",

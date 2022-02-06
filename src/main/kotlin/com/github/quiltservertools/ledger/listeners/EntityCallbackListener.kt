@@ -7,6 +7,7 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
@@ -25,14 +26,14 @@ private fun onKill(world: World, pos: BlockPos, entity: Entity, source: DamageSo
 private fun onModify(
     world: World,
     pos: BlockPos,
+    oldEntityTags: NbtCompound,
     entity: Entity,
-    newEntity: Entity?,
     itemStack: ItemStack?,
     entityActor: Entity?,
     sourceType: String) {
-    DatabaseManager.logAction(
-        ActionFactory.entityChangeAction(world, pos, entity, newEntity, itemStack, entityActor, sourceType)
-    )
+
+    val action = ActionFactory.entityChangeAction(world, pos, oldEntityTags, entity, itemStack, entityActor, sourceType)
+    DatabaseManager.logAction(action)
 }
 
 
