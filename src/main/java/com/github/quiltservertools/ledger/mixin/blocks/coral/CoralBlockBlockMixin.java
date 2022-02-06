@@ -2,7 +2,6 @@ package com.github.quiltservertools.ledger.mixin.blocks.coral;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import java.util.Random;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CoralBlockBlock;
 import net.minecraft.server.world.ServerWorld;
@@ -11,6 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+
+import java.util.Random;
 
 @Mixin(CoralBlockBlock.class)
 public abstract class CoralBlockBlockMixin {

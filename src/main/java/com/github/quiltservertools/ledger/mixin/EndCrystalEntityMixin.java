@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.utility.EndCrystalDuck;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +27,9 @@ public abstract class EndCrystalEntityMixin implements EndCrystalDuck {
     public void correctEndCrystalEntitySource(Args args, DamageSource source, float amount) {
         if (source.getSource() instanceof PlayerEntity player) {
             this.causingPlayer = player;
-            args.set(0, (EndCrystalEntity) (Object) this);
+        } else if (source.getSource() instanceof ProjectileEntity projectile && projectile.getOwner() instanceof PlayerEntity player) {
+            this.causingPlayer = player;
         }
+        args.set(0, (EndCrystalEntity) (Object) this);
     }
 }
