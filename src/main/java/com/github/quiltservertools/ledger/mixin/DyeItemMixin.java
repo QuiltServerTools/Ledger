@@ -27,7 +27,7 @@ public abstract class DyeItemMixin {
         oldEntityTags = entity.writeNbt(new NbtCompound());
     }
 
-    @Inject(method = "useOnEntity", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/passive/SheepEntity;setColor(Lnet/minecraft/util/DyeColor;)V"))
+    @Inject(method = "useOnEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SheepEntity;setColor(Lnet/minecraft/util/DyeColor;)V",shift = At.Shift.AFTER))
     private void ledgerPlayerDyeSheep(ItemStack stack, PlayerEntity player, LivingEntity entity, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), oldEntityTags, entity, stack, player, Sources.DYE);
     }

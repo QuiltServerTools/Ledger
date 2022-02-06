@@ -38,7 +38,7 @@ public abstract class EvokerEntityWololoGoalMixin {
 
 
     @Inject(method = "castSpell",
-            at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/passive/SheepEntity;setColor(Lnet/minecraft/util/DyeColor;)V"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SheepEntity;setColor(Lnet/minecraft/util/DyeColor;)V",shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void ledgerEvokerDyeSheep(CallbackInfo ci, SheepEntity sheepEntity) {
         if(sheepEntity.getColor() == DyeColor.RED) {return;}

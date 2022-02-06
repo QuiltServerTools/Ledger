@@ -39,7 +39,7 @@ public abstract class SnowGolemEntityMixin {
     }
 
     @Inject(method = "interactMob",
-            at = @At(value = "INVOKE_ASSIGN",target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V"))
+            at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V",shift = At.Shift.AFTER))
     private void ledgerSnowGolemPumpkinShear(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir){
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.SHEAR);

@@ -48,8 +48,8 @@ public abstract class ItemFrameEntityMixin {
 
 
     @Inject(method = "interact",
-            at = @At(value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V",shift = At.Shift.AFTER)
     )
     private void ledgerItemFrameEquipInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack playerStack = player.getStackInHand(hand);
@@ -58,8 +58,8 @@ public abstract class ItemFrameEntityMixin {
     }
 
     @Inject(method = "dropHeldStack",
-            at = @At(value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V")
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V",shift = At.Shift.AFTER)
     )
     private void ledgerItemFrameRemoveInvoker(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
         ItemStack entityStack = this.getHeldItemStack();
@@ -69,8 +69,8 @@ public abstract class ItemFrameEntityMixin {
     }
 
     @Inject(method = "interact",
-            at = @At(value = "INVOKE_ASSIGN",
-                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V")
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V",shift = At.Shift.AFTER)
     )
     private void ledgerItemFrameRotateInvoker(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Entity entity = (Entity) (Object) this;
