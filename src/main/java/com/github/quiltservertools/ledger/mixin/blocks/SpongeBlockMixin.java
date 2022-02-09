@@ -10,7 +10,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(SpongeBlock.class)
@@ -34,21 +36,17 @@ public abstract class SpongeBlockMixin {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
     }
 
-    @ModifyArgs(method = "update", at = @At(value = "INVOKE",
+    @Inject(method = "update", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void ledgerStoreState(Args args) {
-        World world = args.get(1);
-        BlockPos pos = args.get(2);
+    public void ledgerStoreState(World world, BlockPos pos, CallbackInfo ci) {
         oldBlockState = world.getBlockState(pos);
         // first invocation will be sponge, all others after will be wet sponge
         // because sponges will execute this method & absorbWater for every face in contact with water.
     }
 
-    @ModifyArgs(method = "update", at = @At(value = "INVOKE",
+    @Inject(method = "update", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void ledgerLogSpongeToWetSponge(Args args) {
-        World world = args.get(1);
-        BlockPos pos = args.get(2);
+    public void ledgerLogSpongeToWetSponge(World world, BlockPos pos, CallbackInfo ci) {
         BlockState newBlockState = world.getBlockState(pos);
         if (oldBlockState == newBlockState) {return;} // if the sponge is already wet dont log
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, oldBlockState, newBlockState, null, null, Sources.WET);
