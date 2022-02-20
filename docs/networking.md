@@ -78,6 +78,8 @@ Channel: `ledger.rollback`
 
 Buf content:
 
+Restore: `Boolean` - To restore must be true, for to rollback must be false
+
 Params: `String` - same string as used in the search command
 
 ---
