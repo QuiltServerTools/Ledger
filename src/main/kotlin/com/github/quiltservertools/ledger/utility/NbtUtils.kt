@@ -12,10 +12,6 @@ const val PROPERTIES = "Properties" // BlockState
 const val COUNT = "Count" // ItemStack
 const val TAG = "tag" // ItemStack
 const val UUID = "UUID" // Entity
-//const val COLOR = "Color" // SheepEntity
-//const val COLLARCOLOR = "CollarColor" // WolfEntity
-//const val SHEARED = "Sheared" // SheepEntity
-//const val PUMPKIN = "Pumpkin" // SheepEntity
 
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
@@ -59,29 +55,4 @@ object NbtUtils {
 
         return ItemStack.fromNbt(itemTag)
     }
-
-//    fun entityToProperties(entity: Entity, sourceType: String): String? {
-//        val entityTag = NbtCompound()
-//        val storedNBT = entity.writeNbt(NbtCompound())
-//
-//        entityTag.putUuid(UUID, storedNBT.getUuid(UUID))
-//
-//        if (sourceType == Sources.DYE && entity is SheepEntity){
-//            entityTag.putByte(COLOR, storedNBT.getByte(COLOR))
-//        }
-//        if (sourceType == Sources.SHEAR && entity is SheepEntity){
-//            entityTag.putByte(COLOR, storedNBT.getByte(COLOR)) // i think this is needed
-//            entityTag.putBoolean(SHEARED, storedNBT.getBoolean(SHEARED))
-//        }
-//        if (sourceType == Sources.SHEAR && entity is SnowGolemEntity){
-//            entityTag.putBoolean(PUMPKIN, storedNBT.getBoolean(PUMPKIN))
-//        }
-//        if (sourceType == Sources.DYE && entity is WolfEntity || entity is CatEntity){
-//            entityTag.putByte(COLLARCOLOR, storedNBT.getByte(COLLARCOLOR))
-//        }
-//
-//        return if (entityTag.isEmpty) null else entityTag.toString()
-//    }
-
-
 }

@@ -30,8 +30,6 @@ public abstract class ArmorStandMixin {
             at = @At(value = "INVOKE",
                     target ="Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V")
     ) private void legerLogOldEntity(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir){
-        //NbtCompound entityCustomNBT = new NbtCompound();
-        //this.writeCustomDataToNbt(entityCustomNBT);
         LivingEntity entity = (LivingEntity) (Object) this;
         this.oldEntityTags = entity.writeNbt(new NbtCompound());
         this.oldEntityStack = entity.getEquippedStack(slot);

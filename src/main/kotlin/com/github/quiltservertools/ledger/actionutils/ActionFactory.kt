@@ -191,32 +191,6 @@ object ActionFactory {
         action.sourceName = source
     }
 
-
-    private fun setEntityChangeData(
-        action: ActionType,
-        pos: BlockPos,
-        world: World,
-        oldEntityTags: NbtCompound,
-        entity: Entity,
-        itemStack: ItemStack?,
-        source: String
-    ) {
-        action.pos = pos
-        action.world = world.registryKey.value
-        action.oldObjectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
-
-        if (itemStack != null) {
-            action.objectIdentifier = Registry.ITEM.getId(itemStack.item)
-            // kinda gross tbh
-            action.extraData = NbtUtils.itemToProperties(itemStack)?.asString()
-        }
-        action.oldEntityState = "oldEntityTags.asString()"
-        action.entityState = "entity.writeNbt(NbtCompound())?.asString()"
-        action.sourceName = source
-
-
-    }
-
     fun entityChangeAction(
         world: World,
         pos: BlockPos,
