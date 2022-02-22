@@ -29,8 +29,10 @@ public abstract class FallingBlockEntityMixin {
                     target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
     private void ledgerBlockFallInvoker(Args args) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
-        BlockPos pos = args.get(0);
-        BlockBreakCallback.EVENT.invoker().breakBlock(entity.world, pos, this.block, this.block.hasBlockEntity() ? entity.world.getBlockEntity(pos) : null, Sources.GRAVITY);
+        if (args.get(0) instanceof BlockPos pos) {
+            BlockBreakCallback.EVENT.invoker().breakBlock(entity.world, pos, this.block, this.block.hasBlockEntity() ? entity.world.getBlockEntity(pos) : null, Sources.GRAVITY);
+        }
+        // https://paste.alloffabric.com/suzobawugi.yaml
     }
 
     @ModifyArgs(
@@ -40,7 +42,8 @@ public abstract class FallingBlockEntityMixin {
                     target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     private void ledgerBlockLandInvoker(Args args) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
-        BlockPos pos = args.get(0);
-        BlockPlaceCallback.EVENT.invoker().place(entity.world, pos, this.block, null, Sources.GRAVITY);
+        if (args.get(0) instanceof BlockPos pos) {
+            BlockPlaceCallback.EVENT.invoker().place(entity.world, pos, this.block, null, Sources.GRAVITY);
+        }
     }
 }

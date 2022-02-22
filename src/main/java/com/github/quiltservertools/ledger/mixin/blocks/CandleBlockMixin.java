@@ -26,15 +26,17 @@ public abstract class CandleBlockMixin {
     public static BooleanProperty LIT;
 
     @Inject(method = "extinguish", at = @At(value = "RETURN"))
-    private static void ledgerLogCandleExtinguish(PlayerEntity player, BlockState state, WorldAccess world, BlockPos pos, CallbackInfo ci) {
-        BlockChangeCallback.EVENT.invoker().changeBlock(
-                (World) world,
-                pos,
-                state,
-                state.with(LIT, !state.get(LIT)),
-                null,
-                null,
-                Sources.EXTINGUISH, player);
+    private static void ledgerLogCandleExtinguish(PlayerEntity player, BlockState state, WorldAccess worldAccess, BlockPos pos, CallbackInfo ci) {
+        if (worldAccess instanceof World world) {
+            BlockChangeCallback.EVENT.invoker().changeBlock(
+                    (World) world,
+                    pos,
+                    state,
+                    state.with(LIT, !state.get(LIT)),
+                    null,
+                    null,
+                    Sources.EXTINGUISH, player);
+        }
     }
 
     @Inject(method = "onProjectileHit", at = @At(value = "RETURN"))
