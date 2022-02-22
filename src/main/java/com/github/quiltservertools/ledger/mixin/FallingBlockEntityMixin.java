@@ -22,15 +22,14 @@ public abstract class FallingBlockEntityMixin {
     @Shadow
     private BlockState block;
 
-    @ModifyArgs(
+    @Inject(
             method = "tick",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
-    private void ledgerBlockFallInvoker(Args args) {
+    private void ledgerBlockFallInvoker(CallbackInfo ci) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
-        BlockPos pos = args.get(0);
-        BlockBreakCallback.EVENT.invoker().breakBlock(entity.world, pos, this.block, this.block.hasBlockEntity() ? entity.world.getBlockEntity(pos) : null, Sources.GRAVITY);
+        BlockBreakCallback.EVENT.invoker().breakBlock(entity.world, entity.getBlockPos(), this.block, this.block.hasBlockEntity() ? entity.world.getBlockEntity(entity.getBlockPos()) : null, Sources.GRAVITY);
     }
 
     @ModifyArgs(
