@@ -7,9 +7,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.command.CommandSource
 import net.minecraft.command.argument.IdentifierArgumentType
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.tag.BlockTags
-import net.minecraft.tag.EntityTypeTags
-import net.minecraft.tag.ItemTags
+import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import java.util.concurrent.CompletableFuture
@@ -27,14 +25,14 @@ class ObjectParameter : SimpleParameter<List<Identifier>>() {
             stringReader.skip()
             val tagId = IdentifierArgumentType.identifier().parse(stringReader)
 
-            val blockTag = BlockTags.getTagGroup().getTag(tagId)
-            if (blockTag != null) return blockTag.values().map { Registry.BLOCK.getId(it) }
+            val blockTag = TagKey.of(Registry.BLOCK_KEY, tagId)
+            if (blockTag != null) return Registry.BLOCK.iterateEntries(blockTag).map { Registry.BLOCK.getId(it.value()) }
 
-            val itemTag = ItemTags.getTagGroup().getTag(tagId)
-            if (itemTag != null) return itemTag.values().map { Registry.ITEM.getId(it) }
+            val itemTag = TagKey.of(Registry.ITEM_KEY, tagId)
+            if (itemTag != null) Registry.ITEM.iterateEntries(itemTag).map { Registry.ITEM.getId(it.value()) }
 
-            val entityTag = EntityTypeTags.getTagGroup().getTag(tagId)
-            if (entityTag != null) return entityTag.values().map { Registry.ENTITY_TYPE.getId(it) }
+            val entityTag = TagKey.of(Registry.ENTITY_TYPE_KEY, tagId)
+            if (entityTag != null) return Registry.ENTITY_TYPE.iterateEntries(entityTag).map { Registry.ENTITY_TYPE.getId(it.value()) }
         }
 
         return listOf(IdentifierArgumentType.identifier().parse(stringReader))
@@ -47,9 +45,9 @@ class ObjectParameter : SimpleParameter<List<Identifier>>() {
         return if (builder.remaining.startsWith("#")) {
             CommandSource.suggestIdentifiers(
                 mutableListOf<Identifier>().apply {
-                    addAll(BlockTags.getTagGroup().tagIds)
-                    addAll(ItemTags.getTagGroup().tagIds)
-                    addAll(EntityTypeTags.getTagGroup().tagIds)
+                    addAll(Registry.BLOCK.streamTags().map { it.id }.toList())
+                    addAll(Registry.ITEM.streamTags().map { it.id }.toList())
+                    addAll(Registry.ENTITY_TYPE.streamTags().map { it.id }.toList())
                 },
                 builder.createOffset(builder.start + 1)
             )

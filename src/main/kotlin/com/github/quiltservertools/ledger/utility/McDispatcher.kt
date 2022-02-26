@@ -1,11 +1,13 @@
 package com.github.quiltservertools.ledger.utility
 
-import kotlinx.coroutines.*
-import net.minecraft.client.MinecraftClient
-import net.minecraft.client.world.ClientWorld
+import com.github.quiltservertools.ledger.Ledger
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.world.World
-import com.github.quiltservertools.ledger.Ledger
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
@@ -26,6 +28,5 @@ fun launchMain(executor: (Runnable) -> Unit, block: suspend CoroutineScope.() ->
 fun World.launchMain(block: suspend CoroutineScope.() -> Unit) {
     when (this) {
         is ServerWorld -> launchMain(server::execute, block)
-        is ClientWorld -> launchMain(MinecraftClient.getInstance()::execute, block)
     }
 }
