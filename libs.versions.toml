@@ -1,19 +1,19 @@
 [versions]
-minecraft = "1.18.1"
-yarn-mappings = "1.18.1+build.17"
-fabric-loader = "0.12.12"
+minecraft = "1.18.2-rc1"
+yarn-mappings = "1.18.2-rc1+build.2"
+fabric-loader = "0.13.3"
 
-fabric-api = "0.43.1+1.18"
+fabric-api = "0.47.8+1.18.2"
 
 # Kotlin
-kotlin = "1.6.0"
+kotlin = "1.6.10"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.7.0+kotlin.1.6.0"
+fabric-kotlin = "1.7.1+kotlin.1.6.10"
 
 fabric-permissions = "0.1-SNAPSHOT"
-translations = "1.4.8+1.18-pre1"
+translations = "1.4.9+1.18.2-rc1"
 
-exposed = "0.36.2"
+exposed = "0.37.3"
 sqlite-jdbc = "3.36.0.3"
 
 konf = "1.1.2"
@@ -29,7 +29,7 @@ fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fab
 fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
 
 fabric-permissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric-permissions" }
-translations = { module = "fr.catcore:server-translations-api", version.ref = "translations" }
+translations = { module = "fr.catcore:api", version.ref = "translations" }
 
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
