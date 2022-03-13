@@ -12,14 +12,12 @@ class SourceParameter : SimpleParameter<String>() {
     override fun parse(stringReader: StringReader): String {
         val i: Int = stringReader.cursor
 
-        while (stringReader.canRead() && isCharValid(stringReader.peek())) {
+        while (stringReader.canRead() && stringReader.peek() != ' ') {
             stringReader.skip()
         }
 
         return stringReader.string.substring(i, stringReader.cursor)
     }
-
-    private fun isCharValid(c: Char): Boolean = c in '0'..'9' || c in 'a'..'z' || c in 'A'..'Z' || c == '@' || c == '_'
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>,
