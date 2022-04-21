@@ -58,7 +58,6 @@ fun DependencyHandlerScope.modImplementationAndInclude(dep: Any) {
 repositories {
     maven("https://maven.fabricmc.net/")
     maven("https://maven.nucleoid.xyz/")
-    maven("https://maven.bymartrixx.me/")
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     mavenCentral()
@@ -96,8 +95,6 @@ dependencies {
     shadow(libs.konf.core)
     shadow(libs.konf.toml)
 
-    // Debug
-    modRuntimeOnly(libs.wdmcf)
 }
 
 tasks {

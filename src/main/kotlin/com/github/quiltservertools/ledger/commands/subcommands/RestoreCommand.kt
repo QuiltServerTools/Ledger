@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 
 object RestoreCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -37,12 +37,12 @@ object RestoreCommand : BuildableCommand {
             val actions = DatabaseManager.restoreActions(params)
 
             if (actions.isEmpty()) {
-                source.sendError(TranslatableText("error.ledger.command.no_results"))
+                source.sendError(Text.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.restore.start",
                     actions.size.toString().literal().setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary),
@@ -61,7 +61,7 @@ object RestoreCommand : BuildableCommand {
 
                 for (entry in fails.entries) {
                     source.sendFeedback(
-                        TranslatableText("text.ledger.restore.fail", entry.key, entry.value).setStyle(
+                        Text.translatable("text.ledger.restore.fail", entry.key, entry.value).setStyle(
                             TextColorPallet.secondary
                         ),
                         true
@@ -69,7 +69,7 @@ object RestoreCommand : BuildableCommand {
                 }
 
                 source.sendFeedback(
-                    TranslatableText(
+                    Text.translatable(
                         "text.ledger.restore.finish",
                         actions.size
                     ).setStyle(TextColorPallet.primary),

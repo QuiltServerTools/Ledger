@@ -11,9 +11,7 @@ import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.HoverEvent
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
@@ -52,9 +50,9 @@ open class BlockChangeActionType : AbstractActionType() {
     override fun getTranslationType() = "block"
 
     override fun getObjectMessage(): Text {
-        val text = LiteralText("")
+        val text = Text.literal("")
         text.append(
-            TranslatableText(
+            Text.translatable(
             Util.createTranslationKey(
                 this.getTranslationType(),
                 oldObjectIdentifier
@@ -70,7 +68,7 @@ open class BlockChangeActionType : AbstractActionType() {
         if (oldObjectIdentifier != objectIdentifier) {
             text.append(" → ".literal())
             text.append(
-                TranslatableText(
+                Text.translatable(
                     Util.createTranslationKey(
                         this.getTranslationType(),
                         objectIdentifier

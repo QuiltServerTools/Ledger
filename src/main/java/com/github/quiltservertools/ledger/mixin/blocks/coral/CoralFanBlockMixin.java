@@ -6,17 +6,16 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.CoralFanBlock;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.AbstractRandom;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-import java.util.Random;
-
 @Mixin(CoralFanBlock.class)
 public abstract class CoralFanBlockMixin {
     @ModifyArgs(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void logCoralDeath(Args args, BlockState oldState, ServerWorld world, BlockPos pos, Random random) {
+    public void logCoralDeath(Args args, BlockState oldState, ServerWorld world, BlockPos pos, AbstractRandom abstractRandom) {
         BlockState newState = args.get(1);
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, oldState, newState, null, null, Sources.DECAY);
     }

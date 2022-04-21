@@ -6,17 +6,16 @@ import net.minecraft.block.BambooBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.AbstractRandom;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Random;
-
 @Mixin(BambooBlock.class)
 public abstract class BambooBlockMixin {
     @Inject(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;breakBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
-    public void logBambooBreak(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
+    public void logBambooBreak(BlockState state, ServerWorld world, BlockPos pos, AbstractRandom abstractRandom, CallbackInfo ci) {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, state, null, Sources.GRAVITY);
     }
 }

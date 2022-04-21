@@ -14,7 +14,6 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 import net.minecraft.util.registry.Registry
 
@@ -32,7 +31,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val stack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
 
         return "${stack.count} ".literal().append(
-            TranslatableText(
+            Text.translatable(
                 Util.createTranslationKey(
                     getTranslationType(),
                     objectIdentifier

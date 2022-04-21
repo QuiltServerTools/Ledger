@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -39,12 +39,12 @@ object RollbackCommand : BuildableCommand {
             val actions = DatabaseManager.rollbackActions(params)
 
             if (actions.isEmpty()) {
-                source.sendError(TranslatableText("error.ledger.command.no_results"))
+                source.sendError(Text.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.rollback.start",
                     actions.size.toString().literal().setStyle(TextColorPallet.secondary)
                 ).setStyle(TextColorPallet.primary),
@@ -63,7 +63,7 @@ object RollbackCommand : BuildableCommand {
 
                 for (entry in fails.entries) {
                     source.sendFeedback(
-                        TranslatableText("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
+                        Text.translatable("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
                             TextColorPallet.secondary
                         ),
                         true
@@ -71,7 +71,7 @@ object RollbackCommand : BuildableCommand {
                 }
 
                 source.sendFeedback(
-                    TranslatableText(
+                    Text.translatable(
                         "text.ledger.rollback.finish",
                         actions.size
                     ).setStyle(TextColorPallet.primary),

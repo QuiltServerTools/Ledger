@@ -7,13 +7,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.FireBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.util.math.random.AbstractRandom;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.Random;
 
 @Mixin(FireBlock.class)
 public abstract class FireBlockMixin {
@@ -25,7 +24,7 @@ public abstract class FireBlockMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
-    private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
+    private void ledgerBlockBurnBreakInvoker(World world, BlockPos pos, int spreadFactor, AbstractRandom abstractRandom, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
         if (blockState.getBlock() != Blocks.FIRE) {
             BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null, Sources.FIRE);
         }
@@ -39,7 +38,7 @@ public abstract class FireBlockMixin {
             ),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
-    private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, Random rand, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
+    private void ledgerBlockBurnReplaceInvoker(World world, BlockPos pos, int spreadFactor, AbstractRandom abstractRandom, int currentAge, CallbackInfo ci, int i, BlockState blockState) {
         if (blockState.getBlock() != Blocks.FIRE) {
             BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, blockState, world.getBlockEntity(pos) != null ? world.getBlockEntity(pos) : null, Sources.FIRE);
         }

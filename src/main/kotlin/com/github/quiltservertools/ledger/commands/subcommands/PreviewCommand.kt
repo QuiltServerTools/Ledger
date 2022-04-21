@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -60,7 +60,7 @@ object PreviewCommand : BuildableCommand {
             val actions = DatabaseManager.previewActions(params, type)
 
             if (actions.isEmpty()) {
-                source.sendError(TranslatableText("error.ledger.command.no_results"))
+                source.sendError(Text.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
@@ -76,7 +76,7 @@ object PreviewCommand : BuildableCommand {
         if (Ledger.previewCache.containsKey(uuid)) {
             Ledger.previewCache[uuid]?.apply(context)
         } else {
-            context.source.sendError(TranslatableText("error.ledger.no_preview"))
+            context.source.sendError(Text.translatable("error.ledger.no_preview"))
             Ledger.previewCache.remove(uuid)
             return -1
         }
@@ -91,7 +91,7 @@ object PreviewCommand : BuildableCommand {
             Ledger.previewCache[uuid]?.cancel(context.source.player)
             Ledger.previewCache.remove(uuid)
         } else {
-            context.source.sendError(TranslatableText("error.ledger.no_preview"))
+            context.source.sendError(Text.translatable("error.ledger.no_preview"))
             return -1
         }
 

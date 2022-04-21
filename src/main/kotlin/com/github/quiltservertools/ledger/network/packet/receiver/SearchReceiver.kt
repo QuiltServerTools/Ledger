@@ -18,7 +18,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 
 class SearchReceiver : Receiver {
     override fun receive(
@@ -67,7 +67,7 @@ class SearchReceiver : Receiver {
                 MessageUtils.sendSearchResults(
                     source,
                     page,
-                    TranslatableText(
+                    Text.translatable(
                         "text.ledger.header.search"
                     ).setStyle(TextColorPallet.primary)
                 )
