@@ -51,6 +51,7 @@ public abstract class ExplosionMixin {
             CallbackInfo ci,
             boolean bl2,
             ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList,
+            boolean bl3,
             ObjectListIterator<BlockPos> blocks,
             BlockPos blockPos,
             BlockState blockState,
