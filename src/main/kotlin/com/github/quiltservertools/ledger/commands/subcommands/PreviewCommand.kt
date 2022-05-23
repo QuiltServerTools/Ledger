@@ -51,7 +51,7 @@ object PreviewCommand : BuildableCommand {
 
     private fun preview(context: Context, params: ActionSearchParams?, type: Preview.Type): Int {
         val source = context.source
-        val player = source.player
+        val player = source.playerOrThrow
 
         if (params == null) return -1
 
@@ -71,7 +71,7 @@ object PreviewCommand : BuildableCommand {
     }
 
     private fun apply(context: Context): Int {
-        val uuid = context.source.player.uuid
+        val uuid = context.source.playerOrThrow.uuid
 
         if (Ledger.previewCache.containsKey(uuid)) {
             Ledger.previewCache[uuid]?.apply(context)
@@ -85,10 +85,10 @@ object PreviewCommand : BuildableCommand {
     }
 
     private fun cancel(context: Context): Int {
-        val uuid = context.source.player.uuid
+        val uuid = context.source.playerOrThrow.uuid
 
         if (Ledger.previewCache.containsKey(uuid)) {
-            Ledger.previewCache[uuid]?.cancel(context.source.player)
+            Ledger.previewCache[uuid]?.cancel(context.source.playerOrThrow)
             Ledger.previewCache.remove(uuid)
         } else {
             context.source.sendError(Text.translatable("error.ledger.no_preview"))

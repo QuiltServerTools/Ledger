@@ -24,7 +24,7 @@ object MessageUtils {
     suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
-        if (source.hasPlayer() && source.player.hasNetworking()) {
+        if (source.hasPlayer() && source.playerOrThrow.hasNetworking()) {
             for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
