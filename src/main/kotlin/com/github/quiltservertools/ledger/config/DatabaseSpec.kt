@@ -6,4 +6,5 @@ object DatabaseSpec : ConfigSpec() {
     val queueTimeoutMin by required<Long>()
     val queueCheckDelaySec by required<Long>()
     val autoPurgeDays by required<Int>()
+    val location by optional<String?>(null)
 }

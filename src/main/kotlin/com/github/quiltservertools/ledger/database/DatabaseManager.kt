@@ -20,13 +20,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
+import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
@@ -48,43 +49,39 @@ import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.io.path.pathString
 import kotlin.math.ceil
 
 object DatabaseManager {
-
-    // These values are initialised late to allow the database to be created at server start,
-    // which means the database file is located in the world folder and allows for per-world databases.
-    private lateinit var databaseFile: File
     private lateinit var database: Database
-    val dbMutex = Mutex()
+    var dbMutex: Mutex? = null
+    val databaseType: String
+        get() = database.dialect.name
 
     private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
     val actions = _actions.asSharedFlow()
 
     init {
         Ledger.launch {
-            actions.collect {
-                execute {
-                    insertAction(it)
-                }
+            execute {
+                insertActions(actions.take(10).toList())
             }
         }
     }
 
-    fun setValues(file: File, server: MinecraftServer) {
-        if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
+    fun setup() {
+        if (ExtensionManager.getDataSource() != null) {
             // Extension present, load database from it
-            database = ExtensionManager.getDatabaseExtensionOptional().get().getDatabase(server)
+            database = Database.connect(ExtensionManager.getDataSource()!!)
         } else {
             // No database extension is present, load normally
-            databaseFile = file
             database = Database.connect(
-                url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
+                url = "jdbc:sqlite:${Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString.replace('\\', '/')}",
             )
+            dbMutex = Mutex()
         }
     }
 
@@ -333,16 +330,19 @@ object DatabaseManager {
             insertRegKeys(identifiers)
         }
 
-    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
-        dbMutex.withLock {
+    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
+        suspend fun run(): T {
             while (Ledger.server.overworld?.savingDisabled != false) {
                 delay(timeMillis = 1000)
             }
 
-            newSuspendedTransaction(db = database) {
+            return newSuspendedTransaction(db = database) {
                 body(this)
             }
         }
+
+        return dbMutex?.withLock { run() } ?: run()
+    }
 
     suspend fun purgeActions(params: ActionSearchParams) {
         execute {
@@ -375,21 +375,21 @@ object DatabaseManager {
         }
     }
 
-    private fun Transaction.insertAction(action: ActionType) {
-        Tables.Action.new {
-            actionIdentifier = selectActionId(action.identifier)
-            timestamp = action.timestamp
-            x = action.pos.x
-            y = action.pos.y
-            z = action.pos.z
-            objectId = selectRegistryKey(action.objectIdentifier)
-            oldObjectId = selectRegistryKey(action.oldObjectIdentifier)
-            world = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value)
-            blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            sourceName = insertAndSelectSource(action.sourceName)
-            sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
-            extraData = action.extraData
+    private fun Transaction.insertActions(actions: List<ActionType>) {
+        Tables.Actions.batchInsert(actions) { action ->
+            this[Tables.Actions.actionIdentifier] = selectActionId(action.identifier).id
+            this[Tables.Actions.timestamp] = action.timestamp
+            this[Tables.Actions.x] = action.pos.x
+            this[Tables.Actions.y] = action.pos.y
+            this[Tables.Actions.z] = action.pos.z
+            this[Tables.Actions.objectId] = selectRegistryKey(action.objectIdentifier).id
+            this[Tables.Actions.oldObjectId] = selectRegistryKey(action.oldObjectIdentifier).id
+            this[Tables.Actions.world] = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value).id
+            this[Tables.Actions.blockState] = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            this[Tables.Actions.oldBlockState] = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            this[Tables.Actions.sourceName] = insertAndSelectSource(action.sourceName).id
+            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { selectPlayer(it.id)?.id }
+            this[Tables.Actions.extraData] = action.extraData
         }
     }
 

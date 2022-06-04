@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger
 
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.api.LedgerApi
 import com.github.quiltservertools.ledger.api.LedgerApiImpl
 import com.github.quiltservertools.ledger.commands.registerCommands
@@ -28,21 +29,22 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
-import net.minecraft.util.WorldSavePath
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.jetbrains.exposed.sql.vendors.SQLiteDialect
 import java.nio.file.Files
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-    const val DEFAULT_DATABASE = "sqlite"
+    const val DEFAULT_DATABASE = SQLiteDialect.dialectName
 
     @JvmStatic
     val api: LedgerApi = LedgerApiImpl
@@ -76,7 +78,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     private fun serverStarting(server: MinecraftServer) {
         this.server = server
-        DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
+        ExtensionManager.serverStarting(server)
+        DatabaseManager.setup()
         DatabaseManager.ensureTables()
         DatabaseManager.autoPurge()
         ActionRegistry.registerDefaultTypes()
@@ -99,9 +102,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
             withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
-                while (DatabaseManager.dbMutex.isLocked) {
+                while (DatabaseManager.dbMutex?.isLocked == true) {
                     logInfo("Database queue is still draining. If you exit now actions WILL be lost")
-                    delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
+                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
                 }
             }
         }

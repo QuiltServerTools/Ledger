@@ -16,7 +16,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
+import java.util.TimeZone
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
@@ -93,7 +93,7 @@ object MessageUtils {
     }
 
     fun warnBusy(source: ServerCommandSource) {
-        if (DatabaseManager.dbMutex.isLocked) {
+        if (DatabaseManager.dbMutex?.isLocked == true) {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.database.busy"
@@ -103,7 +103,6 @@ object MessageUtils {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     fun instantToText(time: Instant): MutableText {
         val duration = Duration.between(time, Instant.now()).toKotlinDuration()
         val text: MutableText = "".literal()

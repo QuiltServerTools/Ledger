@@ -36,7 +36,7 @@ object StatusCommand : BuildableCommand {
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.status.queue",
-                    if (DatabaseManager.dbMutex.isLocked) {
+                    if (DatabaseManager.dbMutex?.isLocked == true) {
                         "text.ledger.status.queue.busy".translate().setStyle(TextColorPallet.secondaryVariant)
                     } else {
                         "text.ledger.status.queue.empty".translate().setStyle(TextColorPallet.secondaryVariant)
@@ -52,15 +52,15 @@ object StatusCommand : BuildableCommand {
                 ).setStyle(TextColorPallet.secondary),
                 false
             )
-            val dbType = if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
-                ExtensionManager.getDatabaseExtensionOptional().get().getIdentifier()
+            val dbType = if (ExtensionManager.getDataSource() != null) {
+                DatabaseManager.databaseType
             } else {
-                Ledger.identifier(Ledger.DEFAULT_DATABASE)
+                Ledger.DEFAULT_DATABASE
             }
             source.sendFeedback(
                 TranslatableText(
                     "text.ledger.status.db_type",
-                        dbType.path.literal()
+                        dbType.literal()
                         .setStyle(TextColorPallet.secondaryVariant)
                 ).setStyle(TextColorPallet.secondary),
                 false
