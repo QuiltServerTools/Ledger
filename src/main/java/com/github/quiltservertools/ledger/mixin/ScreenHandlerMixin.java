@@ -17,6 +17,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static net.minecraft.screen.ScreenHandler.EMPTY_SPACE_SLOT_INDEX;
+
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
     @Unique
@@ -34,11 +36,13 @@ public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
 
     @Inject(method = "transferSlot", at = @At(value = "HEAD"))
     private void ledgerTransferSlotGetPlayer(PlayerEntity player, int index, CallbackInfoReturnable<ItemStack> cir) {
+        if (index == EMPTY_SPACE_SLOT_INDEX) {return;}
         this.player = (ServerPlayerEntity) player;
     }
 
     @Inject(method = "onSlotClick", at = @At(value = "HEAD"))
     private void ledgerSlotClickGetPlayer(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
+        if (slotIndex == EMPTY_SPACE_SLOT_INDEX) {return;}
         this.player = (ServerPlayerEntity) player;
     }
 
