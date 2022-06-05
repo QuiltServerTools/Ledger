@@ -30,6 +30,8 @@ public abstract class LeverBlockMixin {
 
     @ModifyArgs(method = "togglePower", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     public void logLeverUse(Args args, BlockState state, World world, BlockPos pos) {
+        if (activePlayer == null) return;
+
         BlockState newState = args.get(1);
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, newState, null, null, activePlayer);
     }
