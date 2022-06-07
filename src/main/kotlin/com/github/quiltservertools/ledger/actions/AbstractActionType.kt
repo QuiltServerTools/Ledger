@@ -10,9 +10,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
@@ -41,7 +39,7 @@ abstract class AbstractActionType : ActionType {
 
     @ExperimentalTime
     override fun getMessage(): Text {
-        val message = TranslatableText(
+        val message = Text.translatable(
             "text.ledger.action_message",
             getTimeMessage(),
             getSourceMessage(),
@@ -73,7 +71,7 @@ abstract class AbstractActionType : ActionType {
         return "@$sourceName (${sourceProfile!!.name})".literal().setStyle(TextColorPallet.secondary)
     }
 
-    open fun getActionMessage(): Text = TranslatableText("text.ledger.action.$identifier")
+    open fun getActionMessage(): Text = Text.translatable("text.ledger.action.$identifier")
         .styled {
             it.withHoverEvent(
                 HoverEvent(
@@ -83,7 +81,7 @@ abstract class AbstractActionType : ActionType {
             )
         }
 
-    open fun getObjectMessage(): Text = TranslatableText(
+    open fun getObjectMessage(): Text = Text.translatable(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier
@@ -103,8 +101,8 @@ abstract class AbstractActionType : ActionType {
             it.withHoverEvent(
                 HoverEvent(
                     HoverEvent.Action.SHOW_TEXT,
-                    LiteralText(world?.let { "$it\n" } ?: "")
-                        .append(TranslatableText("text.ledger.action_message.location.hover"))
+                    Text.literal(world?.let { "$it\n" } ?: "")
+                        .append(Text.translatable("text.ledger.action_message.location.hover"))
                 )
             ).withClickEvent(
                 ClickEvent(

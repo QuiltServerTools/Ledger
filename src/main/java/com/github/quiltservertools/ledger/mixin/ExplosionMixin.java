@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.utility.EndCrystalDuck;
 import com.github.quiltservertools.ledger.utility.Sources;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -25,8 +26,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.Iterator;
 
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin {
@@ -52,7 +51,8 @@ public abstract class ExplosionMixin {
             CallbackInfo ci,
             boolean bl2,
             ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList,
-            Iterator<BlockPos> blocks,
+            boolean bl3,
+            ObjectListIterator<BlockPos> blocks,
             BlockPos blockPos,
             BlockState blockState,
             Block block) {

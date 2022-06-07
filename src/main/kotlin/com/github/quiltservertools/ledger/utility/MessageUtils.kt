@@ -11,7 +11,6 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -25,7 +24,7 @@ object MessageUtils {
     suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
 
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
-        if (source.hasPlayer() && source.player.hasNetworking()) {
+        if (source.hasPlayer() && source.playerOrThrow.hasNetworking()) {
             for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
@@ -44,14 +43,14 @@ object MessageUtils {
         }
 
         source.sendFeedback(
-            TranslatableText(
+            Text.translatable(
                 "text.ledger.footer.search",
-                TranslatableText("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant).styled {
+                Text.translatable("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant).styled {
                     if (results.page > 1) {
                         it.withHoverEvent(
                             HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                TranslatableText("text.ledger.footer.page_backward.hover")
+                                Text.translatable("text.ledger.footer.page_backward.hover")
                             )
                         ).withClickEvent(
                             ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page - 1}")
@@ -62,12 +61,12 @@ object MessageUtils {
                 },
                 results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
                 results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
-                TranslatableText("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant).styled {
+                Text.translatable("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant).styled {
                     if (results.page < results.pages) {
                         it.withHoverEvent(
                             HoverEvent(
                                 HoverEvent.Action.SHOW_TEXT,
-                                TranslatableText("text.ledger.footer.page_forward.hover")
+                                Text.translatable("text.ledger.footer.page_forward.hover")
                             )
                         ).withClickEvent(
                             ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page + 1}")
@@ -95,7 +94,7 @@ object MessageUtils {
     fun warnBusy(source: ServerCommandSource) {
         if (DatabaseManager.dbMutex.isLocked) {
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.database.busy"
                 ).setStyle(TextColorPallet.primary),
                 false
@@ -118,7 +117,7 @@ object MessageUtils {
             }
         }
 
-        val message = TranslatableText("text.ledger.action_message.time_diff", text)
+        val message = Text.translatable("text.ledger.action_message.time_diff", text)
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
         val timeMessage = formatter.format(time.atZone(TimeZone.getDefault().toZoneId())).literal()

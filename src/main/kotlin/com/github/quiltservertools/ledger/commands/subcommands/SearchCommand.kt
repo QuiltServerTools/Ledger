@@ -3,7 +3,6 @@ package com.github.quiltservertools.ledger.commands.subcommands
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.text.TranslatableText
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.commands.BuildableCommand
@@ -14,6 +13,7 @@ import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
+import net.minecraft.text.Text
 
 object SearchCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -29,7 +29,7 @@ object SearchCommand : BuildableCommand {
     private fun search(context: Context, params: ActionSearchParams): Int {
         val source = context.source
         if (params.isEmpty()) {
-            source.sendError(TranslatableText("error.ledger.command.no_params"))
+            source.sendError(Text.translatable("error.ledger.command.no_params"))
             return -1
         }
 
@@ -40,14 +40,14 @@ object SearchCommand : BuildableCommand {
             val results = DatabaseManager.searchActions(params, 1)
 
             if (results.actions.isEmpty()) {
-                source.sendError(TranslatableText("error.ledger.command.no_results"))
+                source.sendError(Text.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
             MessageUtils.sendSearchResults(
                 source,
                 results,
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.header.search"
                 ).setStyle(TextColorPallet.primary)
             )
