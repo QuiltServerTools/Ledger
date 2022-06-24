@@ -21,11 +21,11 @@ object InspectCommand : BuildableCommand {
             .executes { toggleInspect(it) }
             .then(
                 literal("on")
-                    .executes { it.source.player.inspectOn() }
+                    .executes { it.source.playerOrThrow.inspectOn() }
             )
             .then(
                 literal("off")
-                    .executes { it.source.player.inspectOff() }
+                    .executes { it.source.playerOrThrow.inspectOff() }
             )
             .then(
                 argument("pos", BlockPosArgumentType.blockPos())
@@ -35,7 +35,7 @@ object InspectCommand : BuildableCommand {
 
     private fun toggleInspect(context: Context): Int {
         val source = context.source
-        val player = source.player
+        val player = source.playerOrThrow
 
         return if (player.isInspecting()) {
             player.inspectOff()

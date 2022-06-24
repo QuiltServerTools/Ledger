@@ -15,7 +15,6 @@ import com.github.quiltservertools.ledger.listeners.registerPlayerListeners
 import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
 import com.github.quiltservertools.ledger.network.Networking
 import com.github.quiltservertools.ledger.registry.ActionRegistry
-import com.github.quiltservertools.ledger.utility.Dispatcher
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import net.fabricmc.api.DedicatedServerModInitializer
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
@@ -73,7 +72,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
-        CommandRegistrationCallback.EVENT.register(::commandRegistration)
+        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> registerCommands(dispatcher) }
     }
 
     private fun serverStarting(server: MinecraftServer) {
@@ -116,8 +115,6 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         registerBlockListeners()
         registerEntityListeners()
     }
-
-    private fun commandRegistration(dispatcher: Dispatcher, dedicated: Boolean) = registerCommands(dispatcher)
 
     fun identifier(path: String) = Identifier(MOD_ID, path)
 }

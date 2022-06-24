@@ -19,7 +19,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 import java.util.*
 
 class HandshakePacketReceiver : Receiver {
@@ -41,7 +41,7 @@ class HandshakePacketReceiver : Receiver {
             val ledgerVersion = FabricLoader.getInstance().getModContainer(
                 Ledger.MOD_ID).get().metadata.version.friendlyString
             if (Networking.protocolVersion == info.get().protocolVersion) {
-                logInfo("${player.name.asString()} joined the server with a Ledger compatible client mod")
+                logInfo("${player.name.string} joined the server with a Ledger compatible client mod")
                 logInfo("Mod: $modid, Version: $modVersion")
 
                 // Player has networking permissions so we send a response
@@ -51,17 +51,17 @@ class HandshakePacketReceiver : Receiver {
                 player.enableNetworking()
             } else {
                 player.sendMessage(
-                    TranslatableText(
+                    Text.translatable(
                         "text.ledger.network.protocols_mismatched",
                         Networking.protocolVersion, info.get().protocolVersion
                     ), false
                 )
-                logInfo("${player.name.asString()} joined the server with a Ledger compatible client mod, " +
+                logInfo("${player.name.string} joined the server with a Ledger compatible client mod, " +
                         "but has a mismatched protocol: Ledger protocol version: ${Networking.protocolVersion}" +
                         ", Client mod protocol version ${info.get().protocolVersion}")
             }
         } else {
-            player.sendMessage(TranslatableText("text.ledger.network.no_mod_info"), false)
+            player.sendMessage(Text.translatable("text.ledger.network.no_mod_info"), false)
         }
     }
 

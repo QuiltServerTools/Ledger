@@ -4,7 +4,6 @@ import com.github.quiltservertools.ledger.utility.HandledSlot;
 import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -32,8 +31,8 @@ public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
         this.player = (ServerPlayerEntity) player;
     }
 
-    @Inject(method = "transferSlot", at = @At(value = "HEAD"))
-    private void ledgerTransferSlotGetPlayer(PlayerEntity player, int index, CallbackInfoReturnable<ItemStack> cir) {
+    @Inject(method = "internalOnSlotClick", at = @At(value = "HEAD"))
+    private void internalOnSlotClickGetPlayer(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
         this.player = (ServerPlayerEntity) player;
     }
 

@@ -7,7 +7,6 @@ import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.Util
 
 class BlockPlaceActionType : BlockChangeActionType() {
@@ -32,7 +31,7 @@ class BlockPlaceActionType : BlockChangeActionType() {
         return true
     }
 
-    override fun getObjectMessage(): Text = TranslatableText(
+    override fun getObjectMessage(): Text = Text.translatable(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier

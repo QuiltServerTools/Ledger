@@ -7,7 +7,7 @@ import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
 
 class Preview(
@@ -20,7 +20,7 @@ class Preview(
 
     init {
         player.sendMessage(
-            TranslatableText(
+            Text.translatable(
                 "text.ledger.preview.start",
                 actions.size
             ).setStyle(TextColorPallet.primary),

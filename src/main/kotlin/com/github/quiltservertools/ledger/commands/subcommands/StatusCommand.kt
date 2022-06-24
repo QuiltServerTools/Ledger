@@ -16,7 +16,7 @@ import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.SemanticVersion
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.ClickEvent
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -29,12 +29,12 @@ object StatusCommand : BuildableCommand {
         Ledger.launch {
             val source = context.source
             source.sendFeedback(
-                TranslatableText("text.ledger.header.status")
+                Text.translatable("text.ledger.header.status")
                     .setStyle(TextColorPallet.primary),
                 false
             )
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.status.queue",
                     if (DatabaseManager.dbMutex?.isLocked == true) {
                         "text.ledger.status.queue.busy".translate().setStyle(TextColorPallet.secondaryVariant)
@@ -45,7 +45,7 @@ object StatusCommand : BuildableCommand {
                 false
             )
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.status.version",
                     getVersion().friendlyString.literal()
                         .setStyle(TextColorPallet.secondaryVariant)
@@ -58,7 +58,7 @@ object StatusCommand : BuildableCommand {
                 Ledger.DEFAULT_DATABASE
             }
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.status.db_type",
                         dbType.literal()
                         .setStyle(TextColorPallet.secondaryVariant)
@@ -66,7 +66,7 @@ object StatusCommand : BuildableCommand {
                 false
             )
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.status.discord",
                     "text.ledger.status.discord.join".translate()
                         .setStyle(TextColorPallet.secondaryVariant)
@@ -81,7 +81,7 @@ object StatusCommand : BuildableCommand {
                 ).setStyle(TextColorPallet.secondary), false
             )
             source.sendFeedback(
-                TranslatableText(
+                Text.translatable(
                     "text.ledger.status.wiki",
                     "text.ledger.status.wiki.view".translate()
                         .setStyle(TextColorPallet.secondaryVariant)

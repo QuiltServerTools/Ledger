@@ -12,7 +12,7 @@ import net.minecraft.block.ChestBlock
 import net.minecraft.block.enums.ChestType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.TranslatableText
+import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
@@ -26,7 +26,7 @@ fun PlayerEntity.isInspecting() = inspectingUsers.contains(this.uuid)
 fun PlayerEntity.inspectOn(): Int {
     inspectingUsers.add(this.uuid)
     this.sendMessage(
-        TranslatableText(
+        Text.translatable(
             "text.ledger.inspect.toggle",
             "text.ledger.inspect.on".translate().formatted(Formatting.GREEN)
         ).setStyle(TextColorPallet.secondary),
@@ -39,7 +39,7 @@ fun PlayerEntity.inspectOn(): Int {
 fun PlayerEntity.inspectOff(): Int {
     inspectingUsers.remove(this.uuid)
     this.sendMessage(
-        TranslatableText(
+        Text.translatable(
             "text.ledger.inspect.toggle",
             "text.ledger.inspect.off".translate().formatted(Formatting.RED)
         ).setStyle(TextColorPallet.secondary),
@@ -73,14 +73,14 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
         val results = DatabaseManager.searchActions(params, 1)
 
         if (results.actions.isEmpty()) {
-            source.sendError(TranslatableText("error.ledger.command.no_results"))
+            source.sendError(Text.translatable("error.ledger.command.no_results"))
             return@launch
         }
 
         MessageUtils.sendSearchResults(
             source,
             results,
-            TranslatableText(
+            Text.translatable(
                 "text.ledger.header.search.pos",
                 "${pos.x} ${pos.y} ${pos.z}".literal()
             ).setStyle(TextColorPallet.primary)
