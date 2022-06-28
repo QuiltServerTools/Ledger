@@ -5,7 +5,7 @@ import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
     kotlin("jvm") version "1.6.10"
-    id("fabric-loom") version "0.11.+"
+    id("fabric-loom") version "0.12.+"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.19.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
