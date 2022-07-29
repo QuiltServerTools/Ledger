@@ -2,8 +2,6 @@ import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
 import com.matthewprenger.cursegradle.Options
 import com.modrinth.minotaur.TaskModrinthUpload
-import com.modrinth.minotaur.request.Dependency.DependencyType
-import com.modrinth.minotaur.request.VersionType
 
 plugins {
     kotlin("jvm") version "1.7.10"
@@ -11,8 +9,8 @@ plugins {
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.19.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
+    id("com.modrinth.minotaur") version "2.+"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.modrinth.minotaur") version "1.2.1"
     id("com.matthewprenger.cursegradle") version "1.4.0"
 }
 
@@ -183,6 +181,10 @@ tasks {
             jvmTarget = javaVersion.toString()
         }
     }
+
+    withType<TaskModrinthUpload> {
+        onlyIf { System.getenv().contains("MODRINTH_TOKEN") }
+    }
 }
 
 // configure the maven publication
@@ -217,7 +219,7 @@ curseforge {
             mainArtifact(tasks["remapJar"])
 
             relations(closureOf<CurseRelation> {
-                props["cfReqDeps"].toString().split(",").forEach {
+                props["dependencies"].toString().split(",").forEach {
                     requiredDependency(it)
                 }
             })
@@ -229,34 +231,27 @@ curseforge {
     }
 }
 
-tasks {
-    register<TaskModrinthUpload>("publishModrinth") {
-        onlyIf { System.getenv().contains("MODRINTH_TOKEN") }
-        dependsOn("build")
+modrinth {
+    projectId.set("ledger")
+    versionType.set("release")
+    versionNumber.set(modVersion)
+    changelog.set(System.getenv("CHANGELOG"))
 
-        group = "upload"
+    gameVersions.add(libs.versions.minecraft.get())
+    loaders.set(listOf("fabric", "quilt"))
 
-        token = System.getenv("MODRINTH_TOKEN")
-
-        projectId = "LVN9ygNV"
-        versionType = VersionType.RELEASE
-        version = modVersion
-        changelog = System.getenv("CHANGELOG")
-
-        addGameVersion(libs.versions.minecraft.get())
-        addLoader("fabric")
-
-        props["mrReqDeps"].toString().split(",").forEach {
-            addDependency(it, DependencyType.REQUIRED)
+    dependencies {
+        props["dependencies"].toString().split(",").forEach {
+            required.project(it)
         }
-
-        uploadFile = remapJar.get().archiveFile.get()
     }
+
+    uploadFile.set(tasks.remapJar.get())
 }
 
 tasks.register("release") {
     release = true
-    dependsOn("curseforge", "publishModrinth")
+    dependsOn("curseforge", "modrinth")
 }
 
 detekt {
