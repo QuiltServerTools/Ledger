@@ -10,29 +10,55 @@
 Run into any issues? Join our [Discord](https://discord.gg/UxHnDWr) for support!
 
 ## Other Databases
-Ledger supports other databases like MySQL and H2 with the help of the [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) extension.
+Ledger supports other databases like MySQL, PostgreSQL and H2 with the help of the [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) extension.
+
+### H2
+H2 is another flat-file database like the default sqlite that may yield faster results but is more experimental.
+
+Add the following to the bottom of your Ledger config file:
+
+```toml
+[database_extensions]
+database = "H2"
+```
 
 ### MySQL
-MySQL requires running a separate MySQL database and more setup than just plug and play sqlite, but can support much larger databases at faster speeds.
+MySQL requires running a separate MySQL database and more setup than just plug and play SQLite, but can support much larger databases at faster speeds.
 It also supports MySQL based databases like MariaDB.
-MySQL support can be enabled in Ledger with the [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) extension.
-Once installed, enable it by adding
+
+Add the following to the bottom of your Ledger config file:
+
 ```toml
 [database_extensions]
 database = "MYSQL"
 url = ""
 username = ""
 password = ""
+properties = []
 ```
-to your `ledger.toml`.
-The `url` is usually something like `localhost/databasename` unless you are using an external database server.
 
-### H2
-H2 is another flat-file database like the default sqlite that may yield faster results but is more experimental.
-H2 support can be enabled in Ledger with the [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) extension.
-Once installed, enable it by adding
+`url`: Must be URL of database with `/<database_name>` appended. An example URL would be `localhost/ledger`. You can optionally add port information such as `localhost:3000/ledger`
+
+### PostgreSQL
+MySQL requires running a separate PostgreSQL database and more setup than just plug and play SQLite, but can support much larger databases at faster speeds. It is more experimental the MySQL but may yield faster performance.
+
+Add the following to the bottom of your Ledger config file:
+
 ```toml
 [database_extensions]
-database = "H2"
+database = "POSTGRESQL"
+url = ""
+username = ""
+password = ""
+properties = []
 ```
-to your `ledger.toml`.
+
+`url`: Must be URL of database with `/<database_name>` appended. An example URL would be `localhost/ledger`. You can optionally add port information such as `localhost:3000/ledger`
+
+## Connector properties
+
+For some databases, such as MySQL, you can provide properties to the database connector. For each property, add a string entry to the `properties` array.
+
+```toml
+properties = ["useJDBCCompliantTimezoneShift=true", "useLegacyDatetimeCode=false", "serverTimezone=UTC"]
+```
