@@ -4,13 +4,13 @@ import com.matthewprenger.cursegradle.Options
 import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.10"
     id("fabric-loom") version "0.12.+"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.19.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
-    id("com.github.johnrengelman.shadow") version "7.1.0"
     id("com.modrinth.minotaur") version "2.+"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     id("com.matthewprenger.cursegradle") version "1.4.0"
 }
 
@@ -34,7 +34,7 @@ sourceSets {
 }
 
 loom {
-    serverOnlyMinecraftJar()
+    //serverOnlyMinecraftJar()
 
     runs {
         create("testmodClient") {
@@ -92,7 +92,6 @@ dependencies {
     // Config
     shadow(libs.konf.core)
     shadow(libs.konf.toml)
-
 }
 
 tasks {
@@ -123,10 +122,10 @@ tasks {
         options.release.set(javaVersion.toString().toInt())
     }
 
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions { jvmTarget = javaVersion.toString() }
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = javaVersion.toString()
+        }
     }
 
     jar {
