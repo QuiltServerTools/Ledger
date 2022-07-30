@@ -30,7 +30,7 @@ object ExtensionManager {
     internal fun serverStarting(server: MinecraftServer) {
         extensions.forEach {
             if (it is DatabaseExtension) {
-                if(dataSource != null) {
+                if(dataSource == null) {
                     dataSource = it.getDataSource(server.getSavePath(WorldSavePath.ROOT))
                 } else {
                     failExtensionRegistration(it)

@@ -15,13 +15,9 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
+import com.google.common.collect.Queues
 import com.mojang.authlib.GameProfile
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -52,8 +48,13 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.TimeUnit
 import kotlin.io.path.pathString
 import kotlin.math.ceil
+
+const val BATCH_SIZE = 1000
+const val BATCH_WAIT = 30L
 
 object DatabaseManager {
     private lateinit var database: Database
@@ -61,13 +62,26 @@ object DatabaseManager {
     val databaseType: String
         get() = database.dialect.name
 
-    private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
-    val actions = _actions.asSharedFlow()
+    private val actions = LinkedBlockingQueue<ActionType>()
+//    private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
+//    val actions = _actions.asSharedFlow()
 
     init {
         Ledger.launch {
-            execute {
-                insertActions(actions.take(10).toList())
+            while (true) {
+                val queuedActions = ArrayList<ActionType>(BATCH_SIZE)
+                Queues.drain(
+                    actions,
+                    queuedActions,
+                    BATCH_SIZE,
+                    BATCH_WAIT,
+                    TimeUnit.SECONDS
+                ) // TODO make queue drain size and timeout config
+
+                if (queuedActions.isEmpty()) continue
+                execute {
+                    insertActions(queuedActions)
+                }
             }
         }
     }
@@ -135,38 +149,38 @@ object DatabaseManager {
         return@execute selectActionsPreview(params, type)
     }
 
-    private fun daoToActionType(actions: List<Tables.Action>): List<ActionType> {
+    private fun queryToActionTypes(actions: Query): List<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
         for (action in actions) {
-            val typeSupplier = ActionRegistry.getType(action.actionIdentifier.identifier)
+            val typeSupplier = ActionRegistry.getType(action[Tables.ActionIdentifiers.actionIdentifier])
             if (typeSupplier == null) {
-                logWarn("Unknown action type ${action.actionIdentifier.identifier}")
+                logWarn("Unknown action type ${action[Tables.ActionIdentifiers.actionIdentifier]}")
                 continue
             }
 
             val type = typeSupplier.get()
-            type.timestamp = action.timestamp
-            type.pos = BlockPos(action.x, action.y, action.z)
-            type.world = action.world.identifier
-            type.objectIdentifier = action.objectId.identifier
-            type.oldObjectIdentifier = action.oldObjectId.identifier
-            type.blockState = action.blockState?.let {
+            type.timestamp = action[Tables.Actions.timestamp]
+            type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
+            type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
+            type.objectIdentifier = Identifier(action[Tables.ObjectIdentifiers.identifier])
+            type.oldObjectIdentifier = Identifier(action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]])
+            type.blockState = action[Tables.Actions.blockState]?.let {
                 NbtUtils.blockStateFromProperties(
                     StringNbtReader.parse(it),
-                    action.objectId.identifier
+                    type.objectIdentifier
                 )
             }
-            type.oldBlockState = action.oldBlockState?.let {
+            type.oldBlockState = action[Tables.Actions.oldBlockState]?.let {
                 NbtUtils.blockStateFromProperties(
                     StringNbtReader.parse(it),
-                    action.oldObjectId.identifier
+                    type.oldObjectIdentifier
                 )
             }
-            type.sourceName = action.sourceName.name
-            type.sourceProfile = action.sourcePlayer?.let { GameProfile(it.playerId, it.playerName) }
-            type.extraData = action.extraData
-            type.rolledBack = action.rolledBack
+            type.sourceName = action[Tables.Sources.name]
+            type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let { GameProfile(it, action[Tables.Players.playerName]) }
+            type.extraData = action[Tables.Actions.extraData]
+            type.rolledBack = action[Tables.Actions.rolledBack]
 
             actionTypes.add(type)
         }
@@ -307,7 +321,7 @@ object DatabaseManager {
     fun logAction(action: ActionType) {
         if (action.isBlacklisted()) return
 
-        _actions.tryEmit(action)
+        actions.add(action)
     }
 
     suspend fun registerWorld(identifier: Identifier) =
@@ -422,9 +436,7 @@ object DatabaseManager {
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
         ).withDistinct()
 
-        val actions = Tables.Action.wrapRows(query).toList()
-
-        actionTypes.addAll(daoToActionType(actions))
+        actionTypes.addAll(queryToActionTypes(query))
 
         val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
 
@@ -446,7 +458,7 @@ object DatabaseManager {
             .orderBy(Tables.Actions.id, if(isRestore) SortOrder.ASC else SortOrder.DESC )
 
         val actions = Tables.Action.wrapRows(query).toList()
-        actionTypes.addAll(daoToActionType(actions))
+        actionTypes.addAll(queryToActionTypes(query))
 
         return actionTypes
     }
@@ -463,7 +475,7 @@ object DatabaseManager {
             action.rolledBack = true
         }
 
-        actionTypes.addAll(daoToActionType(actions))
+        actionTypes.addAll(queryToActionTypes(query))
 
         return actionTypes
     }
@@ -480,7 +492,7 @@ object DatabaseManager {
             action.rolledBack = false
         }
 
-        actionTypes.addAll(daoToActionType(actions))
+        actionTypes.addAll(queryToActionTypes(query))
 
         return actionTypes
     }

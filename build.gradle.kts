@@ -161,7 +161,7 @@ tasks {
         val relocPath = "com.github.quiltservertools.libs."
         relocate("com.fasterxml", relocPath + "com.fasterxml")
         relocate("com.moandjiezana.toml", relocPath + "com.moandjiezana.toml")
-        relocate("com.uchuhimo.konf", relocPath + "com.uchuhimo.konf")
+        //relocate("com.uchuhimo.konf", relocPath + "com.uchuhimo.konf")
         relocate("javassist", relocPath + "javassist")
         // Relocate each apache lib separately as just org.apache.commons will relocate things that aren't shadowed and break stuff
         relocate("org.apache.commons.lang3", relocPath + "org.apache.commons.lang3")

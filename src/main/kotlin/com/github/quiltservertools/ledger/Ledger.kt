@@ -36,9 +36,8 @@ import java.nio.file.Files
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
@@ -97,10 +96,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
+            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
                 while (DatabaseManager.dbMutex?.isLocked == true) {
                     logInfo("Database queue is still draining. If you exit now actions WILL be lost")
                     delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
