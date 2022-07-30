@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.testmod.commands
 
 import com.mojang.brigadier.CommandDispatcher
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal
-import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
 
 fun registerCommands(dispatcher: CommandDispatcher<FabricClientCommandSource>) {
     val rootNode =

@@ -2,7 +2,7 @@ package com.github.quiltservertools.ledger.testmod
 
 import com.github.quiltservertools.ledger.testmod.commands.registerCommands
 import net.fabricmc.api.ClientModInitializer
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
@@ -63,7 +63,9 @@ object LedgerTest : ClientModInitializer {
             inspectBlock(pos)
         }
 
-        registerCommands(ClientCommandManager.DISPATCHER)
+        ClientCommandRegistrationCallback.EVENT.register { dispatcher, registryAccess ->
+            registerCommands(dispatcher)
+        }
     }
 
     fun inspectBlock(pos: BlockPos) {
