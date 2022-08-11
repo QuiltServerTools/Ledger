@@ -65,6 +65,8 @@ object Tables {
         val sourcePlayer = optReference("player_id", Players.id)
         val extraData = text("extra_data").nullable()
         val rolledBack = bool("rolled_back").clientDefault { false }
+        val entityState = text("entity_state").nullable()
+        val oldEntityState = text("old_entity_state").nullable()
 
         init {
             index("actions_by_location", false, x, y, z, world)
@@ -86,6 +88,8 @@ object Tables {
         var sourcePlayer by Player optionalReferencedOn Actions.sourcePlayer
         var extraData by Actions.extraData
         var rolledBack by Actions.rolledBack
+        var entityState by Actions.entityState
+        var oldEntityState by Actions.oldEntityState
 
         companion object : IntEntityClass<Action>(Actions)
     }

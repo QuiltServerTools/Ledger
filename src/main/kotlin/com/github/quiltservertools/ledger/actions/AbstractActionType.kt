@@ -8,9 +8,7 @@ import com.mojang.authlib.GameProfile
 import net.minecraft.block.BlockState
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
+import net.minecraft.text.*
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
@@ -31,6 +29,8 @@ abstract class AbstractActionType : ActionType {
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null
     override var rolledBack: Boolean = false
+    override var entityState: String? = null
+    override var oldEntityState: String? = null
 
     override fun rollback(server: MinecraftServer): Boolean = false
     override fun previewRollback(player: ServerPlayerEntity) = Unit

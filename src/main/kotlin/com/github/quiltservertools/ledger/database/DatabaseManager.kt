@@ -170,6 +170,8 @@ object DatabaseManager {
             type.sourceProfile = action.sourcePlayer?.let { GameProfile(it.playerId, it.playerName) }
             type.extraData = action.extraData
             type.rolledBack = action.rolledBack
+            type.entityState = action.entityState
+            type.oldEntityState = action.oldEntityState
 
             actionTypes.add(type)
         }
@@ -390,6 +392,8 @@ object DatabaseManager {
             sourceName = insertAndSelectSource(action.sourceName)
             sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
             extraData = action.extraData
+            entityState = action.entityState
+            oldEntityState = action.oldEntityState
         }
     }
 
