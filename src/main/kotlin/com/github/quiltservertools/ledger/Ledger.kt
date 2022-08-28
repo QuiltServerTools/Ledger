@@ -31,7 +31,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.jetbrains.exposed.sql.vendors.SQLiteDialect
 import java.nio.file.Files
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -42,7 +41,7 @@ import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-    const val DEFAULT_DATABASE = SQLiteDialect.dialectName
+    const val DEFAULT_DATABASE = "sqlite"
 
     @JvmStatic
     val api: LedgerApi = LedgerApiImpl
@@ -78,7 +77,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         this.server = server
         ExtensionManager.serverStarting(server)
         DatabaseManager.setup()
-        DatabaseManager.ensureTables()
+//        DatabaseManager.ensureTables()
         DatabaseManager.autoPurge()
         ActionRegistry.registerDefaultTypes()
         initListeners()

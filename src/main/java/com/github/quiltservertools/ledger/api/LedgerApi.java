@@ -20,7 +20,7 @@ public interface LedgerApi {
      * @param params The search parameters to filter results
      * @return The number of matching actions
      */
-    CompletableFuture<Long> countActions(ActionSearchParams params);
+    CompletableFuture<Integer> countActions(ActionSearchParams params);
 
     /**
      * Executes a rollback for the matching actions

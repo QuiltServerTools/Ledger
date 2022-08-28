@@ -13,7 +13,7 @@ internal object LedgerApiImpl : LedgerApi {
     override fun searchActions(params: ActionSearchParams, page: Int): CompletableFuture<SearchResults> =
         Ledger.future { DatabaseManager.searchActions(params, page) }
 
-    override fun countActions(params: ActionSearchParams): CompletableFuture<Long> =
+    override fun countActions(params: ActionSearchParams): CompletableFuture<Int> =
         Ledger.future { DatabaseManager.countActions(params) }
 
     override fun rollbackActions(params: ActionSearchParams): CompletableFuture<List<ActionType>> =

@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.utility
 
 import com.github.quiltservertools.ledger.database.Tables
 import net.minecraft.text.Text
+import org.ktorm.dsl.QueryRowSet
 import java.time.Instant
 import java.util.*
 import kotlin.time.ExperimentalTime
@@ -19,6 +20,11 @@ data class PlayerResult(val uuid: UUID, val name: String, val firstJoin: Instant
     }
 
     companion object {
-        fun fromRow(row: Tables.Player): PlayerResult = PlayerResult(row.playerId, row.playerName, row.firstJoin, row.lastJoin)
+        fun fromRow(row: QueryRowSet): PlayerResult = PlayerResult(
+            row[Tables.Players.playerId]!!,
+            row[Tables.Players.playerName]!!,
+            row[Tables.Players.firstJoin] ?: Instant.now(),
+            row[Tables.Players.lastJoin] ?: Instant.now()
+        )
     }
 }
