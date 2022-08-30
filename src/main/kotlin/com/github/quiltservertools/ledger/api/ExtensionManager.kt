@@ -12,6 +12,8 @@ object ExtensionManager {
         get() = _extensions
 
     private var dataSource: DataSource? = null
+    var databaseExtension: DatabaseExtension? = null
+        private set
 
     val commands = mutableListOf<CommandExtension>()
 
@@ -32,6 +34,7 @@ object ExtensionManager {
             if (it is DatabaseExtension) {
                 if(dataSource == null) {
                     dataSource = it.getDataSource(server.getSavePath(WorldSavePath.ROOT))
+                    databaseExtension = it
                 } else {
                     failExtensionRegistration(it)
                 }

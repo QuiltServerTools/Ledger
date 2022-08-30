@@ -30,6 +30,7 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
 import org.ktorm.database.Database
+import org.ktorm.database.Transaction
 import org.ktorm.dsl.Query
 import org.ktorm.dsl.and
 import org.ktorm.dsl.asc
@@ -71,7 +72,7 @@ const val BATCH_SIZE = 1000
 const val BATCH_WAIT = 30L
 
 object DatabaseManager {
-    private lateinit var database: Database
+    internal lateinit var database: Database
     var dbMutex: Mutex? = null
     val databaseType: String
         // FIXME
@@ -114,7 +115,66 @@ object DatabaseManager {
         }
     }
 
-    fun ensureTables(): Nothing = TODO()
+    @Suppress("StringLiteralDuplication")
+    fun ensureTables() {
+        val statements = listOf(
+            "CREATE TABLE players (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "player_id BINARY(16) NOT NULL, " +
+                    "player_name VARCHAR(16) NOT NULL, " +
+                    "first_join TEXT NOT NULL, " +
+                    "last_join TEXT NOT NULL" +
+            ");",
+            "CREATE TABLE worlds (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "identifier VARCHAR(191) NOT NULL" +
+            ");",
+            "CREATE TABLE ObjectIdentifiers (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "identifier VARCHAR(191) NOT NULL" +
+            ");",
+            "CREATE TABLE sources (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "\"name\" VARCHAR(30) NOT NULL" +
+            ");",
+            "CREATE TABLE actions (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "action_id INT NOT NULL, \"time\" TEXT NOT NULL, " +
+                    "x INT NOT NULL, " +
+                    "y INT NOT NULL, " +
+                    "z INT NOT NULL, " +
+                    "world_id INT NOT NULL, " +
+                    "object_id INT NOT NULL, " +
+                    "old_object_id INT NOT NULL, " +
+                    "block_state TEXT NULL, " +
+                    "old_block_state TEXT NULL, " +
+                    "\"source\" INT NOT NULL, " +
+                    "player_id INT NULL, " +
+                    "extra_data TEXT NULL, " +
+                    "rolled_back BOOLEAN NOT NULL, " +
+                    "CONSTRAINT fk_actions_action_id__id FOREIGN KEY (action_id) REFERENCES ActionIdentifiers(id) ON DELETE RESTRICT ON UPDATE RESTRICT, " +
+                    "CONSTRAINT fk_actions_world_id__id FOREIGN KEY (world_id) REFERENCES worlds(id) ON DELETE RESTRICT ON UPDATE RESTRICT, " +
+                    "CONSTRAINT fk_actions_object_id__id FOREIGN KEY (object_id) REFERENCES ObjectIdentifiers(id) ON DELETE RESTRICT ON UPDATE RESTRICT, " +
+                    "CONSTRAINT fk_actions_old_object_id__id FOREIGN KEY (old_object_id) REFERENCES ObjectIdentifiers(id) ON DELETE RESTRICT ON UPDATE RESTRICT, " +
+                    "CONSTRAINT fk_actions_source__id FOREIGN KEY (\"source\") REFERENCES sources(id) ON DELETE RESTRICT ON UPDATE RESTRICT, " +
+                    "CONSTRAINT fk_actions_player_id__id FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE RESTRICT ON UPDATE RESTRICT" +
+            ");",
+            "CREATE UNIQUE INDEX players_player_id ON players (player_id);",
+            "CREATE UNIQUE INDEX ActionIdentifiers_action_identifier ON ActionIdentifiers (action_identifier);",
+            "CREATE UNIQUE INDEX worlds_identifier ON worlds (identifier);",
+            "CREATE UNIQUE INDEX ObjectIdentifiers_identifier ON ObjectIdentifiers (identifier);",
+            "CREATE UNIQUE INDEX sources_name ON sources (\"name\");",
+            "CREATE INDEX actions_by_location ON actions (x, y, z, world_id);"
+        )
+
+        Ledger.launch {
+            execute {
+                statements.forEach {
+                    this.connection.prepareStatement(it).execute()
+                }
+            }
+        }
+    }
 
     fun autoPurge() {
         if (config[DatabaseSpec.autoPurgeDays] > 0) {

@@ -77,7 +77,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         this.server = server
         ExtensionManager.serverStarting(server)
         DatabaseManager.setup()
-//        DatabaseManager.ensureTables()
+        ExtensionManager.databaseExtension?.ensureTables(DatabaseManager.database) ?: DatabaseManager.ensureTables()
         DatabaseManager.autoPurge()
         ActionRegistry.registerDefaultTypes()
         initListeners()
