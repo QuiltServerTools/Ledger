@@ -480,16 +480,6 @@ object DatabaseManager {
         return actionTypes
     }
 
-    private fun updateRolledBackTransaction(actions: Query, rolledBack: Boolean) {
-        val ids = actions.map { it[Tables.Actions.id]!! }
-        database.update(Tables.Actions) {
-            set(it.rolledBack, rolledBack)
-            where {
-                Tables.Actions.id inList ids
-            }
-        }
-    }
-
     private fun selectRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
         val actionTypes = mutableListOf<ActionType>()
 
