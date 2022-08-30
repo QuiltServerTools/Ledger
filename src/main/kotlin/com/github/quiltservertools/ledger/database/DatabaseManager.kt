@@ -33,6 +33,7 @@ import org.ktorm.database.Database
 import org.ktorm.dsl.Query
 import org.ktorm.dsl.and
 import org.ktorm.dsl.asc
+import org.ktorm.dsl.batchInsert
 import org.ktorm.dsl.between
 import org.ktorm.dsl.delete
 import org.ktorm.dsl.desc
@@ -58,7 +59,6 @@ import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.schema.Column
 import org.ktorm.schema.ColumnDeclaring
-import org.ktorm.support.sqlite.bulkInsert
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -395,7 +395,7 @@ object DatabaseManager {
                 .filter { identifier -> database.objects.find { it.identifier eq identifier } == null }
         if(filteredIdentifiers.isEmpty()) return
 
-        database.bulkInsert(Tables.ObjectIdentifiers) {
+        database.batchInsert(Tables.ObjectIdentifiers) {
             filteredIdentifiers.map { id ->
                     item {
                         set(it.identifier, id)
@@ -405,7 +405,7 @@ object DatabaseManager {
     }
 
     private fun insertActions(actions: List<ActionType>) {
-        database.bulkInsert(Tables.Actions) {
+        database.batchInsert(Tables.Actions) {
             actions.map { action ->
                 item {
                     set(it.actionIdentifier, selectActionId(action.identifier)!!.id)
