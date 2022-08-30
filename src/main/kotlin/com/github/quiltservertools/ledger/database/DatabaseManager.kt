@@ -352,13 +352,15 @@ object DatabaseManager {
             insertRegKeys(identifiers)
         }
 
-    private suspend fun <T : Any?> execute(body: suspend () -> T): T {
+    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
         suspend fun run(): T {
             while (Ledger.server.overworld?.savingDisabled != false) {
                 delay(timeMillis = 1000)
             }
 
-            return body()
+            return database.useTransaction {
+                body(it)
+            }
         }
 
         return dbMutex?.withLock { run() } ?: run()
