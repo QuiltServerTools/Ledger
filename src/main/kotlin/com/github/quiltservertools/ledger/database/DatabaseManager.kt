@@ -135,7 +135,7 @@ object DatabaseManager {
         return@execute selectActionsSearch(params, page)
     }
 
-    suspend fun countActions(params: ActionSearchParams): Int = execute {
+    suspend fun countActions(params: ActionSearchParams): Long = execute {
         return@execute countActionsTransaction(params)
     }
 
@@ -462,7 +462,7 @@ object DatabaseManager {
         return SearchResults(actionTypes, params, page, totalPages)
     }
 
-    private fun countActionsTransaction(params: ActionSearchParams): Int = buildQuery(params).totalRecords
+    private fun countActionsTransaction(params: ActionSearchParams): Long = buildQuery(params).totalRecords.toLong()
 
     private fun selectActionsPreview(
         params: ActionSearchParams,
