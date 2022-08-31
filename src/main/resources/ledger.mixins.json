@@ -68,6 +68,7 @@
         "entities.ArmorStandMixin",
         "entities.CatEntityMixin",
         "entities.EndCrystalEntityMixin",
+        "entities.EnderDragonEntityMixin",
         "entities.EvokerEntityWololoGoalMixin",
         "entities.FallingBlockEntityMixin",
         "entities.ItemEntityMixin",
