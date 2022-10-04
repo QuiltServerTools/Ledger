@@ -20,7 +20,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -68,8 +67,12 @@ object DatabaseManager {
     init {
         Ledger.launch {
             actions.collect {
-                execute {
-                    insertAction(it)
+                try {
+                    execute {
+                        insertAction(it)
+                    }
+                } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+                    logWarn("Exception occurred while attempting to commit action. Skipping.", e)
                 }
             }
         }
@@ -443,7 +446,7 @@ object DatabaseManager {
 
         val query = buildQuery(params)
             .andWhere { Tables.Actions.rolledBack eq isRestore }
-            .orderBy(Tables.Actions.id, if(isRestore) SortOrder.ASC else SortOrder.DESC )
+            .orderBy(Tables.Actions.id, if (isRestore) SortOrder.ASC else SortOrder.DESC)
 
         val actions = Tables.Action.wrapRows(query).toList()
         actionTypes.addAll(daoToActionType(actions))
