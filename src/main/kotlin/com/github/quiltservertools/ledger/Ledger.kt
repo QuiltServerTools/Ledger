@@ -32,7 +32,7 @@ import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -119,4 +119,5 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 fun logDebug(message: String) = Ledger.logger.debug(message)
 fun logInfo(message: String) = Ledger.logger.info(message)
 fun logWarn(message: String) = Ledger.logger.warn(message)
+fun logWarn(message: String, throwable: Throwable) = Ledger.logger.warn(message, throwable)
 fun logFatal(message: String) = Ledger.logger.warn(message)
