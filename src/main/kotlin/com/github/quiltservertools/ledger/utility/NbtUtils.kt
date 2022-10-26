@@ -2,9 +2,11 @@ package com.github.quiltservertools.ledger.utility
 
 import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.BlockState
+import net.minecraft.command.CommandRegistryWrapper
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.util.Identifier
+import net.minecraft.util.registry.Registry
 
 private const val PROPERTIES = "Properties"
 object NbtUtils {
@@ -19,6 +21,6 @@ object NbtUtils {
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
 
-        return NbtHelper.toBlockState(stateTag)
+        return NbtHelper.toBlockState(CommandRegistryWrapper.of(Registry.BLOCK), stateTag)
     }
 }
