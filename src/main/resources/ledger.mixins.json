@@ -3,7 +3,6 @@
     "package": "com.github.quiltservertools.ledger.mixin",
     "mixins": [
         "AnvilScreenHandlerMixin",
-        "AreaHelperMixin",
         "AxeItemMixin",
         "BlockItemMixin",
         "BlockMixin",
@@ -21,6 +20,7 @@
         "LivingEntityMixin",
         "LockableContainerBlockEntityMixin",
         "MusicDiscItemMixin",
+        "NetherPortalMixin",
         "RavagerEntityMixin",
         "ScreenHandlerMixin",
         "SetBlockCommandMixin",
