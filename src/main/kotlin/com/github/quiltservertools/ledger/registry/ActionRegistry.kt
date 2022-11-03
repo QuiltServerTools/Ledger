@@ -34,7 +34,6 @@ object ActionRegistry {
         registerActionType { ItemPickUpActionType() }
         registerActionType { ItemDropActionType() }
         registerActionType { EntityKillActionType() }
-        registerActionType { BlockPlaceActionType() }
         registerActionType { EntityChangeActionType() }
     }
 
