@@ -14,7 +14,7 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.Registries
 
 open class BlockChangeActionType : AbstractActionType() {
     override val identifier = "block-change"
@@ -90,7 +90,7 @@ open class BlockChangeActionType : AbstractActionType() {
     fun newBlockState() = checkForBlockState(objectIdentifier, blockState)
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
-        val block = Registry.BLOCK.getOrEmpty(identifier)
+        val block = Registries.BLOCK.getOrEmpty(identifier)
         if (block.isEmpty) {
             logWarn("Unknown block $identifier")
             return Blocks.AIR.defaultState

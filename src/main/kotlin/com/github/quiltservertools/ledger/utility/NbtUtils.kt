@@ -5,9 +5,10 @@ import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.Registries
 
 private const val PROPERTIES = "Properties"
+
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
         val stateTag = NbtHelper.fromBlockState(state)
@@ -19,7 +20,6 @@ object NbtUtils {
         val stateTag = NbtCompound()
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
-
-        return NbtHelper.toBlockState(Registry.BLOCK.method_46771(), stateTag)
+        return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, stateTag)
     }
 }

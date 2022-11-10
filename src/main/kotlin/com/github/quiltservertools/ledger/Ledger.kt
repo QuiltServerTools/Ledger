@@ -28,7 +28,7 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
-import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.Registries
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
@@ -83,9 +83,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         Networking
 
         val idSet = setOf<Identifier>()
-            .plus(Registry.BLOCK.ids)
-            .plus(Registry.ITEM.ids)
-            .plus(Registry.ENTITY_TYPE.ids)
+            .plus(Registries.BLOCK.ids)
+            .plus(Registries.ITEM.ids)
+            .plus(Registries.ENTITY_TYPE.ids)
 
         Ledger.launch {
             logInfo("Inserting ${idSet.size} registry keys into the database...")

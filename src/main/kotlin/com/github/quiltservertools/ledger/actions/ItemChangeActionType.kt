@@ -15,11 +15,11 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
+import net.minecraft.util.registry.Registries
 
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
-        val item = Registry.ITEM.get(objectIdentifier)
+        val item = Registries.ITEM.get(objectIdentifier)
         return if (item is BlockItem) {
             "block"
         } else {
