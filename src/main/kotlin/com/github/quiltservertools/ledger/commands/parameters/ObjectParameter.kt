@@ -6,11 +6,11 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.command.CommandSource
 import net.minecraft.command.argument.IdentifierArgumentType
+import net.minecraft.registry.Registries
+import net.minecraft.registry.RegistryKeys
+import net.minecraft.registry.tag.TagKey
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.tag.TagKey
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registries
-import net.minecraft.util.registry.RegistryKeys
 import java.util.concurrent.CompletableFuture
 
 class ObjectParameter : SimpleParameter<List<Identifier>>() {

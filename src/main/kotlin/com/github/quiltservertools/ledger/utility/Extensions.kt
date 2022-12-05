@@ -1,13 +1,13 @@
 package com.github.quiltservertools.ledger.utility
 
+import net.minecraft.registry.RegistryKey
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.RegistryKey
-import net.minecraft.util.registry.RegistryKeys
 
 fun MutableText.appendWithSpace(text: Text) {
     this.append(text)
@@ -21,4 +21,4 @@ fun ServerCommandSource.hasPlayer() = this.entity is ServerPlayerEntity
 
 // fun String.translate(vararg args: Any) = TranslatableText(this, args)
 
-fun MinecraftServer.getWorld(identifier: Identifier?) = getWorld(RegistryKey.of(RegistryKeys.DIMENSION, identifier))
+fun MinecraftServer.getWorld(identifier: Identifier?) = getWorld(RegistryKey.of(RegistryKeys.WORLD, identifier))

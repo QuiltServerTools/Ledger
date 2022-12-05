@@ -8,13 +8,13 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registries
 
 open class BlockChangeActionType : AbstractActionType() {
     override val identifier = "block-change"

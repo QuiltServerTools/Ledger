@@ -16,8 +16,8 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.registry.Registries
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.registry.Registries
 import net.minecraft.world.World
 
 object ActionFactory {

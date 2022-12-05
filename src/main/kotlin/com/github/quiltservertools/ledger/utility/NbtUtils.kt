@@ -4,8 +4,8 @@ import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
+import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registries
 
 private const val PROPERTIES = "Properties"
 

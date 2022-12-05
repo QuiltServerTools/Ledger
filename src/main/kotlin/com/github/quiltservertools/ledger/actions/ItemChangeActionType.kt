@@ -10,12 +10,12 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registries
 
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
