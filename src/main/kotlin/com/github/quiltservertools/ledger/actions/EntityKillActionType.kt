@@ -4,9 +4,9 @@ import com.github.quiltservertools.ledger.utility.getWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.Vec3d
-import net.minecraft.util.registry.Registry
 
 class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
@@ -16,7 +16,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val entityType = Registry.ENTITY_TYPE.getOrEmpty(objectIdentifier)
+        val entityType = Registries.ENTITY_TYPE.getOrEmpty(objectIdentifier)
         if (entityType.isPresent) {
             val entity: LivingEntity = (entityType.get().create(world) as LivingEntity?)!!
             entity.readNbt(StringNbtReader.parse(extraData))

@@ -14,8 +14,8 @@ import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.explosion.Explosion;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +63,7 @@ public abstract class ExplosionMixin {
         var entity = getCausingEntity();
 
         if (entity != null && !(entity instanceof PlayerEntity)) {
-            source = Registry.ENTITY_TYPE.getId(entity.getType()).getPath();
+            source = Registries.ENTITY_TYPE.getId(entity.getType()).getPath();
         } else {
             if (this.entity instanceof EndCrystalEntity endCrystal) {
                 // If the source is an end portal, we obtain the source player

@@ -15,24 +15,19 @@ import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
 import com.github.quiltservertools.ledger.network.Networking
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
-import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
@@ -83,9 +78,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         Networking
 
         val idSet = setOf<Identifier>()
-            .plus(Registry.BLOCK.ids)
-            .plus(Registry.ITEM.ids)
-            .plus(Registry.ENTITY_TYPE.ids)
+            .plus(Registries.BLOCK.ids)
+            .plus(Registries.ITEM.ids)
+            .plus(Registries.ENTITY_TYPE.ids)
 
         Ledger.launch {
             logInfo("Inserting ${idSet.size} registry keys into the database...")

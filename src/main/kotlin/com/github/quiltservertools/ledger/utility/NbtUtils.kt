@@ -4,9 +4,11 @@ import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.BlockState
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
+import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 
 private const val PROPERTIES = "Properties"
+
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
         val stateTag = NbtHelper.fromBlockState(state)
@@ -18,7 +20,6 @@ object NbtUtils {
         val stateTag = NbtCompound()
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
-
-        return NbtHelper.toBlockState(stateTag)
+        return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, stateTag)
     }
 }

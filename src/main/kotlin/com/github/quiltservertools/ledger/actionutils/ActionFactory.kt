@@ -16,8 +16,8 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.registry.Registries
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
 object ActionFactory {
@@ -86,8 +86,8 @@ object ActionFactory {
     ) {
         action.pos = pos
         action.world = world.registryKey.value
-        action.objectIdentifier = Registry.BLOCK.getId(state.block)
-        action.oldObjectIdentifier = Registry.BLOCK.getId(oldState.block)
+        action.objectIdentifier = Registries.BLOCK.getId(state.block)
+        action.oldObjectIdentifier = Registries.BLOCK.getId(oldState.block)
         action.blockState = state
         action.oldBlockState = oldState
         action.sourceName = source
@@ -158,7 +158,7 @@ object ActionFactory {
     ) {
         action.pos = pos
         action.world = world.registryKey.value
-        action.objectIdentifier = Registry.ITEM.getId(stack.item)
+        action.objectIdentifier = Registries.ITEM.getId(stack.item)
         action.sourceName = source
         action.extraData = stack.writeNbt(NbtCompound())?.asString()
     }
@@ -173,7 +173,7 @@ object ActionFactory {
                 action.sourceProfile = killer.gameProfile
             }
             killer != null -> {
-                val source = Registry.ENTITY_TYPE.getId(killer.type).path
+                val source = Registries.ENTITY_TYPE.getId(killer.type).path
                 setEntityData(action, pos, world, entity, source)
             }
             else -> setEntityData(action, pos, world, entity, cause.name)
@@ -191,7 +191,7 @@ object ActionFactory {
     ) {
         action.pos = pos
         action.world = world.registryKey.value
-        action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
         action.extraData = entity.writeNbt(NbtCompound())?.asString()
     }
