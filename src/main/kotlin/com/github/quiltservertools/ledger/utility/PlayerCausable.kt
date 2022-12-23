@@ -2,6 +2,6 @@ package com.github.quiltservertools.ledger.utility
 
 import net.minecraft.entity.player.PlayerEntity
 
-interface EndCrystalDuck {
+interface PlayerCausable {
     val causingPlayer: PlayerEntity?
 }

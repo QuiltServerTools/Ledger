@@ -1,7 +1,7 @@
 package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
-import com.github.quiltservertools.ledger.utility.EndCrystalDuck;
+import com.github.quiltservertools.ledger.utility.PlayerCausable;
 import com.github.quiltservertools.ledger.utility.Sources;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -10,8 +10,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.decoration.EndCrystalEntity;
-import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -59,29 +57,40 @@ public abstract class ExplosionMixin {
 
         if (blockState.isAir()) return;
 
-        String source;
-        var entity = getCausingEntity();
-
-        if (entity != null && !(entity instanceof PlayerEntity)) {
-            source = Registries.ENTITY_TYPE.getId(entity.getType()).getPath();
+        LivingEntity entity;
+        if (this.entity instanceof PlayerCausable playerCausable && playerCausable.getCausingPlayer() != null) {
+            entity = playerCausable.getCausingPlayer();
         } else {
-            if (this.entity instanceof EndCrystalEntity endCrystal) {
-                // If the source is an end portal, we obtain the source player
-                var playerSource = (((EndCrystalDuck) endCrystal).getCausingPlayer());
+            entity = getCausingEntity();
+        }
 
-                if (playerSource != null) {
-                    entity = playerSource;
-                }
-            }
+        String source;
+        if (this.entity != null && !(this.entity instanceof PlayerEntity)) {
+            source = Registries.ENTITY_TYPE.getId(this.entity.getType()).getPath();
+        } else {
             source = Sources.EXPLOSION;
         }
+        
+//        if (entity != null && !(entity instanceof PlayerEntity)) {
+//            source = Registries.ENTITY_TYPE.getId(entity.getType()).getPath();
+//        } else {
+//            if (this.entity instanceof PlayerCausable hasCausingPlayer) {
+//                // If the source is an end portal, we obtain the source player
+//                var playerSource = hasCausingPlayer.getCausingPlayer();
+//
+//                if (playerSource != null) {
+//                    entity = playerSource;
+//                }
+//            }
+//            source = Sources.EXPLOSION;
+//        }
 
-        if (this.entity instanceof CreeperEntity creeper) {
-            var target = creeper.getTarget();
-            if (target instanceof PlayerEntity player) {
-                entity = player;
-            }
-        }
+//        if (this.entity instanceof CreeperEntity creeper) {
+//            var target = creeper.getTarget();
+//            if (target instanceof PlayerEntity player) {
+//                entity = player;
+//            }
+//        }
 
         BlockBreakCallback.EVENT.invoker().breakBlock(
                 world,

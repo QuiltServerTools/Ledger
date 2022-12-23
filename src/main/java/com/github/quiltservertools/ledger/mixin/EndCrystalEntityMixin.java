@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.utility.EndCrystalDuck;
+import com.github.quiltservertools.ledger.utility.PlayerCausable;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EndCrystalEntity.class)
-public abstract class EndCrystalEntityMixin implements EndCrystalDuck {
+public abstract class EndCrystalEntityMixin implements PlayerCausable {
 
     @Unique
     private PlayerEntity causingPlayer;
