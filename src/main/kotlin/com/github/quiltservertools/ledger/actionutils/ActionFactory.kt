@@ -230,11 +230,11 @@ object ActionFactory {
 
         action.pos = pos
         action.world = world.registryKey.value
-        action.objectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
-        action.oldObjectIdentifier = Registry.ENTITY_TYPE.getId(entity.type)
+        action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
+        action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
 
         if (itemStack != null) {
-            action.extraData = Registry.ITEM.getId(itemStack.item).toString()
+            action.extraData = Registries.ITEM.getId(itemStack.item).toString()
         }
         action.oldEntityState = oldEntityTags.asString()
         action.entityState = entity.writeNbt(NbtCompound())?.asString()

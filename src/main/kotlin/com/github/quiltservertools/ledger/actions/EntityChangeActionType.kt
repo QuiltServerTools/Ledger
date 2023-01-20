@@ -13,13 +13,13 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
+import net.minecraft.registry.Registries
 
 class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
 
     override fun getTranslationType(): String {
-        val item = Registry.ITEM.get(Identifier(extraData))
+        val item = Registries.ITEM.get(Identifier(extraData))
         return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {

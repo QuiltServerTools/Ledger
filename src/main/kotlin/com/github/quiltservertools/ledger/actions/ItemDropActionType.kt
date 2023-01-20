@@ -9,7 +9,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
+import net.minecraft.registry.Registries
 
 open class ItemDropActionType : AbstractActionType() {
     override val identifier = "item-drop"
@@ -18,7 +18,7 @@ open class ItemDropActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean = true
 
     override fun getTranslationType(): String {
-        val item = Registry.ITEM.get(objectIdentifier)
+        val item = Registries.ITEM.get(objectIdentifier)
         return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {

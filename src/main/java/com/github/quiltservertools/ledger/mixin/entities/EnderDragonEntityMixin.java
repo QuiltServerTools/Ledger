@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.mixin.entities;
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,6 +17,6 @@ public abstract class EnderDragonEntityMixin {
         EnderDragonEntity entity = (EnderDragonEntity) (Object) this;
         World world = entity.getEntityWorld();
         BlockPos blockPos = args.get(0);
-        BlockBreakCallback.EVENT.invoker().breakBlock(world, blockPos, world.getBlockState(blockPos), world.getBlockEntity(blockPos), Registry.ENTITY_TYPE.getId(entity.getType()).getPath());
+        BlockBreakCallback.EVENT.invoker().breakBlock(world, blockPos, world.getBlockState(blockPos), world.getBlockEntity(blockPos), Registries.ENTITY_TYPE.getId(entity.getType()).getPath());
     }
 }
