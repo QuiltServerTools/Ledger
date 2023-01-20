@@ -2,7 +2,6 @@ package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
-import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
@@ -11,16 +10,16 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
 
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
-        val item = Registry.ITEM.get(objectIdentifier)
+        val item = Registries.ITEM.get(objectIdentifier)
         return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {

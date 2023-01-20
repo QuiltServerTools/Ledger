@@ -8,13 +8,13 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
 
 open class BlockChangeActionType : AbstractActionType() {
     override val identifier = "block-change"
@@ -90,7 +90,7 @@ open class BlockChangeActionType : AbstractActionType() {
     fun newBlockState() = checkForBlockState(objectIdentifier, blockState)
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
-        val block = Registry.BLOCK.getOrEmpty(identifier)
+        val block = Registries.BLOCK.getOrEmpty(identifier)
         if (block.isEmpty) {
             logWarn("Unknown block $identifier")
             return Blocks.AIR.defaultState

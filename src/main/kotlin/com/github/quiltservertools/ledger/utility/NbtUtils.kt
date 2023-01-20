@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 
 const val PROPERTIES = "Properties" // BlockState
@@ -24,8 +25,7 @@ object NbtUtils {
         val stateTag = NbtCompound()
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
-
-        return NbtHelper.toBlockState(stateTag)
+        return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, stateTag)
     }
 
     fun itemToProperties(item: ItemStack): NbtCompound? {
