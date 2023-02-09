@@ -36,7 +36,6 @@
     "blocks.CampfireBlockMixin",
     "blocks.CandleBlockMixin",
     "blocks.DaylightDetectorBlockMixin",
-    "blocks.DirtPathBlockMixin",
     "blocks.FarmlandBlockMixin",
     "blocks.FireBlockMixin",
     "blocks.FlowerPotBlockMixin",
