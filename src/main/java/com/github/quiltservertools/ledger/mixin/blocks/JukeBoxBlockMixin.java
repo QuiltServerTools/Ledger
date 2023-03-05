@@ -26,7 +26,7 @@ public abstract class JukeBoxBlockMixin {
     public static BooleanProperty HAS_RECORD;
 
     @Inject(method = "onUse", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/block/entity/JukeboxBlockEntity;method_49213()V"))
+            target = "Lnet/minecraft/block/entity/JukeboxBlockEntity;dropRecord()V"))
     private void ledgerLogDiscRemoved(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand,
                                       BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
