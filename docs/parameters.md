@@ -2,12 +2,13 @@
 Parameters are used in many commands such as [search](commands/search.md) and [preview](commands/preview.md).
 They allow you to refine your selection, so you only get the actions you want.
 Currently, there are 7 different parameters which can be found below.
+Negative Parameters Example - `action:!entity-kill`
 
 ## Action
 Key - `action:`  
 Value - `Action Identifier`  
 Multiple Allowed - `Yes`  
-Negative allowed - `Yes`    
+Negative Allowed - `Yes`    
 Example - `action:block-break`
 
 This parameter allows you to filter your selection based on the [action type](actions.md).
