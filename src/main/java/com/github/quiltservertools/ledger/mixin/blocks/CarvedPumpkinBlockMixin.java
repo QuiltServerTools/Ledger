@@ -17,6 +17,6 @@ public abstract class CarvedPumpkinBlockMixin {
         if (world.getBlockState(args.get(0)).isAir()) {
             return;
         }
-        BlockBreakCallback.EVENT.invoker().breakBlock(world, args.get(0), world.getBlockState(args.get(0)), world.getBlockEntity(args.get(0)), Sources.GRAVITY);
+        BlockBreakCallback.EVENT.invoker().breakBlock(world, args.get(0), world.getBlockState(args.get(0)), world.getBlockEntity(args.get(0)), Sources.STATUE);
     }
 }
