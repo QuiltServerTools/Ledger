@@ -105,8 +105,8 @@ object SearchParamArgument {
                 "range" -> {
                     val range = value as Int - 1
                     builder.bounds = BlockBox.create(
-                        BlockPos(source.position).subtract(Vec3i(range, range, range)),
-                        BlockPos(source.position).add(Vec3i(range, range, range))
+                        BlockPos.ofFloored(source.position).subtract(Vec3i(range, range, range)),
+                        BlockPos.ofFloored(source.position).add(Vec3i(range, range, range))
                     )
                     val world = Negatable.allow(source.world.registryKey.value)
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
