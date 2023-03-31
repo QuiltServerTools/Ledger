@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ArmorStandEntity.class)
-public abstract class ArmorStandMixin {
+public abstract class ArmorStandEntityMixin {
     @Unique
     private NbtCompound oldEntityTags;
     @Unique

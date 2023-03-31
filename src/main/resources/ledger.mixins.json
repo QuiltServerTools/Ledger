@@ -64,7 +64,7 @@
         "blocks.coral.CoralBlockMixin",
         "blocks.coral.CoralFanBlockMixin",
         "blocks.coral.CoralWallFanBlockMixin",
-        "entities.ArmorStandMixin",
+        "entities.ArmorStandEntityMixin",
         "entities.CatEntityMixin",
         "entities.CreeperEntityMixin",
         "entities.EndCrystalEntityMixin",
