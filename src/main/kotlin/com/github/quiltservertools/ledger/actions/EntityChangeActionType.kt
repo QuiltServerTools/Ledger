@@ -5,6 +5,8 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
+import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.decoration.AbstractDecorationEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
@@ -78,7 +80,10 @@ class EntityChangeActionType : AbstractActionType() {
             if (entity is ItemFrameEntity) {
                 entity.heldItemStack = ItemStack.EMPTY
             }
-            entity.readNbt(oldEntity)
+            when (entity) {
+                is LivingEntity -> entity.readCustomDataFromNbt(oldEntity)
+                is AbstractDecorationEntity -> entity.readCustomDataFromNbt(oldEntity)
+            }
             return true
         }
         return false
@@ -95,7 +100,10 @@ class EntityChangeActionType : AbstractActionType() {
             if (entity is ItemFrameEntity) {
                 entity.heldItemStack = ItemStack.EMPTY
             }
-            entity.readNbt(newEntity)
+            when (entity) {
+                is LivingEntity -> entity.readCustomDataFromNbt(newEntity)
+                is AbstractDecorationEntity -> entity.readCustomDataFromNbt(newEntity)
+            }
             return true
         }
         return false
