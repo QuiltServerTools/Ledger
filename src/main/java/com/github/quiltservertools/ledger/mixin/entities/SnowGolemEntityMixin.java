@@ -15,19 +15,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(SnowGolemEntity.class)
 public abstract class SnowGolemEntityMixin {
     @Unique
     private NbtCompound oldEntityTags;
 
-    @ModifyArgs(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
-    public void logSnowGolemSnow(Args args) {
-        BlockPos blockPos = args.get(0);
-        BlockState blockState = args.get(1);
+    @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    public void logSnowGolemSnow(CallbackInfo ci, BlockState blockState, int i, int j, int k, int l, BlockPos blockPos) {
         BlockPlaceCallback.EVENT.invoker().place(((LivingEntity) (Object) this).world, blockPos, blockState, null, Sources.SNOW_GOLEM);
     }
 

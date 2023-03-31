@@ -4,19 +4,21 @@ import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.CarvedPumpkinBlock;
 import net.minecraft.block.pattern.BlockPattern;
+import net.minecraft.block.pattern.CachedBlockPosition;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(CarvedPumpkinBlock.class)
 public abstract class CarvedPumpkinBlockMixin {
-    @ModifyArgs(method = "breakPatternBlocks", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    private static void logStatueBreak(Args args, World world, BlockPattern.Result patternResult) {
-        if (world.getBlockState(args.get(0)).isAir()) {
+    @Inject(method = "breakPatternBlocks", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    private static void logStatueBreak(World world, BlockPattern.Result patternResult, CallbackInfo ci, int i, int j, CachedBlockPosition cachedBlockPosition) {
+        if (cachedBlockPosition.getBlockState().isAir()) {
             return;
         }
-        BlockBreakCallback.EVENT.invoker().breakBlock(world, args.get(0), world.getBlockState(args.get(0)), world.getBlockEntity(args.get(0)), Sources.STATUE);
+        BlockBreakCallback.EVENT.invoker().breakBlock(world, cachedBlockPosition.getBlockPos(), cachedBlockPosition.getBlockState(), cachedBlockPosition.getBlockEntity(), Sources.STATUE);
     }
 }
