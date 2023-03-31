@@ -5,8 +5,10 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
+import net.minecraft.entity.decoration.ItemFrameEntity
 import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
@@ -73,6 +75,9 @@ class EntityChangeActionType : AbstractActionType() {
         val entity = world?.getEntity(uuid)
 
         if (entity != null) {
+            if (entity is ItemFrameEntity) {
+                entity.heldItemStack = ItemStack.EMPTY
+            }
             entity.readNbt(oldEntity)
             return true
         }
@@ -87,6 +92,9 @@ class EntityChangeActionType : AbstractActionType() {
         val entity = world?.getEntity(uuid)
 
         if (entity != null) {
+            if (entity is ItemFrameEntity) {
+                entity.heldItemStack = ItemStack.EMPTY
+            }
             entity.readNbt(newEntity)
             return true
         }
