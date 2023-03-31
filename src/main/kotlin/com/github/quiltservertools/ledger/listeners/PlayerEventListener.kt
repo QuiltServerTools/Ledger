@@ -16,9 +16,9 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
-import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.util.ActionResult
@@ -118,19 +118,15 @@ private fun onBlockBreak(
 }
 
 private fun onItemPickUp(
-    world: World,
-    pos: BlockPos,
-    stack: ItemStack,
+    entity: ItemEntity,
     player: PlayerEntity
 ) {
-    DatabaseManager.logAction(ActionFactory.itemPickUpAction(world, pos, stack, player))
+    DatabaseManager.logAction(ActionFactory.itemPickUpAction(entity, player))
 }
 
 private fun onItemDrop(
-    world: World,
-    pos: BlockPos,
-    stack: ItemStack,
+    entity: ItemEntity,
     player: PlayerEntity
 ) {
-    DatabaseManager.logAction(ActionFactory.itemDropAction(world, pos, stack, player))
+    DatabaseManager.logAction(ActionFactory.itemDropAction(entity, player))
 }

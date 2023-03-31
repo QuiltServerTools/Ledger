@@ -7,6 +7,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
+import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
@@ -130,26 +131,28 @@ object ActionFactory {
     }
 
     fun itemPickUpAction(
-        world: World,
-        pos: BlockPos,
-        stack: ItemStack,
+        entity: ItemEntity,
         source: PlayerEntity
     ): ItemPickUpActionType {
         val action = ItemPickUpActionType()
-        setItemData(action, pos, world, stack, Sources.PLAYER)
+
+        setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
+
+        action.oldBlockState = entity.writeNbt(NbtCompound())?.asString()
         action.sourceProfile = source.gameProfile
 
         return action
     }
 
     fun itemDropAction(
-        world: World,
-        pos: BlockPos,
-        stack: ItemStack,
+        entity: ItemEntity,
         source: PlayerEntity
     ): ItemDropActionType {
         val action = ItemDropActionType()
-        setItemData(action, pos, world, stack, Sources.PLAYER)
+
+        setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
+
+        action.blockState = entity.writeNbt(NbtCompound())?.asString()
         action.sourceProfile = source.gameProfile
 
         return action
