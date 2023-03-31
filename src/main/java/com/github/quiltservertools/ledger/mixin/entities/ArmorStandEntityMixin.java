@@ -33,7 +33,7 @@ public abstract class ArmorStandEntityMixin {
     }
 
     @Inject(method = "equip", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER))
-    private void ledgerArmorStandInteractInvoker(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir) {
+    private void ledgerArmorStandInteract(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (!oldEntityStack.isEmpty()) {
             EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), oldEntityTags, entity, oldEntityStack, player, Sources.REMOVE);
@@ -44,13 +44,13 @@ public abstract class ArmorStandEntityMixin {
     }
 
     @Inject(method = "updateHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;kill()V"))
-    private void ledgerArmorStandKillInvoker(DamageSource damageSource, float amount, CallbackInfo ci) {
+    private void ledgerArmorStandKill(DamageSource damageSource, float amount, CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, damageSource);
     }
 
     @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;kill()V"))
-    private void ledgerArmorStandKillInvoker(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    private void ledgerArmorStandKill(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, source);
     }
