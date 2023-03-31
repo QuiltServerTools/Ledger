@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChorusPlantBlock.class)
 public abstract class ChorusPlantBlockMixin {
     @Inject(method = "scheduledTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;breakBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
-    public void logCactusBreak(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
+    public void logChorusPlantBreak(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, state, null, Sources.GRAVITY);
     }
 }
