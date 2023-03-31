@@ -76,7 +76,7 @@ public abstract class ItemFrameEntityMixin {
     private void ledgerItemFrameKillInvoker(CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() == Boolean.FALSE) {
             Entity entity = (Entity) (Object) this;
-            EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, DamageSource.magic(entity, entity));
+            EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, entity.getDamageSources().magic());
         }
     }
 }
