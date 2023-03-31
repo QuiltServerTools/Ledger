@@ -83,8 +83,8 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registries.BLOCK.getId(state.block)
         action.oldObjectIdentifier = Registries.BLOCK.getId(oldState.block)
-        action.blockState = state
-        action.oldBlockState = oldState
+        action.blockState = NbtUtils.blockStateToProperties(state)?.asString()
+        action.oldBlockState = NbtUtils.blockStateToProperties(oldState)?.asString()
         action.sourceName = source
         action.extraData = entity?.createNbt()?.asString()
     }
@@ -236,8 +236,8 @@ object ActionFactory {
         if (itemStack != null) {
             action.extraData = Registries.ITEM.getId(itemStack.item).toString()
         }
-        action.oldEntityState = oldEntityTags.asString()
-        action.entityState = entity.writeNbt(NbtCompound())?.asString()
+        action.oldBlockState = oldEntityTags.asString()
+        action.blockState = entity.writeNbt(NbtCompound())?.asString()
         action.sourceName = sourceType
 
         if (entityActor is PlayerEntity) {

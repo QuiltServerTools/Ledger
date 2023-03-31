@@ -68,7 +68,7 @@ class EntityChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = StringNbtReader.parse(oldEntityState)
+        val oldEntity = StringNbtReader.parse(oldBlockState)
         val uuid = oldEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
@@ -82,7 +82,7 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val newEntity = StringNbtReader.parse(entityState)
+        val newEntity = StringNbtReader.parse(blockState)
         val uuid = newEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 

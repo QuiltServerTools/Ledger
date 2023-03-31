@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.logWarn
+import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
@@ -85,9 +86,19 @@ open class BlockChangeActionType : AbstractActionType() {
         return text
     }
 
-    fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldBlockState)
+    fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldBlockState?.let {
+        NbtUtils.blockStateFromProperties(
+            StringNbtReader.parse(it),
+            objectIdentifier
+        )
+    })
 
-    fun newBlockState() = checkForBlockState(objectIdentifier, blockState)
+    fun newBlockState() = checkForBlockState(objectIdentifier, blockState?.let {
+        NbtUtils.blockStateFromProperties(
+            StringNbtReader.parse(it),
+            objectIdentifier
+        )
+    })
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
         val block = Registries.BLOCK.getOrEmpty(identifier)
