@@ -36,7 +36,6 @@
         "blocks.ChorusPlantBlockMixin",
         "blocks.ComparatorBlockMixin",
         "blocks.DaylightDetectorBlockMixin",
-        "blocks.DirtPathBlockMixin",
         "blocks.DoorBlockMixin",
         "blocks.FarmlandBlockMixin",
         "blocks.FenceGateBlockMixin",
