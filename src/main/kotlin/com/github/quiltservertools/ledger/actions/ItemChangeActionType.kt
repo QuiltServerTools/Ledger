@@ -6,11 +6,14 @@ import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
+import net.minecraft.block.LecternBlock
 import net.minecraft.block.entity.ChestBlockEntity
+import net.minecraft.block.entity.LecternBlockEntity
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
@@ -71,13 +74,22 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world != null && inventory != null) {
+        if (world != null) {
             val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
 
-            for (i in 0 until inventory.size()) {
-                val stack = inventory.getStack(i)
-                if (stack.isItemEqual(rollbackStack)) {
-                    inventory.setStack(i, ItemStack.EMPTY)
+            if (inventory != null) {
+                for (i in 0 until inventory.size()) {
+                    val stack = inventory.getStack(i)
+                    if (stack.isItemEqual(rollbackStack)) {
+                        inventory.setStack(i, ItemStack.EMPTY)
+                        return true
+                    }
+                }
+            } else if (rollbackStack.isOf(Items.WRITABLE_BOOK) || rollbackStack.isOf(Items.WRITTEN_BOOK)) {
+                val blockEntity = world.getBlockEntity(pos)
+                if (blockEntity is LecternBlockEntity) {
+                    blockEntity.book = ItemStack.EMPTY
+                    LecternBlock.setHasBook(null, world, pos, blockEntity.cachedState, false)
                     return true
                 }
             }
@@ -90,13 +102,22 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world != null && inventory != null) {
+        if (world != null) {
             val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
 
-            for (i in 0 until inventory.size()) {
-                val stack = inventory.getStack(i)
-                if (stack.isEmpty) {
-                    inventory.setStack(i, rollbackStack)
+            if (inventory != null) {
+                for (i in 0 until inventory.size()) {
+                    val stack = inventory.getStack(i)
+                    if (stack.isEmpty) {
+                        inventory.setStack(i, rollbackStack)
+                        return true
+                    }
+                }
+            } else if (rollbackStack.isOf(Items.WRITABLE_BOOK) || rollbackStack.isOf(Items.WRITTEN_BOOK)) {
+                val blockEntity = world.getBlockEntity(pos)
+                if (blockEntity is LecternBlockEntity && !blockEntity.hasBook()) {
+                    blockEntity.book = rollbackStack
+                    LecternBlock.setHasBook(null, world, pos, blockEntity.cachedState, true)
                     return true
                 }
             }
