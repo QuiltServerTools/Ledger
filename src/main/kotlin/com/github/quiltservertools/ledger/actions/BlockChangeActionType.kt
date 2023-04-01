@@ -89,7 +89,7 @@ open class BlockChangeActionType : AbstractActionType() {
     fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldBlockState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
-            objectIdentifier
+            oldObjectIdentifier
         )
     })
 
