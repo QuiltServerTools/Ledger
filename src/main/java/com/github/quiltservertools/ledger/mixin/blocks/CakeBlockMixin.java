@@ -30,7 +30,7 @@ public abstract class CakeBlockMixin {
     private static void ledgerLogCakeEat(
             WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
-                player.world,
+                player.getWorld(),
                 pos,
                 world.getBlockState(pos),
                 state.with(BITES, state.get(BITES) + 1),
@@ -46,7 +46,7 @@ public abstract class CakeBlockMixin {
     private static void ledgerLogCakeEatAndRemove(
             WorldAccess world, BlockPos pos, BlockState state, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
-                player.world,
+                player.getWorld(),
                 pos,
                 state,
                 world.getBlockState(pos),
@@ -62,7 +62,7 @@ public abstract class CakeBlockMixin {
     private void ledgerLogCakeAddCandle(
             BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
-                player.world,
+                player.getWorld(),
                 pos,
                 state,
                 world.getBlockState(pos),

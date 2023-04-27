@@ -102,9 +102,9 @@ public abstract class SlotMixin implements HandledSlot {
         ItemStack changedStack = oldEmpty ? newStack : stack;
 
         if (oldEmpty) {
-            ItemInsertCallback.EVENT.invoker().insert(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+            ItemInsertCallback.EVENT.invoker().insert(changedStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
         } else {
-            ItemRemoveCallback.EVENT.invoker().remove(changedStack, pos, (ServerWorld) player.world, Sources.PLAYER, (ServerPlayerEntity) player);
+            ItemRemoveCallback.EVENT.invoker().remove(changedStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
         }
     }
 }
