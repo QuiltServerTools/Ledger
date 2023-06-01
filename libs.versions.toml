@@ -1,14 +1,14 @@
 [versions]
-minecraft = "1.20-pre2"
-yarn-mappings = "1.20-pre2+build.1"
-fabric-loader = "0.14.19"
+minecraft = "1.20-rc1"
+yarn-mappings = "1.20-rc1+build.2"
+fabric-loader = "0.14.21"
 
-fabric-api = "0.81.2+1.20"
+fabric-api = "0.83.0+1.20"
 
 # Kotlin
-kotlin = "1.7.10"
+kotlin = "1.9.4"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.8.7+kotlin.1.7.22"
+fabric-kotlin = "1.9.4+kotlin.1.8.21"
 
 fabric-permissions = "0.2-SNAPSHOT"
 translations = "2.0.0-beta.2+1.19.4-pre2"
