@@ -28,11 +28,14 @@ object PurgeCommand : BuildableCommand {
 
     private fun runPurge(ctx: Context, params: ActionSearchParams): Int {
         val source = ctx.source
-        source.sendFeedback(Text.translatable("text.ledger.purge.starting").setStyle(TextColorPallet.secondary), true)
+        source.sendFeedback(
+            { Text.translatable("text.ledger.purge.starting").setStyle(TextColorPallet.secondary) },
+            true
+        )
         Ledger.launch {
             DatabaseManager.purgeActions(params)
             source.sendFeedback(
-                Text.translatable("text.ledger.purge.complete").setStyle(TextColorPallet.secondary),
+                { Text.translatable("text.ledger.purge.complete").setStyle(TextColorPallet.secondary) },
                 true
             )
         }

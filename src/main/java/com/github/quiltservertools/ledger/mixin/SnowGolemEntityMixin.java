@@ -17,6 +17,6 @@ public abstract class SnowGolemEntityMixin {
     public void logSnowGolemSnow(Args args) {
         BlockPos pos = args.get(0);
         BlockState state = args.get(1);
-        BlockPlaceCallback.EVENT.invoker().place(((LivingEntity) (Object) this).world, pos, state, null, Sources.SNOW_GOLEM);
+        BlockPlaceCallback.EVENT.invoker().place(((LivingEntity) (Object) this).getWorld(), pos, state, null, Sources.SNOW_GOLEM);
     }
 }
