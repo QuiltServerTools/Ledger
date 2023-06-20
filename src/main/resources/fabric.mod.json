@@ -20,6 +20,9 @@
             {
                 "value": "com.github.quiltservertools.ledger.Ledger::INSTANCE"
             }
+        ],
+        "preLaunch": [
+            "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
         ]
     },
     "mixins": [
