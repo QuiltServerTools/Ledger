@@ -17,7 +17,7 @@ exposed = "0.38.2"
 sqlite-jdbc = "3.36.0.3"
 
 konf = "1.1.2"
-mixin-extras = "0.1.1"
+mixin-extras = "0.2.0-beta.8"
 
 wdmcf = "1.0.2"
 
