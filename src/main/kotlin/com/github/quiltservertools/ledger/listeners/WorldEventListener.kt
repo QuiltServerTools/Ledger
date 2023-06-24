@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback
 import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
@@ -33,11 +34,11 @@ private fun onItemRemove(
     player: ServerPlayerEntity?
 ) {
     if (player != null) {
-        DatabaseManager.logAction(
+        ActionQueueService.addToQueue(
             ActionFactory.itemRemoveAction(world, stack, pos, player)
         )
     } else {
-        DatabaseManager.logAction(
+        ActionQueueService.addToQueue(
             ActionFactory.itemRemoveAction(world, stack, pos, source)
         )
     }
@@ -51,11 +52,11 @@ private fun onItemInsert(
     player: ServerPlayerEntity?
 ) {
     if (player != null) {
-        DatabaseManager.logAction(
+        ActionQueueService.addToQueue(
             ActionFactory.itemInsertAction(world, stack, pos, player)
         )
     } else {
-        DatabaseManager.logAction(
+        ActionQueueService.addToQueue(
             ActionFactory.itemInsertAction(world, stack, pos, source)
         )
     }

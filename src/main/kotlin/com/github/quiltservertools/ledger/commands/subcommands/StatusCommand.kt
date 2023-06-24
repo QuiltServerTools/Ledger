@@ -4,8 +4,12 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
-import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.utility.*
+import com.github.quiltservertools.ledger.database.ActionQueueService
+import com.github.quiltservertools.ledger.utility.Context
+import com.github.quiltservertools.ledger.utility.LiteralNode
+import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.literal
+import com.github.quiltservertools.ledger.utility.translate
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.loader.api.FabricLoader
@@ -35,11 +39,8 @@ object StatusCommand : BuildableCommand {
                 {
                     Text.translatable(
                         "text.ledger.status.queue",
-                        if (DatabaseManager.dbMutex.isLocked) {
-                            "text.ledger.status.queue.busy".translate().setStyle(TextColorPallet.secondaryVariant)
-                        } else {
-                            "text.ledger.status.queue.empty".translate().setStyle(TextColorPallet.secondaryVariant)
-                        }
+                        ActionQueueService.getQueueSize().toString().literal()
+                            .setStyle(TextColorPallet.secondaryVariant)
                     ).setStyle(TextColorPallet.secondary)
                 },
                 false

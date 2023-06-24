@@ -16,11 +16,7 @@ import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
@@ -33,7 +29,9 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlLogger
 import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
@@ -45,6 +43,8 @@ import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.statements.StatementContext
+import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
@@ -61,22 +61,7 @@ object DatabaseManager {
     private lateinit var database: Database
     val dbMutex = Mutex()
 
-    private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
-    val actions = _actions.asSharedFlow()
-
-    init {
-        Ledger.launch {
-            actions.collect {
-                try {
-                    execute {
-                        insertAction(it)
-                    }
-                } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-                    logWarn("Exception occurred while attempting to commit action. Skipping.", e)
-                }
-            }
-        }
-    }
+    val cache = DatabaseCacheService
 
     fun setValues(file: File, server: MinecraftServer) {
         if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
@@ -92,28 +77,49 @@ object DatabaseManager {
     }
 
     fun ensureTables() = transaction {
+        addLogger(object : SqlLogger {
+            override fun log(context: StatementContext, transaction: Transaction) {
+                Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+            }
+        })
         SchemaUtils.createMissingTablesAndColumns(
             Tables.Players,
             Tables.Actions,
             Tables.ActionIdentifiers,
             Tables.ObjectIdentifiers,
             Tables.Sources,
-            Tables.Worlds
+            Tables.Worlds,
+            withLogs = true
         )
         logInfo("Tables created")
     }
 
-    fun autoPurge() {
+    suspend fun setupCache() {
+        execute {
+            Tables.ActionIdentifier.all().forEach {
+                cache.actionIdentifierKeys.put(it.identifier, it.id.value)
+            }
+            Tables.World.all().forEach {
+                cache.worldIdentifierKeys.put(it.identifier, it.id.value)
+            }
+            Tables.ObjectIdentifier.all().forEach {
+                cache.objectIdentifierKeys.put(it.identifier, it.id.value)
+            }
+            Tables.Source.all().forEach {
+                cache.sourceKeys.put(it.name, it.id.value)
+            }
+        }
+    }
+
+    suspend fun autoPurge() {
         if (config[DatabaseSpec.autoPurgeDays] > 0) {
-            Ledger.launch {
-                execute {
-                    Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
-                    val deleted = Tables.Actions.deleteWhere {
-                        Tables.Actions.timestamp lessEq Instant.now()
-                            .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
-                    }
-                    Ledger.logger.info("Successfully purged $deleted actions")
+            execute {
+                Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
+                val deleted = Tables.Actions.deleteWhere {
+                    Tables.Actions.timestamp lessEq Instant.now()
+                        .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
                 }
+                Ledger.logger.info("Successfully purged $deleted actions")
             }
         }
     }
@@ -310,10 +316,10 @@ object DatabaseManager {
         addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property })
     }
 
-    fun logAction(action: ActionType) {
-        if (action.isBlacklisted()) return
-
-        _actions.tryEmit(action)
+    suspend fun logActionBatch(actions: List<ActionType>) {
+        execute {
+            insertActions(actions)
+        }
     }
 
     suspend fun registerWorld(identifier: Identifier) =
@@ -328,7 +334,7 @@ object DatabaseManager {
 
     suspend fun logPlayer(uuid: UUID, name: String) =
         execute {
-            insertPlayer(uuid, name)
+            insertOrUpdatePlayer(uuid, name)
         }
 
     suspend fun insertIdentifiers(identifiers: Collection<Identifier>) =
@@ -343,6 +349,11 @@ object DatabaseManager {
             }
 
             newSuspendedTransaction(db = database) {
+                addLogger(object : SqlLogger {
+                    override fun log(context: StatementContext, transaction: Transaction) {
+                        Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+                    }
+                })
                 body(this)
             }
         }
@@ -359,10 +370,8 @@ object DatabaseManager {
         }
 
     private fun Transaction.insertActionType(id: String) {
-        if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
-            val actionIdentifier = Tables.ActionIdentifier.new {
-                identifier = id
-            }
+        Tables.ActionIdentifiers.insertIgnore {
+            it[actionIdentifier] = id
         }
     }
 
@@ -378,25 +387,25 @@ object DatabaseManager {
         }
     }
 
-    private fun Transaction.insertAction(action: ActionType) {
-        Tables.Action.new {
-            actionIdentifier = selectActionId(action.identifier)
-            timestamp = action.timestamp
-            x = action.pos.x
-            y = action.pos.y
-            z = action.pos.z
-            objectId = selectRegistryKey(action.objectIdentifier)
-            oldObjectId = selectRegistryKey(action.oldObjectIdentifier)
-            world = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value)
-            blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            sourceName = insertAndSelectSource(action.sourceName)
-            sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
-            extraData = action.extraData
+    private fun Transaction.insertActions(actions: List<ActionType>) {
+        Tables.Actions.batchInsert(actions, shouldReturnGeneratedValues = false) { action ->
+            this[Tables.Actions.actionIdentifier] = getActionId(action.identifier)
+            this[Tables.Actions.timestamp] = action.timestamp
+            this[Tables.Actions.x] = action.pos.x
+            this[Tables.Actions.y] = action.pos.y
+            this[Tables.Actions.z] = action.pos.z
+            this[Tables.Actions.objectId] = getRegistryKeyId(action.objectIdentifier)
+            this[Tables.Actions.oldObjectId] = getRegistryKeyId(action.oldObjectIdentifier)
+            this[Tables.Actions.world] = getWorldId(action.world ?: Ledger.server.overworld.registryKey.value)
+            this[Tables.Actions.blockState] = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            this[Tables.Actions.oldBlockState] = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
+            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { selectPlayerId(it.id) }
+            this[Tables.Actions.extraData] = action.extraData
         }
     }
 
-    private fun Transaction.insertPlayer(uuid: UUID, name: String) {
+    private fun Transaction.insertOrUpdatePlayer(uuid: UUID, name: String) {
         val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
 
         if (player != null) {
@@ -488,36 +497,51 @@ object DatabaseManager {
         return actionTypes
     }
 
-    private fun Transaction.selectPlayer(playerId: UUID) =
-        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
+    private fun Transaction.selectPlayerId(playerId: UUID): Int {
+        cache.playerKeys.getIfPresent(playerId)?.let { return it }
+
+        return Tables.Player.find { Tables.Players.playerId eq playerId }.first().id.value.also { cache.playerKeys.put(playerId, it) }
+    }
 
     private fun Transaction.selectPlayer(playerName: String) =
         Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
 
-    private fun Transaction.insertAndSelectSource(source: String): Tables.Source {
-        var sourceDAO = Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
+    private fun Transaction.getOrCreateSourceId(source: String): Int {
+        cache.sourceKeys.getIfPresent(source)?.let { return it }
 
-        if (sourceDAO == null) {
-            sourceDAO = Tables.Source[Tables.Sources.insertAndGetId {
-                it[name] = source
-            }]
-        }
+        Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()?.let { return it.id.value }
 
-        return sourceDAO
+        return Tables.Source[Tables.Sources.insertAndGetId {
+            it[name] = source
+        }].id.value.also { cache.sourceKeys.put(source, it) }
     }
 
-    private fun Transaction.selectActionId(id: String) =
-        Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.first()
+    private fun Transaction.getActionId(actionTypeId: String): Int {
+        cache.actionIdentifierKeys.getIfPresent(actionTypeId)?.let { return it }
 
-    private fun Transaction.selectRegistryKey(identifier: Identifier) =
-        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
+        return Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq actionTypeId }
+            .first().id.value
+            .also { cache.actionIdentifierKeys.put(actionTypeId, it) }
+    }
 
-    private fun Transaction.selectWorld(identifier: Identifier) =
-        Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
+    private fun Transaction.getRegistryKeyId(identifier: Identifier): Int {
+        cache.objectIdentifierKeys.getIfPresent(identifier)?.let { return it }
+
+        return Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }
+            .limit(1).first().id.value
+            .also { cache.objectIdentifierKeys.put(identifier, it) }
+    }
+
+    private fun Transaction.getWorldId(identifier: Identifier): Int {
+        cache.worldIdentifierKeys.getIfPresent(identifier)?.let { return it }
+
+        return Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first().id.value
+            .also { cache.worldIdentifierKeys.put(identifier, it) }
+    }
 
     private fun Transaction.purgeActions(params: ActionSearchParams) {
         val query = buildQuery(params)
-        val actions = Tables.Action.wrapRows(query).toList()
+        val actions = Tables.Action.wrapRows(query).toList() //TODO delete where
         actions.forEach { action ->
             action.delete()
         }

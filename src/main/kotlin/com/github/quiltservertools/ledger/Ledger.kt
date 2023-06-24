@@ -7,6 +7,7 @@ import com.github.quiltservertools.ledger.api.LedgerApiImpl
 import com.github.quiltservertools.ledger.commands.registerCommands
 import com.github.quiltservertools.ledger.config.CONFIG_PATH
 import com.github.quiltservertools.ledger.config.DatabaseSpec
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.listeners.registerBlockListeners
 import com.github.quiltservertools.ledger.listeners.registerEntityListeners
@@ -15,7 +16,12 @@ import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
 import com.github.quiltservertools.ledger.network.Networking
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -27,11 +33,11 @@ import net.minecraft.util.WorldSavePath
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.nio.file.Files
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
@@ -72,30 +78,37 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         this.server = server
         DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
         DatabaseManager.ensureTables()
-        DatabaseManager.autoPurge()
+
         ActionRegistry.registerDefaultTypes()
         initListeners()
         Networking
 
-        val idSet = setOf<Identifier>()
-            .plus(Registries.BLOCK.ids)
-            .plus(Registries.ITEM.ids)
-            .plus(Registries.ENTITY_TYPE.ids)
-
         Ledger.launch {
+            val idSet = setOf<Identifier>()
+                .plus(Registries.BLOCK.ids)
+                .plus(Registries.ITEM.ids)
+                .plus(Registries.ENTITY_TYPE.ids)
+
             logInfo("Inserting ${idSet.size} registry keys into the database...")
             DatabaseManager.insertIdentifiers(idSet)
             logInfo("Registry insert complete")
+
+            DatabaseManager.setupCache()
+            DatabaseManager.autoPurge()
+        }.invokeOnCompletion {
+            ActionQueueService.start()
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
+            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
+                ActionQueueService.drainAll()
                 while (DatabaseManager.dbMutex.isLocked) {
-                    logInfo("Database queue is still draining. If you exit now actions WILL be lost")
-                    delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
+                    logInfo("Database is still busy. If you exit now data WILL be lost. " +
+                            "Actions in queue: ${ActionQueueService.size}")
+
+                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
                 }
             }
         }
