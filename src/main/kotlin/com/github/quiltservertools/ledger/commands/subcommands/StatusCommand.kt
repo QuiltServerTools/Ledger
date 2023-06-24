@@ -39,7 +39,7 @@ object StatusCommand : BuildableCommand {
                 {
                     Text.translatable(
                         "text.ledger.status.queue",
-                        ActionQueueService.getQueueSize().toString().literal()
+                        ActionQueueService.size.toString().literal()
                             .setStyle(TextColorPallet.secondaryVariant)
                     ).setStyle(TextColorPallet.secondary)
                 },

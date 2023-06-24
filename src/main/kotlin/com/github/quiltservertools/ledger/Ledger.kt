@@ -18,6 +18,7 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -102,14 +103,21 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
-                ActionQueueService.drainAll()
-                while (DatabaseManager.dbMutex.isLocked) {
-                    logInfo("Database is still busy. If you exit now data WILL be lost. " +
-                            "Actions in queue: ${ActionQueueService.size}")
+            try {
+                withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
+                    Ledger.launch(Dispatchers.Default) {
+                        while (DatabaseManager.dbMutex.isLocked || ActionQueueService.size > 0) {
+                            logInfo(
+                                "Database is still busy. If you exit now data WILL be lost. Actions in queue: ${ActionQueueService.size}"
+                            )
 
-                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
+                            delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
+                        }
+                    }
+                    ActionQueueService.drainAll()
                 }
+            } catch (e: TimeoutCancellationException) {
+                logWarn("Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost.")
             }
         }
     }

@@ -9,4 +9,5 @@ object DatabaseSpec : ConfigSpec() {
     val autoPurgeDays by required<Int>()
     val batchSize by optional<Int>(1000)
     val batchDelay by optional<Int>(10)
+    val logSQL by optional<Boolean>(false)
 }
