@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.listeners
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.disableNetworking
 import com.github.quiltservertools.ledger.utility.inspectBlock
@@ -83,7 +84,7 @@ private fun onBlockPlace(
     context: ItemPlacementContext?,
     blockEntity: BlockEntity?
 ) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.blockPlaceAction(
             world,
             pos,
@@ -101,7 +102,7 @@ private fun onBlockBreak(
     state: BlockState,
     blockEntity: BlockEntity?
 ) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.blockBreakAction(
             world,
             pos,
