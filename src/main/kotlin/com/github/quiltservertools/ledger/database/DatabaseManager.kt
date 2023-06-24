@@ -147,43 +147,47 @@ object DatabaseManager {
         return@execute selectActionsPreview(params, type)
     }
 
-    private fun daoToActionType(actions: List<Tables.Action>): List<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+    private fun getActionsFromQuery(query: Query): List<ActionType> {
+        val actions = mutableListOf<ActionType>()
 
-        for (action in actions) {
-            val typeSupplier = ActionRegistry.getType(action.actionIdentifier.identifier)
+        for (action in query) {
+            val typeSupplier = ActionRegistry.getType(action[Tables.ActionIdentifiers.actionIdentifier])
             if (typeSupplier == null) {
-                logWarn("Unknown action type ${action.actionIdentifier.identifier}")
+                logWarn("Unknown action type ${action[Tables.ActionIdentifiers.actionIdentifier]}")
                 continue
             }
 
             val type = typeSupplier.get()
-            type.timestamp = action.timestamp
-            type.pos = BlockPos(action.x, action.y, action.z)
-            type.world = action.world.identifier
-            type.objectIdentifier = action.objectId.identifier
-            type.oldObjectIdentifier = action.oldObjectId.identifier
-            type.blockState = action.blockState?.let {
+            type.timestamp = action[Tables.Actions.timestamp]
+            type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
+            type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
+            type.objectIdentifier = Identifier(action[Tables.ObjectIdentifiers.identifier])
+            type.oldObjectIdentifier = Identifier(
+            action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
+        )
+            type.blockState = action[Tables.Actions.blockState]?.let {
                 NbtUtils.blockStateFromProperties(
                     StringNbtReader.parse(it),
-                    action.objectId.identifier
+                    type.objectIdentifier
                 )
             }
-            type.oldBlockState = action.oldBlockState?.let {
+            type.oldBlockState = action[Tables.Actions.oldBlockState]?.let {
                 NbtUtils.blockStateFromProperties(
                     StringNbtReader.parse(it),
-                    action.oldObjectId.identifier
+                    type.oldObjectIdentifier
                 )
             }
-            type.sourceName = action.sourceName.name
-            type.sourceProfile = action.sourcePlayer?.let { GameProfile(it.playerId, it.playerName) }
-            type.extraData = action.extraData
-            type.rolledBack = action.rolledBack
+            type.sourceName = action[Tables.Sources.name]
+            type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
+                GameProfile(it, action[Tables.Players.playerName])
+            }
+            type.extraData = action[Tables.Actions.extraData]
+            type.rolledBack = action[Tables.Actions.rolledBack]
 
-            actionTypes.add(type)
+            actions.add(type)
         }
 
-        return actionTypes
+        return actions
     }
 
     private fun buildQuery(params: ActionSearchParams): Query {
@@ -203,7 +207,6 @@ object DatabaseManager {
             query.andWhere { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
             query.andWhere { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
         }
-
 
         if (params.before != null && params.after != null) {
             query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
@@ -349,11 +352,13 @@ object DatabaseManager {
             }
 
             newSuspendedTransaction(db = database) {
-                addLogger(object : SqlLogger {
-                    override fun log(context: StatementContext, transaction: Transaction) {
-                        Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
-                    }
-                })
+                if (Ledger.config[DatabaseSpec.logSQL]) {
+                    addLogger(object : SqlLogger {
+                        override fun log(context: StatementContext, transaction: Transaction) {
+                            Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+                        }
+                    })
+                }
                 body(this)
             }
         }
@@ -420,27 +425,25 @@ object DatabaseManager {
     }
 
     private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
-        val actionTypes = mutableListOf<ActionType>()
+        val actions = mutableListOf<ActionType>()
         var totalActions: Long = 0
 
         var query = buildQuery(params)
 
         totalActions = query.copy().count()
-        if (totalActions == 0L) return SearchResults(actionTypes, params, page, 0)
+        if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
         query = query.limit(
             config[SearchSpec.pageSize],
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
-        ).withDistinct()
+        )
 
-        val actions = Tables.Action.wrapRows(query).toList()
-
-        actionTypes.addAll(daoToActionType(actions))
+        actions.addAll(getActionsFromQuery(query))
 
         val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
 
-        return SearchResults(actionTypes, params, page, totalPages)
+        return SearchResults(actions, params, page, totalPages)
     }
 
     private fun Transaction.countActions(params: ActionSearchParams): Long = buildQuery(params).copy().count()
@@ -449,7 +452,7 @@ object DatabaseManager {
         params: ActionSearchParams,
         type: Preview.Type
     ): MutableList<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+        val actions = mutableListOf<ActionType>()
 
         val isRestore = type == Preview.Type.RESTORE
 
@@ -457,10 +460,9 @@ object DatabaseManager {
             .andWhere { Tables.Actions.rolledBack eq isRestore }
             .orderBy(Tables.Actions.id, if (isRestore) SortOrder.ASC else SortOrder.DESC)
 
-        val actions = Tables.Action.wrapRows(query).toList()
-        actionTypes.addAll(daoToActionType(actions))
+        actions.addAll(getActionsFromQuery(query))
 
-        return actionTypes
+        return actions
     }
 
     private fun Transaction.selectRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
@@ -475,7 +477,7 @@ object DatabaseManager {
             action.rolledBack = true
         }
 
-        actionTypes.addAll(daoToActionType(actions))
+        actionTypes.addAll(getActionsFromQuery(query))
 
         return actionTypes
     }
@@ -492,7 +494,7 @@ object DatabaseManager {
             action.rolledBack = false
         }
 
-        actionTypes.addAll(daoToActionType(actions))
+        actionTypes.addAll(getActionsFromQuery(query))
 
         return actionTypes
     }
@@ -500,7 +502,9 @@ object DatabaseManager {
     private fun Transaction.selectPlayerId(playerId: UUID): Int {
         cache.playerKeys.getIfPresent(playerId)?.let { return it }
 
-        return Tables.Player.find { Tables.Players.playerId eq playerId }.first().id.value.also { cache.playerKeys.put(playerId, it) }
+        return Tables.Player.find {
+            Tables.Players.playerId eq playerId
+        }.first().id.value.also { cache.playerKeys.put(playerId, it) }
     }
 
     private fun Transaction.selectPlayer(playerName: String) =
@@ -541,7 +545,7 @@ object DatabaseManager {
 
     private fun Transaction.purgeActions(params: ActionSearchParams) {
         val query = buildQuery(params)
-        val actions = Tables.Action.wrapRows(query).toList() //TODO delete where
+        val actions = Tables.Action.wrapRows(query).toList() // TODO delete where
         actions.forEach { action ->
             action.delete()
         }

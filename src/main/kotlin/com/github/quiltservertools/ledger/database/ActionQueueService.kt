@@ -39,13 +39,13 @@ object ActionQueueService {
         queue.drainTo(batch, Ledger.config[DatabaseSpec.batchSize])
 
         DatabaseManager.logActionBatch(batch)
-        prepareNextBatch()
     }
 
     private suspend fun prepareNextBatch() {
         job = Ledger.launch {
             delay(Ledger.config[DatabaseSpec.batchDelay].ticks)
             drainBatch()
+            prepareNextBatch()
         }
     }
 }
