@@ -1,10 +1,10 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
 import com.github.quiltservertools.ledger.Ledger
-import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.database.ActionQueueService
+import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.TextColorPallet
@@ -55,16 +55,11 @@ object StatusCommand : BuildableCommand {
                 },
                 false
             )
-            val dbType = if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
-                ExtensionManager.getDatabaseExtensionOptional().get().getIdentifier()
-            } else {
-                Ledger.identifier(Ledger.DEFAULT_DATABASE)
-            }
             source.sendFeedback(
                 {
                     Text.translatable(
                         "text.ledger.status.db_type",
-                        dbType.path.literal()
+                        DatabaseManager.databaseType.literal()
                             .setStyle(TextColorPallet.secondaryVariant)
                     ).setStyle(TextColorPallet.secondary)
                 },

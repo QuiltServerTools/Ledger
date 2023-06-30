@@ -5,7 +5,6 @@ import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
-import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
@@ -16,12 +15,12 @@ import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
+import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
@@ -47,33 +46,37 @@ import org.jetbrains.exposed.sql.statements.StatementContext
 import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import javax.sql.DataSource
+import kotlin.io.path.pathString
 import kotlin.math.ceil
 
 object DatabaseManager {
 
     // These values are initialised late to allow the database to be created at server start,
     // which means the database file is located in the world folder and allows for per-world databases.
-    private lateinit var databaseFile: File
     private lateinit var database: Database
-    val dbMutex = Mutex()
+    val databaseType: String
+        get() = database.dialect.name
 
-    val cache = DatabaseCacheService
+    private val cache = DatabaseCacheService
 
-    fun setValues(file: File, server: MinecraftServer) {
-        if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
-            // Extension present, load database from it
-            database = ExtensionManager.getDatabaseExtensionOptional().get().getDatabase(server)
-        } else {
-            // No database extension is present, load normally
-            databaseFile = file
-            database = Database.connect(
-                url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
-            )
+    fun setup(dataSource: DataSource?) {
+        val source = dataSource ?: getDefaultDatasource()
+        database = Database.connect(source)
+    }
+
+    private fun getDefaultDatasource(): DataSource {
+        val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
+        val config = HikariConfig().apply {
+            jdbcUrl = "jdbc:sqlite:$dbFilepath"
+            maximumPoolSize = 1
+            healthCheckRegistry
+            validate()
         }
+        return HikariDataSource(config)
     }
 
     fun ensureTables() = transaction {
@@ -345,23 +348,22 @@ object DatabaseManager {
             insertRegKeys(identifiers)
         }
 
-    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
-        dbMutex.withLock {
-            while (Ledger.server.overworld?.savingDisabled != false) {
-                delay(timeMillis = 1000)
-            }
-
-            newSuspendedTransaction(db = database) {
-                if (Ledger.config[DatabaseSpec.logSQL]) {
-                    addLogger(object : SqlLogger {
-                        override fun log(context: StatementContext, transaction: Transaction) {
-                            Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
-                        }
-                    })
-                }
-                body(this)
-            }
+    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
+        while (Ledger.server.overworld?.savingDisabled != false) {
+            delay(timeMillis = 1000)
         }
+
+        return newSuspendedTransaction(db = database) {
+            if (Ledger.config[DatabaseSpec.logSQL]) {
+                addLogger(object : SqlLogger {
+                    override fun log(context: StatementContext, transaction: Transaction) {
+                        Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+                    }
+                })
+            }
+            body(this)
+        }
+    }
 
     suspend fun purgeActions(params: ActionSearchParams) {
         execute {
@@ -437,7 +439,7 @@ object DatabaseManager {
         query = query.limit(
             config[SearchSpec.pageSize],
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
-        )
+        ) // TODO better pagination without offset
 
         actions.addAll(getActionsFromQuery(query))
 
@@ -515,9 +517,11 @@ object DatabaseManager {
 
         Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()?.let { return it.id.value }
 
-        return Tables.Source[Tables.Sources.insertAndGetId {
+        return Tables.Source[
+            Tables.Sources.insertAndGetId {
             it[name] = source
-        }].id.value.also { cache.sourceKeys.put(source, it) }
+        }
+        ].id.value.also { cache.sourceKeys.put(source, it) }
     }
 
     private fun Transaction.getActionId(actionTypeId: String): Int {
