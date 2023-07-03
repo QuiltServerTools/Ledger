@@ -20,6 +20,6 @@ public class LecternScreenHandlerMixin {
     public void logPickBook(PlayerEntity player, int id, CallbackInfoReturnable<Boolean> cir, ItemStack itemStack) {
         ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
         BlockEntity blockEntity = PlayerLecternHook.getActiveHandlers().get(player);
-        ItemRemoveCallback.EVENT.invoker().remove(itemStack, blockEntity.getPos(), serverPlayer.getWorld(), Sources.PLAYER, serverPlayer);
+        ItemRemoveCallback.EVENT.invoker().remove(itemStack, blockEntity.getPos(), serverPlayer.getServerWorld(), Sources.PLAYER, serverPlayer);
     }
 }

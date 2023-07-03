@@ -29,7 +29,7 @@ public abstract class EvokerEntityWololoGoalMixin {
     @Inject(method = "castSpell", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SheepEntity;setColor(Lnet/minecraft/util/DyeColor;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void ledgerEvokerDyeSheep(CallbackInfo ci, SheepEntity sheepEntity) {
         if (oldEntityTags != null) {
-            EntityModifyCallback.EVENT.invoker().modify(sheepEntity.world, sheepEntity.getBlockPos(), oldEntityTags, sheepEntity, Items.RED_DYE.getDefaultStack(), null, Sources.DYE);
+            EntityModifyCallback.EVENT.invoker().modify(sheepEntity.getWorld(), sheepEntity.getBlockPos(), oldEntityTags, sheepEntity, Items.RED_DYE.getDefaultStack(), null, Sources.DYE);
         }
     }
 }

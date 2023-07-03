@@ -26,7 +26,7 @@ public abstract class SnowGolemEntityMixin {
 
     @Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     public void logSnowGolemSnow(CallbackInfo ci, BlockState blockState, int i, int j, int k, int l, BlockPos blockPos) {
-        BlockPlaceCallback.EVENT.invoker().place(((LivingEntity) (Object) this).world, blockPos, blockState, null, Sources.SNOW_GOLEM);
+        BlockPlaceCallback.EVENT.invoker().place(((LivingEntity) (Object) this).getWorld(), blockPos, blockState, null, Sources.SNOW_GOLEM);
     }
 
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V"))
@@ -38,6 +38,6 @@ public abstract class SnowGolemEntityMixin {
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/sound/SoundCategory;)V", shift = At.Shift.AFTER))
     private void ledgerSnowGolemPumpkinShear(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.world, entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.SHEAR);
+        EntityModifyCallback.EVENT.invoker().modify(player.getWorld(), entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.SHEAR);
     }
 }

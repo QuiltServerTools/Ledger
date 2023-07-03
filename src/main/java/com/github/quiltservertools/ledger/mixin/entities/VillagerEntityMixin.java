@@ -15,6 +15,6 @@ public abstract class VillagerEntityMixin {
     @Inject(method = "onStruckByLightning", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;spawnEntityAndPassengers(Lnet/minecraft/entity/Entity;)V"))
     private void ledgerVillagerToWitch(ServerWorld world, LightningEntity lightning, CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        EntityKillCallback.EVENT.invoker().kill(entity.world, entity.getBlockPos(), entity, world.getDamageSources().lightningBolt());
+        EntityKillCallback.EVENT.invoker().kill(entity.getWorld(), entity.getBlockPos(), entity, world.getDamageSources().lightningBolt());
     }
 }
