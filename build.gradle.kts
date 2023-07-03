@@ -1,6 +1,3 @@
-import com.matthewprenger.cursegradle.CurseProject
-import com.matthewprenger.cursegradle.CurseRelation
-import com.matthewprenger.cursegradle.Options
 import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
@@ -199,59 +196,6 @@ publishing {
     repositories {
         // mavenLocal()
     }
-}
-
-curseforge {
-    System.getenv("CURSEFORGE_TOKEN")?.let { CURSEFORGE_API ->
-        apiKey = CURSEFORGE_API
-
-        project(closureOf<CurseProject> {
-            id = "491137"
-            releaseType = "release"
-
-            changelogType = "markdown"
-            changelog = System.getenv("CHANGELOG")
-
-            addGameVersion(libs.versions.minecraft.get())
-            addGameVersion("Fabric")
-            addGameVersion("Java 17")
-
-            mainArtifact(tasks["remapJar"])
-
-            relations(closureOf<CurseRelation> {
-                props["dependencies"].toString().split(",").forEach {
-                    requiredDependency(it)
-                }
-            })
-        })
-
-        options(closureOf<Options> {
-            forgeGradleIntegration = false
-        })
-    }
-}
-
-modrinth {
-    projectId.set("ledger")
-    versionType.set("release")
-    versionNumber.set(modVersion)
-    changelog.set(System.getenv("CHANGELOG"))
-
-    gameVersions.add(libs.versions.minecraft.get())
-    loaders.set(listOf("fabric", "quilt"))
-
-    dependencies {
-        props["dependencies"].toString().split(",").forEach {
-            required.project(it)
-        }
-    }
-
-    uploadFile.set(tasks.remapJar.get())
-}
-
-tasks.register("release") {
-    release = true
-    dependsOn("curseforge", "modrinth")
 }
 
 detekt {

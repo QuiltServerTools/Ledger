@@ -6,11 +6,7 @@ import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.MutableText
-import net.minecraft.text.Style
-import net.minecraft.text.Text
+import net.minecraft.text.*
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -36,67 +32,76 @@ object MessageUtils {
             return
         }
 
-        source.sendFeedback(header, false)
+        source.sendFeedback({ header }, false)
 
         results.actions.forEach { actionType ->
-            source.sendFeedback(actionType.getMessage(), false)
+            source.sendFeedback({ actionType.getMessage() }, false)
         }
 
         source.sendFeedback(
-            Text.translatable(
-                "text.ledger.footer.search",
-                Text.translatable("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant).styled {
-                    if (results.page > 1) {
-                        it.withHoverEvent(
-                            HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT,
-                                Text.translatable("text.ledger.footer.page_backward.hover")
-                            )
-                        ).withClickEvent(
-                            ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page - 1}")
-                        )
-                    } else {
-                        Style.EMPTY
-                    }
-                },
-                results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
-                results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
-                Text.translatable("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant).styled {
-                    if (results.page < results.pages) {
-                        it.withHoverEvent(
-                            HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT,
-                                Text.translatable("text.ledger.footer.page_forward.hover")
-                            )
-                        ).withClickEvent(
-                            ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page + 1}")
-                        )
-                    } else {
-                        Style.EMPTY
-                    }
-                }
-            ).setStyle(TextColorPallet.primary),
+            {
+                Text.translatable(
+                    "text.ledger.footer.search",
+                    Text.translatable("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant)
+                        .styled {
+                            if (results.page > 1) {
+                                it.withHoverEvent(
+                                    HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Text.translatable("text.ledger.footer.page_backward.hover")
+                                    )
+                                ).withClickEvent(
+                                    ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page - 1}")
+                                )
+                            } else {
+                                Style.EMPTY
+                            }
+                        },
+                    results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
+                    results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
+                    Text.translatable("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant)
+                        .styled {
+                            if (results.page < results.pages) {
+                                it.withHoverEvent(
+                                    HoverEvent(
+                                        HoverEvent.Action.SHOW_TEXT,
+                                        Text.translatable("text.ledger.footer.page_forward.hover")
+                                    )
+                                ).withClickEvent(
+                                    ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page + 1}")
+                                )
+                            } else {
+                                Style.EMPTY
+                            }
+                        }
+                ).setStyle(TextColorPallet.primary)
+            },
             false
         )
     }
 
     fun sendPlayerMessage(source: ServerCommandSource, results: List<PlayerResult>) {
         if (results.isEmpty()) {
-            source.sendFeedback("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary), false)
+            source.sendFeedback(
+                { "error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary) },
+                false
+            )
             return
         }
-        source.sendFeedback("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary), false)
+        source.sendFeedback({ "text.ledger.header.search".translate().setStyle(TextColorPallet.secondary) }, false)
         results.forEach {
-            source.sendFeedback(it.toText(), false)
+            source.sendFeedback({ it.toText() }, false)
         }
     }
 
     fun warnBusy(source: ServerCommandSource) {
         if (DatabaseManager.dbMutex.isLocked) {
             source.sendFeedback(
-                Text.translatable(
-                    "text.ledger.database.busy"
-                ).setStyle(TextColorPallet.primary),
+                {
+                    Text.translatable(
+                        "text.ledger.database.busy"
+                    ).setStyle(TextColorPallet.primary)
+                },
                 false
             )
         }

@@ -5,34 +5,29 @@ import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SpongeBlock;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SpongeBlock.class)
 public abstract class SpongeBlockMixin {
 
     private BlockState oldBlockState;
 
-    @ModifyArgs(method = "absorbWater", at = @At(value = "INVOKE",
+    @Inject(method = "method_49829", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void logWaterDrainNonSource(Args args, World world, BlockPos actorBlockPos) {
-        BlockPos pos = args.get(0);
+    private static void logWaterDrainNonSource(BlockPos actorBlockPos, World world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         // pos is the blockpos for affected water
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
     }
 
-    @ModifyArgs(method = "absorbWater", at = @At(value = "INVOKE",
+    @Inject(method = "method_49829", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;"))
-    public void logWaterDrainSource(Args args) {
-        ServerWorld world = args.get(0);
-        BlockPos pos = args.get(1);
+    private static void logWaterDrainSource(BlockPos actorBlockPos, World world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
     }
 

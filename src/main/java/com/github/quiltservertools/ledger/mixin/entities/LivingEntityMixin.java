@@ -18,7 +18,7 @@ public abstract class LivingEntityMixin {
         LivingEntity entity = (LivingEntity) (Object) this;
 
         EntityKillCallback.EVENT.invoker().kill(
-                entity.world, entity.getBlockPos(), entity, source
+                entity.getWorld(), entity.getBlockPos(), entity, source
         );
     }
 }
