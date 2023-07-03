@@ -66,6 +66,7 @@
         "blocks.coral.CoralWallFanBlockMixin",
         "blocks.lectern.LecternBlockMixin",
         "blocks.lectern.LecternScreenHandlerMixin",
+        "blocks.lectern.ScreenHandlerMixin",
         "entities.ArmorStandEntityMixin",
         "entities.CatEntityMixin",
         "entities.CreeperEntityMixin",
