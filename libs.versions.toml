@@ -14,8 +14,7 @@ fabric-permissions = "0.2-SNAPSHOT"
 translations = "2.0.0-beta.2+1.19.4-pre2"
 
 exposed = "0.38.2"
-sqlite-jdbc = "3.36.0.3"
-hikari-cp = "5.0.1"
+sqlite-jdbc = "3.42.0.0"
 
 konf = "1.1.2"
 
@@ -37,7 +36,6 @@ exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exp
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
-hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari-cp" }
 
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
