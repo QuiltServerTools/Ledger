@@ -7,6 +7,7 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.QueryBuilder
 import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.javatime.timestamp
 import java.time.Instant
 
@@ -45,6 +46,8 @@ object Tables {
     object ObjectIdentifiers : IntIdTable() {
         val identifier = varchar("identifier", MAX_IDENTIFIER_LENGTH).uniqueIndex()
     }
+
+    public val oldObjectTable = ObjectIdentifiers.alias("oldObjects")
 
     class ObjectIdentifier(id: EntityID<Int>) : IntEntity(id) {
         var identifier by ObjectIdentifiers.identifier.transform({ it.toString() }, { Identifier.tryParse(it)!! })

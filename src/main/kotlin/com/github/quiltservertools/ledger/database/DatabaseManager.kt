@@ -15,8 +15,6 @@ import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.delay
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.util.Identifier
@@ -41,11 +39,15 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
+import org.jetbrains.exposed.sql.orWhere
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.StatementContext
 import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
+import org.sqlite.SQLiteDataSource
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -70,13 +72,9 @@ object DatabaseManager {
 
     private fun getDefaultDatasource(): DataSource {
         val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
-        val config = HikariConfig().apply {
-            jdbcUrl = "jdbc:sqlite:$dbFilepath"
-            maximumPoolSize = 1
-            healthCheckRegistry
-            validate()
+        return SQLiteDataSource().apply {
+            url = "jdbc:sqlite:$dbFilepath"
         }
-        return HikariDataSource(config)
     }
 
     fun ensureTables() = transaction {
@@ -136,11 +134,11 @@ object DatabaseManager {
     }
 
     suspend fun rollbackActions(params: ActionSearchParams): List<ActionType> = execute {
-        return@execute selectRollbackActions(params)
+        return@execute selectAndRollbackActions(params)
     }
 
     suspend fun restoreActions(params: ActionSearchParams): List<ActionType> = execute {
-        return@execute selectRestoreActions(params)
+        return@execute selectAndRestoreActions(params)
     }
 
     suspend fun previewActions(
@@ -193,47 +191,39 @@ object DatabaseManager {
         return actions
     }
 
-    private fun buildQuery(params: ActionSearchParams): Query {
-        val oldObjectTable = Tables.ObjectIdentifiers.alias("oldObjects")
-
-        val query = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(oldObjectTable, { Tables.Actions.oldObjectId }, { oldObjectTable[Tables.ObjectIdentifiers.id] })
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+    private fun buildQueryParams(params: ActionSearchParams): Op<Boolean> {
+        var op: Op<Boolean> = Op.TRUE
 
         if (params.bounds != null) {
-            query.andWhere { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
-            query.andWhere { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
-            query.andWhere { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
+            op = op.and { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
+            op = op.and { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
+            op = op.and { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
         }
 
         if (params.before != null && params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
-                .andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+            op = op.and {
+                Tables.Actions.timestamp.greaterEq(params.after) and Tables.Actions.timestamp.lessEq(params.before)
+            }
         } else if (params.before != null) {
-            query.andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+            op = op.and { Tables.Actions.timestamp.lessEq(params.before) }
         } else if (params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
+            op = op.and { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
-        addParameters(
-            query,
+        op = addParameters(
+            op,
             params.sourceNames,
             Tables.Sources.name
         )
 
-        addParameters(
-            query,
+        op = addParameters(
+            op,
             params.actions,
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-        addParameters(
-            query,
+        op = addParameters(
+            op,
             params.worlds?.map {
                 if (it.allowed) {
                     Negatable.allow(it.property.toString())
@@ -244,8 +234,8 @@ object DatabaseManager {
             Tables.Worlds.identifier
         )
 
-        addParameters(
-            query,
+        op = addParameters(
+            op,
             params.objects?.map {
                 if (it.allowed) {
                     Negatable.allow(it.property.toString())
@@ -254,28 +244,29 @@ object DatabaseManager {
                 }
             },
             Tables.ObjectIdentifiers.identifier,
-            oldObjectTable[Tables.ObjectIdentifiers.identifier]
+            Tables.oldObjectTable[Tables.ObjectIdentifiers.identifier]
         )
 
-        addParameters(
-            query,
+        op = addParameters(
+            op,
             params.sourcePlayerNames,
             Tables.Players.playerName
         )
 
-        return query
+        return op
     }
 
     private fun <E> addParameters(
-        query: Query,
+        op: Op<Boolean>,
         paramSet: Collection<Negatable<E>>?,
         column: Column<E>,
         orColumn: Column<E>? = null
-    ) {
+    ): Op<Boolean> {
         fun addAllowedParameters(
             allowed: Collection<E>,
-        ) {
-            if (allowed.isEmpty()) return
+            op: Op<Boolean>
+        ): Op<Boolean> {
+            if (allowed.isEmpty()) return op
 
             var operator = if (orColumn != null) {
                 Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
@@ -291,13 +282,14 @@ object DatabaseManager {
                 }
             }
 
-            query.andWhere { operator }
+            return op.and { operator }
         }
 
         fun addDeniedParameters(
-            denied: Collection<E>
-        ) {
-            if (denied.isEmpty()) return
+            denied: Collection<E>,
+            op: Op<Boolean>
+        ): Op<Boolean> {
+            if (denied.isEmpty()) return op
 
             var operator = if (orColumn != null) {
                 Op.build { column neq denied.first() and (orColumn neq denied.first()) }
@@ -313,13 +305,16 @@ object DatabaseManager {
                 }
             }
 
-            query.andWhere { operator }
+            return op.and { operator }
         }
 
-        if (paramSet.isNullOrEmpty()) return
+        if (paramSet.isNullOrEmpty()) return op
 
-        addAllowedParameters(paramSet.filter { it.allowed }.map { it.property })
-        addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property })
+        var newOp = op
+        newOp = addAllowedParameters(paramSet.filter { it.allowed }.map { it.property }, newOp)
+        newOp = addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property }, newOp)
+
+        return newOp
     }
 
     suspend fun logActionBatch(actions: List<ActionType>) {
@@ -428,9 +423,17 @@ object DatabaseManager {
 
     private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
         val actions = mutableListOf<ActionType>()
-        var totalActions: Long = 0
+        var totalActions: Long
 
-        var query = buildQuery(params)
+        var query = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) }
 
         totalActions = query.copy().count()
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
@@ -439,7 +442,7 @@ object DatabaseManager {
         query = query.limit(
             config[SearchSpec.pageSize],
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
-        ) // TODO better pagination without offset
+        ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
 
         actions.addAll(getActionsFromQuery(query))
 
@@ -448,7 +451,19 @@ object DatabaseManager {
         return SearchResults(actions, params, page, totalPages)
     }
 
-    private fun Transaction.countActions(params: ActionSearchParams): Long = buildQuery(params).copy().count()
+    private fun Transaction.countActions(params: ActionSearchParams): Long = Tables.Actions
+        .innerJoin(Tables.ActionIdentifiers)
+        .innerJoin(Tables.Worlds)
+        .leftJoin(Tables.Players)
+        .innerJoin(
+            Tables.oldObjectTable,
+            { Tables.Actions.oldObjectId },
+            { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+        .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+        .innerJoin(Tables.Sources)
+        .selectAll()
+        .andWhere { buildQueryParams(params) }
+        .count()
 
     private fun Transaction.selectActionsPreview(
         params: ActionSearchParams,
@@ -458,47 +473,67 @@ object DatabaseManager {
 
         val isRestore = type == Preview.Type.RESTORE
 
-        val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq isRestore }
+        val selectQuery = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq isRestore) }
             .orderBy(Tables.Actions.id, if (isRestore) SortOrder.ASC else SortOrder.DESC)
-
-        actions.addAll(getActionsFromQuery(query))
+        actions.addAll(getActionsFromQuery(selectQuery))
 
         return actions
     }
 
-    private fun Transaction.selectRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+    private fun Transaction.selectAndRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
+        val actions = mutableListOf<ActionType>()
 
-        val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq false }
+        val selectQuery = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq false) }
             .orderBy(Tables.Actions.id, SortOrder.DESC)
+        val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet() // SQLite doesn't support update where so select by ID. Might not be as efficent
+        actions.addAll(getActionsFromQuery(selectQuery))
 
-        val actions = Tables.Action.wrapRows(query).toList()
-        for (action in actions) {
-            action.rolledBack = true
-        }
+        val updateQuery = Tables.Actions
+            .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq false) }) {
+                it[rolledBack] = true
+            }
 
-        actionTypes.addAll(getActionsFromQuery(query))
-
-        return actionTypes
+        return actions
     }
 
-    private fun Transaction.selectRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+    private fun Transaction.selectAndRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
+        val actions = mutableListOf<ActionType>()
 
-        val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq true }
+        val selectQuery = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq true) }
             .orderBy(Tables.Actions.id, SortOrder.ASC)
+        val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet()
+        actions.addAll(getActionsFromQuery(selectQuery))
 
-        val actions = Tables.Action.wrapRows(query).toList()
-        for (action in actions) {
-            action.rolledBack = false
-        }
+        val updateQuery = Tables.Actions
+            .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq true) }) {
+                it[rolledBack] = false
+            }
 
-        actionTypes.addAll(getActionsFromQuery(query))
-
-        return actionTypes
+        return actions
     }
 
     private fun Transaction.selectPlayerId(playerId: UUID): Int {
@@ -547,19 +582,27 @@ object DatabaseManager {
             .also { cache.worldIdentifierKeys.put(identifier, it) }
     }
 
-    private fun Transaction.purgeActions(params: ActionSearchParams) {
-        val query = buildQuery(params)
-        val actions = Tables.Action.wrapRows(query).toList() // TODO delete where
-        actions.forEach { action ->
-            action.delete()
+    // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
+    private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
+        .deleteWhere {
+            Tables.Actions.id inSubQuery Tables.Actions.joinTheTables().slice(Tables.Actions.id)
+                .select { buildQueryParams(params) }
         }
-    }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
-
-        addParameters(query, players.map { Negatable.allow(it.id) }, Tables.Players.playerId)
+        for (player in players) {
+            query.orWhere { Tables.Players.playerId eq player.id }
+        }
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
+
+    private fun Tables.Actions.joinTheTables() = this
+        .innerJoin(Tables.ActionIdentifiers)
+        .innerJoin(Tables.Worlds)
+        .leftJoin(Tables.Players)
+        .innerJoin(Tables.oldObjectTable, { oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+        .innerJoin(Tables.ObjectIdentifiers, { objectId }, { Tables.ObjectIdentifiers.id })
+        .innerJoin(Tables.Sources)
 }

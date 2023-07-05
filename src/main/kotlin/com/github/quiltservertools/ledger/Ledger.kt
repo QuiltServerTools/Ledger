@@ -117,6 +117,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                         }
                     }
                     ActionQueueService.drainAll()
+                    logInfo("Successfully drained database queue")
                 }
             } catch (e: TimeoutCancellationException) {
                 logWarn("Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost.")
