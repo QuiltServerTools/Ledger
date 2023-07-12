@@ -4,17 +4,17 @@ For a much better guide, visit our [wiki](https://quiltservertools.github.io/Led
 
 ## Ledger
 
-A world change logging tool for fabric
+A world change logging tool for the Fabric modloader.
 
-Ledger can be found on discord at https://discord.gg/GtwDTTr3pe
+Ledger can be found on Discord at https://discord.gg/GtwDTTr3pe
 
 ### Install
 
-Put Ledger in your mods folder along with Fabric API and fabric-language-kotlin. When you launch your server, the config file will be created automatically
+Put Ledger in your mods folder along with Fabric API and fabric-language-kotlin. When you launch your server, the config file will be created automatically.
 
 ### Configuration
 
-Ledger's configuration file is found in `config/ledger.toml`
+Ledger's configuration file is found at `config/ledger.toml`.
 
 #### Message theme
 
@@ -76,16 +76,16 @@ blocks = ["minecraft:air", "minecraft:dirt"]
 
 `/lg page <index>`
 
-When viewing results, you can use this command to quickly skip to a certain page
+When viewing results, you can use this command to quickly skip to a certain page.
 
 ### Permissions
 
-All Ledger commands support the Luckperms API
+All Ledger commands support the LuckPerms API
 
-The permission nodes are `ledger.<command>`
+The permission nodes are formatted as: `ledger.<command>`
 
-All ledger command have fallback on permission level 3 should you not wish to have a permissions mod installed
+All Ledger commands have fallback on permission level 3 should you not wish to have a permissions mod installed.
 
 ### Contribute
 
-Ledger is written in kotlin, and therefore all contributions should be in kotlin where possible. The sole exception to this is mixins, which must be written in java
+Ledger is written in Kotlin, and therefore all contributions should be in Kotlin where possible. The exceptions to this are mixins, which must be written in Java.
