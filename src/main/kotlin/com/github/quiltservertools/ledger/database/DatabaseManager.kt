@@ -16,6 +16,7 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
@@ -64,6 +65,8 @@ object DatabaseManager {
         get() = database.dialect.name
 
     private val cache = DatabaseCacheService
+    private val dbMutex = Mutex()
+    private var enforceMutex = false
 
     fun setup(dataSource: DataSource?) {
         val source = dataSource ?: getDefaultDatasource()
@@ -72,6 +75,7 @@ object DatabaseManager {
 
     private fun getDefaultDatasource(): DataSource {
         val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
+        enforceMutex = true
         return SQLiteDataSource().apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
@@ -344,6 +348,7 @@ object DatabaseManager {
         }
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
+        if (enforceMutex) dbMutex.lock()
         while (Ledger.server.overworld?.savingDisabled != false) {
             delay(timeMillis = 1000)
         }
@@ -357,7 +362,7 @@ object DatabaseManager {
                 })
             }
             body(this)
-        }
+        }.also { if (enforceMutex) dbMutex.unlock() }
     }
 
     suspend fun purgeActions(params: ActionSearchParams) {
