@@ -43,7 +43,9 @@ object ActionQueueService {
 
     private suspend fun prepareNextBatch() {
         job = Ledger.launch {
-            delay(Ledger.config[DatabaseSpec.batchDelay].ticks)
+            if (queue.size < Ledger.config[DatabaseSpec.batchSize]) {
+                delay(Ledger.config[DatabaseSpec.batchDelay].ticks)
+            }
             drainBatch()
             prepareNextBatch()
         }
