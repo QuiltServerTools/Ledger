@@ -6,6 +6,8 @@
         "AxeItemMixin",
         "BlockItemMixin",
         "BlockMixin",
+        "BucketDispenserBehaviorMixin",
+        "BucketItemMixin",
         "CampfireBlockEntityMixin",
         "DoubleInventoryMixin",
         "DyeItemMixin",
