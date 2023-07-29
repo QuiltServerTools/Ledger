@@ -3,6 +3,7 @@ package com.github.quiltservertools.ledger.actions
 import com.github.quiltservertools.ledger.utility.getWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.decoration.AbstractDecorationEntity
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
@@ -18,15 +19,25 @@ class EntityKillActionType : AbstractActionType() {
 
         val entityType = Registries.ENTITY_TYPE.getOrEmpty(objectIdentifier)
         if (entityType.isPresent) {
-            val entity: LivingEntity = (entityType.get().create(world) as LivingEntity?)!!
+            val entity: Entity = entityType.get().create(world)!!
             entity.readNbt(StringNbtReader.parse(extraData))
-            entity.health = entity.defaultMaxHealth.toFloat()
-            entity.velocity = Vec3d.ZERO
-            entity.fireTicks = 0
+            when(entity){
+                is LivingEntity -> {
+                    entity.health = entity.defaultMaxHealth.toFloat()
+                    entity.velocity = Vec3d.ZERO
+                    entity.fireTicks = 0
+                    world?.spawnEntity(entity)
+                    return true
+                }
+                is AbstractDecorationEntity -> {
+                    entity.velocity = Vec3d.ZERO
+                    entity.fireTicks = 0
+                    world?.spawnEntity(entity)
+                    return true
+                }
+            }
 
-            world?.spawnEntity(entity)
-
-            return true
+            return false
         }
 
         return false
