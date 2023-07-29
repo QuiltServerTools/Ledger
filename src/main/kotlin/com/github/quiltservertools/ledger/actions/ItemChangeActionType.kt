@@ -1,7 +1,11 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.getItemFrameObjectMessage
 import com.github.quiltservertools.ledger.utility.getWorld
+import com.github.quiltservertools.ledger.utility.isItemFrame
+import com.github.quiltservertools.ledger.utility.itemFrameAddItem
+import com.github.quiltservertools.ledger.utility.itemFrameRemoveItem
 import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
@@ -28,6 +32,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     override fun getObjectMessage(): Text {
+        if(isItemFrame()) return getItemFrameObjectMessage()
+
         val stack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
 
         return "${stack.count} ".literal().append(
@@ -67,6 +73,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     protected fun removeMatchingItem(server: MinecraftServer): Boolean {
+        if (isItemFrame()) return itemFrameRemoveItem(server)
+
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
@@ -86,6 +94,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     protected fun addItem(server: MinecraftServer): Boolean {
+        if (isItemFrame()) return itemFrameAddItem(server)
+
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
