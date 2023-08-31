@@ -1,0 +1,59 @@
+{
+    "text.ledger.header.search.pos": "--- Suche Einträge bei %s ---",
+    "text.ledger.header.search": "------ Suche Einträge ------",
+    "text.ledger.header.status": "------ Ledger ------",
+    "text.ledger.footer.search": "------- %s [Seite %s von %s] %s -------",
+
+    "text.ledger.footer.page_forward": ">>",
+    "text.ledger.footer.page_forward.hover": "Nächste Seite",
+    "text.ledger.footer.page_backward": "<<",
+    "text.ledger.footer.page_backward.hover": "Vorherige Seite",
+
+    "text.ledger.status.queue": "Datenbank Warteschlange: %s",
+    "text.ledger.status.queue.busy": "Beschäftigt",
+    "text.ledger.status.queue.empty": "Leer",
+    "text.ledger.status.version": "Version: %s",
+    "text.ledger.status.discord": "Discord: %s",
+    "text.ledger.status.discord.join": "Zum Beitreten klicken",
+    "text.ledger.status.db_type": "Datenbank Typ: %s",
+    "text.ledger.status.wiki": "Wiki: %s",
+    "text.ledger.status.wiki.view": "Zum Öffnen klicken",
+
+    "text.ledger.preview.start": "Vorschau startet",
+
+    "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+    "text.ledger.action_message.time_diff": "Vor %s",
+    "text.ledger.action_message.location.hover": "Zum Teleportieren klicken",
+
+    "text.ledger.rollback.start": "Setzt %s Aktionen zurück",
+    "text.ledger.rollback.finish": "Zurücksetzen vollständig",
+    "text.ledger.rollback.fail": "Fehler beim Zurücksetzen von %s x%s",
+
+    "text.ledger.restore.start": "Stellt %s Aktionen wiederher",
+    "text.ledger.restore.finish": "Wiederherstellen vollständig",
+    "text.ledger.restore.fail": "Fehler beim Wiederherstellen von %s x%s",
+
+    "text.ledger.inspect.toggle": "Untersuchungsmodus: %s",
+    "text.ledger.inspect.on": "Aktiviert",
+    "text.ledger.inspect.off": "Deaktiviert",
+
+    "text.ledger.database.busy": "Die Datenbank ist gerade beschäftigt. Das kann einen Moment dauern",
+
+    "error.ledger.no_cached_params": "Keine Suche gefunden. Führe zuerst eine Suche durch",
+    "error.ledger.command.no_results": "Keine Einträge für diese Suche",
+    "error.ledger.no_more_pages": "Keine weiteren Seiten",
+    "error.ledger.unknown_param": "Unbekannte Angaben %s",
+    "error.ledger.no_preview": "Keine laufende Vorschau",
+
+    "text.ledger.action.block-place": "platziert",
+    "text.ledger.action.block-break": "zerstört",
+    "text.ledger.action.item-insert": "hinzugefügt",
+    "text.ledger.action.item-remove": "entfernt",
+    "text.ledger.action.entity-kill": "getötet",
+
+    "text.ledger.network.protocols_mismatched": "Keine passende Protokoll-Version: Client-Mod ist Ledger Protokoll-Version %d und die Client Version ist %d",
+    "text.ledger.network.no_mod_info": "Es konnte keine Modinformation für deine Client-Mod gefunden werden",
+
+    "text.ledger.purge.starting": "------ Startet Säuberung ------",
+    "text.ledger.purge.complete": "------ Säuberung vollständig ------"
+}

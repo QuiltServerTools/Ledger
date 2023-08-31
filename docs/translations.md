@@ -7,6 +7,7 @@ The language used is based on the clients selected language and defaults to `en_
 - `nl_nl`
 - `ru_ru`
 - `zh_cn`
+- `de_de`
 
 ### Contributing
 You can contribute support for a new language or improve an old one by submitting a pull request to the [data/ledger/lang](https://github.com/QuiltServerTools/Ledger/tree/master/src/main/resources/data/ledger/lang) folder.
