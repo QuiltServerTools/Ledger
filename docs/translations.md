@@ -6,7 +6,7 @@ The language used is based on the clients selected language and defaults to `en_
 - `en_us`
 - `nl_nl`
 - `ru_ru`
-- `zn_cn`
+- `zh_cn`
 - `de_de`
 
 ### Contributing

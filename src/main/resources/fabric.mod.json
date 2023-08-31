@@ -20,6 +20,9 @@
             {
                 "value": "com.github.quiltservertools.ledger.Ledger::INSTANCE"
             }
+        ],
+        "preLaunch": [
+            "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
         ]
     },
     "mixins": [
@@ -29,7 +32,7 @@
         "fabricloader": "*",
         "fabric": ">=${fabricApi}",
         "fabric-language-kotlin": ">=${fabricKotlin}",
-        "minecraft": ">=1.19.4"
+        "minecraft": ">=1.20"
     },
     "breaks": {
         "cardboard": "*"

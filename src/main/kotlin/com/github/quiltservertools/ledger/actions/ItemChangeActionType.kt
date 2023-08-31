@@ -75,7 +75,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
             for (i in 0 until inventory.size()) {
                 val stack = inventory.getStack(i)
-                if (stack.isItemEqual(rollbackStack)) {
+                if (ItemStack.areItemsEqual(stack, rollbackStack)) {
                     inventory.setStack(i, ItemStack.EMPTY)
                     return true
                 }
