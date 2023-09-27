@@ -2,6 +2,7 @@
     "required": true,
     "package": "com.github.quiltservertools.ledger.mixin",
     "mixins": [
+        "AbstractDecorationEntityMixin",
         "AnvilScreenHandlerMixin",
         "AxeItemMixin",
         "BlockItemMixin",
@@ -20,6 +21,7 @@
         "FrostWalkerEnchantmentMixin",
         "HoeItemMixin",
         "HoneycombItemMixin",
+        "ItemFrameEntityMixin",
         "ItemScattererMixin",
         "LivingEntityMixin",
         "LockableContainerBlockEntityMixin",
