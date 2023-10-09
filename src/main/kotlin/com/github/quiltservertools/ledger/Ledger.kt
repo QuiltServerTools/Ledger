@@ -30,8 +30,8 @@ import java.nio.file.Files
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
@@ -56,7 +56,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         if (!Files.exists(FabricLoader.getInstance().configDir.resolve(CONFIG_PATH))) {
             logInfo("No config file, Creating")
             Files.copy(
-                FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(CONFIG_PATH),
+                FabricLoader.getInstance().getModContainer(MOD_ID).get().findPath(CONFIG_PATH).get(),
                 FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
             )
         }
@@ -89,13 +89,13 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
+    @Suppress("UNUSED_PARAMETER")
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
+            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
                 while (DatabaseManager.dbMutex.isLocked) {
                     logInfo("Database queue is still draining. If you exit now actions WILL be lost")
-                    delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
+                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
                 }
             }
         }
