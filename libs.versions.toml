@@ -17,7 +17,7 @@ exposed = "0.38.2"
 sqlite-jdbc = "3.36.0.3"
 
 konf = "1.1.2"
-mixin-extras = "0.2.0-beta.8"
+mixin-extras = "0.2.0-rc.5"
 
 wdmcf = "1.0.2"
 
@@ -41,7 +41,7 @@ sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
 
-mixin-extras = { module = "com.github.LlamaLad7:MixinExtras", version.ref = "mixin-extras"}
+mixin-extras = { module = "io.github.llamalad7:mixinextras-fabric", version.ref = "mixin-extras"}
 
 wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
 
