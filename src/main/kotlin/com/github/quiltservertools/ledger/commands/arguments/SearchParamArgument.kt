@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
 import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
 import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
 import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
+import com.github.quiltservertools.ledger.commands.parameters.RollbackStatusParameter
 import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
 import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
 import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
