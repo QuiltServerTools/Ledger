@@ -82,3 +82,12 @@ The `before` parameter selects all results before the point in time that was the
 An easy way to remember the difference between `before:1d` and `after:1d` is to think about it like this.
 If you go back in time 1 day, do you want everything that happened `before` then or `after` then.
 Usually you want `after`.
+
+### Rollback Status
+Key - `rolledBack:`  
+Value - `true` or `false`  
+Negative Allowed - `No`  
+Multiple Allowed - `No`  
+Example - `rolledBack:true`  
+
+This parameter allows you to filter by rollback state. If true, then it will only show results that have already been rolled back. If false, then it will only show results that have not been rolled back.
