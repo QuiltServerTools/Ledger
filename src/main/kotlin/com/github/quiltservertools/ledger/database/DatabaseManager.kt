@@ -208,6 +208,10 @@ object DatabaseManager {
             query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
+        if (params.rolledBack != null) {
+            query.andWhere { Tables.Actions.rolledBack.eq(params.rolledBack) }
+        }
+
         addParameters(
             query,
             params.sourceNames,
