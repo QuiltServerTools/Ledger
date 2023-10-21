@@ -10,10 +10,7 @@ import net.minecraft.server.command.ServerCommandSource
 import java.util.concurrent.CompletableFuture
 
 class RollbackStatusParameter : SimpleParameter<Boolean>() {
-    override fun parse(stringReader: StringReader): Boolean {
-        val res = BoolArgumentType.bool().parse(stringReader)
-        return res
-    }
+    override fun parse(stringReader: StringReader): Boolean = BoolArgumentType.bool().parse(stringReader)
 
     override fun getSuggestions(
         context: CommandContext<ServerCommandSource>?,
