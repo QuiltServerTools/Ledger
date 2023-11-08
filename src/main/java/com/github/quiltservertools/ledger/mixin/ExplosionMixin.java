@@ -1,17 +1,14 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.PlayerCausable;
 import com.github.quiltservertools.ledger.utility.Sources;
-import com.mojang.datafixers.util.Pair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
-import net.minecraft.block.Block;
+import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -41,21 +38,16 @@ public abstract class ExplosionMixin {
 
     @Inject(
             method = "affectWorld",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
-    private void ledgerBlockExplodeCallback(
-            boolean bl,
+    private void ledgerExplosionFireCallback(
+            boolean particles,
             CallbackInfo ci,
-            boolean bl2,
-            ObjectArrayList<Pair<ItemStack, BlockPos>> objectArrayList,
-            boolean bl3,
-            ObjectListIterator<BlockPos> blocks,
-            BlockPos blockPos,
-            BlockState blockState,
-            Block block) {
+            ObjectListIterator<BlockPos> affectedBlocks,
+            BlockPos blockPos) {
 
-        if (blockState.isAir()) return;
+        BlockState blockState = AbstractFireBlock.getState(world, blockPos);
 
         LivingEntity entity;
         if (this.entity instanceof PlayerCausable playerCausable && playerCausable.getCausingPlayer() != null) {
@@ -70,29 +62,8 @@ public abstract class ExplosionMixin {
         } else {
             source = Sources.EXPLOSION;
         }
-        
-//        if (entity != null && !(entity instanceof PlayerEntity)) {
-//            source = Registries.ENTITY_TYPE.getId(entity.getType()).getPath();
-//        } else {
-//            if (this.entity instanceof PlayerCausable hasCausingPlayer) {
-//                // If the source is an end portal, we obtain the source player
-//                var playerSource = hasCausingPlayer.getCausingPlayer();
-//
-//                if (playerSource != null) {
-//                    entity = playerSource;
-//                }
-//            }
-//            source = Sources.EXPLOSION;
-//        }
 
-//        if (this.entity instanceof CreeperEntity creeper) {
-//            var target = creeper.getTarget();
-//            if (target instanceof PlayerEntity player) {
-//                entity = player;
-//            }
-//        }
-
-        BlockBreakCallback.EVENT.invoker().breakBlock(
+        BlockPlaceCallback.EVENT.invoker().place(
                 world,
                 blockPos,
                 blockState,
