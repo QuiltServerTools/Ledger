@@ -3,6 +3,7 @@ package com.github.quiltservertools.ledger.mixin;
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.PlayerCausable;
 import com.github.quiltservertools.ledger.utility.Sources;
+import com.llamalad7.mixinextras.sugar.Local;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
@@ -20,7 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin {
@@ -37,16 +37,14 @@ public abstract class ExplosionMixin {
     private Entity entity;
 
     @Inject(
-            method = "affectWorld",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION
+        method = "affectWorld",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"
+        )
     )
-    private void ledgerExplosionFireCallback(
-            boolean particles,
-            CallbackInfo ci,
-            ObjectListIterator<BlockPos> affectedBlocks,
-            BlockPos blockPos) {
-
+    private void ledgerExplosionFireCallback(boolean particles, CallbackInfo ci,
+                                             @Local ObjectListIterator<BlockPos> affectedBlocks, @Local BlockPos blockPos) {
         BlockState blockState = AbstractFireBlock.getState(world, blockPos);
 
         LivingEntity entity;
@@ -64,12 +62,12 @@ public abstract class ExplosionMixin {
         }
 
         BlockPlaceCallback.EVENT.invoker().place(
-                world,
-                blockPos,
-                blockState,
-                world.getBlockEntity(blockPos) != null ? world.getBlockEntity(blockPos) : null,
-                source,
-                entity instanceof PlayerEntity player ? player : null
+            world,
+            blockPos,
+            blockState,
+            world.getBlockEntity(blockPos) != null ? world.getBlockEntity(blockPos) : null,
+            source,
+            entity instanceof PlayerEntity player ? player : null
         );
     }
 }

@@ -2,7 +2,7 @@ import com.modrinth.minotaur.TaskModrinthUpload
 
 plugins {
     kotlin("jvm") version "1.7.10"
-    id("fabric-loom") version "0.12.+"
+    id("fabric-loom") version "1.4.+"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.19.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
@@ -86,9 +86,6 @@ dependencies {
     shadow(libs.exposed.java.time)
     shadow(libs.sqlite.jdbc)
     
-    // Mixin
-    modImplementationAndInclude(libs.mixin.extras)
-
     // Config
     shadow(libs.konf.core)
     shadow(libs.konf.toml)

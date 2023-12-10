@@ -1,9 +1,9 @@
 [versions]
-minecraft = "23w45a"
-yarn-mappings = "23w45a+build.1"
-fabric-loader = "0.14.24"
+minecraft = "1.20.4"
+yarn-mappings = "1.20.4+build.1"
+fabric-loader = "0.15.1"
 
-fabric-api = "0.90.8+1.20.3"
+fabric-api = "0.91.2+1.20.4"
 
 # Kotlin
 kotlin = "1.9.4"
@@ -11,13 +11,12 @@ kotlin = "1.9.4"
 fabric-kotlin = "1.9.4+kotlin.1.8.21"
 
 fabric-permissions = "0.3-SNAPSHOT"
-translations = "2.1.0+1.20.2-rc2"
+translations = "2.2.0+1.20.3-rc1"
 
 exposed = "0.38.2"
 sqlite-jdbc = "3.36.0.3"
 
 konf = "1.1.2"
-mixin-extras = "0.2.0-beta.8"
 
 wdmcf = "1.0.2"
 
@@ -40,8 +39,6 @@ sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
-
-mixin-extras = { module = "com.github.LlamaLad7:MixinExtras", version.ref = "mixin-extras"}
 
 wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
 

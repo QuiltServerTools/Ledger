@@ -20,16 +20,13 @@
             {
                 "value": "com.github.quiltservertools.ledger.Ledger::INSTANCE"
             }
-        ],
-        "preLaunch": [
-            "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
         ]
     },
     "mixins": [
         "ledger.mixins.json"
     ],
     "depends": {
-        "fabricloader": "*",
+        "fabricloader": ">=0.15.0",
         "fabric": ">=${fabricApi}",
         "fabric-language-kotlin": ">=${fabricKotlin}",
         "minecraft": ">=1.20.2"
