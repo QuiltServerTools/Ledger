@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 public abstract class AbstractBlockMixin {
 
     @Inject(
-            method = "method_55124",
+            method = "onExploded",
             at = @At(
                     value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"
             )

@@ -23,7 +23,7 @@ public abstract class EndCrystalEntityMixin implements PlayerCausable {
         return causingPlayer;
     }
 
-    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;method_55117(Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/World$ExplosionSourceType;)Lnet/minecraft/world/explosion/Explosion;"))
+    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/damage/DamageSource;Lnet/minecraft/world/explosion/ExplosionBehavior;DDDFZLnet/minecraft/world/World$ExplosionSourceType;)Lnet/minecraft/world/explosion/Explosion;"))
     public void correctEndCrystalEntitySource(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (source.getSource() instanceof PlayerEntity player) {
             this.causingPlayer = player;
