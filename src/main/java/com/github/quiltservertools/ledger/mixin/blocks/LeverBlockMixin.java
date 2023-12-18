@@ -5,7 +5,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -23,8 +22,8 @@ public abstract class LeverBlockMixin {
     @Unique
     private PlayerEntity activePlayer;
 
-    @Inject(method = "onUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/LeverBlock;togglePower(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
-    public void storePlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
+    @Inject(method = "method_55766", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/LeverBlock;togglePower(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
+    public void storePlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         activePlayer = player;
     }
 

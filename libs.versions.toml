@@ -1,9 +1,9 @@
 [versions]
-minecraft = "1.20.4"
-yarn-mappings = "1.20.4+build.1"
-fabric-loader = "0.15.1"
+minecraft = "23w51b"
+yarn-mappings = "23w51b+build.1"
+fabric-loader = "0.15.3"
 
-fabric-api = "0.91.2+1.20.4"
+fabric-api = "0.91.3+1.20.4"
 
 # Kotlin
 kotlin = "1.9.4"

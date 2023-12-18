@@ -2,15 +2,16 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.CampfireBlockEntity;
+import net.minecraft.class_9062;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -23,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(CampfireBlock.class)
 public abstract class CampfireBlockMixin {
@@ -32,15 +32,15 @@ public abstract class CampfireBlockMixin {
     @Final
     public static BooleanProperty LIT;
 
-    @Inject(method = "onUse", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/util/Identifier;)V"),
-            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    public void logCampfireAddItem(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir, BlockEntity oldBlockEntity) {
+    @Inject(method = "method_55765", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/util/Identifier;)V")
+    )
+    public void logCampfireAddItem(ItemStack itemStack, BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<class_9062> cir, @Local BlockEntity oldBlockEntity) {
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, world.getBlockState(pos), oldBlockEntity, world.getBlockEntity(pos), Sources.INSERT, player);
     }
 
     @Inject(method = "extinguish", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/WorldAccess;emitGameEvent(Lnet/minecraft/entity/Entity;Lnet/minecraft/world/event/GameEvent;Lnet/minecraft/util/math/BlockPos;)V"))
+            target = "Lnet/minecraft/world/WorldAccess;emitGameEvent(Lnet/minecraft/entity/Entity;Lnet/minecraft/registry/entry/RegistryEntry;Lnet/minecraft/util/math/BlockPos;)V"))
     private static void logCampfireExtinguish(Entity entity, WorldAccess worldAccess, BlockPos pos, BlockState blockState, CallbackInfo ci) {
         if (worldAccess instanceof World world) {
             if (entity instanceof PlayerEntity player) {
