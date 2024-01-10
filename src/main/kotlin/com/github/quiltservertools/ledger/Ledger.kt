@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger
 
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.api.LedgerApi
 import com.github.quiltservertools.ledger.api.LedgerApiImpl
 import com.github.quiltservertools.ledger.commands.registerCommands
@@ -30,9 +31,9 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
-import net.minecraft.util.WorldSavePath
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.jetbrains.exposed.sql.vendors.SQLiteDialect
 import java.nio.file.Files
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -43,7 +44,7 @@ import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-    const val DEFAULT_DATABASE = "sqlite"
+    const val DEFAULT_DATABASE = SQLiteDialect.dialectName
 
     @JvmStatic
     val api: LedgerApi = LedgerApiImpl
@@ -77,7 +78,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     private fun serverStarting(server: MinecraftServer) {
         this.server = server
-        DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
+        ExtensionManager.serverStarting(server)
+        DatabaseManager.setup(ExtensionManager.getDataSource())
         DatabaseManager.ensureTables()
 
         ActionRegistry.registerDefaultTypes()
@@ -106,7 +108,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
             try {
                 withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
                     Ledger.launch(Dispatchers.Default) {
-                        while (DatabaseManager.dbMutex.isLocked || ActionQueueService.size > 0) {
+                        while (ActionQueueService.size > 0) {
                             logInfo(
                                 "Database is still busy. If you exit now data WILL be lost. Actions in queue: ${ActionQueueService.size}"
                             )

@@ -6,12 +6,16 @@ import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.*
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
+import net.minecraft.text.MutableText
+import net.minecraft.text.Style
+import net.minecraft.text.Text
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
+import java.util.TimeZone
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
@@ -95,16 +99,16 @@ object MessageUtils {
     }
 
     fun warnBusy(source: ServerCommandSource) {
-        if (DatabaseManager.dbMutex.isLocked) {
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.database.busy"
-                    ).setStyle(TextColorPallet.primary)
-                },
-                false
-            )
-        }
+//        if (DatabaseManager.dbMutex.isLocked) { //TODO
+//            source.sendFeedback(
+//                {
+//                    Text.translatable(
+//                        "text.ledger.database.busy"
+//                    ).setStyle(TextColorPallet.primary)
+//                },
+//                false
+//            )
+//        }
     }
 
     @OptIn(ExperimentalTime::class)
