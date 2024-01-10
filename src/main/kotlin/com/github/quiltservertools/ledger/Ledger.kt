@@ -44,7 +44,7 @@ import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-    const val DEFAULT_DATABASE = SQLiteDialect.dialectName
+    val DEFAULT_DATABASE = SQLiteDialect.dialectName
 
     @JvmStatic
     val api: LedgerApi = LedgerApiImpl

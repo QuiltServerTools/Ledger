@@ -15,18 +15,25 @@ import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
+import javax.sql.DataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlLogger
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.addLogger
@@ -41,7 +48,6 @@ import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.orWhere
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.StatementContext
 import org.jetbrains.exposed.sql.statements.expandArgs
@@ -49,10 +55,6 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.sqlite.SQLiteDataSource
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.UUID
-import javax.sql.DataSource
 import kotlin.io.path.pathString
 import kotlin.math.ceil
 
@@ -214,63 +216,63 @@ object DatabaseManager {
             op = op.and { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
+        val sourceNames = ArrayList<Negatable<Int>>()
+        params.sourceNames?.forEach {
+            val sourceId = getSourceId(it.property)
+            if (sourceId != null) {
+                sourceNames.add(Negatable(sourceId, it.allowed))
+            } else {
+                // Unknown source name
+                op = Op.FALSE
+            }
+        }
+
         op = addParameters(
             op,
-            params.sourceNames,
-            Tables.Sources.name
+            sourceNames,
+            Tables.Actions.sourceName
         )
 
         op = addParameters(
             op,
-            params.actions,
-            Tables.ActionIdentifiers.actionIdentifier
+            params.actions?.map { Negatable(getActionId(it.property), it.allowed) },
+            Tables.Actions.actionIdentifier
         )
 
         op = addParameters(
             op,
-            params.worlds?.map {
-                if (it.allowed) {
-                    Negatable.allow(it.property.toString())
-                } else {
-                    Negatable.deny(it.property.toString())
-                }
-            },
-            Tables.Worlds.identifier
+            params.worlds?.map { Negatable(getWorldId(it.property), it.allowed) },
+            Tables.Actions.world
         )
 
         op = addParameters(
             op,
-            params.objects?.map {
-                if (it.allowed) {
-                    Negatable.allow(it.property.toString())
-                } else {
-                    Negatable.deny(it.property.toString())
-                }
-            },
-            Tables.ObjectIdentifiers.identifier,
-            Tables.oldObjectTable[Tables.ObjectIdentifiers.identifier]
+            params.objects?.map { Negatable(getRegistryKeyId(it.property), it.allowed) },
+            Tables.Actions.objectId,
+            Tables.Actions.oldObjectId
         )
 
         op = addParameters(
             op,
-            params.sourcePlayerNames,
-            Tables.Players.playerName
+            params.sourcePlayerIds?.map { Negatable(selectPlayerId(it.property), it.allowed) },
+            Tables.Actions.sourcePlayer
         )
 
         return op
     }
 
-    private fun <E> addParameters(
+    private fun <E : Comparable<E>, C : EntityID<E>?> addParameters(
         op: Op<Boolean>,
         paramSet: Collection<Negatable<E>>?,
-        column: Column<E>,
-        orColumn: Column<E>? = null
+        column: Column<C>,
+        orColumn: Column<C>? = null,
     ): Op<Boolean> {
         fun addAllowedParameters(
             allowed: Collection<E>,
             op: Op<Boolean>
         ): Op<Boolean> {
             if (allowed.isEmpty()) return op
+
 
             var operator = if (orColumn != null) {
                 Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
@@ -440,7 +442,7 @@ object DatabaseManager {
             .selectAll()
             .andWhere { buildQueryParams(params) }
 
-        totalActions = query.copy().count()
+        totalActions = countActions(params)
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
@@ -457,15 +459,6 @@ object DatabaseManager {
     }
 
     private fun Transaction.countActions(params: ActionSearchParams): Long = Tables.Actions
-        .innerJoin(Tables.ActionIdentifiers)
-        .innerJoin(Tables.Worlds)
-        .leftJoin(Tables.Players)
-        .innerJoin(
-            Tables.oldObjectTable,
-            { Tables.Actions.oldObjectId },
-            { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
-        .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-        .innerJoin(Tables.Sources)
         .selectAll()
         .andWhere { buildQueryParams(params) }
         .count()
@@ -541,7 +534,7 @@ object DatabaseManager {
         return actions
     }
 
-    private fun Transaction.selectPlayerId(playerId: UUID): Int {
+    private fun selectPlayerId(playerId: UUID): Int {
         cache.playerKeys.getIfPresent(playerId)?.let { return it }
 
         return Tables.Player.find {
@@ -552,19 +545,30 @@ object DatabaseManager {
     private fun Transaction.selectPlayer(playerName: String) =
         Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
 
-    private fun Transaction.getOrCreateSourceId(source: String): Int {
+    fun getKnownSources() =
+        cache.sourceKeys.asMap().keys
+
+    private fun getSourceId(source: String): Int? {
+        cache.sourceKeys.getIfPresent(source)?.let { return it }
+
+        return Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()?.id?.value.also {
+            it?.let { cache.sourceKeys.put(source, it) }
+        }
+    }
+
+    private fun getOrCreateSourceId(source: String): Int {
         cache.sourceKeys.getIfPresent(source)?.let { return it }
 
         Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()?.let { return it.id.value }
 
         return Tables.Source[
             Tables.Sources.insertAndGetId {
-            it[name] = source
-        }
+                it[name] = source
+            }
         ].id.value.also { cache.sourceKeys.put(source, it) }
     }
 
-    private fun Transaction.getActionId(actionTypeId: String): Int {
+    private fun getActionId(actionTypeId: String): Int {
         cache.actionIdentifierKeys.getIfPresent(actionTypeId)?.let { return it }
 
         return Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq actionTypeId }
@@ -572,7 +576,7 @@ object DatabaseManager {
             .also { cache.actionIdentifierKeys.put(actionTypeId, it) }
     }
 
-    private fun Transaction.getRegistryKeyId(identifier: Identifier): Int {
+    private fun getRegistryKeyId(identifier: Identifier): Int {
         cache.objectIdentifierKeys.getIfPresent(identifier)?.let { return it }
 
         return Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }
@@ -580,7 +584,7 @@ object DatabaseManager {
             .also { cache.objectIdentifierKeys.put(identifier, it) }
     }
 
-    private fun Transaction.getWorldId(identifier: Identifier): Int {
+    private fun getWorldId(identifier: Identifier): Int {
         cache.worldIdentifierKeys.getIfPresent(identifier)?.let { return it }
 
         return Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first().id.value
@@ -590,8 +594,8 @@ object DatabaseManager {
     // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
     private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
         .deleteWhere {
-            Tables.Actions.id inSubQuery Tables.Actions.joinTheTables().slice(Tables.Actions.id)
-                .select { buildQueryParams(params) }
+            Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
+                .where(buildQueryParams(params))
         }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
@@ -603,11 +607,4 @@ object DatabaseManager {
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
 
-    private fun Tables.Actions.joinTheTables() = this
-        .innerJoin(Tables.ActionIdentifiers)
-        .innerJoin(Tables.Worlds)
-        .leftJoin(Tables.Players)
-        .innerJoin(Tables.oldObjectTable, { oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
-        .innerJoin(Tables.ObjectIdentifiers, { objectId }, { Tables.ObjectIdentifiers.id })
-        .innerJoin(Tables.Sources)
 }
