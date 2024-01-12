@@ -17,9 +17,6 @@ jobs:
                   java-version: 17
 
             - name: Release versions
-              env:
-                  CURSEFORGE_TOKEN: ${{ secrets.CF_API_TOKEN }}
-                  MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
               run: ./gradlew release
 
             - name: Upload assets to GitHub, Modrinth and CurseForge
@@ -30,7 +27,7 @@ jobs:
                 modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
                 curseforge-id: 491137
-                curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+                curseforge-token: ${{ secrets.CF_API_TOKEN }}
 
                 github-token: ${{ secrets.GITHUB_TOKEN }}
 
