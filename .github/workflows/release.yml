@@ -20,11 +20,20 @@ jobs:
               env:
                   CURSEFORGE_TOKEN: ${{ secrets.CF_API_TOKEN }}
                   MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-                  CHANGELOG: ${{ github.event.body }}
               run: ./gradlew release
 
-            - name: Upload GitHub release
-              uses: AButler/upload-release-assets@v2.0
+            - name: Upload assets to GitHub, Modrinth and CurseForge
+              uses: Kir-Antipov/mc-publish@v3.2
               with:
-                files: 'build/libs/*.jar;!build/libs/*-sources.jar;!build/libs/*-dev-all.jar'
-                repo-token: ${{ secrets.GITHUB_TOKEN }}
+                modrinth-id: LVN9ygNV
+                modrinth-featured: false
+                modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+
+                curseforge-id: 491137
+                curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
+                github-token: ${{ secrets.GITHUB_TOKEN }}
+
+                loaders: |
+                    fabric
+                    quilt
