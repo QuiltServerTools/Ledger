@@ -16,8 +16,8 @@ jobs:
               with:
                   java-version: 17
 
-            - name: Release versions
-              run: ./gradlew release
+            - name: Build release
+              run: ./gradlew build
 
             - name: Upload assets to GitHub, Modrinth and CurseForge
               uses: Kir-Antipov/mc-publish@v3.2
