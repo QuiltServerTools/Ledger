@@ -34,3 +34,7 @@ jobs:
                 loaders: |
                     fabric
                     quilt
+
+                files: |
+                  build/libs/!(*-@(dev-all|sources|javadoc)).jar
+                  build/libs/*-@(dev-all|sources|javadocs).jar
