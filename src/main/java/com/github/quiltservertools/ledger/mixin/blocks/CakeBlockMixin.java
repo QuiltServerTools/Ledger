@@ -4,12 +4,12 @@ import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CakeBlock;
-import net.minecraft.class_9062;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -58,11 +58,11 @@ public abstract class CakeBlockMixin {
                 player);
     }
 
-    @Inject(method = "method_55765", at = @At(value = "INVOKE",
+    @Inject(method = "onUseWithItem", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
             shift = At.Shift.AFTER))
     private void ledgerLogCakeAddCandle(
-            ItemStack itemStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<class_9062> cir) {
+            ItemStack itemStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<ItemActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 player.getWorld(),
                 pos,
