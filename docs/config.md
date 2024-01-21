@@ -24,6 +24,9 @@ Found under `[search]`
 
 `purgePermissionLevel` [Default: 4] controls the permission level required to run the purge command
 
+`timeZone` [Default: "UTC"] sets the timezone to display timestamps in when hovered. 
+This uses the Java TimeZone format. You can provide offsets ("UTC", "UTC+3"), but the "continent/region" format is preferred. A full list can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
 ### Message theme
 
 Found under `[color]`
@@ -64,6 +67,8 @@ queueCheckDelaySec = 10
 pageSize = 8
 # Permission level for purge command
 purgePermissionLevel = 4
+# Time zone to display timestamps in. EX: "UTC", "UTC+1", "America/Los_Angeles"
+timeZone = "UTC"
 
 [color]
 # Colors in hex format
