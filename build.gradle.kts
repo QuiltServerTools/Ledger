@@ -1,17 +1,12 @@
-import com.modrinth.minotaur.TaskModrinthUpload
-
 plugins {
     kotlin("jvm") version "1.7.10"
     id("fabric-loom") version "1.4.+"
     id("maven-publish")
     id("io.gitlab.arturbosch.detekt") version "1.19.0"
     id("com.github.jakemarsden.git-hooks") version "0.0.2"
-    id("com.modrinth.minotaur") version "2.+"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    id("com.matthewprenger.cursegradle") version "1.4.0"
 }
 
-var release = false
 val props = properties
 
 val modId: String by project
@@ -107,6 +102,7 @@ tasks {
                     "name" to modName,
                     "fabricApi" to libs.versions.fabric.api.get(),
                     "fabricKotlin" to libs.versions.fabric.kotlin.get(),
+                    "minecraft" to libs.versions.minecraft.get(),
                 )
             )
         }
@@ -178,10 +174,6 @@ tasks {
             jvmTarget = javaVersion.toString()
         }
     }
-
-    withType<TaskModrinthUpload> {
-        onlyIf { System.getenv().contains("MODRINTH_TOKEN") }
-    }
 }
 
 // configure the maven publication
@@ -211,9 +203,12 @@ gitHooks {
 }
 
 fun getVersionMetadata(): String {
-    if (release) return ""
-
     val buildId = System.getenv("GITHUB_RUN_NUMBER")
+    val workflow = System.getenv("GITHUB_WORKFLOW")
+
+    if (workflow == "Release") {
+        return ""
+    }
 
     // CI builds only
     if (buildId != null) {
@@ -221,5 +216,5 @@ fun getVersionMetadata(): String {
     }
 
     // No tracking information could be found about the build
-    return ""
+    return "+local"
 }
