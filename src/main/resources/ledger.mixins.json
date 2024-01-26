@@ -60,7 +60,10 @@
         "blocks.coral.CoralBlockBlockMixin",
         "blocks.coral.CoralBlockMixin",
         "blocks.coral.CoralFanBlockMixin",
-        "blocks.coral.CoralWallFanBlockMixin"
+        "blocks.coral.CoralWallFanBlockMixin",
+        "preview.LockableContainerBlockEntityMixin",
+        "preview.LootableContainerBlockEntityMixin",
+        "preview.ServerPlayerEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
@@ -27,9 +28,10 @@ open class BlockChangeActionType : AbstractActionType() {
         return true
     }
 
-    override fun previewRollback(player: ServerPlayerEntity) {
-        if (player.world.registryKey == player.world.registryKey) {
+    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
+        if (player.world.registryKey.value == world) {
             player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, oldBlockState()))
+            preview.positions.add(pos)
         }
     }
 
@@ -41,9 +43,10 @@ open class BlockChangeActionType : AbstractActionType() {
         return true
     }
 
-    override fun previewRestore(player: ServerPlayerEntity) {
-        if (player.world.registryKey == player.world.registryKey) {
+    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
+        if (player.world.registryKey.value == world) {
             player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, newBlockState()))
+            preview.positions.add(pos)
         }
     }
 
