@@ -91,7 +91,7 @@ object ActionFactory {
         action.blockState = state
         action.oldBlockState = oldState
         action.sourceName = source
-        action.extraData = entity?.createNbt()?.asString()
+        action.extraData = entity?.createNbt(world.registryManager)?.asString()
     }
 
     fun itemInsertAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemInsertActionType {
