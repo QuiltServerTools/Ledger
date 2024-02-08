@@ -22,12 +22,12 @@ public abstract class BucketDispenserBehaviorMixin extends ItemDispenserBehavior
             method = "dispenseSilently(Lnet/minecraft/util/math/BlockPointer;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;",
+                    target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;",
                     shift = At.Shift.AFTER
             )
     )
     private void logFluidPickup(BlockPointer pointer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @Local ItemStack itemStack, @Local BlockPos pos, @Local BlockState blockState) {
-        var world = pointer.getWorld();
+        var world = pointer.world();
         if (!itemStack.isEmpty()) {
             if (blockState.isLiquid() || blockState.isOf(Blocks.POWDER_SNOW)) {
                 BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, blockState, world.getBlockEntity(pos), Sources.REDSTONE);

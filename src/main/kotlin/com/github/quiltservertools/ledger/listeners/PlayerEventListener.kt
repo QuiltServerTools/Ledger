@@ -76,7 +76,7 @@ private fun onBlockAttack(
 
 private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
     Ledger.launch {
-        DatabaseManager.logPlayer(networkHandler.player.uuid, networkHandler.player.entityName)
+        DatabaseManager.logPlayer(networkHandler.player.uuid, networkHandler.player.nameForScoreboard)
     }
 }
 
