@@ -36,7 +36,8 @@ import net.minecraft.util.WorldSavePath
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
@@ -98,10 +99,10 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     @OptIn(ExperimentalTime::class)
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
+            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
                 while (DatabaseManager.dbMutex.isLocked) {
                     logInfo("Database queue is still draining. If you exit now actions WILL be lost")
-                    delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
+                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
                 }
             }
         }

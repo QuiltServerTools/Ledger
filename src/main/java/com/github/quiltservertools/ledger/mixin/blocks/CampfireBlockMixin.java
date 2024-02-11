@@ -5,7 +5,6 @@ import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CampfireBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.CampfireBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;

@@ -23,6 +23,7 @@
   "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
   "text.ledger.action_message.time_diff": "%s назад",
   "text.ledger.action_message.location.hover": "Нажмите, чтобы телепортироваться",
+  "text.ledger.action_message.with": "с помощью",
 
   "text.ledger.rollback.start": "Откат %s действий(я)",
   "text.ledger.rollback.finish": "Откат завершен",
@@ -48,7 +49,10 @@
   "text.ledger.action.block-break": "сломал",
   "text.ledger.action.item-insert": "добавил",
   "text.ledger.action.item-remove": "удалил",
+  "text.ledger.action.item-pick-up": "подобрал",
+  "text.ledger.action.item-drop": "выкинул",
   "text.ledger.action.entity-kill": "убил",
+  "text.ledger.action.entity-change": "изменил",
 
   "text.ledger.network.protocols_mismatched": "Несоответствие версий протокола: клиентский мод - это версия протокола Ledger %d, а версия клиента - %d"
 }

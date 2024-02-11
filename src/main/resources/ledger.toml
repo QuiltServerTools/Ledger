@@ -11,6 +11,8 @@ autoPurgeDays = -1
 pageSize = 8
 # Permission level for purge command
 purgePermissionLevel = 4
+# Time zone to display timestamps in (UTC, UTC+1, America/Los_Angeles)
+timeZone = "UTC"
 
 [color]
 # Colors in hex format
