@@ -8,11 +8,11 @@ class ItemInsertActionType : ItemChangeActionType() {
     override val identifier: String = "item-insert"
 
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
-        previewItemChange(preview, false)
+        previewItemChange(preview, player, false)
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
-        previewItemChange(preview, true)
+        previewItemChange(preview, player, true)
     }
 
     override fun rollback(server: MinecraftServer) = removeMatchingItem(server)

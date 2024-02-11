@@ -33,7 +33,7 @@ public abstract class ServerPlayerEntityMixin {
                     target = "Lnet/minecraft/network/packet/s2c/play/InventoryS2CPacket;<init>(IILnet/minecraft/util/collection/DefaultedList;Lnet/minecraft/item/ItemStack;)V"
             ), index = 2
     )
-    private DefaultedList<ItemStack> modifyStacks(DefaultedList<ItemStack> stacks, @Local ScreenHandler handler) {
+    private DefaultedList<ItemStack> modifyStacks(DefaultedList<ItemStack> stacks, @Local(argsOnly = true) ScreenHandler handler) {
         BlockPos pos = ((HandlerWithContext) handler).getPos();
         if (pos == null) return stacks;
         Preview preview = Ledger.previewCache.get(field_29182.getUuid());

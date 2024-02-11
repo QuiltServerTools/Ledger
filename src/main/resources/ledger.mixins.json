@@ -67,9 +67,6 @@
         "blocks.coral.CoralBlockMixin",
         "blocks.coral.CoralFanBlockMixin",
         "blocks.coral.CoralWallFanBlockMixin",
-        "preview.LockableContainerBlockEntityMixin",
-        "preview.LootableContainerBlockEntityMixin",
-        "preview.ServerPlayerEntityMixin",
         "blocks.lectern.LecternBlockMixin",
         "blocks.lectern.LecternScreenHandlerMixin",
         "blocks.lectern.ScreenHandlerMixin",
@@ -90,7 +87,11 @@
         "entities.SheepEntityMixin",
         "entities.SnowGolemEntityMixin",
         "entities.VillagerEntityMixin",
-        "entities.WolfEntityMixin"
+        "entities.WolfEntityMixin",
+        "preview.ChestBlockMixin",
+        "preview.LockableContainerBlockEntityMixin",
+        "preview.LootableContainerBlockEntityMixin",
+        "preview.ServerPlayerEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

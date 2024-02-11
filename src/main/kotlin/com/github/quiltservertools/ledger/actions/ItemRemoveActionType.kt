@@ -8,11 +8,11 @@ class ItemRemoveActionType : ItemChangeActionType() {
     override val identifier: String = "item-remove"
 
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
-        previewItemChange(preview, true)
+        previewItemChange(preview, player, true)
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
-        previewItemChange(preview, false)
+        previewItemChange(preview, player, false)
     }
 
     override fun rollback(server: MinecraftServer): Boolean = addItem(server)
