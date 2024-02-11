@@ -40,24 +40,24 @@ class HandshakePacketReceiver : Receiver {
             val modVersion = info.get().version
             val ledgerVersion = FabricLoader.getInstance().getModContainer(
                 Ledger.MOD_ID).get().metadata.version.friendlyString
-            if (Networking.protocolVersion == info.get().protocolVersion) {
+            if (Networking.PROTOCOL_VERSION == info.get().protocolVersion) {
                 logInfo("${player.name.string} joined the server with a Ledger compatible client mod")
                 logInfo("Mod: $modid, Version: $modVersion")
 
                 // Player has networking permissions so we send a response
                 val packet = HandshakePacket()
-                packet.populate(HandshakeContent(Networking.protocolVersion, ledgerVersion, ActionRegistry.getTypes().toList()))
+                packet.populate(HandshakeContent(Networking.PROTOCOL_VERSION, ledgerVersion, ActionRegistry.getTypes().toList()))
                 ServerPlayNetworking.send(player, packet.channel, packet.buf)
                 player.enableNetworking()
             } else {
                 player.sendMessage(
                     Text.translatable(
                         "text.ledger.network.protocols_mismatched",
-                        Networking.protocolVersion, info.get().protocolVersion
+                        Networking.PROTOCOL_VERSION, info.get().protocolVersion
                     ), false
                 )
                 logInfo("${player.name.string} joined the server with a Ledger compatible client mod, " +
-                        "but has a mismatched protocol: Ledger protocol version: ${Networking.protocolVersion}" +
+                        "but has a mismatched protocol: Ledger protocol version: ${Networking.PROTOCOL_VERSION}" +
                         ", Client mod protocol version ${info.get().protocolVersion}")
             }
         } else {
