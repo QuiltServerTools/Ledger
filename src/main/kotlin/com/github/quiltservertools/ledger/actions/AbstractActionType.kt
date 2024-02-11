@@ -5,7 +5,6 @@ import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.authlib.GameProfile
-import net.minecraft.block.BlockState
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.ClickEvent
@@ -25,8 +24,8 @@ abstract class AbstractActionType : ActionType {
     override var world: Identifier? = null
     override var objectIdentifier: Identifier = Identifier("air")
     override var oldObjectIdentifier: Identifier = Identifier("air")
-    override var blockState: BlockState? = null
-    override var oldBlockState: BlockState? = null
+    override var objectState: String? = null
+    override var oldObjectState: String? = null
     override var sourceName: String = Sources.UNKNOWN
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null

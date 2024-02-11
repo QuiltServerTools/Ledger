@@ -112,7 +112,6 @@ object MessageUtils {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     fun instantToText(time: Instant): MutableText {
         val duration = Duration.between(time, Instant.now()).toKotlinDuration()
         val text: MutableText = "".literal()

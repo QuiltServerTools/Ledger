@@ -24,6 +24,7 @@
     "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
     "text.ledger.action_message.time_diff": "%s ago",
     "text.ledger.action_message.location.hover": "Click to teleport",
+    "text.ledger.action_message.with": "with",
 
     "text.ledger.rollback.start": "Rolling back %s actions",
     "text.ledger.rollback.finish": "Rollback complete",
@@ -49,7 +50,10 @@
     "text.ledger.action.block-break": "broke",
     "text.ledger.action.item-insert": "added",
     "text.ledger.action.item-remove": "removed",
+    "text.ledger.action.item-pick-up": "picked up",
+    "text.ledger.action.item-drop": "dropped",
     "text.ledger.action.entity-kill": "killed",
+    "text.ledger.action.entity-change": "changed",
 
     "text.ledger.network.protocols_mismatched": "Protocol versions mismatched: client mod is Ledger protocol version %d and the client version is %d",
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",

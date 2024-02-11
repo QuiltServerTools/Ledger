@@ -12,7 +12,6 @@ import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
-import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
@@ -23,7 +22,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
@@ -50,7 +48,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -157,18 +155,8 @@ object DatabaseManager {
             type.world = action.world.identifier
             type.objectIdentifier = action.objectId.identifier
             type.oldObjectIdentifier = action.oldObjectId.identifier
-            type.blockState = action.blockState?.let {
-                NbtUtils.blockStateFromProperties(
-                    StringNbtReader.parse(it),
-                    action.objectId.identifier
-                )
-            }
-            type.oldBlockState = action.oldBlockState?.let {
-                NbtUtils.blockStateFromProperties(
-                    StringNbtReader.parse(it),
-                    action.oldObjectId.identifier
-                )
-            }
+            type.objectState = action.blockState
+            type.oldObjectState = action.oldBlockState
             type.sourceName = action.sourceName.name
             type.sourceProfile = action.sourcePlayer?.let { GameProfile(it.playerId, it.playerName) }
             type.extraData = action.extraData
@@ -388,8 +376,8 @@ object DatabaseManager {
             objectId = selectRegistryKey(action.objectIdentifier)
             oldObjectId = selectRegistryKey(action.oldObjectIdentifier)
             world = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value)
-            blockState = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            oldBlockState = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            blockState = action.objectState
+            oldBlockState = action.oldObjectState
             sourceName = insertAndSelectSource(action.sourceName)
             sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
             extraData = action.extraData
