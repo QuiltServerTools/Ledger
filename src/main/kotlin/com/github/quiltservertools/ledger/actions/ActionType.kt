@@ -31,6 +31,7 @@ interface ActionType {
     fun previewRollback(player: ServerPlayerEntity)
     fun previewRestore(player: ServerPlayerEntity)
     fun getTranslationType(): String
+
     @ExperimentalTime
     fun getMessage(): Text
 
@@ -38,5 +39,6 @@ interface ActionType {
             config[ActionsSpec.objectBlacklist].contains(objectIdentifier) ||
             config[ActionsSpec.objectBlacklist].contains(oldObjectIdentifier) ||
             config[ActionsSpec.sourceBlacklist].contains(sourceName) ||
+            config[ActionsSpec.sourceBlacklist].contains("@${sourceProfile?.name}") ||
             config[ActionsSpec.worldBlacklist].contains(world)
 }

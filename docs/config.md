@@ -52,7 +52,7 @@ blocks = ["minecraft:air", "minecraft:dirt"]
 
 `objectBlacklist` [Default: empty] controls which objects are logged. These can be item types, block types or entities
 
-`sourceBlacklist` [Default: empty] controls which sources are logged. Examples are `"lava"` and `"gravity"`
+`sourceBlacklist` [Default: empty] controls which sources are logged. Examples are `"lava"`, `"@playerName"` and `"gravity"`. Player names can be specified by prefixing them with `"@"`
 
 ## Default Config
 ```toml
@@ -92,7 +92,7 @@ typeBlacklist = []
 worldBlacklist = []
 # Blacklists objects (Items, Mobs, Blocks). Ex: "minecraft:cobblestone", "minecraft:blaze"
 objectBlacklist = []
-# Blacklists sources. Ex: "lava", "gravity", "fire", "fall"
+# Blacklists sources. Ex: "lava", "gravity", "fire", "fall", "@playerName"
 sourceBlacklist = []
 
 [networking]
