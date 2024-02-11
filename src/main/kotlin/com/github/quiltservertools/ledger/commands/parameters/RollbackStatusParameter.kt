@@ -13,7 +13,7 @@ class RollbackStatusParameter : SimpleParameter<Boolean>() {
     override fun parse(stringReader: StringReader): Boolean = BoolArgumentType.bool().parse(stringReader)
 
     override fun getSuggestions(
-        context: CommandContext<ServerCommandSource>?,
-        builder: SuggestionsBuilder?
-    ): CompletableFuture<Suggestions> =CommandSource.suggestMatching(setOf("true", "false"), builder)
+        context: CommandContext<ServerCommandSource>,
+        builder: SuggestionsBuilder
+    ): CompletableFuture<Suggestions> = CommandSource.suggestMatching(setOf("true", "false"), builder)
 }
