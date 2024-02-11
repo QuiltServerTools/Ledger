@@ -5,7 +5,7 @@ import com.github.quiltservertools.ledger.actionutils.LocationalInventory;
 import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback;
 import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback;
 import com.github.quiltservertools.ledger.utility.HandledSlot;
-import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
+import com.github.quiltservertools.ledger.utility.HandlerWithContext;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
@@ -55,10 +55,10 @@ public abstract class SlotMixin implements HandledSlot {
     @Inject(method = "markDirty", at = @At(value = "HEAD"))
     private void ledgerLogChanges(CallbackInfo ci) {
         BlockPos pos = getInventoryLocation();
-        HandlerWithPlayer handlerWithPlayer = (HandlerWithPlayer) handler;
+        HandlerWithContext handlerWithContext = (HandlerWithContext) handler;
 
-        if (pos != null && handlerWithPlayer.getPlayer() != null) {
-            logChange(handlerWithPlayer.getPlayer(), oldStack, this.getStack().copy(), pos);
+        if (pos != null && handlerWithContext.getPlayer() != null) {
+            logChange(handlerWithContext.getPlayer(), oldStack, this.getStack().copy(), pos);
         }
 
         oldStack = this.getStack().copy();

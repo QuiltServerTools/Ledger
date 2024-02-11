@@ -1,13 +1,15 @@
 package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.utility.HandledSlot;
-import com.github.quiltservertools.ledger.utility.HandlerWithPlayer;
+import com.github.quiltservertools.ledger.utility.HandlerWithContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -17,9 +19,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ScreenHandler.class)
-public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
+public abstract class ScreenHandlerMixin implements HandlerWithContext {
     @Unique
     private ServerPlayerEntity player = null;
+    
+    @Unique
+    private BlockPos pos = null;
 
     @Inject(method = "addSlot", at = @At(value = "HEAD"))
     private void ledgerGiveSlotHandlerReference(Slot slot, CallbackInfoReturnable<Slot> cir) {
@@ -50,5 +55,16 @@ public abstract class ScreenHandlerMixin implements HandlerWithPlayer {
     @Override
     public ServerPlayerEntity getPlayer() {
         return player;
+    }
+
+    @Nullable
+    @Override
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    @Override
+    public void setPos(@NotNull BlockPos pos) {
+        this.pos = pos;
     }
 }
