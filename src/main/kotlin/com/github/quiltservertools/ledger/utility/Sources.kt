@@ -28,5 +28,12 @@ object Sources {
     const val SPONGE = "sponge"
     const val PORTAL = "portal"
     const val COMMAND = "command"
+    const val PROJECTILE = "projectile"
+    const val VEHICLE = "vehicle"
+    const val EQUIP = "equip"
+    const val ROTATE = "rotate"
+    const val SHEAR = "shear"
+    const val DYE = "dye"
+    const val STATUE = "statue"
     const val UNKNOWN = "unknown"
 }

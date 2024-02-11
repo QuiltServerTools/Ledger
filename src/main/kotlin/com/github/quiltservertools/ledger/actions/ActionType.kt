@@ -3,7 +3,6 @@ package com.github.quiltservertools.ledger.actions
 import com.github.quiltservertools.ledger.config.ActionsSpec
 import com.github.quiltservertools.ledger.config.config
 import com.mojang.authlib.GameProfile
-import net.minecraft.block.BlockState
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
@@ -19,8 +18,8 @@ interface ActionType {
     var world: Identifier?
     var objectIdentifier: Identifier
     var oldObjectIdentifier: Identifier
-    var blockState: BlockState?
-    var oldBlockState: BlockState?
+    var objectState: String?
+    var oldObjectState: String?
     var sourceName: String
     var sourceProfile: GameProfile?
     var extraData: String?
@@ -31,6 +30,7 @@ interface ActionType {
     fun previewRollback(player: ServerPlayerEntity)
     fun previewRestore(player: ServerPlayerEntity)
     fun getTranslationType(): String
+
     @ExperimentalTime
     fun getMessage(): Text
 
@@ -38,5 +38,6 @@ interface ActionType {
             config[ActionsSpec.objectBlacklist].contains(objectIdentifier) ||
             config[ActionsSpec.objectBlacklist].contains(oldObjectIdentifier) ||
             config[ActionsSpec.sourceBlacklist].contains(sourceName) ||
+            config[ActionsSpec.sourceBlacklist].contains("@${sourceProfile?.name}") ||
             config[ActionsSpec.worldBlacklist].contains(world)
 }

@@ -7,7 +7,6 @@ plugins {
     `maven-publish`
 }
 
-var release = false
 val props = properties
 
 val modId: String by project
@@ -103,6 +102,7 @@ tasks {
                     "name" to modName,
                     "fabricApi" to libs.versions.fabric.api.get(),
                     "fabricKotlin" to libs.versions.fabric.kotlin.get(),
+                    "minecraft" to libs.versions.minecraft.get(),
                 )
             )
         }
@@ -202,9 +202,12 @@ gitHooks {
 }
 
 fun getVersionMetadata(): String {
-    if (release) return ""
-
     val buildId = System.getenv("GITHUB_RUN_NUMBER")
+    val workflow = System.getenv("GITHUB_WORKFLOW")
+
+    if (workflow == "Release") {
+        return ""
+    }
 
     // CI builds only
     if (buildId != null) {
@@ -212,5 +215,5 @@ fun getVersionMetadata(): String {
     }
 
     // No tracking information could be found about the build
-    return ""
+    return "+local"
 }

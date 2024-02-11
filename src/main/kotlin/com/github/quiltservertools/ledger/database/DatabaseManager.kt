@@ -11,7 +11,6 @@ import com.github.quiltservertools.ledger.config.config
 import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
-import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
@@ -21,7 +20,6 @@ import java.util.*
 import javax.sql.DataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
-import net.minecraft.nbt.StringNbtReader
 import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
@@ -172,18 +170,8 @@ object DatabaseManager {
             type.oldObjectIdentifier = Identifier(
             action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
         )
-            type.blockState = action[Tables.Actions.blockState]?.let {
-                NbtUtils.blockStateFromProperties(
-                    StringNbtReader.parse(it),
-                    type.objectIdentifier
-                )
-            }
-            type.oldBlockState = action[Tables.Actions.oldBlockState]?.let {
-                NbtUtils.blockStateFromProperties(
-                    StringNbtReader.parse(it),
-                    type.oldObjectIdentifier
-                )
-            }
+            type.objectState = action[Tables.Actions.blockState]
+            type.oldObjectState = action[Tables.Actions.oldBlockState]
             type.sourceName = action[Tables.Sources.name]
             type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
                 GameProfile(it, action[Tables.Players.playerName])
@@ -406,8 +394,8 @@ object DatabaseManager {
             this[Tables.Actions.objectId] = getRegistryKeyId(action.objectIdentifier)
             this[Tables.Actions.oldObjectId] = getRegistryKeyId(action.oldObjectIdentifier)
             this[Tables.Actions.world] = getWorldId(action.world ?: Ledger.server.overworld.registryKey.value)
-            this[Tables.Actions.blockState] = action.blockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
-            this[Tables.Actions.oldBlockState] = action.oldBlockState?.let { NbtUtils.blockStateToProperties(it)?.asString() }
+            this[Tables.Actions.blockState] = action.objectState
+            this[Tables.Actions.oldBlockState] = action.oldObjectState
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
             this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { selectPlayerId(it.id) }
             this[Tables.Actions.extraData] = action.extraData

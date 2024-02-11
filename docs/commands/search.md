@@ -13,7 +13,7 @@ After executing your search, you will see all the results and can paginate betwe
 ![Search example](../assets/search-example.png)
 
 | `Display:` | Time ago   | Source of the action | Action that occurred | Object that was changed | Location          |
-|------------|------------|----------------------|---------------------|-------------------------|-------------------|
-| `Hover:`   | Exact time |                      | Action identifier   | Object identifier       | Teleport on click |
+|------------|------------|----------------------|----------------------|-------------------------|-------------------|
+| `Hover:`   | Exact time |                      | Action identifier    | Object identifier       | Teleport on click |
 
 *Order can be customized, see [configuration](../config.md)*

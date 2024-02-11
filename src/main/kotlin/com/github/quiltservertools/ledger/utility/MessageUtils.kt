@@ -1,6 +1,8 @@
 package com.github.quiltservertools.ledger.utility
 
+import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.SearchResults
+import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionPacket
@@ -15,7 +17,6 @@ import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.TimeZone
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
@@ -111,7 +112,6 @@ object MessageUtils {
 //        }
     }
 
-    @OptIn(ExperimentalTime::class)
     fun instantToText(time: Instant): MutableText {
         val duration = Duration.between(time, Instant.now()).toKotlinDuration()
         val text: MutableText = "".literal()
@@ -129,7 +129,7 @@ object MessageUtils {
         val message = Text.translatable("text.ledger.action_message.time_diff", text)
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-        val timeMessage = formatter.format(time.atZone(TimeZone.getDefault().toZoneId())).literal()
+        val timeMessage = formatter.format(time.atZone(Ledger.config[SearchSpec.timeZone])).literal()
 
         message.styled {
             it.withHoverEvent(
