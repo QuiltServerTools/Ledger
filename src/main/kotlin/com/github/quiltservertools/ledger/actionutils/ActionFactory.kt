@@ -1,6 +1,15 @@
 package com.github.quiltservertools.ledger.actionutils
 
-import com.github.quiltservertools.ledger.actions.*
+import com.github.quiltservertools.ledger.actions.ActionType
+import com.github.quiltservertools.ledger.actions.BlockBreakActionType
+import com.github.quiltservertools.ledger.actions.BlockChangeActionType
+import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
+import com.github.quiltservertools.ledger.actions.EntityChangeActionType
+import com.github.quiltservertools.ledger.actions.EntityKillActionType
+import com.github.quiltservertools.ledger.actions.ItemDropActionType
+import com.github.quiltservertools.ledger.actions.ItemInsertActionType
+import com.github.quiltservertools.ledger.actions.ItemPickUpActionType
+import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
@@ -84,8 +93,8 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registries.BLOCK.getId(state.block)
         action.oldObjectIdentifier = Registries.BLOCK.getId(oldState.block)
-        action.blockState = NbtUtils.blockStateToProperties(state)?.asString()
-        action.oldBlockState = NbtUtils.blockStateToProperties(oldState)?.asString()
+        action.objectState = NbtUtils.blockStateToProperties(state)?.asString()
+        action.oldObjectState = NbtUtils.blockStateToProperties(oldState)?.asString()
         action.sourceName = source
         action.extraData = entity?.createNbt()?.asString()
     }
@@ -138,7 +147,7 @@ object ActionFactory {
 
         setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
 
-        action.oldBlockState = entity.writeNbt(NbtCompound())?.asString()
+        action.oldObjectState = entity.writeNbt(NbtCompound())?.asString()
         action.sourceProfile = source.gameProfile
 
         return action
@@ -152,7 +161,7 @@ object ActionFactory {
 
         setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
 
-        action.blockState = entity.writeNbt(NbtCompound())?.asString()
+        action.objectState = entity.writeNbt(NbtCompound())?.asString()
         action.sourceProfile = source.gameProfile
 
         return action
@@ -239,8 +248,8 @@ object ActionFactory {
         if (itemStack != null) {
             action.extraData = Registries.ITEM.getId(itemStack.item).toString()
         }
-        action.oldBlockState = oldEntityTags.asString()
-        action.blockState = entity.writeNbt(NbtCompound())?.asString()
+        action.oldObjectState = oldEntityTags.asString()
+        action.objectState = entity.writeNbt(NbtCompound())?.asString()
         action.sourceName = sourceType
 
         if (entityActor is PlayerEntity) {

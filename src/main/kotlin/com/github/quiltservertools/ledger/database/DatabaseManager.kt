@@ -48,7 +48,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.UUID
+import java.util.*
 import kotlin.math.ceil
 
 object DatabaseManager {
@@ -155,8 +155,8 @@ object DatabaseManager {
             type.world = action.world.identifier
             type.objectIdentifier = action.objectId.identifier
             type.oldObjectIdentifier = action.oldObjectId.identifier
-            type.blockState = action.blockState
-            type.oldBlockState = action.oldBlockState
+            type.objectState = action.blockState
+            type.oldObjectState = action.oldBlockState
             type.sourceName = action.sourceName.name
             type.sourceProfile = action.sourcePlayer?.let { GameProfile(it.playerId, it.playerName) }
             type.extraData = action.extraData
@@ -376,8 +376,8 @@ object DatabaseManager {
             objectId = selectRegistryKey(action.objectIdentifier)
             oldObjectId = selectRegistryKey(action.oldObjectIdentifier)
             world = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value)
-            blockState = action.blockState
-            oldBlockState = action.oldBlockState
+            blockState = action.objectState
+            oldBlockState = action.oldObjectState
             sourceName = insertAndSelectSource(action.sourceName)
             sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
             extraData = action.extraData

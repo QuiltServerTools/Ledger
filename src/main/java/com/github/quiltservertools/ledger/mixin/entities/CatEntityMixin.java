@@ -20,7 +20,7 @@ public abstract class CatEntityMixin {
     private NbtCompound oldEntityTags;
 
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/CatEntity;setCollarColor(Lnet/minecraft/util/DyeColor;)V"))
-    private void legerLogOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+    private void ledgerLogOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         this.oldEntityTags = entity.writeNbt(new NbtCompound());
     }

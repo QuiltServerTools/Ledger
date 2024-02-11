@@ -18,8 +18,8 @@ interface ActionType {
     var world: Identifier?
     var objectIdentifier: Identifier
     var oldObjectIdentifier: Identifier
-    var blockState: String?
-    var oldBlockState: String?
+    var objectState: String?
+    var oldObjectState: String?
     var sourceName: String
     var sourceProfile: GameProfile?
     var extraData: String?

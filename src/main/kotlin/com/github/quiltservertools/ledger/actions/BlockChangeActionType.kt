@@ -86,14 +86,14 @@ open class BlockChangeActionType : AbstractActionType() {
         return text
     }
 
-    fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldBlockState?.let {
+    fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldObjectState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
             oldObjectIdentifier
         )
     })
 
-    fun newBlockState() = checkForBlockState(objectIdentifier, blockState?.let {
+    fun newBlockState() = checkForBlockState(objectIdentifier, objectState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
             objectIdentifier

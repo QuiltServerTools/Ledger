@@ -12,12 +12,12 @@ import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
-import net.minecraft.registry.Registries
 
 class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
@@ -72,7 +72,7 @@ class EntityChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = StringNbtReader.parse(oldBlockState)
+        val oldEntity = StringNbtReader.parse(oldObjectState)
         val uuid = oldEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
@@ -92,7 +92,7 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val newEntity = StringNbtReader.parse(blockState)
+        val newEntity = StringNbtReader.parse(objectState)
         val uuid = newEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 

@@ -7,7 +7,9 @@ import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.authlib.GameProfile
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.*
+import net.minecraft.text.ClickEvent
+import net.minecraft.text.HoverEvent
+import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
@@ -22,8 +24,8 @@ abstract class AbstractActionType : ActionType {
     override var world: Identifier? = null
     override var objectIdentifier: Identifier = Identifier("air")
     override var oldObjectIdentifier: Identifier = Identifier("air")
-    override var blockState: String? = null
-    override var oldBlockState: String? = null
+    override var objectState: String? = null
+    override var oldObjectState: String? = null
     override var sourceName: String = Sources.UNKNOWN
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null

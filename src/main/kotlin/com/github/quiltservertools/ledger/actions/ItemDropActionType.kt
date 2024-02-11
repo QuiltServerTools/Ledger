@@ -11,12 +11,11 @@ import net.minecraft.entity.ItemEntity
 import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
-import net.minecraft.registry.Registries
-import net.minecraft.util.math.Vec3d
 
 open class ItemDropActionType : AbstractActionType() {
     override val identifier = "item-drop"
@@ -51,7 +50,7 @@ open class ItemDropActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.parse(blockState)
+        val newEntity = StringNbtReader.parse(objectState)
         val uuid = newEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
@@ -65,14 +64,13 @@ open class ItemDropActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.parse(blockState)
+        val newEntity = StringNbtReader.parse(objectState)
         val uuid = newEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
         if (entity == null) {
             val entity = ItemEntity(EntityType.ITEM, world)
             entity.readNbt(newEntity)
-            entity.velocity = Vec3d.ZERO
             world?.spawnEntity(entity)
         }
         return true
