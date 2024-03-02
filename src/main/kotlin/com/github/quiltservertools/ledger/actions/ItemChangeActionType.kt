@@ -10,6 +10,7 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.world.ServerWorld
@@ -28,7 +29,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     override fun getObjectMessage(): Text {
-        val stack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+        val stack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
 
         return "${stack.count} ".literal().append(
             Text.translatable(
@@ -71,7 +72,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null && inventory != null) {
-            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+            val rollbackStack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
 
             for (i in 0 until inventory.size()) {
                 val stack = inventory.getStack(i)
@@ -90,7 +91,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null && inventory != null) {
-            val rollbackStack = ItemStack.fromNbt(StringNbtReader.parse(extraData))
+            val rollbackStack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
 
             for (i in 0 until inventory.size()) {
                 val stack = inventory.getStack(i)

@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger
 
+import com.github.quiltservertools.ledger.config.config as realConfig
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.api.LedgerApi
@@ -13,12 +14,24 @@ import com.github.quiltservertools.ledger.listeners.registerEntityListeners
 import com.github.quiltservertools.ledger.listeners.registerPlayerListeners
 import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
 import com.github.quiltservertools.ledger.network.Networking
+import com.github.quiltservertools.ledger.network.packet.action.ActionS2CPacket
+import com.github.quiltservertools.ledger.network.packet.handshake.HandshakeS2CPacket
+import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
-import kotlinx.coroutines.*
+import java.nio.file.Files
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
@@ -26,13 +39,9 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.nio.file.Files
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
-import com.github.quiltservertools.ledger.config.config as realConfig
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
@@ -66,6 +75,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> registerCommands(dispatcher) }
+        PayloadTypeRegistry.playS2C().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
+        PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
+        PayloadTypeRegistry.playS2C().register(ResponseS2CPacket.ID, ResponseS2CPacket.CODEC)
     }
 
     private fun serverStarting(server: MinecraftServer) {
@@ -89,13 +101,12 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
     }
 
-    @OptIn(ExperimentalTime::class)
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(Duration.minutes(config[DatabaseSpec.queueTimeoutMin])) {
+            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
                 while (DatabaseManager.dbMutex.isLocked) {
                     logInfo("Database queue is still draining. If you exit now actions WILL be lost")
-                    delay(Duration.seconds(config[DatabaseSpec.queueCheckDelaySec]))
+                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
                 }
             }
         }
