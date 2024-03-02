@@ -24,6 +24,9 @@ Found under `[search]`
 
 `purgePermissionLevel` [Default: 4] controls the permission level required to run the purge command
 
+`timeZone` [Default: "UTC"] sets the timezone to display timestamps in when hovered. 
+This uses the Java TimeZone format. You can provide offsets ("UTC", "UTC+3"), but the "continent/region" format is preferred. A full list can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
 ### Message theme
 
 Found under `[color]`
@@ -49,7 +52,7 @@ blocks = ["minecraft:air", "minecraft:dirt"]
 
 `objectBlacklist` [Default: empty] controls which objects are logged. These can be item types, block types or entities
 
-`sourceBlacklist` [Default: empty] controls which sources are logged. Examples are `"lava"` and `"gravity"`
+`sourceBlacklist` [Default: empty] controls which sources are logged. Examples are `"lava"`, `"@playerName"` and `"gravity"`. Player names can be specified by prefixing them with `"@"`
 
 ## Default Config
 ```toml
@@ -64,6 +67,8 @@ queueCheckDelaySec = 10
 pageSize = 8
 # Permission level for purge command
 purgePermissionLevel = 4
+# Time zone to display timestamps in. EX: "UTC", "UTC+1", "America/Los_Angeles"
+timeZone = "UTC"
 
 [color]
 # Colors in hex format
@@ -87,7 +92,7 @@ typeBlacklist = []
 worldBlacklist = []
 # Blacklists objects (Items, Mobs, Blocks). Ex: "minecraft:cobblestone", "minecraft:blaze"
 objectBlacklist = []
-# Blacklists sources. Ex: "lava", "gravity", "fire", "fall"
+# Blacklists sources. Ex: "lava", "gravity", "fire", "fall", "@playerName"
 sourceBlacklist = []
 
 [networking]

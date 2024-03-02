@@ -26,7 +26,7 @@ public abstract class BucketDispenserBehaviorMixin extends ItemDispenserBehavior
                     shift = At.Shift.AFTER
             )
     )
-    private void logFluidPickup(BlockPointer pointer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @Local ItemStack itemStack, @Local BlockPos pos, @Local BlockState blockState) {
+    private void logFluidPickup(BlockPointer pointer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @Local(argsOnly = true) ItemStack itemStack, @Local BlockPos pos, @Local BlockState blockState) {
         var world = pointer.world();
         if (!itemStack.isEmpty()) {
             if (blockState.isLiquid() || blockState.isOf(Blocks.POWDER_SNOW)) {

@@ -7,7 +7,10 @@ import net.minecraft.nbt.NbtHelper
 import net.minecraft.registry.Registries
 import net.minecraft.util.Identifier
 
-private const val PROPERTIES = "Properties"
+const val PROPERTIES = "Properties" // BlockState
+const val COUNT = "Count" // ItemStack
+const val TAG = "tag" // ItemStack
+const val UUID = "UUID" // Entity
 
 object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
@@ -22,4 +25,5 @@ object NbtUtils {
         stateTag.put(PROPERTIES, tag)
         return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, stateTag)
     }
+
 }

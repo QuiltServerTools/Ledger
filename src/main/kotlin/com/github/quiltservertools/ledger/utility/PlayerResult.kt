@@ -4,11 +4,9 @@ import com.github.quiltservertools.ledger.database.Tables
 import net.minecraft.text.Text
 import java.time.Instant
 import java.util.*
-import kotlin.time.ExperimentalTime
 
 data class PlayerResult(val uuid: UUID, val name: String, val firstJoin: Instant, val lastJoin: Instant) {
 
-    @OptIn(ExperimentalTime::class)
     fun toText(): Text {
         return Text.translatable(
             "text.ledger.player.result",
