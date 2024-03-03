@@ -24,7 +24,7 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
     override fun getId() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<HandshakeC2SPacket> {
-        val ID: CustomPayload.Id<HandshakeC2SPacket> = CustomPayload.Id(LedgerPacketTypes.INSPECT_POS.id)
+        val ID: CustomPayload.Id<HandshakeC2SPacket> = CustomPayload.Id(LedgerPacketTypes.HANDSHAKE.id)
         val CODEC: PacketCodec<PacketByteBuf, HandshakeC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
             HandshakeC2SPacket(it.readNbt())
         })

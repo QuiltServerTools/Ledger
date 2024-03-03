@@ -20,7 +20,7 @@ data class RollbackC2SPacket(val input: String) : CustomPayload {
     override fun getId() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<RollbackC2SPacket> {
-        val ID: CustomPayload.Id<RollbackC2SPacket> = CustomPayload.Id(LedgerPacketTypes.SEARCH.id)
+        val ID: CustomPayload.Id<RollbackC2SPacket> = CustomPayload.Id(LedgerPacketTypes.ROLLBACK.id)
         val CODEC: PacketCodec<PacketByteBuf, RollbackC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO()}, {
             RollbackC2SPacket(it.readString())
         })

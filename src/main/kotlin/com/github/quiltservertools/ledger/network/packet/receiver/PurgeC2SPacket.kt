@@ -22,7 +22,7 @@ data class PurgeC2SPacket(val pos: BlockPos, val pages: Int) : CustomPayload {
     override fun getId() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<PurgeC2SPacket> {
-        val ID: CustomPayload.Id<PurgeC2SPacket> = CustomPayload.Id(LedgerPacketTypes.INSPECT_POS.id)
+        val ID: CustomPayload.Id<PurgeC2SPacket> = CustomPayload.Id(LedgerPacketTypes.PURGE.id)
         val CODEC: PacketCodec<PacketByteBuf, PurgeC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
             PurgeC2SPacket(it.readBlockPos(), it.readInt())
         })
