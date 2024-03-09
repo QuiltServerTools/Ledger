@@ -14,9 +14,9 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
@@ -32,8 +32,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
         }
     }
 
-    override fun getObjectMessage(): Text {
-        val stack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
+    override fun getObjectMessage(source: ServerCommandSource): Text {
+        val stack = ItemStack.fromNbtOrEmpty(source.registryManager, StringNbtReader.parse(extraData))
 
         return "${stack.count} ".literal().append(
             Text.translatable(
@@ -76,7 +76,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null && inventory != null) {
-            val rollbackStack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
+            val rollbackStack = ItemStack.fromNbtOrEmpty(server.registryManager, StringNbtReader.parse(extraData))
 
             if (inventory != null) {
                 for (i in 0 until inventory.size()) {
@@ -104,7 +104,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null) {
-            val rollbackStack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
+            val rollbackStack = ItemStack.fromNbtOrEmpty(server.registryManager, StringNbtReader.parse(extraData))
 
             if (inventory != null) {
                 for (i in 0 until inventory.size()) {

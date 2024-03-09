@@ -21,7 +21,6 @@ import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -194,7 +193,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registries.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = stack.encode(DynamicRegistryManager.EMPTY)?.asString()
+        action.extraData = stack.encode(world.registryManager)?.asString()
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {

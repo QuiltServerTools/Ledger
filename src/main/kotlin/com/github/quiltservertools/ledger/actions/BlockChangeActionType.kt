@@ -11,6 +11,7 @@ import net.minecraft.nbt.StringNbtReader
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
@@ -50,7 +51,7 @@ open class BlockChangeActionType : AbstractActionType() {
 
     override fun getTranslationType() = "block"
 
-    override fun getObjectMessage(): Text {
+    override fun getObjectMessage(source: ServerCommandSource): Text {
         val text = Text.literal("")
         text.append(
             Text.translatable(

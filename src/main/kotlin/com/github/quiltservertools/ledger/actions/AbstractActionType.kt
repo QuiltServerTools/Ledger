@@ -5,7 +5,9 @@ import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.authlib.GameProfile
+import java.time.Instant
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.HoverEvent
@@ -15,7 +17,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import java.time.Instant
 import kotlin.time.ExperimentalTime
 
 abstract class AbstractActionType : ActionType {
@@ -37,13 +38,13 @@ abstract class AbstractActionType : ActionType {
     override fun restore(server: MinecraftServer): Boolean = false
 
     @ExperimentalTime
-    override fun getMessage(): Text {
+    override fun getMessage(source: ServerCommandSource): Text {
         val message = Text.translatable(
             "text.ledger.action_message",
             getTimeMessage(),
             getSourceMessage(),
             getActionMessage(),
-            getObjectMessage(),
+            getObjectMessage(source),
             getLocationMessage()
         )
         message.style = TextColorPallet.light
@@ -80,7 +81,7 @@ abstract class AbstractActionType : ActionType {
             )
         }
 
-    open fun getObjectMessage(): Text = Text.translatable(
+    open fun getObjectMessage(source: ServerCommandSource): Text = Text.translatable(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier

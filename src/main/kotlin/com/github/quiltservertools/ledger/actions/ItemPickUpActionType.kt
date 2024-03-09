@@ -11,9 +11,9 @@ import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
@@ -30,8 +30,8 @@ open class ItemPickUpActionType : AbstractActionType() {
         }
     }
 
-    override fun getObjectMessage(): Text {
-        val stack = ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(extraData))
+    override fun getObjectMessage(source: ServerCommandSource): Text {
+        val stack = ItemStack.fromNbtOrEmpty(source.registryManager, StringNbtReader.parse(extraData))
 
         return "${stack.count} ".literal().append(
             Text.translatable(
