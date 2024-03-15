@@ -215,6 +215,17 @@ object DatabaseManager {
             }
         }
 
+        val playerNames = ArrayList<Negatable<Int>>()
+        params.sourcePlayerIds?.forEach {
+            val playerId = getPlayerId(it.property)
+            if (playerId != null) {
+                playerNames.add(Negatable(playerId, it.allowed))
+            } else {
+                // Unknown player name
+                op = Op.FALSE
+            }
+        }
+
         op = addParameters(
             op,
             sourceNames,
@@ -242,7 +253,7 @@ object DatabaseManager {
 
         op = addParameters(
             op,
-            params.sourcePlayerIds?.map { Negatable(selectPlayerId(it.property), it.allowed) },
+            playerNames,
             Tables.Actions.sourcePlayer
         )
 
@@ -397,7 +408,7 @@ object DatabaseManager {
             this[Tables.Actions.blockState] = action.objectState
             this[Tables.Actions.oldBlockState] = action.oldObjectState
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
-            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { selectPlayerId(it.id) }
+            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getPlayerId(it.id) }
             this[Tables.Actions.extraData] = action.extraData
         }
     }
@@ -522,12 +533,12 @@ object DatabaseManager {
         return actions
     }
 
-    private fun selectPlayerId(playerId: UUID): Int {
+    private fun getPlayerId(playerId: UUID): Int? {
         cache.playerKeys.getIfPresent(playerId)?.let { return it }
 
-        return Tables.Player.find {
-            Tables.Players.playerId eq playerId
-        }.first().id.value.also { cache.playerKeys.put(playerId, it) }
+        return Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()?.id?.value?.also {
+            cache.playerKeys.put(playerId, it)
+        }
     }
 
     private fun Transaction.selectPlayer(playerName: String) =
