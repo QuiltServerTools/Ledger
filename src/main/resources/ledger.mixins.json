@@ -71,6 +71,7 @@
         "blocks.lectern.LecternScreenHandlerMixin",
         "blocks.lectern.ScreenHandlerMixin",
         "blocks.sign.AbstractSignBlockMixin",
+        "blocks.sign.SignBlockEntityMixin",
         "entities.ArmorStandEntityMixin",
         "entities.CatEntityMixin",
         "entities.CreeperEntityMixin",

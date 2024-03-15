@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(AbstractSignBlock.class)
-@Debug
 public class AbstractSignBlockMixin {
 
     /**
@@ -53,15 +52,11 @@ public class AbstractSignBlockMixin {
             Operation<Boolean> original
     ) {
 
-        BlockState oldState = signBlockEntity.getCachedState();
+        BlockState state = signBlockEntity.getCachedState();
         BlockPos pos = signBlockEntity.getPos();
 
         // a bad hack to copy the old sign block entity for rollbacks
-        @Nullable BlockEntity oldSignEntity = BlockEntity.createFromNbt(
-                pos,
-                oldState,
-                signBlockEntity.createNbtWithId()
-        );
+        @Nullable BlockEntity oldSignEntity = BlockEntity.createFromNbt(pos, state, signBlockEntity.createNbtWithId());
 
         boolean result = original.call(instance, world, signBlockEntity, front, player);
         if (result && oldSignEntity != null) {
@@ -69,8 +64,8 @@ public class AbstractSignBlockMixin {
                     .changeBlock(
                             world,
                             pos,
-                            oldState,
-                            world.getBlockState(pos),
+                            state,
+                            state, // the state doesn't update, the block entity does
                             oldSignEntity,
                             signBlockEntity,
                             player
