@@ -1,29 +1,37 @@
 package com.github.quiltservertools.ledger.mixin.blocks.sign;
 
-import com.github.quiltservertools.ledger.Ledger;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import java.util.UUID;
+import java.util.function.UnaryOperator;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.UnaryOperator;
 
 @Mixin(SignBlockEntity.class)
 public abstract class SignBlockEntityMixin {
 
+    /**
+     * Wraps the operation of sign text editing with signs with a block-change log action.
+     * <p>
+     * Uses a weird and probably bad hack that copies the NBT data of the sign into a new block entity instance so that
+     * the old data can be preserved for rollbacks.
+     *
+     * @param instance    The sign block entity being edited
+     * @param textChanger A parameter for the original operation
+     * @param front       Whether the interaction is happening on the front of the sign
+     * @param original    The original {@link SignBlockEntity#changeText(UnaryOperator, boolean)} operation that this
+     *                    mixin wraps.
+     * @return Returns the result of calling {@code original} with this method's parameters.
+     */
     @WrapOperation(
             method = "tryChangeText",
             at = @At(
