@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.api
 
-import net.minecraft.server.MinecraftServer
-import org.jetbrains.exposed.sql.Database
+import java.nio.file.Path
+import javax.sql.DataSource
 
 interface DatabaseExtension : LedgerExtension {
-    fun getDatabase(server: MinecraftServer): Database
+    fun getDataSource(savePath: Path): DataSource
 }

@@ -4,9 +4,9 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.SearchResults
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.future.future
-import kotlinx.coroutines.launch
 import java.util.concurrent.CompletableFuture
 
 internal object LedgerApiImpl : LedgerApi {
@@ -23,6 +23,6 @@ internal object LedgerApiImpl : LedgerApi {
         Ledger.future { DatabaseManager.restoreActions(params) }
 
     override fun logAction(action: ActionType) {
-        Ledger.launch { DatabaseManager.logAction(action) }
+        ActionQueueService.addToQueue(action)
     }
 }

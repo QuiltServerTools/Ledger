@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockBox
 import java.time.Instant
+import java.util.UUID
 
 data class ActionSearchParams(
     val bounds: BlockBox?,
@@ -12,7 +13,7 @@ data class ActionSearchParams(
     var actions: MutableSet<Negatable<String>>?,
     var objects: MutableSet<Negatable<Identifier>>?,
     var sourceNames: MutableSet<Negatable<String>>?,
-    var sourcePlayerNames: MutableSet<Negatable<String>>?,
+    var sourcePlayerIds: MutableSet<Negatable<UUID>>?,
     var worlds: MutableSet<Negatable<Identifier>>?,
 ) {
     private constructor(builder: Builder) : this(
@@ -22,11 +23,11 @@ data class ActionSearchParams(
         builder.actions,
         builder.objects,
         builder.sourceNames,
-        builder.sourcePlayerNames,
+        builder.sourcePlayerIds,
         builder.worlds
     )
 
-    fun isEmpty() = listOf(bounds, before, after, actions, objects, sourceNames, sourcePlayerNames, worlds).all { it == null }
+    fun isEmpty() = listOf(bounds, before, after, actions, objects, sourceNames, sourcePlayerIds, worlds).all { it == null }
 
     companion object {
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
@@ -39,7 +40,7 @@ data class ActionSearchParams(
         var actions: MutableSet<Negatable<String>>? = null
         var objects: MutableSet<Negatable<Identifier>>? = null
         var sourceNames: MutableSet<Negatable<String>>? = null
-        var sourcePlayerNames: MutableSet<Negatable<String>>? = null
+        var sourcePlayerIds: MutableSet<Negatable<UUID>>? = null
         var worlds: MutableSet<Negatable<Identifier>>? = null
 
         fun build() = ActionSearchParams(this)

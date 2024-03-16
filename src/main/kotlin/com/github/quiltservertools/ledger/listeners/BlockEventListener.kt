@@ -6,7 +6,7 @@ import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback
 import com.github.quiltservertools.ledger.callbacks.BlockMeltCallback
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback
-import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.AirBlock
 import net.minecraft.block.BlockState
@@ -36,7 +36,7 @@ fun onBlockPlace(
     } else {
         ActionFactory.blockPlaceAction(world, pos, state, source, entity)
     }
-    DatabaseManager.logAction(action)
+    ActionQueueService.addToQueue(action)
 }
 
 fun onBlockBreak(
@@ -53,7 +53,7 @@ fun onBlockBreak(
         ActionFactory.blockBreakAction(world, pos, state, source, entity)
     }
 
-    DatabaseManager.logAction(action)
+    ActionQueueService.addToQueue(action)
 }
 
 fun onBlockChange(
@@ -66,17 +66,17 @@ fun onBlockChange(
     source: String,
     player: PlayerEntity?
 ) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.blockChangeAction(world, pos, oldState, newState, oldBlockEntity, source, player)
     )
 }
 
 fun onMelt(world: World, pos: BlockPos, oldState: BlockState, newState: BlockState, entity: BlockEntity?) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.blockBreakAction(world, pos, oldState, Sources.MELT, entity)
     )
     if (newState.block !is AirBlock) {
-        DatabaseManager.logAction(
+        ActionQueueService.addToQueue(
             ActionFactory.blockPlaceAction(world, pos, newState, Sources.MELT, entity)
         )
     }

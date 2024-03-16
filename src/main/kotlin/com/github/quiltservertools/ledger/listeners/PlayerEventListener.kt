@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.ItemDropCallback
 import com.github.quiltservertools.ledger.callbacks.ItemPickUpCallback
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.disableNetworking
 import com.github.quiltservertools.ledger.utility.inspectBlock
@@ -88,7 +89,7 @@ private fun onBlockPlace(
     context: ItemPlacementContext?,
     blockEntity: BlockEntity?
 ) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.blockPlaceAction(
             world,
             pos,
@@ -106,7 +107,7 @@ private fun onBlockBreak(
     state: BlockState,
     blockEntity: BlockEntity?
 ) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.blockBreakAction(
             world,
             pos,
@@ -121,12 +122,12 @@ private fun onItemPickUp(
     entity: ItemEntity,
     player: PlayerEntity
 ) {
-    DatabaseManager.logAction(ActionFactory.itemPickUpAction(entity, player))
+    ActionQueueService.addToQueue(ActionFactory.itemPickUpAction(entity, player))
 }
 
 private fun onItemDrop(
     entity: ItemEntity,
     player: PlayerEntity
 ) {
-    DatabaseManager.logAction(ActionFactory.itemDropAction(entity, player))
+    ActionQueueService.addToQueue(ActionFactory.itemDropAction(entity, player))
 }

@@ -40,10 +40,8 @@ object LedgerExamples {
         entity: BlockEntity?) {
         // Create action object
         val action = ActionFactory.blockPlaceAction(world, pos, state, player, entity)
-        Ledger.launch {
-            // Insert action into the database
-            DatabaseManager.logAction(action)
-        }
+        // Insert action into the database
+        ActionQueueService.addToQueue(action)
     }
 }
 ```

@@ -100,16 +100,16 @@ object MessageUtils {
     }
 
     fun warnBusy(source: ServerCommandSource) {
-        if (DatabaseManager.dbMutex.isLocked) {
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.database.busy"
-                    ).setStyle(TextColorPallet.primary)
-                },
-                false
-            )
-        }
+//        if (DatabaseManager.dbMutex.isLocked) { //TODO
+//            source.sendFeedback(
+//                {
+//                    Text.translatable(
+//                        "text.ledger.database.busy"
+//                    ).setStyle(TextColorPallet.primary)
+//                },
+//                false
+//            )
+//        }
     }
 
     fun instantToText(time: Instant): MutableText {

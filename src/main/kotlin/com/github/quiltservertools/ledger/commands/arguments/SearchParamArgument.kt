@@ -137,11 +137,17 @@ object SearchParamArgument {
                             builder.sourceNames!!.add(nonPlayer)
                         }
                     } else {
-                        if (builder.sourcePlayerNames == null) {
-                            builder.sourcePlayerNames =
-                                mutableSetOf(sourceInput)
-                        } else {
-                            builder.sourcePlayerNames!!.add(sourceInput)
+                        val profile = source.server.userCache?.findByName(sourceInput.property)
+                        val id = profile?.orElse(null)?.id
+
+                        if (id != null) {
+                            val playerIdEntry = Negatable(id, sourceInput.allowed)
+                            if (builder.sourcePlayerIds == null) {
+                                builder.sourcePlayerIds =
+                                    mutableSetOf(playerIdEntry)
+                            } else {
+                                builder.sourcePlayerIds!!.add(playerIdEntry)
+                            }
                         }
                     }
                 }
