@@ -15,11 +15,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net/minecraft/block/dispenser/DispenserBehavior$10")
+@Mixin(targets = "net/minecraft/block/dispenser/DispenserBehavior$16")
 public abstract class BucketDispenserBehaviorMixin extends ItemDispenserBehavior {
 
     @Inject(
-            method = "dispenseSilently(Lnet/minecraft/util/math/BlockPointer;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
+            method = "dispenseSilently",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;",

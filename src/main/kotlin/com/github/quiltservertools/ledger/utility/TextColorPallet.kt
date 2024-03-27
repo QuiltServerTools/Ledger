@@ -17,4 +17,4 @@ object TextColorPallet {
     val light: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.light]).getOrNull())
 }
 
-fun DataResult<TextColor>.getOrNull(): TextColor? = this.get().left().orElse(null)
+fun DataResult<TextColor>.getOrNull(): TextColor? = this.result().orElse(null)
