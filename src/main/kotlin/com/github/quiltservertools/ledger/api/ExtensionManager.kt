@@ -2,32 +2,39 @@ package com.github.quiltservertools.ledger.api
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.config.config
-import java.util.*
+import net.minecraft.server.MinecraftServer
+import net.minecraft.util.WorldSavePath
+import javax.sql.DataSource
 
 object ExtensionManager {
-    private val extensions = mutableListOf<LedgerExtension>()
+    private val _extensions = mutableListOf<LedgerExtension>()
+    val extensions: List<LedgerExtension>
+        get() = _extensions
 
-    private var databaseExtension: Optional<DatabaseExtension> = Optional.empty()
+    private var dataSource: DataSource? = null
 
     val commands = mutableListOf<CommandExtension>()
 
     fun registerExtension(extension: LedgerExtension) {
-        extensions.add(extension)
-
-        if (extension is DatabaseExtension) {
-            if(databaseExtension.isEmpty) {
-                databaseExtension = Optional.of(extension)
-            } else {
-                failExtensionRegistration(extension)
-            }
-        }
+        _extensions.add(extension)
 
         if (extension is CommandExtension) {
             commands.add(extension)
         }
-
         extension.getConfigSpecs().forEach {
             config.addSpec(it)
+        }
+    }
+
+    internal fun serverStarting(server: MinecraftServer) {
+        extensions.forEach {
+            if (it is DatabaseExtension) {
+                if (dataSource == null) {
+                    dataSource = it.getDataSource(server.getSavePath(WorldSavePath.ROOT))
+                } else {
+                    failExtensionRegistration(it)
+                }
+            }
         }
     }
 
@@ -35,5 +42,5 @@ object ExtensionManager {
         Ledger.logger.error("Unable to load extension ${extension.getIdentifier()}")
     }
 
-    fun getDatabaseExtensionOptional() = databaseExtension
+    fun getDataSource() = dataSource
 }

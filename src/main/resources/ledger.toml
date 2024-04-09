@@ -5,6 +5,10 @@ queueTimeoutMin = 5
 queueCheckDelaySec = 10
 # Automatically purge entries older than the number of days specified. Set to -1 to disable
 autoPurgeDays = -1
+# The maximum amount of actions to commit in a single batch
+batchSize = 1000
+# The amount of time to wait between batches in ticks (20 ticks = 1 second)
+batchDelay = 10
 
 [search]
 # Number of actions to show per page

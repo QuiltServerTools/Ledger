@@ -1,10 +1,10 @@
 plugins {
-    kotlin("jvm") version "1.7.10"
-    id("fabric-loom") version "1.4.+"
-    id("maven-publish")
-    id("io.gitlab.arturbosch.detekt") version "1.19.0"
-    id("com.github.jakemarsden.git-hooks") version "0.0.2"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.loom)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.git.hooks)
+    alias(libs.plugins.shadow)
+    `maven-publish`
 }
 
 val props = properties
@@ -80,7 +80,7 @@ dependencies {
     shadow(libs.exposed.jdbc)
     shadow(libs.exposed.java.time)
     shadow(libs.sqlite.jdbc)
-    
+
     // Config
     shadow(libs.konf.core)
     shadow(libs.konf.toml)
@@ -154,7 +154,6 @@ tasks {
         val relocPath = "com.github.quiltservertools.libs."
         relocate("com.fasterxml", relocPath + "com.fasterxml")
         relocate("com.moandjiezana.toml", relocPath + "com.moandjiezana.toml")
-        relocate("com.uchuhimo.konf", relocPath + "com.uchuhimo.konf")
         relocate("javassist", relocPath + "javassist")
         // Relocate each apache lib separately as just org.apache.commons will relocate things that aren't shadowed and break stuff
         relocate("org.apache.commons.lang3", relocPath + "org.apache.commons.lang3")
