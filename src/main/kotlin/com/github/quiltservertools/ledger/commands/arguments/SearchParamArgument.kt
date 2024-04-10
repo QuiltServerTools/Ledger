@@ -40,7 +40,7 @@ object SearchParamArgument {
         paramSuggesters["world"] = NegatableParameter(DimensionParameter())
         paramSuggesters["before"] = Parameter(TimeParameter())
         paramSuggesters["after"] = Parameter(TimeParameter())
-        paramSuggesters["rolledBack"] = Parameter(RollbackStatusParameter())
+        paramSuggesters["rolledback"] = Parameter(RollbackStatusParameter())
     }
 
     fun argument(name: String): RequiredArgumentBuilder<ServerCommandSource, String> {
@@ -169,7 +169,7 @@ object SearchParamArgument {
                     val time = value as Instant
                     builder.after = time
                 }
-                "rolledBack" -> {
+                "rolledback" -> {
                     val rolledBack = value as Boolean
                     builder.rolledBack = rolledBack
                 }
