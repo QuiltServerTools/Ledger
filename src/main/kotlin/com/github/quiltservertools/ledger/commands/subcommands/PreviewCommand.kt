@@ -75,9 +75,9 @@ object PreviewCommand : BuildableCommand {
 
         if (Ledger.previewCache.containsKey(uuid)) {
             Ledger.previewCache[uuid]?.apply(context)
+            Ledger.previewCache.remove(uuid)
         } else {
             context.source.sendError(Text.translatable("error.ledger.no_preview"))
-            Ledger.previewCache.remove(uuid)
             return -1
         }
 

@@ -89,7 +89,11 @@
         "entities.SheepEntityMixin",
         "entities.SnowGolemEntityMixin",
         "entities.VillagerEntityMixin",
-        "entities.WolfEntityMixin"
+        "entities.WolfEntityMixin",
+        "preview.ChestBlockMixin",
+        "preview.LockableContainerBlockEntityMixin",
+        "preview.LootableContainerBlockEntityMixin",
+        "preview.ServerPlayerEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

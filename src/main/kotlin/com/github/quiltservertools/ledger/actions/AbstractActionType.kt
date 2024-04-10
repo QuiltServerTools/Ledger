@@ -1,10 +1,12 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.authlib.GameProfile
+import java.time.Instant
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.ClickEvent
@@ -15,7 +17,6 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
-import java.time.Instant
 import kotlin.time.ExperimentalTime
 
 abstract class AbstractActionType : ActionType {
@@ -32,8 +33,8 @@ abstract class AbstractActionType : ActionType {
     override var rolledBack: Boolean = false
 
     override fun rollback(server: MinecraftServer): Boolean = false
-    override fun previewRollback(player: ServerPlayerEntity) = Unit
-    override fun previewRestore(player: ServerPlayerEntity) = Unit
+    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) = Unit
+    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) = Unit
     override fun restore(server: MinecraftServer): Boolean = false
 
     @ExperimentalTime

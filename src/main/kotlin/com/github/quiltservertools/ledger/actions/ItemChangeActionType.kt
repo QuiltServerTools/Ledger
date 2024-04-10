@@ -1,9 +1,12 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.getOtherChestSide
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
+import net.minecraft.block.Blocks
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
 import net.minecraft.block.LecternBlock
@@ -16,10 +19,12 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
+import net.minecraft.util.math.BlockPos
 
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
@@ -49,6 +54,26 @@ abstract class ItemChangeActionType : AbstractActionType() {
                 )
             )
         }
+    }
+
+    protected fun previewItemChange(preview: Preview, player: ServerPlayerEntity, insert: Boolean) {
+        val world = player.server.getWorld(world)
+        val state = world?.getBlockState(pos)
+        state?.isOf(Blocks.CHEST)?.let {
+            if (it) {
+                val otherPos = getOtherChestSide(state, pos)
+                if (otherPos != null) {
+                    addPreview(preview, otherPos, insert)
+                }
+            }
+        }
+        addPreview(preview, pos, insert)
+    }
+
+    private fun addPreview(preview: Preview, pos: BlockPos, insert: Boolean) {
+        preview.modifiedItems.compute(pos) { _, list ->
+            list ?: mutableListOf()
+        }?.add(Pair(NbtUtils.itemFromProperties(extraData, objectIdentifier), insert))
     }
 
     private fun getInventory(world: ServerWorld): Inventory? {

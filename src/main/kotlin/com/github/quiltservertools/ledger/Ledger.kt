@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger
 
+import com.github.quiltservertools.ledger.config.config as realConfig
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.api.ExtensionManager
@@ -53,6 +54,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     lateinit var config: Config
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
+    @JvmField // Required for mixin access
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
