@@ -84,10 +84,10 @@ If you go back in time 1 day, do you want everything that happened `before` then
 Usually you want `after`.
 
 ### Rollback Status
-Key - `rolledBack:`  
+Key - `rolledback:`  
 Value - `true` or `false`  
 Negative Allowed - `No`  
 Multiple Allowed - `No`  
-Example - `rolledBack:true`  
+Example - `rolledback:true`  
 
 This parameter allows you to filter by rollback state. If true, then it will only show results that have already been rolled back. If false, then it will only show results that have not been rolled back.
