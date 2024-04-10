@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.listeners
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback
-import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import net.minecraft.entity.Entity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.item.ItemStack
@@ -17,8 +17,13 @@ fun registerEntityListeners() {
     EntityModifyCallback.EVENT.register(::onModify)
 }
 
-private fun onKill(world: World, pos: BlockPos, entity: Entity, source: DamageSource) {
-    DatabaseManager.logAction(
+private fun onKill(
+    world: World,
+    pos: BlockPos,
+    entity: Entity,
+    source: DamageSource
+) {
+    ActionQueueService.addToQueue(
         ActionFactory.entityKillAction(world, pos, entity, source)
     )
 }
@@ -32,7 +37,7 @@ private fun onModify(
     entityActor: Entity?,
     sourceType: String
 ) {
-    DatabaseManager.logAction(
+    ActionQueueService.addToQueue(
         ActionFactory.entityChangeAction(world, pos, oldEntityTags, entity, itemStack, entityActor, sourceType)
     )
 }

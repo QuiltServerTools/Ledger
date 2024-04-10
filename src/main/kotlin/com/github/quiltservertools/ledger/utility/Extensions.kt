@@ -8,6 +8,8 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.MutableText
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.times
 
 fun MutableText.appendWithSpace(text: Text) {
     this.append(text)
@@ -22,3 +24,6 @@ fun ServerCommandSource.hasPlayer() = this.entity is ServerPlayerEntity
 // fun String.translate(vararg args: Any) = TranslatableText(this, args)
 
 fun MinecraftServer.getWorld(identifier: Identifier?) = getWorld(RegistryKey.of(RegistryKeys.WORLD, identifier))
+
+val TICK_LENGTH = 50.milliseconds
+inline val Int.ticks get() = this * TICK_LENGTH

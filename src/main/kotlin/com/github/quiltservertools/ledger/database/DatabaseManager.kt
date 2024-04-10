@@ -5,7 +5,6 @@ import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
-import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
@@ -15,23 +14,27 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
-import kotlinx.coroutines.channels.Channel
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
+import javax.sql.DataSource
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
+import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
+import org.jetbrains.exposed.sql.SqlLogger
 import org.jetbrains.exposed.sql.Transaction
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
@@ -42,76 +45,86 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
+import org.jetbrains.exposed.sql.orWhere
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.statements.StatementContext
+import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.io.File
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.*
+import org.jetbrains.exposed.sql.update
+import org.sqlite.SQLiteDataSource
+import kotlin.io.path.pathString
 import kotlin.math.ceil
 
 object DatabaseManager {
 
     // These values are initialised late to allow the database to be created at server start,
     // which means the database file is located in the world folder and allows for per-world databases.
-    private lateinit var databaseFile: File
     private lateinit var database: Database
-    val dbMutex = Mutex()
+    val databaseType: String
+        get() = database.dialect.name
 
-    private val _actions = MutableSharedFlow<ActionType>(extraBufferCapacity = Channel.UNLIMITED)
-    val actions = _actions.asSharedFlow()
+    private val cache = DatabaseCacheService
+    private val dbMutex = Mutex()
+    private var enforceMutex = false
 
-    init {
-        Ledger.launch {
-            actions.collect {
-                try {
-                    execute {
-                        insertAction(it)
-                    }
-                } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-                    logWarn("Exception occurred while attempting to commit action. Skipping.", e)
-                }
-            }
-        }
+    fun setup(dataSource: DataSource?) {
+        val source = dataSource ?: getDefaultDatasource()
+        database = Database.connect(source)
     }
 
-    fun setValues(file: File, server: MinecraftServer) {
-        if (ExtensionManager.getDatabaseExtensionOptional().isPresent) {
-            // Extension present, load database from it
-            database = ExtensionManager.getDatabaseExtensionOptional().get().getDatabase(server)
-        } else {
-            // No database extension is present, load normally
-            databaseFile = file
-            database = Database.connect(
-                url = "jdbc:sqlite:${databaseFile.path.replace('\\', '/')}",
-            )
+    private fun getDefaultDatasource(): DataSource {
+        val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
+        enforceMutex = true
+        return SQLiteDataSource().apply {
+            url = "jdbc:sqlite:$dbFilepath"
         }
     }
 
     fun ensureTables() = transaction {
+        addLogger(object : SqlLogger {
+            override fun log(context: StatementContext, transaction: Transaction) {
+                Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+            }
+        })
         SchemaUtils.createMissingTablesAndColumns(
             Tables.Players,
             Tables.Actions,
             Tables.ActionIdentifiers,
             Tables.ObjectIdentifiers,
             Tables.Sources,
-            Tables.Worlds
+            Tables.Worlds,
+            withLogs = true
         )
         logInfo("Tables created")
     }
 
-    fun autoPurge() {
+    suspend fun setupCache() {
+        execute {
+            Tables.ActionIdentifier.all().forEach {
+                cache.actionIdentifierKeys.put(it.identifier, it.id.value)
+            }
+            Tables.World.all().forEach {
+                cache.worldIdentifierKeys.put(it.identifier, it.id.value)
+            }
+            Tables.ObjectIdentifier.all().forEach {
+                cache.objectIdentifierKeys.put(it.identifier, it.id.value)
+            }
+            Tables.Source.all().forEach {
+                cache.sourceKeys.put(it.name, it.id.value)
+            }
+        }
+    }
+
+    suspend fun autoPurge() {
         if (config[DatabaseSpec.autoPurgeDays] > 0) {
-            Ledger.launch {
-                execute {
-                    Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
-                    val deleted = Tables.Actions.deleteWhere {
-                        Tables.Actions.timestamp lessEq Instant.now()
-                            .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
-                    }
-                    Ledger.logger.info("Successfully purged $deleted actions")
+            execute {
+                Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
+                val deleted = Tables.Actions.deleteWhere {
+                    Tables.Actions.timestamp lessEq Instant.now()
+                        .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
                 }
+                Ledger.logger.info("Successfully purged $deleted actions")
             }
         }
     }
@@ -125,11 +138,11 @@ object DatabaseManager {
     }
 
     suspend fun rollbackActions(params: ActionSearchParams): List<ActionType> = execute {
-        return@execute selectRollbackActions(params)
+        return@execute selectAndRollbackActions(params)
     }
 
     suspend fun restoreActions(params: ActionSearchParams): List<ActionType> = execute {
-        return@execute selectRestoreActions(params)
+        return@execute selectAndRestoreActions(params)
     }
 
     suspend fun previewActions(
@@ -139,119 +152,126 @@ object DatabaseManager {
         return@execute selectActionsPreview(params, type)
     }
 
-    private fun daoToActionType(actions: List<Tables.Action>): List<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+    private fun getActionsFromQuery(query: Query): List<ActionType> {
+        val actions = mutableListOf<ActionType>()
 
-        for (action in actions) {
-            val typeSupplier = ActionRegistry.getType(action.actionIdentifier.identifier)
+        for (action in query) {
+            val typeSupplier = ActionRegistry.getType(action[Tables.ActionIdentifiers.actionIdentifier])
             if (typeSupplier == null) {
-                logWarn("Unknown action type ${action.actionIdentifier.identifier}")
+                logWarn("Unknown action type ${action[Tables.ActionIdentifiers.actionIdentifier]}")
                 continue
             }
 
             val type = typeSupplier.get()
-            type.timestamp = action.timestamp
-            type.pos = BlockPos(action.x, action.y, action.z)
-            type.world = action.world.identifier
-            type.objectIdentifier = action.objectId.identifier
-            type.oldObjectIdentifier = action.oldObjectId.identifier
-            type.objectState = action.blockState
-            type.oldObjectState = action.oldBlockState
-            type.sourceName = action.sourceName.name
-            type.sourceProfile = action.sourcePlayer?.let { GameProfile(it.playerId, it.playerName) }
-            type.extraData = action.extraData
-            type.rolledBack = action.rolledBack
+            type.timestamp = action[Tables.Actions.timestamp]
+            type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
+            type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
+            type.objectIdentifier = Identifier(action[Tables.ObjectIdentifiers.identifier])
+            type.oldObjectIdentifier = Identifier(
+            action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
+        )
+            type.objectState = action[Tables.Actions.blockState]
+            type.oldObjectState = action[Tables.Actions.oldBlockState]
+            type.sourceName = action[Tables.Sources.name]
+            type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
+                GameProfile(it, action[Tables.Players.playerName])
+            }
+            type.extraData = action[Tables.Actions.extraData]
+            type.rolledBack = action[Tables.Actions.rolledBack]
 
-            actionTypes.add(type)
+            actions.add(type)
         }
 
-        return actionTypes
+        return actions
     }
 
-    private fun buildQuery(params: ActionSearchParams): Query {
-        val oldObjectTable = Tables.ObjectIdentifiers.alias("oldObjects")
-
-        val query = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(oldObjectTable, { Tables.Actions.oldObjectId }, { oldObjectTable[Tables.ObjectIdentifiers.id] })
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+    private fun buildQueryParams(params: ActionSearchParams): Op<Boolean> {
+        var op: Op<Boolean> = Op.TRUE
 
         if (params.bounds != null) {
-            query.andWhere { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
-            query.andWhere { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
-            query.andWhere { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
+            op = op.and { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
+            op = op.and { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
+            op = op.and { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
         }
-
 
         if (params.before != null && params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
-                .andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+            op = op.and {
+                Tables.Actions.timestamp.greaterEq(params.after) and Tables.Actions.timestamp.lessEq(params.before)
+            }
         } else if (params.before != null) {
-            query.andWhere { Tables.Actions.timestamp.lessEq(params.before) }
+            op = op.and { Tables.Actions.timestamp.lessEq(params.before) }
         } else if (params.after != null) {
-            query.andWhere { Tables.Actions.timestamp.greaterEq(params.after) }
+            op = op.and { Tables.Actions.timestamp.greaterEq(params.after) }
         }
 
-        addParameters(
-            query,
-            params.sourceNames,
-            Tables.Sources.name
+        val sourceNames = ArrayList<Negatable<Int>>()
+        params.sourceNames?.forEach {
+            val sourceId = getSourceId(it.property)
+            if (sourceId != null) {
+                sourceNames.add(Negatable(sourceId, it.allowed))
+            } else {
+                // Unknown source name
+                op = Op.FALSE
+            }
+        }
+
+        val playerNames = ArrayList<Negatable<Int>>()
+        params.sourcePlayerIds?.forEach {
+            val playerId = getPlayerId(it.property)
+            if (playerId != null) {
+                playerNames.add(Negatable(playerId, it.allowed))
+            } else {
+                // Unknown player name
+                op = Op.FALSE
+            }
+        }
+
+        op = addParameters(
+            op,
+            sourceNames,
+            Tables.Actions.sourceName
         )
 
-        addParameters(
-            query,
-            params.actions,
-            Tables.ActionIdentifiers.actionIdentifier
+        op = addParameters(
+            op,
+            params.actions?.map { Negatable(getActionId(it.property), it.allowed) },
+            Tables.Actions.actionIdentifier
         )
 
-        addParameters(
-            query,
-            params.worlds?.map {
-                if (it.allowed) {
-                    Negatable.allow(it.property.toString())
-                } else {
-                    Negatable.deny(it.property.toString())
-                }
-            },
-            Tables.Worlds.identifier
+        op = addParameters(
+            op,
+            params.worlds?.map { Negatable(getWorldId(it.property), it.allowed) },
+            Tables.Actions.world
         )
 
-        addParameters(
-            query,
-            params.objects?.map {
-                if (it.allowed) {
-                    Negatable.allow(it.property.toString())
-                } else {
-                    Negatable.deny(it.property.toString())
-                }
-            },
-            Tables.ObjectIdentifiers.identifier,
-            oldObjectTable[Tables.ObjectIdentifiers.identifier]
+        op = addParameters(
+            op,
+            params.objects?.map { Negatable(getRegistryKeyId(it.property), it.allowed) },
+            Tables.Actions.objectId,
+            Tables.Actions.oldObjectId
         )
 
-        addParameters(
-            query,
-            params.sourcePlayerNames,
-            Tables.Players.playerName
+        op = addParameters(
+            op,
+            playerNames,
+            Tables.Actions.sourcePlayer
         )
 
-        return query
+        return op
     }
 
-    private fun <E> addParameters(
-        query: Query,
+    private fun <E : Comparable<E>, C : EntityID<E>?> addParameters(
+        op: Op<Boolean>,
         paramSet: Collection<Negatable<E>>?,
-        column: Column<E>,
-        orColumn: Column<E>? = null
-    ) {
+        column: Column<C>,
+        orColumn: Column<C>? = null,
+    ): Op<Boolean> {
         fun addAllowedParameters(
             allowed: Collection<E>,
-        ) {
-            if (allowed.isEmpty()) return
+            op: Op<Boolean>
+        ): Op<Boolean> {
+            if (allowed.isEmpty()) return op
+
 
             var operator = if (orColumn != null) {
                 Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
@@ -267,13 +287,14 @@ object DatabaseManager {
                 }
             }
 
-            query.andWhere { operator }
+            return op.and { operator }
         }
 
         fun addDeniedParameters(
-            denied: Collection<E>
-        ) {
-            if (denied.isEmpty()) return
+            denied: Collection<E>,
+            op: Op<Boolean>
+        ): Op<Boolean> {
+            if (denied.isEmpty()) return op
 
             var operator = if (orColumn != null) {
                 Op.build { column neq denied.first() and (orColumn neq denied.first()) }
@@ -289,19 +310,22 @@ object DatabaseManager {
                 }
             }
 
-            query.andWhere { operator }
+            return op.and { operator }
         }
 
-        if (paramSet.isNullOrEmpty()) return
+        if (paramSet.isNullOrEmpty()) return op
 
-        addAllowedParameters(paramSet.filter { it.allowed }.map { it.property })
-        addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property })
+        var newOp = op
+        newOp = addAllowedParameters(paramSet.filter { it.allowed }.map { it.property }, newOp)
+        newOp = addDeniedParameters(paramSet.filterNot { it.allowed }.map { it.property }, newOp)
+
+        return newOp
     }
 
-    fun logAction(action: ActionType) {
-        if (action.isBlacklisted()) return
-
-        _actions.tryEmit(action)
+    suspend fun logActionBatch(actions: List<ActionType>) {
+        execute {
+            insertActions(actions)
+        }
     }
 
     suspend fun registerWorld(identifier: Identifier) =
@@ -316,7 +340,7 @@ object DatabaseManager {
 
     suspend fun logPlayer(uuid: UUID, name: String) =
         execute {
-            insertPlayer(uuid, name)
+            insertOrUpdatePlayer(uuid, name)
         }
 
     suspend fun insertIdentifiers(identifiers: Collection<Identifier>) =
@@ -324,16 +348,23 @@ object DatabaseManager {
             insertRegKeys(identifiers)
         }
 
-    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T =
-        dbMutex.withLock {
-            while (Ledger.server.overworld?.savingDisabled != false) {
-                delay(timeMillis = 1000)
-            }
-
-            newSuspendedTransaction(db = database) {
-                body(this)
-            }
+    private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
+        if (enforceMutex) dbMutex.lock()
+        while (Ledger.server.overworld?.savingDisabled != false) {
+            delay(timeMillis = 1000)
         }
+
+        return newSuspendedTransaction(db = database) {
+            if (Ledger.config[DatabaseSpec.logSQL]) {
+                addLogger(object : SqlLogger {
+                    override fun log(context: StatementContext, transaction: Transaction) {
+                        Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+                    }
+                })
+            }
+            body(this)
+        }.also { if (enforceMutex) dbMutex.unlock() }
+    }
 
     suspend fun purgeActions(params: ActionSearchParams) {
         execute {
@@ -347,10 +378,8 @@ object DatabaseManager {
         }
 
     private fun Transaction.insertActionType(id: String) {
-        if (Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.empty()) {
-            val actionIdentifier = Tables.ActionIdentifier.new {
-                identifier = id
-            }
+        Tables.ActionIdentifiers.insertIgnore {
+            it[actionIdentifier] = id
         }
     }
 
@@ -366,25 +395,25 @@ object DatabaseManager {
         }
     }
 
-    private fun Transaction.insertAction(action: ActionType) {
-        Tables.Action.new {
-            actionIdentifier = selectActionId(action.identifier)
-            timestamp = action.timestamp
-            x = action.pos.x
-            y = action.pos.y
-            z = action.pos.z
-            objectId = selectRegistryKey(action.objectIdentifier)
-            oldObjectId = selectRegistryKey(action.oldObjectIdentifier)
-            world = selectWorld(action.world ?: Ledger.server.overworld.registryKey.value)
-            blockState = action.objectState
-            oldBlockState = action.oldObjectState
-            sourceName = insertAndSelectSource(action.sourceName)
-            sourcePlayer = action.sourceProfile?.let { selectPlayer(it.id) }
-            extraData = action.extraData
+    private fun Transaction.insertActions(actions: List<ActionType>) {
+        Tables.Actions.batchInsert(actions, shouldReturnGeneratedValues = false) { action ->
+            this[Tables.Actions.actionIdentifier] = getActionId(action.identifier)
+            this[Tables.Actions.timestamp] = action.timestamp
+            this[Tables.Actions.x] = action.pos.x
+            this[Tables.Actions.y] = action.pos.y
+            this[Tables.Actions.z] = action.pos.z
+            this[Tables.Actions.objectId] = getRegistryKeyId(action.objectIdentifier)
+            this[Tables.Actions.oldObjectId] = getRegistryKeyId(action.oldObjectIdentifier)
+            this[Tables.Actions.world] = getWorldId(action.world ?: Ledger.server.overworld.registryKey.value)
+            this[Tables.Actions.blockState] = action.objectState
+            this[Tables.Actions.oldBlockState] = action.oldObjectState
+            this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
+            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getPlayerId(it.id) }
+            this[Tables.Actions.extraData] = action.extraData
         }
     }
 
-    private fun Transaction.insertPlayer(uuid: UUID, name: String) {
+    private fun Transaction.insertOrUpdatePlayer(uuid: UUID, name: String) {
         val player = Tables.Player.find { Tables.Players.playerId eq uuid }.firstOrNull()
 
         if (player != null) {
@@ -399,123 +428,182 @@ object DatabaseManager {
     }
 
     private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
-        val actionTypes = mutableListOf<ActionType>()
-        var totalActions: Long = 0
+        val actions = mutableListOf<ActionType>()
+        var totalActions: Long
 
-        var query = buildQuery(params)
+        var query = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) }
 
-        totalActions = query.copy().count()
-        if (totalActions == 0L) return SearchResults(actionTypes, params, page, 0)
+        totalActions = countActions(params)
+        if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
         query = query.limit(
             config[SearchSpec.pageSize],
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
-        ).withDistinct()
+        ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
 
-        val actions = Tables.Action.wrapRows(query).toList()
-
-        actionTypes.addAll(daoToActionType(actions))
+        actions.addAll(getActionsFromQuery(query))
 
         val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
 
-        return SearchResults(actionTypes, params, page, totalPages)
+        return SearchResults(actions, params, page, totalPages)
     }
 
-    private fun Transaction.countActions(params: ActionSearchParams): Long = buildQuery(params).copy().count()
+    private fun Transaction.countActions(params: ActionSearchParams): Long = Tables.Actions
+        .selectAll()
+        .andWhere { buildQueryParams(params) }
+        .count()
 
     private fun Transaction.selectActionsPreview(
         params: ActionSearchParams,
         type: Preview.Type
     ): MutableList<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+        val actions = mutableListOf<ActionType>()
 
         val isRestore = type == Preview.Type.RESTORE
 
-        val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq isRestore }
+        val selectQuery = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq isRestore) }
             .orderBy(Tables.Actions.id, if (isRestore) SortOrder.ASC else SortOrder.DESC)
+        actions.addAll(getActionsFromQuery(selectQuery))
 
-        val actions = Tables.Action.wrapRows(query).toList()
-        actionTypes.addAll(daoToActionType(actions))
-
-        return actionTypes
+        return actions
     }
 
-    private fun Transaction.selectRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+    private fun Transaction.selectAndRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
+        val actions = mutableListOf<ActionType>()
 
-        val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq false }
+        val selectQuery = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq false) }
             .orderBy(Tables.Actions.id, SortOrder.DESC)
+        val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet() // SQLite doesn't support update where so select by ID. Might not be as efficent
+        actions.addAll(getActionsFromQuery(selectQuery))
 
-        val actions = Tables.Action.wrapRows(query).toList()
-        for (action in actions) {
-            action.rolledBack = true
-        }
+        val updateQuery = Tables.Actions
+            .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq false) }) {
+                it[rolledBack] = true
+            }
 
-        actionTypes.addAll(daoToActionType(actions))
-
-        return actionTypes
+        return actions
     }
 
-    private fun Transaction.selectRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
-        val actionTypes = mutableListOf<ActionType>()
+    private fun Transaction.selectAndRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
+        val actions = mutableListOf<ActionType>()
 
-        val query = buildQuery(params)
-            .andWhere { Tables.Actions.rolledBack eq true }
+        val selectQuery = Tables.Actions
+            .innerJoin(Tables.ActionIdentifiers)
+            .innerJoin(Tables.Worlds)
+            .leftJoin(Tables.Players)
+            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.Sources)
+            .selectAll()
+            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq true) }
             .orderBy(Tables.Actions.id, SortOrder.ASC)
+        val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet()
+        actions.addAll(getActionsFromQuery(selectQuery))
 
-        val actions = Tables.Action.wrapRows(query).toList()
-        for (action in actions) {
-            action.rolledBack = false
-        }
+        val updateQuery = Tables.Actions
+            .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq true) }) {
+                it[rolledBack] = false
+            }
 
-        actionTypes.addAll(daoToActionType(actions))
-
-        return actionTypes
+        return actions
     }
 
-    private fun Transaction.selectPlayer(playerId: UUID) =
-        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()
+    private fun getPlayerId(playerId: UUID): Int? {
+        cache.playerKeys.getIfPresent(playerId)?.let { return it }
+
+        return Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()?.id?.value?.also {
+            cache.playerKeys.put(playerId, it)
+        }
+    }
 
     private fun Transaction.selectPlayer(playerName: String) =
         Tables.Player.find { Tables.Players.playerName.lowerCase() eq playerName }.firstOrNull()
 
-    private fun Transaction.insertAndSelectSource(source: String): Tables.Source {
-        var sourceDAO = Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()
+    fun getKnownSources() =
+        cache.sourceKeys.asMap().keys
 
-        if (sourceDAO == null) {
-            sourceDAO = Tables.Source[Tables.Sources.insertAndGetId {
+    private fun getSourceId(source: String): Int? {
+        cache.sourceKeys.getIfPresent(source)?.let { return it }
+
+        return Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()?.id?.value.also {
+            it?.let { cache.sourceKeys.put(source, it) }
+        }
+    }
+
+    private fun getOrCreateSourceId(source: String): Int {
+        cache.sourceKeys.getIfPresent(source)?.let { return it }
+
+        Tables.Source.find { Tables.Sources.name eq source }.firstOrNull()?.let { return it.id.value }
+
+        return Tables.Source[
+            Tables.Sources.insertAndGetId {
                 it[name] = source
-            }]
-        }
-
-        return sourceDAO
+            }
+        ].id.value.also { cache.sourceKeys.put(source, it) }
     }
 
-    private fun Transaction.selectActionId(id: String) =
-        Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq id }.first()
+    private fun getActionId(actionTypeId: String): Int {
+        cache.actionIdentifierKeys.getIfPresent(actionTypeId)?.let { return it }
 
-    private fun Transaction.selectRegistryKey(identifier: Identifier) =
-        Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }.limit(1).first()
-
-    private fun Transaction.selectWorld(identifier: Identifier) =
-        Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first()
-
-    private fun Transaction.purgeActions(params: ActionSearchParams) {
-        val query = buildQuery(params)
-        val actions = Tables.Action.wrapRows(query).toList()
-        actions.forEach { action ->
-            action.delete()
-        }
+        return Tables.ActionIdentifier.find { Tables.ActionIdentifiers.actionIdentifier eq actionTypeId }
+            .first().id.value
+            .also { cache.actionIdentifierKeys.put(actionTypeId, it) }
     }
+
+    private fun getRegistryKeyId(identifier: Identifier): Int {
+        cache.objectIdentifierKeys.getIfPresent(identifier)?.let { return it }
+
+        return Tables.ObjectIdentifier.find { Tables.ObjectIdentifiers.identifier eq identifier.toString() }
+            .limit(1).first().id.value
+            .also { cache.objectIdentifierKeys.put(identifier, it) }
+    }
+
+    private fun getWorldId(identifier: Identifier): Int {
+        cache.worldIdentifierKeys.getIfPresent(identifier)?.let { return it }
+
+        return Tables.World.find { Tables.Worlds.identifier eq identifier.toString() }.limit(1).first().id.value
+            .also { cache.worldIdentifierKeys.put(identifier, it) }
+    }
+
+    // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
+    private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
+        .deleteWhere {
+            Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
+                .where(buildQueryParams(params))
+        }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
-
-        addParameters(query, players.map { Negatable.allow(it.id) }, Tables.Players.playerId)
+        for (player in players) {
+            query.orWhere { Tables.Players.playerId eq player.id }
+        }
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
+
 }
