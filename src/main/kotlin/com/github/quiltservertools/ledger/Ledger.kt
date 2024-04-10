@@ -3,11 +3,13 @@ package com.github.quiltservertools.ledger
 import com.github.quiltservertools.ledger.config.config as realConfig
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.api.ExtensionManager
 import com.github.quiltservertools.ledger.api.LedgerApi
 import com.github.quiltservertools.ledger.api.LedgerApiImpl
 import com.github.quiltservertools.ledger.commands.registerCommands
 import com.github.quiltservertools.ledger.config.CONFIG_PATH
 import com.github.quiltservertools.ledger.config.DatabaseSpec
+import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.listeners.registerBlockListeners
 import com.github.quiltservertools.ledger.listeners.registerEntityListeners
@@ -19,11 +21,11 @@ import com.github.quiltservertools.ledger.network.packet.handshake.HandshakeS2CP
 import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
-import java.nio.file.Files
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
+import java.nio.file.Files
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -36,16 +38,17 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
-import net.minecraft.util.WorldSavePath
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.jetbrains.exposed.sql.vendors.SQLiteDialect
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
-    const val DEFAULT_DATABASE = "sqlite"
+    val DEFAULT_DATABASE = SQLiteDialect.dialectName
 
     @JvmStatic
     val api: LedgerApi = LedgerApiImpl
@@ -54,6 +57,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     lateinit var config: Config
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
+    @JvmField // Required for mixin access
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
     override val coroutineContext: CoroutineContext = Dispatchers.IO
@@ -82,32 +86,49 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
 
     private fun serverStarting(server: MinecraftServer) {
         this.server = server
-        DatabaseManager.setValues(server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").toFile(), server)
+        ExtensionManager.serverStarting(server)
+        DatabaseManager.setup(ExtensionManager.getDataSource())
         DatabaseManager.ensureTables()
-        DatabaseManager.autoPurge()
+
         ActionRegistry.registerDefaultTypes()
         initListeners()
         Networking
 
-        val idSet = setOf<Identifier>()
-            .plus(Registries.BLOCK.ids)
-            .plus(Registries.ITEM.ids)
-            .plus(Registries.ENTITY_TYPE.ids)
-
         Ledger.launch {
+            val idSet = setOf<Identifier>()
+                .plus(Registries.BLOCK.ids)
+                .plus(Registries.ITEM.ids)
+                .plus(Registries.ENTITY_TYPE.ids)
+
             logInfo("Inserting ${idSet.size} registry keys into the database...")
             DatabaseManager.insertIdentifiers(idSet)
             logInfo("Registry insert complete")
+
+            DatabaseManager.setupCache()
+            DatabaseManager.autoPurge()
+        }.invokeOnCompletion {
+            ActionQueueService.start()
         }
     }
 
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
-            withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
-                while (DatabaseManager.dbMutex.isLocked) {
-                    logInfo("Database queue is still draining. If you exit now actions WILL be lost")
-                    delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
+            try {
+                withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
+                    Ledger.launch(Dispatchers.Default) {
+                        while (ActionQueueService.size > 0) {
+                            logInfo(
+                                "Database is still busy. If you exit now data WILL be lost. Actions in queue: ${ActionQueueService.size}"
+                            )
+
+                            delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
+                        }
+                    }
+                    ActionQueueService.drainAll()
+                    logInfo("Successfully drained database queue")
                 }
+            } catch (e: TimeoutCancellationException) {
+                logWarn("Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost.")
             }
         }
     }

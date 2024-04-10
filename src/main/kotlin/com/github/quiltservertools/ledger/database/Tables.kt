@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.javatime.timestamp
 import java.time.Instant
 
@@ -44,6 +45,8 @@ object Tables {
         val identifier = varchar("identifier", MAX_IDENTIFIER_LENGTH).uniqueIndex()
     }
 
+    public val oldObjectTable = ObjectIdentifiers.alias("oldObjects")
+
     class ObjectIdentifier(id: EntityID<Int>) : IntEntity(id) {
         var identifier by ObjectIdentifiers.identifier.transform({ it.toString() }, { Identifier.tryParse(it)!! })
 
@@ -51,24 +54,25 @@ object Tables {
     }
 
     object Actions : IntIdTable("actions") {
-        val actionIdentifier = reference("action_id", ActionIdentifiers.id)
+        val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
         val timestamp = timestamp("time")
         val x = integer("x")
         val y = integer("y")
         val z = integer("z")
         val world = reference("world_id", Worlds.id)
-        val objectId = reference("object_id", ObjectIdentifiers.id)
-        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id)
+        val objectId = reference("object_id", ObjectIdentifiers.id).index()
+        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id).index()
         val blockState = text("block_state").nullable()
         val oldBlockState = text("old_block_state").nullable()
-        val sourceName = reference("source", Sources.id)
-        val sourcePlayer = optReference("player_id", Players.id)
+        val sourceName = reference("source", Sources.id).index()
+        val sourcePlayer = optReference("player_id", Players.id).index()
         val extraData = text("extra_data").nullable()
         val rolledBack = bool("rolled_back").clientDefault { false }
 
         init {
             index("actions_by_location", false, x, y, z, world)
         }
+
     }
 
     class Action(id: EntityID<Int>) : IntEntity(id) {

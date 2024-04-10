@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.config.ActionsSpec
 import com.github.quiltservertools.ledger.config.config
 import com.mojang.authlib.GameProfile
@@ -28,8 +29,8 @@ interface ActionType {
 
     fun rollback(server: MinecraftServer): Boolean
     fun restore(server: MinecraftServer): Boolean
-    fun previewRollback(player: ServerPlayerEntity)
-    fun previewRestore(player: ServerPlayerEntity)
+    fun previewRollback(preview: Preview, player: ServerPlayerEntity)
+    fun previewRestore(preview: Preview, player: ServerPlayerEntity)
     fun getTranslationType(): String
 
     @ExperimentalTime

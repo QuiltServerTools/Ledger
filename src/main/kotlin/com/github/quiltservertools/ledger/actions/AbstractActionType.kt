@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
@@ -33,8 +34,8 @@ abstract class AbstractActionType : ActionType {
     override var rolledBack: Boolean = false
 
     override fun rollback(server: MinecraftServer): Boolean = false
-    override fun previewRollback(player: ServerPlayerEntity) = Unit
-    override fun previewRestore(player: ServerPlayerEntity) = Unit
+    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) = Unit
+    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) = Unit
     override fun restore(server: MinecraftServer): Boolean = false
 
     @ExperimentalTime
