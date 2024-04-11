@@ -4,7 +4,7 @@ Ledger supports numerous custom packets for interacting with supported client mo
 
 ## Versions
 
-The information on this page is applicable for Ledger Networking versions 3, which is the version in Ledger versions `1.2.10` and later
+The information on this page is applicable for Ledger Networking version 3, which is the version in Ledger versions `1.3.0` and later
 
 ## Packet Types
 
