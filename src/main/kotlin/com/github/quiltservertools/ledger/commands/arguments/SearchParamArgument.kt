@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.commands.arguments
 
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
+import com.github.quiltservertools.ledger.commands.parameters.ChatmessageParameter
 import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
 import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
 import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
@@ -41,6 +42,7 @@ object SearchParamArgument {
         paramSuggesters["before"] = Parameter(TimeParameter())
         paramSuggesters["after"] = Parameter(TimeParameter())
         paramSuggesters["rolledback"] = Parameter(RollbackStatusParameter())
+        paramSuggesters["chatmessage"] = Parameter(ChatmessageParameter())
     }
 
     fun argument(name: String): RequiredArgumentBuilder<ServerCommandSource, String> {
@@ -172,6 +174,10 @@ object SearchParamArgument {
                 "rolledback" -> {
                     val rolledBack = value as Boolean
                     builder.rolledBack = rolledBack
+                }
+                "chatmessage" -> {
+                    val chatMessage = value as Boolean
+                    builder.chatMessage = chatMessage
                 }
             }
         }

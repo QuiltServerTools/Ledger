@@ -11,6 +11,7 @@ data class ActionSearchParams(
     val before: Instant?,
     val after: Instant?,
     val rolledBack: Boolean?,
+    val chatMessage: Boolean?,
     var actions: MutableSet<Negatable<String>>?,
     var objects: MutableSet<Negatable<Identifier>>?,
     var sourceNames: MutableSet<Negatable<String>>?,
@@ -22,6 +23,7 @@ data class ActionSearchParams(
         builder.before,
         builder.after,
         builder.rolledBack,
+        builder.chatMessage,
         builder.actions,
         builder.objects,
         builder.sourceNames,
@@ -29,7 +31,7 @@ data class ActionSearchParams(
         builder.worlds
     )
 
-    fun isEmpty() = listOf(bounds, before, after, actions, objects, sourceNames, sourcePlayerIds, worlds, rolledBack).all { it == null }
+    fun isEmpty() = listOf(bounds, before, after, actions, objects, sourceNames, sourcePlayerIds, worlds, rolledBack, chatMessage).all { it == null }
 
     companion object {
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
@@ -40,6 +42,7 @@ data class ActionSearchParams(
         var before: Instant? = null
         var after: Instant? = null
         var rolledBack: Boolean? = null
+        var chatMessage: Boolean? = null
         var actions: MutableSet<Negatable<String>>? = null
         var objects: MutableSet<Negatable<Identifier>>? = null
         var sourceNames: MutableSet<Negatable<String>>? = null
