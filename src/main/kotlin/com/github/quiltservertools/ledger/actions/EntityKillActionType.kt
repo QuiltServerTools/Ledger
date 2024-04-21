@@ -6,10 +6,9 @@ import com.github.quiltservertools.ledger.utility.getWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.network.EntityTrackerEntry
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.Vec3d
 
@@ -29,8 +28,9 @@ class EntityKillActionType : AbstractActionType() {
         entity.health = entity.defaultMaxHealth.toFloat()
         entity.velocity = Vec3d.ZERO
         entity.fireTicks = 0
-        player.networkHandler.sendPacket(EntitySpawnS2CPacket(entity))
-        preview.spawnedEntityIds.add(entity.id)
+        val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false) { }
+        entityTrackerEntry.startTracking(player)
+        preview.spawnedEntityTrackers.add(entityTrackerEntry)
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
@@ -41,8 +41,9 @@ class EntityKillActionType : AbstractActionType() {
             val uuid = tag.getUuid("UUID")
             val entity = world?.getEntity(uuid)
             entity?.let {
-                player.networkHandler.sendPacket(EntitiesDestroyS2CPacket(it.id))
-                preview.removedEntityUuids.add(it.uuid)
+                val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false) { }
+                entityTrackerEntry.stopTracking(player)
+                preview.removedEntityTrackers.add(entityTrackerEntry)
             }
         }
     }
