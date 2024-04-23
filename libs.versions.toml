@@ -1,7 +1,7 @@
 [versions]
 minecraft = "1.20.4"
 yarn-mappings = "1.20.4+build.1"
-fabric-loader = "0.15.1"
+fabric-loader = "0.15.10"
 
 fabric-api = "0.91.3+1.20.4"
 
@@ -10,7 +10,7 @@ kotlin = "1.8.22"
 # Also modrinth version in gradle.properties
 fabric-kotlin = "1.9.4+kotlin.1.8.21"
 
-fabric-permissions = "0.3-SNAPSHOT"
+fabric-permissions = "0.3.1"
 translations = "2.2.0+1.20.3-rc1"
 
 exposed = "0.46.0"
@@ -45,6 +45,6 @@ wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.19.0" }
-loom = { id = "fabric-loom", version = "1.4.+" }
+loom = { id = "fabric-loom", version = "1.6.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
