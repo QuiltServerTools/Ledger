@@ -8,20 +8,16 @@ import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
+import com.github.quiltservertools.ledger.config.getDatabasePath
 import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.*
-import javax.sql.DataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import net.minecraft.util.Identifier
-import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column
@@ -30,7 +26,6 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlLogger
@@ -54,6 +49,10 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.sqlite.SQLiteDataSource
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
+import javax.sql.DataSource
 import kotlin.io.path.pathString
 import kotlin.math.ceil
 
@@ -75,7 +74,7 @@ object DatabaseManager {
     }
 
     private fun getDefaultDatasource(): DataSource {
-        val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
+        val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         enforceMutex = true
         return SQLiteDataSource().apply {
             url = "jdbc:sqlite:$dbFilepath"
