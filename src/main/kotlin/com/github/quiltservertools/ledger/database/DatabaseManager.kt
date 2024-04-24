@@ -14,10 +14,6 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.*
-import javax.sql.DataSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import net.minecraft.util.Identifier
@@ -53,6 +49,10 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.sqlite.SQLiteDataSource
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
+import javax.sql.DataSource
 import kotlin.io.path.pathString
 import kotlin.math.ceil
 
@@ -272,7 +272,6 @@ object DatabaseManager {
         ): Op<Boolean> {
             if (allowed.isEmpty()) return op
 
-
             var operator = if (orColumn != null) {
                 Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
             } else {
@@ -435,7 +434,9 @@ object DatabaseManager {
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
-            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.oldObjectTable, {
+                Tables.Actions.oldObjectId
+            }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -474,7 +475,9 @@ object DatabaseManager {
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
-            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.oldObjectTable, {
+                Tables.Actions.oldObjectId
+            }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -492,16 +495,20 @@ object DatabaseManager {
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
-            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.oldObjectTable, {
+                Tables.Actions.oldObjectId
+            }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
             .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq false) }
             .orderBy(Tables.Actions.id, SortOrder.DESC)
-        val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet() // SQLite doesn't support update where so select by ID. Might not be as efficent
+        val actionIds = selectQuery.map {
+            it[Tables.Actions.id]
+        }.toSet() // SQLite doesn't support update where so select by ID. Might not be as efficent
         actions.addAll(getActionsFromQuery(selectQuery))
 
-        val updateQuery = Tables.Actions
+        Tables.Actions
             .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq false) }) {
                 it[rolledBack] = true
             }
@@ -516,7 +523,9 @@ object DatabaseManager {
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
-            .innerJoin(Tables.oldObjectTable, { Tables.Actions.oldObjectId }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+            .innerJoin(Tables.oldObjectTable, {
+                Tables.Actions.oldObjectId
+            }, { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -525,7 +534,7 @@ object DatabaseManager {
         val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet()
         actions.addAll(getActionsFromQuery(selectQuery))
 
-        val updateQuery = Tables.Actions
+        Tables.Actions
             .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq true) }) {
                 it[rolledBack] = false
             }
@@ -605,5 +614,4 @@ object DatabaseManager {
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
-
 }

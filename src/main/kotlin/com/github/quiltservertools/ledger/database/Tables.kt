@@ -72,7 +72,6 @@ object Tables {
         init {
             index("actions_by_location", false, x, y, z, world)
         }
-
     }
 
     class Action(id: EntityID<Int>) : IntEntity(id) {

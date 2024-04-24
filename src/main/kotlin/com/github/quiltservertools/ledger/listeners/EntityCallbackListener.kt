@@ -11,7 +11,6 @@ import net.minecraft.nbt.NbtCompound
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-
 fun registerEntityListeners() {
     EntityKillCallback.EVENT.register(::onKill)
     EntityModifyCallback.EVENT.register(::onModify)

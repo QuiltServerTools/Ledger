@@ -6,10 +6,6 @@ import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionS2CPacket
-import java.time.Duration
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.ClickEvent
@@ -17,13 +13,16 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.MutableText
 import net.minecraft.text.Style
 import net.minecraft.text.Text
+import java.time.Duration
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
 object MessageUtils {
     @OptIn(ExperimentalTime::class)
     suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
-
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
         if (source.hasPlayer() && source.playerOrThrow.hasNetworking()) {
             for (n in results.page..results.pages) {

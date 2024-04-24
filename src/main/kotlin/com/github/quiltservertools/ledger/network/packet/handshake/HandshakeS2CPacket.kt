@@ -26,6 +26,8 @@ data class HandshakeS2CPacket(val content: HandshakeContent) : CustomPayload {
 
     companion object {
         val ID: CustomPayload.Id<HandshakeS2CPacket> = CustomPayload.Id(LedgerPacketTypes.HANDSHAKE.id)
-        val CODEC: PacketCodec<PacketByteBuf, HandshakeS2CPacket> = CustomPayload.codecOf(HandshakeS2CPacket::write) { _: PacketByteBuf? -> TODO() }
+        val CODEC: PacketCodec<PacketByteBuf, HandshakeS2CPacket> = CustomPayload.codecOf(
+            HandshakeS2CPacket::write
+        ) { _: PacketByteBuf? -> TODO() }
     }
 }

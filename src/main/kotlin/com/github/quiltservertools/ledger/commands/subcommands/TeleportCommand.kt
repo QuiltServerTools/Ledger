@@ -1,15 +1,15 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
+import com.github.quiltservertools.ledger.commands.BuildableCommand
+import com.github.quiltservertools.ledger.commands.CommandConsts
+import com.github.quiltservertools.ledger.utility.Context
+import com.github.quiltservertools.ledger.utility.LiteralNode
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.command.argument.DimensionArgumentType
 import net.minecraft.command.argument.PosArgument
 import net.minecraft.command.argument.Vec3ArgumentType
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.world.ServerWorld
-import com.github.quiltservertools.ledger.commands.BuildableCommand
-import com.github.quiltservertools.ledger.commands.CommandConsts
-import com.github.quiltservertools.ledger.utility.Context
-import com.github.quiltservertools.ledger.utility.LiteralNode
 
 object TeleportCommand : BuildableCommand {
     override fun build(): LiteralNode =

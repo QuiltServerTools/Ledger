@@ -17,6 +17,11 @@ data class PlayerResult(val uuid: UUID, val name: String, val firstJoin: Instant
     }
 
     companion object {
-        fun fromRow(row: Tables.Player): PlayerResult = PlayerResult(row.playerId, row.playerName, row.firstJoin, row.lastJoin)
+        fun fromRow(row: Tables.Player): PlayerResult = PlayerResult(
+            row.playerId,
+            row.playerName,
+            row.firstJoin,
+            row.lastJoin
+        )
     }
 }

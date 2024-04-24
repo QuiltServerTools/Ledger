@@ -21,7 +21,7 @@ data class RollbackC2SPacket(val input: String) : CustomPayload {
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<RollbackC2SPacket> {
         val ID: CustomPayload.Id<RollbackC2SPacket> = CustomPayload.Id(LedgerPacketTypes.ROLLBACK.id)
-        val CODEC: PacketCodec<PacketByteBuf, RollbackC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO()}, {
+        val CODEC: PacketCodec<PacketByteBuf, RollbackC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
             RollbackC2SPacket(it.readString())
         })
 
@@ -29,22 +29,30 @@ data class RollbackC2SPacket(val input: String) : CustomPayload {
             val player = context.player()
             val sender = context.responseSender()
             if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
-                !Permissions.check(player, "ledger.commands.purge", CommandConsts.PERMISSION_LEVEL)) {
-                ResponseS2CPacket.sendResponse(ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.NO_PERMISSION.code), sender)
+                !Permissions.check(player, "ledger.commands.purge", CommandConsts.PERMISSION_LEVEL)
+            ) {
+                ResponseS2CPacket.sendResponse(
+                    ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.NO_PERMISSION.code),
+                    sender
+                )
                 return
             }
 
             val params = SearchParamArgument.get(payload.input, player.commandSource)
 
-            ResponseS2CPacket.sendResponse(ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.EXECUTING.code), sender)
+            ResponseS2CPacket.sendResponse(
+                ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.EXECUTING.code),
+                sender
+            )
 
             Ledger.launch {
-
                 DatabaseManager.purgeActions(params)
 
-                ResponseS2CPacket.sendResponse(ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.COMPLETED.code), sender)
+                ResponseS2CPacket.sendResponse(
+                    ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.COMPLETED.code),
+                    sender
+                )
             }
         }
     }
-
 }

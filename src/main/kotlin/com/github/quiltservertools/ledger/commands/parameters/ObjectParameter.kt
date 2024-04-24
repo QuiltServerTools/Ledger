@@ -27,13 +27,21 @@ class ObjectParameter : SimpleParameter<List<Identifier>>() {
             val tagId = IdentifierArgumentType.identifier().parse(stringReader)
 
             val blockTag = TagKey.of(RegistryKeys.BLOCK, tagId)
-            if (blockTag != null) return Registries.BLOCK.iterateEntries(blockTag).map { Registries.BLOCK.getId(it.value()) }
+            if (blockTag != null) {
+                return Registries.BLOCK.iterateEntries(
+                    blockTag
+                ).map { Registries.BLOCK.getId(it.value()) }
+            }
 
             val itemTag = TagKey.of(RegistryKeys.ITEM, tagId)
             if (itemTag != null) Registries.ITEM.iterateEntries(itemTag).map { Registries.ITEM.getId(it.value()) }
 
             val entityTag = TagKey.of(RegistryKeys.ENTITY_TYPE, tagId)
-            if (entityTag != null) return Registries.ENTITY_TYPE.iterateEntries(entityTag).map { Registries.ENTITY_TYPE.getId(it.value()) }
+            if (entityTag != null) {
+                return Registries.ENTITY_TYPE.iterateEntries(entityTag).map {
+                Registries.ENTITY_TYPE.getId(it.value())
+            }
+            }
         }
 
         return listOf(IdentifierArgumentType.identifier().parse(stringReader))

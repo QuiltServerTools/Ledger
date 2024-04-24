@@ -1,17 +1,17 @@
 [versions]
-minecraft = "1.20.5-pre1"
-yarn-mappings = "1.20.5-pre1+build.2"
-fabric-loader = "0.15.9"
+minecraft = "1.20.5"
+yarn-mappings = "1.20.5+build.1"
+fabric-loader = "0.15.10"
 
-fabric-api = "0.96.14+1.20.5"
+fabric-api = "0.97.6+1.20.5"
 
 # Kotlin
-kotlin = "1.8.22"
+kotlin = "1.9.23"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.9.4+kotlin.1.8.21"
+fabric-kotlin = "1.10.19+kotlin.1.9.23"
 
-fabric-permissions = "0.3-SNAPSHOT"
-translations = "2.2.0+1.20.3-rc1"
+fabric-permissions = "0.3.1"
+translations = "2.3.0+1.20.5-rc2"
 
 exposed = "0.46.0"
 sqlite-jdbc = "3.44.1.0"
@@ -19,6 +19,8 @@ sqlite-jdbc = "3.44.1.0"
 konf = "1.1.2"
 
 wdmcf = "1.0.2"
+
+detect = "1.23.6"
 
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
@@ -39,12 +41,14 @@ sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detect" }
 
 wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.19.0" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detect" }
 loom = { id = "fabric-loom", version = "1.6.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
-shadow = { id = "com.github.johnrengelman.shadow", version = "7.1.2" }
+# https://github.com/johnrengelman/shadow/issues/894
+shadow = { id = "io.github.goooler.shadow", version = "8.1.7" }

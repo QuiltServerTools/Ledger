@@ -46,7 +46,8 @@ class EntityChangeActionType : AbstractActionType() {
                         objectIdentifier.toString().literal()
                     )
                 )
-            })
+            }
+        )
 
         if (extraData != null && Identifier(extraData) != Identifier.tryParse("minecraft:air")) {
             val stack = ItemStack(Registries.ITEM.get(Identifier(extraData)))
@@ -64,7 +65,8 @@ class EntityChangeActionType : AbstractActionType() {
                             HoverEvent.ItemStackContent(stack)
                         )
                     )
-                })
+                }
+            )
         }
         return text
     }
@@ -88,7 +90,6 @@ class EntityChangeActionType : AbstractActionType() {
         }
         return false
     }
-
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)

@@ -9,7 +9,6 @@ import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
 import com.github.quiltservertools.ledger.network.packet.handshake.HandshakeContent
 import com.github.quiltservertools.ledger.network.packet.handshake.ModInfo
 import com.github.quiltservertools.ledger.registry.ActionRegistry
-import java.util.*
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
@@ -18,6 +17,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.text.Text
+import java.util.*
 
 data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
 
@@ -39,7 +39,8 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
                 val modid = info.get().modid
                 val modVersion = info.get().version
                 val ledgerVersion = FabricLoader.getInstance().getModContainer(
-                    Ledger.MOD_ID).get().metadata.version.friendlyString
+                    Ledger.MOD_ID
+                ).get().metadata.version.friendlyString
                 if (Networking.protocolVersion == info.get().protocolVersion) {
                     logInfo("${player.name.string} joined the server with a Ledger compatible client mod")
                     logInfo("Mod: $modid, Version: $modVersion")
@@ -58,12 +59,16 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
                     player.sendMessage(
                         Text.translatable(
                             "text.ledger.network.protocols_mismatched",
-                            Networking.protocolVersion, info.get().protocolVersion
-                        ), false
+                            Networking.protocolVersion,
+                            info.get().protocolVersion
+                        ),
+                            false
                     )
-                    logInfo("${player.name.string} joined the server with a Ledger compatible client mod, " +
+                    logInfo(
+                        "${player.name.string} joined the server with a Ledger compatible client mod, " +
                             "but has a mismatched protocol: Ledger protocol version: ${Networking.protocolVersion}" +
-                            ", Client mod protocol version ${info.get().protocolVersion}")
+                            ", Client mod protocol version ${info.get().protocolVersion}"
+                    )
                 }
             } else {
                 player.sendMessage(Text.translatable("text.ledger.network.no_mod_info"), false)
@@ -74,8 +79,9 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
                 return Optional.empty()
             }
 
-            return Optional.of(ModInfo(nbt.getString("modid"), nbt.getString("version"), nbt.getInt("protocol_version")))
+            return Optional.of(
+                ModInfo(nbt.getString("modid"), nbt.getString("version"), nbt.getInt("protocol_version"))
+            )
         }
     }
-
 }

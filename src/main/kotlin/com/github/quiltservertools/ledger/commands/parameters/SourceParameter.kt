@@ -5,9 +5,9 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import java.util.concurrent.CompletableFuture
 import net.minecraft.command.CommandSource
 import net.minecraft.server.command.ServerCommandSource
+import java.util.concurrent.CompletableFuture
 
 class SourceParameter : SimpleParameter<String>() {
     override fun parse(stringReader: StringReader): String {

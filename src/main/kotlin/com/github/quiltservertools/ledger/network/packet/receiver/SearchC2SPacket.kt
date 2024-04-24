@@ -38,7 +38,8 @@ data class SearchC2SPacket(val restore: Boolean, val args: String) : CustomPaylo
                     ResponseContent(
                         LedgerPacketTypes.ROLLBACK.id,
                         ResponseCodes.NO_PERMISSION.code
-                    ), sender
+                    ),
+                    sender
                 )
                 return
             }
@@ -58,7 +59,6 @@ data class SearchC2SPacket(val restore: Boolean, val args: String) : CustomPaylo
                     val actions = DatabaseManager.restoreActions(params)
 
                     source.world.launchMain {
-
                         for (action in actions) {
                             action.restore(source.server)
                             action.rolledBack = false
@@ -68,14 +68,14 @@ data class SearchC2SPacket(val restore: Boolean, val args: String) : CustomPaylo
                             ResponseContent(
                                 LedgerPacketTypes.ROLLBACK.id,
                                 ResponseCodes.COMPLETED.code
-                            ), sender
+                            ),
+                            sender
                         )
                     }
                 } else {
                     val actions = DatabaseManager.rollbackActions(params)
 
                     source.world.launchMain {
-
                         for (action in actions) {
                             action.rollback(source.server)
                             action.rolledBack = true
@@ -85,12 +85,12 @@ data class SearchC2SPacket(val restore: Boolean, val args: String) : CustomPaylo
                             ResponseContent(
                                 LedgerPacketTypes.ROLLBACK.id,
                                 ResponseCodes.COMPLETED.code
-                            ), sender
+                            ),
+                            sender
                         )
                     }
                 }
             }
         }
     }
-
 }

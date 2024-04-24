@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger
 
-import com.github.quiltservertools.ledger.config.config as realConfig
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.api.ExtensionManager
@@ -24,8 +23,6 @@ import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
-import java.nio.file.Files
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -41,10 +38,13 @@ import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.jetbrains.exposed.sql.vendors.SQLiteDialect
+import java.nio.file.Files
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import com.github.quiltservertools.ledger.config.config as realConfig
 
 object Ledger : DedicatedServerModInitializer, CoroutineScope {
     const val MOD_ID = "ledger"
@@ -57,6 +57,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     lateinit var config: Config
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
+
     @JvmField // Required for mixin access
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
@@ -118,7 +119,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                     Ledger.launch(Dispatchers.Default) {
                         while (ActionQueueService.size > 0) {
                             logInfo(
-                                "Database is still busy. If you exit now data WILL be lost. Actions in queue: ${ActionQueueService.size}"
+                                "Database is still busy. If you exit now data WILL be lost. " +
+                                        "Actions in queue: ${ActionQueueService.size}"
                             )
 
                             delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
@@ -128,7 +130,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                     logInfo("Successfully drained database queue")
                 }
             } catch (e: TimeoutCancellationException) {
-                logWarn("Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost.")
+                logWarn(
+                    "Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost."
+                )
             }
         }
     }

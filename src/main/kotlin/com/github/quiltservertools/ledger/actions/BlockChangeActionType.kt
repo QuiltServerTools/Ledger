@@ -25,7 +25,7 @@ open class BlockChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         world?.setBlockState(pos, oldBlockState())
-        world?.getBlockEntity(pos)?.method_58690(StringNbtReader.parse(extraData), server.registryManager)
+        world?.getBlockEntity(pos)?.read(StringNbtReader.parse(extraData), server.registryManager)
         world?.chunkManager?.markForUpdate(pos)
 
         return true
@@ -70,7 +70,8 @@ open class BlockChangeActionType : AbstractActionType() {
                     oldObjectIdentifier.toString().literal()
                 )
             )
-        })
+        }
+        )
         if (oldObjectIdentifier != objectIdentifier) {
             text.append(" → ".literal())
             text.append(
@@ -86,24 +87,31 @@ open class BlockChangeActionType : AbstractActionType() {
                             objectIdentifier.toString().literal()
                         )
                     )
-                })
+                }
+            )
         }
         return text
     }
 
-    fun oldBlockState() = checkForBlockState(oldObjectIdentifier, oldObjectState?.let {
+    fun oldBlockState() = checkForBlockState(
+        oldObjectIdentifier,
+        oldObjectState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
             oldObjectIdentifier
         )
-    })
+    }
+    )
 
-    fun newBlockState() = checkForBlockState(objectIdentifier, objectState?.let {
+    fun newBlockState() = checkForBlockState(
+        objectIdentifier,
+        objectState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
             objectIdentifier
         )
-    })
+    }
+    )
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
         val block = Registries.BLOCK.getOrEmpty(identifier)

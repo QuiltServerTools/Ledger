@@ -4,7 +4,6 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.database.DatabaseManager
-import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.block.BedBlock
@@ -22,6 +21,7 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
+import java.util.*
 
 private val inspectingUsers = HashSet<UUID>()
 
@@ -111,7 +111,9 @@ fun getOtherChestSide(state: BlockState, pos: BlockPos): BlockPos? {
         } else {
             pos.offset(facing.rotateClockwise(Direction.Axis.Y))
         }
-    } else null
+    } else {
+        null
+    }
 }
 
 private fun getOtherDoorHalf(state: BlockState, pos: BlockPos): BlockPos {
@@ -143,4 +145,3 @@ suspend fun PlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
     MessageUtils.warnBusy(source)
     return DatabaseManager.searchActions(params, 1)
 }
-

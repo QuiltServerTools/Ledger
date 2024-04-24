@@ -18,15 +18,16 @@ object PlayerCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return literal("player")
             .requires(Permissions.require("ledger.commands.player", CommandConsts.PERMISSION_LEVEL))
-            .then(argument("player", GameProfileArgumentType.gameProfile())
+            .then(
+                argument("player", GameProfileArgumentType.gameProfile())
                 .executes {
                     return@executes lookupPlayer(GameProfileArgumentType.getProfileArgument(it, "player"), it.source)
-                })
+                }
+            )
             .build()
     }
 
     private fun lookupPlayer(profiles: MutableCollection<GameProfile>, source: ServerCommandSource): Int {
-
         Ledger.launch {
             val players = DatabaseManager.searchPlayers(profiles.toSet())
             MessageUtils.sendPlayerMessage(source, players)

@@ -20,7 +20,8 @@ object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return CommandManager.literal("preview")
             .requires(Permissions.require("ledger.commands.preview", CommandConsts.PERMISSION_LEVEL))
-            .then(CommandManager.literal("rollback")
+            .then(
+                CommandManager.literal("rollback")
                 .then(
                     SearchParamArgument.argument(CommandConsts.PARAMS)
                         .executes {
@@ -32,7 +33,8 @@ object PreviewCommand : BuildableCommand {
                         }
                 )
             )
-            .then(CommandManager.literal("restore")
+            .then(
+                CommandManager.literal("restore")
                 .then(
                     SearchParamArgument.argument(CommandConsts.PARAMS)
                         .executes {

@@ -26,5 +26,4 @@ data class ResponseS2CPacket(val content: ResponseContent) : CustomPayload {
             sender.sendPacket(ResponseS2CPacket(content))
         }
     }
-
 }

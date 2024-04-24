@@ -16,7 +16,15 @@ object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
         val stateTag = NbtHelper.fromBlockState(state)
         if (state.block.defaultState == state) return null // Don't store default block state
-        return if (stateTag.contains(PROPERTIES, NbtElement.COMPOUND_TYPE.toInt())) stateTag.getCompound(PROPERTIES) else null
+        return if (stateTag.contains(
+                PROPERTIES,
+                NbtElement.COMPOUND_TYPE.toInt()
+            )
+        ) {
+                stateTag.getCompound(PROPERTIES)
+            } else {
+                null
+            }
     }
 
     fun blockStateFromProperties(tag: NbtCompound, name: Identifier): BlockState {
@@ -25,5 +33,4 @@ object NbtUtils {
         stateTag.put(PROPERTIES, tag)
         return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, stateTag)
     }
-
 }

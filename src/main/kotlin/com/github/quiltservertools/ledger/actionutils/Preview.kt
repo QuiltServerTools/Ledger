@@ -5,7 +5,6 @@ import com.github.quiltservertools.ledger.commands.subcommands.RestoreCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.TextColorPallet
-import java.util.*
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.network.packet.s2c.play.BundleS2CPacket
@@ -14,6 +13,7 @@ import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
+import java.util.*
 
 class Preview(
     private val params: ActionSearchParams,
@@ -22,13 +22,15 @@ class Preview(
     private val type: Type
 ) {
     val positions = mutableSetOf<BlockPos>()
+
     // Preview entities that got spawned. Need to removed
     val spawnedEntityIds = mutableSetOf<Int>()
+
     // Preview entities that got removed. Need to be spawned
     val removedEntityUuids = mutableSetOf<UUID>()
+
     // Preview items that should be modified in screen handlers (true = added, false = removed)
     val modifiedItems = mutableMapOf<BlockPos, MutableList<Pair<ItemStack, Boolean>>>()
-
 
     init {
         player.sendMessage(

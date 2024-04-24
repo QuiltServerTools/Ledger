@@ -80,7 +80,8 @@ object StatusCommand : BuildableCommand {
                                 )
                             }
                     ).setStyle(TextColorPallet.secondary)
-                }, false
+                },
+                false
             )
             source.sendFeedback(
                 {
@@ -97,7 +98,8 @@ object StatusCommand : BuildableCommand {
                                 )
                             }
                     ).setStyle(TextColorPallet.secondary)
-                }, false
+                },
+                false
             )
         }
 

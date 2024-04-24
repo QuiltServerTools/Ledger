@@ -209,7 +209,9 @@ object ActionFactory {
                 val source = Registries.ENTITY_TYPE.getId(killer.type).path
                 setEntityData(action, pos, world, entity, source)
             }
-            else -> setEntityData(action, pos, world, entity, cause.name)
+            else -> {
+                setEntityData(action, pos, world, entity, cause.name)
+            }
         }
 
         return action

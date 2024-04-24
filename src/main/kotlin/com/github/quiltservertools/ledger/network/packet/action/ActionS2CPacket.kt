@@ -7,7 +7,7 @@ import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.network.packet.CustomPayload.Id
 
-data class ActionS2CPacket(val content: ActionType): CustomPayload {
+data class ActionS2CPacket(val content: ActionType) : CustomPayload {
     private fun write(buf: PacketByteBuf?) {
         // Position
         buf?.writeBlockPos(content.pos)
@@ -32,7 +32,8 @@ data class ActionS2CPacket(val content: ActionType): CustomPayload {
 
     companion object {
         val ID: Id<ActionS2CPacket> = Id(LedgerPacketTypes.ACTION.id)
-        val CODEC: PacketCodec<PacketByteBuf, ActionS2CPacket> = CustomPayload.codecOf(ActionS2CPacket::write
+        val CODEC: PacketCodec<PacketByteBuf, ActionS2CPacket> = CustomPayload.codecOf(
+            ActionS2CPacket::write
         ) { _: PacketByteBuf? -> TODO() }
     }
 }

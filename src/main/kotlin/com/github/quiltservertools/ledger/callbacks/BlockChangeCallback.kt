@@ -21,10 +21,26 @@ fun interface BlockChangeCallback {
         player: PlayerEntity?
     )
 
-    fun changeBlock(world: World, pos: BlockPos, oldState: BlockState, newState: BlockState, oldBlockEntity: BlockEntity?, newBlockEntity: BlockEntity?, player: PlayerEntity) =
+    fun changeBlock(
+        world: World,
+        pos: BlockPos,
+        oldState: BlockState,
+        newState: BlockState,
+        oldBlockEntity: BlockEntity?,
+        newBlockEntity: BlockEntity?,
+        player: PlayerEntity
+    ) =
         changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, Sources.PLAYER, player)
 
-    fun changeBlock(world: World, pos: BlockPos, oldState: BlockState, newState: BlockState, oldBlockEntity: BlockEntity?, newBlockEntity: BlockEntity?, source: String) =
+    fun changeBlock(
+        world: World,
+        pos: BlockPos,
+        oldState: BlockState,
+        newState: BlockState,
+        oldBlockEntity: BlockEntity?,
+        newBlockEntity: BlockEntity?,
+        source: String
+    ) =
         changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, source, null)
 
     companion object {
@@ -33,7 +49,16 @@ fun interface BlockChangeCallback {
             EventFactory.createArrayBacked(BlockChangeCallback::class.java) { listeners ->
                 BlockChangeCallback { world, pos, oldState, newState, oldBlockEntity, newBlockEntity, source, player ->
                     for (listener in listeners) {
-                        listener.changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, source, player)
+                        listener.changeBlock(
+                            world,
+                            pos,
+                            oldState,
+                            newState,
+                            oldBlockEntity,
+                            newBlockEntity,
+                            source,
+                            player
+                        )
                     }
                 }
             }

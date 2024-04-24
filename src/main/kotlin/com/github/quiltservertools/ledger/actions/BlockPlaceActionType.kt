@@ -26,7 +26,7 @@ class BlockPlaceActionType : BlockChangeActionType() {
         val state = newBlockState()
         world?.setBlockState(pos, state)
         if (state.hasBlockEntity()) {
-            world?.getBlockEntity(pos)?.method_58690(StringNbtReader.parse(extraData), server.registryManager)
+            world?.getBlockEntity(pos)?.read(StringNbtReader.parse(extraData), server.registryManager)
         }
 
         return true

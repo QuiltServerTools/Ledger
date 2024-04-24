@@ -37,7 +37,8 @@ data class PurgeC2SPacket(val pos: BlockPos, val pages: Int) : CustomPayload {
                     ResponseContent(
                         LedgerPacketTypes.INSPECT_POS.id,
                         ResponseCodes.NO_PERMISSION.code
-                    ), sender
+                    ),
+                    sender
                 )
                 return
             }
@@ -61,5 +62,4 @@ data class PurgeC2SPacket(val pos: BlockPos, val pages: Int) : CustomPayload {
             }
         }
     }
-
 }

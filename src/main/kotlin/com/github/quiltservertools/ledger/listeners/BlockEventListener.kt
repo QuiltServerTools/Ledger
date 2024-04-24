@@ -15,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-
 fun registerBlockListeners() {
     BlockMeltCallback.EVENT.register(::onMelt)
     BlockPlaceCallback.EVENT.register(::onBlockPlace)

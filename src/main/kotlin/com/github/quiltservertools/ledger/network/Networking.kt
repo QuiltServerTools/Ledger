@@ -41,4 +41,3 @@ object Networking {
 
     fun ServerPlayerEntity.disableNetworking() = networkedPlayers.remove(this)
 }
-

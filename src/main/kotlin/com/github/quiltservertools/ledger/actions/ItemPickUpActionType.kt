@@ -36,13 +36,15 @@ open class ItemPickUpActionType : AbstractActionType() {
         return "${stack.count} ".literal().append(
             Text.translatable(
                 Util.createTranslationKey(
-                    getTranslationType(), objectIdentifier
+                    getTranslationType(),
+                    objectIdentifier
                 )
             )
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
-                    HoverEvent.Action.SHOW_ITEM, HoverEvent.ItemStackContent(stack)
+                    HoverEvent.Action.SHOW_ITEM,
+                    HoverEvent.ItemStackContent(stack)
                 )
             )
         }
