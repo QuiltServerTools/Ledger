@@ -10,8 +10,8 @@ kotlin = "1.8.22"
 # Also modrinth version in gradle.properties
 fabric-kotlin = "1.9.4+kotlin.1.8.21"
 
-fabric-permissions = "0.3-SNAPSHOT"
-translations = "2.2.0+1.20.3-rc1"
+fabric-permissions = "0.3.1"
+translations = "2.3.0+1.20.5-rc2"
 
 exposed = "0.46.0"
 sqlite-jdbc = "3.44.1.0"
