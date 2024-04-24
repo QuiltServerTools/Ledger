@@ -3,17 +3,15 @@ package com.github.quiltservertools.ledger.actionutils
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.commands.subcommands.RestoreCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand
+import com.github.quiltservertools.ledger.mixin.preview.EntityTrackerEntryAccessor
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import net.minecraft.item.ItemStack
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
-import net.minecraft.network.packet.s2c.play.BundleS2CPacket
-import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket
+import net.minecraft.server.network.EntityTrackerEntry
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.math.BlockPos
-import java.util.*
 
 class Preview(
     private val params: ActionSearchParams,
@@ -24,10 +22,10 @@ class Preview(
     val positions = mutableSetOf<BlockPos>()
 
     // Preview entities that got spawned. Need to removed
-    val spawnedEntityIds = mutableSetOf<Int>()
+    val spawnedEntityTrackers = mutableSetOf<EntityTrackerEntry>()
 
     // Preview entities that got removed. Need to be spawned
-    val removedEntityUuids = mutableSetOf<UUID>()
+    val removedEntityTrackers = mutableSetOf<EntityTrackerEntry>()
 
     // Preview items that should be modified in screen handlers (true = added, false = removed)
     val modifiedItems = mutableMapOf<BlockPos, MutableList<Pair<ItemStack, Boolean>>>()
@@ -58,22 +56,21 @@ class Preview(
 
     private fun cleanup(player: ServerPlayerEntity) {
         // Cleanup preview entities, to keep client and server in sync
-        val destroyPackets = spawnedEntityIds.map {
-            EntitiesDestroyS2CPacket(it)
-        }
-        player.networkHandler.sendPacket(BundleS2CPacket(destroyPackets))
-
-        spawnedEntityIds.forEach {
-            player.networkHandler.sendPacket(EntitiesDestroyS2CPacket(it))
-        }
-        val spawnPackets = removedEntityUuids.mapNotNull {
-            val world = player.serverWorld
-            val entity = world?.getEntity(it)
-            entity?.let {
-                EntitySpawnS2CPacket(entity)
+        spawnedEntityTrackers.forEach {
+            if (!isEntityPresent(it)) {
+                it.stopTracking(player)
             }
         }
-        player.networkHandler.sendPacket(BundleS2CPacket(spawnPackets))
+        removedEntityTrackers.forEach {
+            if (isEntityPresent(it)) {
+                it.startTracking(player)
+            }
+        }
+    }
+
+    private fun isEntityPresent(entityTrackerEntry: EntityTrackerEntry): Boolean {
+        val entity = (entityTrackerEntry as EntityTrackerEntryAccessor).entity
+        return entity.world.getEntityById(entity.id) != null
     }
 
     fun apply(context: Context) {

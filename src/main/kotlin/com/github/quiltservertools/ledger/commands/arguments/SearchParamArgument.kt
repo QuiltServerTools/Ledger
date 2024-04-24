@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.commands.parameters.ActionParameter
 import com.github.quiltservertools.ledger.commands.parameters.DimensionParameter
 import com.github.quiltservertools.ledger.commands.parameters.ObjectParameter
 import com.github.quiltservertools.ledger.commands.parameters.RangeParameter
+import com.github.quiltservertools.ledger.commands.parameters.RollbackStatusParameter
 import com.github.quiltservertools.ledger.commands.parameters.SimpleParameter
 import com.github.quiltservertools.ledger.commands.parameters.SourceParameter
 import com.github.quiltservertools.ledger.commands.parameters.TimeParameter
@@ -39,6 +40,7 @@ object SearchParamArgument {
         paramSuggesters["world"] = NegatableParameter(DimensionParameter())
         paramSuggesters["before"] = Parameter(TimeParameter())
         paramSuggesters["after"] = Parameter(TimeParameter())
+        paramSuggesters["rolledback"] = Parameter(RollbackStatusParameter())
     }
 
     fun argument(name: String): RequiredArgumentBuilder<ServerCommandSource, String> {
@@ -166,6 +168,10 @@ object SearchParamArgument {
                 "after" -> {
                     val time = value as Instant
                     builder.after = time
+                }
+                "rolledback" -> {
+                    val rolledBack = value as Boolean
+                    builder.rolledBack = rolledBack
                 }
             }
         }

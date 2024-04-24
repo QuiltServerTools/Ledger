@@ -26,6 +26,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlLogger
@@ -202,6 +203,10 @@ object DatabaseManager {
             op = op.and { Tables.Actions.timestamp.lessEq(params.before) }
         } else if (params.after != null) {
             op = op.and { Tables.Actions.timestamp.greaterEq(params.after) }
+        }
+
+        if (params.rolledBack != null) {
+            op = op.and { Tables.Actions.rolledBack.eq(params.rolledBack) }
         }
 
         val sourceNames = ArrayList<Negatable<Int>>()
