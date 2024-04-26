@@ -27,6 +27,7 @@ import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3i
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 object SearchParamArgument {
@@ -140,7 +141,8 @@ object SearchParamArgument {
                         }
                     } else {
                         val profile = source.server.userCache?.findByName(sourceInput.property)
-                        val id = profile?.orElse(null)?.id
+                        // If the player doesn't exist use a random UUID to make the query not match
+                        val id = profile?.orElse(null)?.id ?: UUID.randomUUID()
 
                         if (id != null) {
                             val playerIdEntry = Negatable(id, sourceInput.allowed)
