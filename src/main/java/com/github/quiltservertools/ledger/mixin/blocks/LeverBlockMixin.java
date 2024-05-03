@@ -22,13 +22,13 @@ public abstract class LeverBlockMixin {
     @Unique
     private PlayerEntity activePlayer;
 
-    @Inject(method = "onUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/LeverBlock;togglePower(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"))
+    @Inject(method = "onUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/LeverBlock;togglePower(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/player/PlayerEntity;)V"))
     public void storePlayer(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
         activePlayer = player;
     }
 
     @ModifyArgs(method = "togglePower", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    public void logLeverUse(Args args, BlockState state, World world, BlockPos pos) {
+    public void logLeverUse(Args args, BlockState state, World world, BlockPos pos, PlayerEntity playerEntity) {
         if (activePlayer == null) return;
 
         BlockState newState = args.get(1);
