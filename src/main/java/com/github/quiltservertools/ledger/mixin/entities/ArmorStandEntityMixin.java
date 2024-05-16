@@ -10,6 +10,7 @@ import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -44,7 +45,7 @@ public abstract class ArmorStandEntityMixin {
     }
 
     @Inject(method = "updateHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;kill()V"))
-    private void ledgerArmorStandKill(DamageSource damageSource, float amount, CallbackInfo ci) {
+    private void ledgerArmorStandKill(ServerWorld world, DamageSource damageSource, float amount, CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.getWorld(), entity.getBlockPos(), entity, damageSource);
     }
