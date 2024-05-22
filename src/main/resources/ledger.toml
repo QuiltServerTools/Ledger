@@ -9,6 +9,11 @@ autoPurgeDays = -1
 batchSize = 1000
 # The amount of time to wait between batches in ticks (20 ticks = 1 second)
 batchDelay = 10
+# Database file location, based on your "world" folder, or use an absolute path
+fileLocation = "ledger.sqlite"
+# Database connection URL
+# only for advanced users, if you don't know what you're doing, leave this as a comment
+# url = "jdbc:sqlite:./world/ledger.sqlite"
 
 [search]
 # Number of actions to show per page

@@ -75,10 +75,11 @@ object DatabaseManager {
     }
 
     private fun getDefaultDatasource(): DataSource {
-        val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
+        val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve(Ledger.config[DatabaseSpec.fileLocation]).pathString
+        val url = Ledger.config[DatabaseSpec.url] ?: "jdbc:sqlite:$dbFilepath"
         enforceMutex = true
         return SQLiteDataSource().apply {
-            url = "jdbc:sqlite:$dbFilepath"
+            this.url = url
         }
     }
 

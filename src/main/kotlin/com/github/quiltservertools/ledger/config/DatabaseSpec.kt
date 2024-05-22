@@ -10,4 +10,6 @@ object DatabaseSpec : ConfigSpec() {
     val batchSize by optional<Int>(1000)
     val batchDelay by optional<Int>(10)
     val logSQL by optional<Boolean>(false)
+    val fileLocation by optional<String>("ledger.sqlite")
+    val url by optional<String?>(null)
 }
