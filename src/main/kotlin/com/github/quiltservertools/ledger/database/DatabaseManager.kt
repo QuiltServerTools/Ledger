@@ -26,7 +26,6 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlLogger
@@ -167,8 +166,8 @@ object DatabaseManager {
             type.timestamp = action[Tables.Actions.timestamp]
             type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
             type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
-            type.objectIdentifier = Identifier(action[Tables.ObjectIdentifiers.identifier])
-            type.oldObjectIdentifier = Identifier(
+            type.objectIdentifier = Identifier.method_60654(action[Tables.ObjectIdentifiers.identifier])
+            type.oldObjectIdentifier = Identifier.method_60654(
             action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
         )
             type.objectState = action[Tables.Actions.blockState]

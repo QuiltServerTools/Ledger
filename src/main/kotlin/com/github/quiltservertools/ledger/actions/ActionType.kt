@@ -37,9 +37,9 @@ interface ActionType {
     fun getMessage(source: ServerCommandSource): Text
 
     fun isBlacklisted() = config[ActionsSpec.typeBlacklist].contains(identifier) ||
-            config[ActionsSpec.objectBlacklist].contains(objectIdentifier) ||
-            config[ActionsSpec.objectBlacklist].contains(oldObjectIdentifier) ||
+            config[ActionsSpec.objectBlacklist].map { it.identifier }.contains(objectIdentifier) ||
+            config[ActionsSpec.objectBlacklist].map { it.identifier }.contains(oldObjectIdentifier) ||
             config[ActionsSpec.sourceBlacklist].contains(sourceName) ||
             config[ActionsSpec.sourceBlacklist].contains("@${sourceProfile?.name}") ||
-            config[ActionsSpec.worldBlacklist].contains(world)
+            config[ActionsSpec.worldBlacklist].map { it.identifier }.contains(world)
 }
