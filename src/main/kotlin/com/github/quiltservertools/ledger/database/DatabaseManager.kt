@@ -14,12 +14,7 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.mojang.authlib.GameProfile
-import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.util.*
-import javax.sql.DataSource
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.sync.Mutex
 import net.minecraft.util.Identifier
 import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
@@ -30,7 +25,6 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlLogger
@@ -53,9 +47,18 @@ import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.sqlite.SQLiteConfig
 import org.sqlite.SQLiteDataSource
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.util.*
+import javax.sql.DataSource
 import kotlin.io.path.pathString
 import kotlin.math.ceil
+
+const val MAX_QUERY_RETRIES = 10
+const val MIN_RETRY_DELAY = 1000L
+const val MAX_RETRY_DELAY = 300_000L
 
 object DatabaseManager {
 
@@ -66,8 +69,6 @@ object DatabaseManager {
         get() = database.dialect.name
 
     private val cache = DatabaseCacheService
-    private val dbMutex = Mutex()
-    private var enforceMutex = false
 
     fun setup(dataSource: DataSource?) {
         val source = dataSource ?: getDefaultDatasource()
@@ -76,8 +77,9 @@ object DatabaseManager {
 
     private fun getDefaultDatasource(): DataSource {
         val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
-        enforceMutex = true
-        return SQLiteDataSource().apply {
+        return SQLiteDataSource(SQLiteConfig().apply {
+            setJournalMode(SQLiteConfig.JournalMode.WAL)
+        }).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
     }
@@ -354,12 +356,15 @@ object DatabaseManager {
         }
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
-        if (enforceMutex) dbMutex.lock()
         while (Ledger.server.overworld?.savingDisabled != false) {
             delay(timeMillis = 1000)
         }
 
         return newSuspendedTransaction(db = database) {
+            repetitionAttempts = MAX_QUERY_RETRIES
+            minRepetitionDelay = MIN_RETRY_DELAY
+            maxRepetitionDelay = MAX_RETRY_DELAY
+
             if (Ledger.config[DatabaseSpec.logSQL]) {
                 addLogger(object : SqlLogger {
                     override fun log(context: StatementContext, transaction: Transaction) {
@@ -368,7 +373,7 @@ object DatabaseManager {
                 })
             }
             body(this)
-        }.also { if (enforceMutex) dbMutex.unlock() }
+        }
     }
 
     suspend fun purgeActions(params: ActionSearchParams) {

@@ -83,7 +83,7 @@ An easy way to remember the difference between `before:1d` and `after:1d` is to 
 If you go back in time 1 day, do you want everything that happened `before` then or `after` then.
 Usually you want `after`.
 
-### Rollback Status
+## Rollback Status
 Key - `rolledback:`  
 Value - `true` or `false`  
 Negative Allowed - `No`  
