@@ -566,7 +566,6 @@ object DatabaseManager {
     fun getKnownSources() =
         cache.sourceKeys.asMap().keys
 
-    // TODO argument order
     private fun <T> getObjectId(
         obj: T,
         cache: Cache<T, Int>,
@@ -587,7 +586,6 @@ object DatabaseManager {
         }
     }
 
-    // TODO entity vs table
     private fun <T> getOrCreateObjectId(
         obj: T,
         cache: Cache<T, Int>,
@@ -597,7 +595,6 @@ object DatabaseManager {
     ): Int =
         getOrCreateObjectId(obj, Function.identity(), cache, entity, table, column)
 
-    // TODO entity vs table
     private fun <T, S> getOrCreateObjectId(
         obj: T,
         mapper: Function<T, S>,
