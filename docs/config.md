@@ -14,7 +14,20 @@ Found under `[database]`
 
 `queueTimeoutMin` [Default: 5] is the maximum amount of time to wait for the queue to drain when the server stops in minutes
 
-`queueCheckDelaySec` [Default: 10] is the amount of time between checking if the queue is empty when the server stops in seconds
+`queueCheckDelaySec` [Default: 10] is the frequency in seconds to notify in console that the queue is not empty when the server stops
+
+`autoPurgeDays` [Default: -1] is the number of days to keep actions in the database. If set to -1, actions will never be purged automatically
+
+`batchSize` [Default: 1000] is the number of actions to insert into the database at once.
+This can be increased to improve performance, but may cause issues with slow databases
+
+`batchDelay` [Default: 10] is the amount of time in ticks to wait between batches if the next batch isn't full.
+This can be increased to improve performance, but may cause issues with slow databases
+
+`location` [Default: Nothing] is the location of the database file when using the default SQLite database or other file based databases like H2.
+The path is relative to the server's root directory. If the path is left out, the database will default to the server's world directory.
+
+`logSQL` [Default: false] will log all SQL queries to the console. This is useful for debugging, but can be very spammy
 
 ### Search settings
 
