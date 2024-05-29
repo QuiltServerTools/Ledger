@@ -5,9 +5,9 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import java.util.concurrent.CompletableFuture
 import net.minecraft.command.CommandSource
 import net.minecraft.server.command.ServerCommandSource
+import java.util.concurrent.CompletableFuture
 
 class SourceParameter : SimpleParameter<String>() {
     override fun parse(stringReader: StringReader): String {
@@ -27,14 +27,12 @@ class SourceParameter : SimpleParameter<String>() {
         val stringReader = StringReader(builder.input)
         stringReader.cursor = builder.start
 
-        val players = context.source.playerNames
+        val sources = context.source.playerNames
         DatabaseManager.getKnownSources().forEach {
-            players.add("@$it")
+            sources.add("@$it")
         }
-        // TODO suggest non-player sources
-
         return CommandSource.suggestMatching(
-            players,
+            sources,
             builder
         )
     }

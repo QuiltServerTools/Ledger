@@ -20,7 +20,7 @@ jobs:
               run: ./gradlew build
 
             - name: Upload assets to GitHub, Modrinth and CurseForge
-              uses: Kir-Antipov/mc-publish@v3.2
+              uses: Kir-Antipov/mc-publish@v3.3
               with:
                 modrinth-id: LVN9ygNV
                 modrinth-featured: false
