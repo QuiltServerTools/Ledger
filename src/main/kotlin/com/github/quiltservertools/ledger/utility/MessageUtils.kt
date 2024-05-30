@@ -29,6 +29,9 @@ object MessageUtils {
             for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
+                    if (results.searchParams.chatMessage) {
+                        actionType -> source.sendFeedback({ actionType.getMessage() }, false)
+                    }
                     val packet = ActionPacket()
                     packet.populate(it)
                     ServerPlayNetworking.send(source.player, packet.channel, packet.buf)

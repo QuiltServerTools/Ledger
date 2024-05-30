@@ -91,3 +91,12 @@ Multiple Allowed - `No`
 Example - `rolledback:true`  
 
 This parameter allows you to filter by rollback state. If true, then it will only show results that have already been rolled back. If false, then it will only show results that have not been rolled back.
+
+### Chat Message
+Key - `chatmessage:`  
+Value - `true` or `false`  
+Negative Allowed - `No`  
+Multiple Allowed - `No`  
+Example - `chatmessage:true`
+
+This parameter allows to sent data as chat message. If true, then it will also send a chat message when using networking. If false, then it will only send using networking.
