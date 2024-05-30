@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getOtherChestSide
 import com.github.quiltservertools.ledger.utility.getWorld
@@ -16,7 +17,6 @@ import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
@@ -37,8 +37,14 @@ abstract class ItemChangeActionType : AbstractActionType() {
         }
     }
 
+    private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
+        extraData,
+        objectIdentifier,
+        server.registryManager
+    )
+
     override fun getObjectMessage(source: ServerCommandSource): Text {
-        val stack = ItemStack.fromNbtOrEmpty(source.registryManager, StringNbtReader.parse(extraData))
+        val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
             Text.translatable(
@@ -74,7 +80,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     private fun addPreview(preview: Preview, player: ServerPlayerEntity, pos: BlockPos, insert: Boolean) {
         preview.modifiedItems.compute(pos) { _, list ->
             list ?: mutableListOf()
-        }?.add(Pair(ItemStack.fromNbtOrEmpty(player.server.registryManager, StringNbtReader.parse(extraData)), insert))
+        }?.add(Pair(getStack(player.server), insert))
     }
 
     private fun getInventory(world: ServerWorld): Inventory? {
@@ -100,8 +106,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val world = server.getWorld(world)
         val inventory = world?.let { getInventory(it) }
 
-        if (world != null && inventory != null) {
-            val rollbackStack = ItemStack.fromNbtOrEmpty(server.registryManager, StringNbtReader.parse(extraData))
+        if (world != null) {
+            val rollbackStack = getStack(server)
 
             if (inventory != null) {
                 for (i in 0 until inventory.size()) {
@@ -129,7 +135,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null) {
-            val rollbackStack = ItemStack.fromNbtOrEmpty(server.registryManager, StringNbtReader.parse(extraData))
+            val rollbackStack = getStack(server)
 
             if (inventory != null) {
                 for (i in 0 until inventory.size()) {
