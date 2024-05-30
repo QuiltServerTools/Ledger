@@ -8,6 +8,7 @@ import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
+import com.github.quiltservertools.ledger.config.getDatabasePath
 import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.logWarn
 import com.github.quiltservertools.ledger.registry.ActionRegistry
@@ -17,7 +18,6 @@ import com.google.common.cache.Cache
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.delay
 import net.minecraft.util.Identifier
-import net.minecraft.util.WorldSavePath
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
@@ -81,7 +81,7 @@ object DatabaseManager {
     }
 
     private fun getDefaultDatasource(): DataSource {
-        val dbFilepath = Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger.sqlite").pathString
+        val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         return SQLiteDataSource(SQLiteConfig().apply {
             setJournalMode(SQLiteConfig.JournalMode.WAL)
         }).apply {

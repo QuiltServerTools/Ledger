@@ -9,6 +9,8 @@ autoPurgeDays = -1
 batchSize = 1000
 # The amount of time to wait between batches in ticks (20 ticks = 1 second)
 batchDelay = 10
+# The location of the database file. Defaults to the world folder if not specified
+#location = "./custom-dir"
 
 [search]
 # Number of actions to show per page
