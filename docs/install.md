@@ -40,7 +40,7 @@ properties = []
 `url`: Must be URL of database with `/<database_name>` appended. An example URL would be `localhost/ledger`. You can optionally add port information such as `localhost:3000/ledger`
 
 ### PostgreSQL
-MySQL requires running a separate PostgreSQL database and more setup than just plug and play SQLite, but can support much larger databases at faster speeds. It is more experimental the MySQL but may yield faster performance.
+PostgreSQL requires running a separate PostgreSQL database and more setup than just plug and play SQLite, but can support much larger databases at faster speeds. It is more experimental the MySQL but may yield faster performance.
 
 Add the following to the bottom of your Ledger config file:
 

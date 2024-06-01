@@ -2,8 +2,8 @@ package com.github.quiltservertools.ledger.api
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.config.config
+import com.github.quiltservertools.ledger.config.getDatabasePath
 import net.minecraft.server.MinecraftServer
-import net.minecraft.util.WorldSavePath
 import javax.sql.DataSource
 
 object ExtensionManager {
@@ -30,7 +30,7 @@ object ExtensionManager {
         extensions.forEach {
             if (it is DatabaseExtension) {
                 if (dataSource == null) {
-                    dataSource = it.getDataSource(server.getSavePath(WorldSavePath.ROOT))
+                    dataSource = it.getDataSource(config.getDatabasePath())
                 } else {
                     failExtensionRegistration(it)
                 }

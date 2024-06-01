@@ -1,0 +1,66 @@
+{
+    "text.ledger.header.search.pos": "--- Buscando registros en %s ---",
+    "text.ledger.header.search": "------ Buscando registros ------",
+    "text.ledger.header.status": "------ Ledger ------",
+
+    "text.ledger.footer.search": "------- %s [Página %s de %s] %s -------",
+    "text.ledger.footer.page_forward": ">>",
+    "text.ledger.footer.page_forward.hover": "Página siguiente",
+    "text.ledger.footer.page_backward": "<<",
+    "text.ledger.footer.page_backward.hover": "Página anterior",
+
+    "text.ledger.status.queue": "Cola de Base de Datos: %s",
+    "text.ledger.status.queue.busy": "Ocupada",
+    "text.ledger.status.queue.empty": "Vacía",
+    "text.ledger.status.version": "Versión: %s",
+    "text.ledger.status.discord": "Discord: %s",
+    "text.ledger.status.discord.join": "Clic para unirse",
+    "text.ledger.status.db_type": "Tipo de Base de Datos: %s",
+    "text.ledger.status.wiki": "Wiki: %s",
+    "text.ledger.status.wiki.view": "Clic para ver",
+
+    "text.ledger.preview.start": "Iniciando vista previa",
+
+    "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+    "text.ledger.action_message.time_diff": "hace %s",
+    "text.ledger.action_message.location.hover": "Clic para teletransportarse",
+    "text.ledger.action_message.with": "with",
+
+    "text.ledger.rollback.start": "Retrocediendo %s acciones",
+    "text.ledger.rollback.finish": "Retroceso completo",
+    "text.ledger.rollback.fail": "Fallo al retroceder %s x%s",
+
+    "text.ledger.restore.start": "Restaurando %s acciones",
+    "text.ledger.restore.finish": "Restauración completa",
+    "text.ledger.restore.fail": "Fallo al restaurar %s x%s",
+
+    "text.ledger.inspect.toggle": "Modo de inspección: %s",
+    "text.ledger.inspect.on": "Activado",
+    "text.ledger.inspect.off": "Desactivado",
+
+    "text.ledger.database.busy": "La base de datos está actualmente ocupada, esto puede tomar un momento.",
+
+    "error.ledger.no_cached_params": "Sin búsqueda en caché, realice una búsqueda antes de continuar.",
+    "error.ledger.command.no_results": "Sin resultados de búsqueda",
+    "error.ledger.no_more_pages": "No más páginas",
+    "error.ledger.unknown_param": "Parámetro desconocido %s",
+    "error.ledger.no_preview": "Sin vista previa",
+
+    "text.ledger.action.block-place": "colocado",
+    "text.ledger.action.block-break": "roto",
+    "text.ledger.action.block-change": "cambiado",
+    "text.ledger.action.item-insert": "añadido",
+    "text.ledger.action.item-remove": "quitado",
+    "text.ledger.action.item-pick-up": "recogido",
+    "text.ledger.action.item-drop": "dropeado",
+    "text.ledger.action.entity-kill": "matado",
+    "text.ledger.action.entity-change": "cambiado",
+
+    "text.ledger.network.protocols_mismatched": "Las versiones del protocolo no coinciden: la versión del Ledger es %d y la versión del cliente es %d",
+    "text.ledger.network.no_mod_info": "No se pudo identificar la información del mod de cliente.",
+
+    "text.ledger.purge.starting": "------ Iniciando purga ------",
+    "text.ledger.purge.complete": "------ Purga completada ------",
+
+    "text.ledger.player.result": "%1$s: Primera conexión: %2$s. Última conexión: %3$s"
+}
