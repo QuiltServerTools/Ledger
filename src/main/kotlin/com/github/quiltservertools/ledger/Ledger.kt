@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger
 
-import com.github.quiltservertools.ledger.config.config as realConfig
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.api.ExtensionManager
@@ -16,6 +15,9 @@ import com.github.quiltservertools.ledger.listeners.registerEntityListeners
 import com.github.quiltservertools.ledger.listeners.registerPlayerListeners
 import com.github.quiltservertools.ledger.listeners.registerWorldEventListeners
 import com.github.quiltservertools.ledger.network.Networking
+import com.github.quiltservertools.ledger.network.packet.action.ActionS2CPacket
+import com.github.quiltservertools.ledger.network.packet.handshake.HandshakeS2CPacket
+import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +30,7 @@ import kotlinx.coroutines.withTimeout
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
@@ -54,6 +57,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     lateinit var config: Config
     lateinit var server: MinecraftServer
     val searchCache = ConcurrentHashMap<String, ActionSearchParams>()
+
     @JvmField // Required for mixin access
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
@@ -76,6 +80,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> registerCommands(dispatcher) }
+        PayloadTypeRegistry.playS2C().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
+        PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
+        PayloadTypeRegistry.playS2C().register(ResponseS2CPacket.ID, ResponseS2CPacket.CODEC)
     }
 
     private fun serverStarting(server: MinecraftServer) {
@@ -112,7 +119,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                     Ledger.launch(Dispatchers.Default) {
                         while (ActionQueueService.size > 0) {
                             logInfo(
-                                "Database is still busy. If you exit now data WILL be lost. Actions in queue: ${ActionQueueService.size}"
+                                "Database is still busy. If you exit now data WILL be lost. " +
+                                        "Actions in queue: ${ActionQueueService.size}"
                             )
 
                             delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
@@ -122,7 +130,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                     logInfo("Successfully drained database queue")
                 }
             } catch (e: TimeoutCancellationException) {
-                logWarn("Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost.")
+                logWarn(
+                    "Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost."
+                )
             }
         }
     }

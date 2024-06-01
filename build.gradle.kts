@@ -84,10 +84,12 @@ dependencies {
     // Config
     shadow(libs.konf.core)
     shadow(libs.konf.toml)
+
+    detektPlugins(libs.detekt.formatting)
 }
 
 tasks {
-    val javaVersion = JavaVersion.VERSION_17
+    val javaVersion = JavaVersion.VERSION_21
 
     processResources {
         inputs.property("id", modId)

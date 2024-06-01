@@ -13,6 +13,7 @@ import net.minecraft.item.BlockItem
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
@@ -29,19 +30,27 @@ open class ItemDropActionType : AbstractActionType() {
         }
     }
 
-    override fun getObjectMessage(): Text {
-        val stack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+    private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
+        extraData,
+        objectIdentifier,
+        server.registryManager
+    )
+
+    override fun getObjectMessage(source: ServerCommandSource): Text {
+        val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
             Text.translatable(
                 Util.createTranslationKey(
-                    getTranslationType(), objectIdentifier
+                    getTranslationType(),
+                    objectIdentifier
                 )
             )
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
-                    HoverEvent.Action.SHOW_ITEM, HoverEvent.ItemStackContent(stack)
+                    HoverEvent.Action.SHOW_ITEM,
+                    HoverEvent.ItemStackContent(stack)
                 )
             )
         }

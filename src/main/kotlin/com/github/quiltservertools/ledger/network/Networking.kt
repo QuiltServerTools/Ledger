@@ -2,20 +2,14 @@ package com.github.quiltservertools.ledger.network
 
 import com.github.quiltservertools.ledger.config.NetworkingSpec
 import com.github.quiltservertools.ledger.config.config
-import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
-import com.github.quiltservertools.ledger.network.packet.Receiver
-import com.github.quiltservertools.ledger.network.packet.receiver.HandshakePacketReceiver
-import com.github.quiltservertools.ledger.network.packet.receiver.InspectReceiver
-import com.github.quiltservertools.ledger.network.packet.receiver.PurgeReceiver
-import com.github.quiltservertools.ledger.network.packet.receiver.RollbackReceiver
-import com.github.quiltservertools.ledger.network.packet.receiver.SearchReceiver
-import net.fabricmc.fabric.api.networking.v1.PacketSender
+import com.github.quiltservertools.ledger.network.packet.receiver.HandshakeC2SPacket
+import com.github.quiltservertools.ledger.network.packet.receiver.InspectC2SPacket
+import com.github.quiltservertools.ledger.network.packet.receiver.PurgeC2SPacket
+import com.github.quiltservertools.ledger.network.packet.receiver.RollbackC2SPacket
+import com.github.quiltservertools.ledger.network.packet.receiver.SearchC2SPacket
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.Identifier
 
 object Networking {
     // List of players who have a compatible client mod
@@ -24,23 +18,20 @@ object Networking {
 
     init {
         if (config[NetworkingSpec.networking]) {
-            register(LedgerPacketTypes.INSPECT_POS.id, InspectReceiver())
-            register(LedgerPacketTypes.SEARCH.id, SearchReceiver())
-            register(LedgerPacketTypes.HANDSHAKE.id, HandshakePacketReceiver())
-            register(LedgerPacketTypes.ROLLBACK.id, RollbackReceiver())
-            register(LedgerPacketTypes.PURGE.id, PurgeReceiver())
-        }
-    }
+            PayloadTypeRegistry.playC2S().register(InspectC2SPacket.ID, InspectC2SPacket.CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(InspectC2SPacket.ID, InspectC2SPacket)
 
-    private fun register(channel: Identifier, receiver: Receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(channel) {
-                server: MinecraftServer,
-                player: ServerPlayerEntity,
-                handler: ServerPlayNetworkHandler,
-                buf: PacketByteBuf,
-                sender: PacketSender ->
+            PayloadTypeRegistry.playC2S().register(SearchC2SPacket.ID, SearchC2SPacket.CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(SearchC2SPacket.ID, SearchC2SPacket)
 
-                    receiver.receive(server, player, handler, buf, sender)
+            PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.ID, HandshakeC2SPacket.CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.ID, HandshakeC2SPacket)
+
+            PayloadTypeRegistry.playC2S().register(RollbackC2SPacket.ID, RollbackC2SPacket.CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(RollbackC2SPacket.ID, RollbackC2SPacket)
+
+            PayloadTypeRegistry.playC2S().register(PurgeC2SPacket.ID, PurgeC2SPacket.CODEC)
+            ServerPlayNetworking.registerGlobalReceiver(PurgeC2SPacket.ID, PurgeC2SPacket)
         }
     }
 
@@ -50,4 +41,3 @@ object Networking {
 
     fun ServerPlayerEntity.disableNetworking() = networkedPlayers.remove(this)
 }
-

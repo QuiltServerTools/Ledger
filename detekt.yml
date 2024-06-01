@@ -70,7 +70,7 @@ complexity:
     threshold: 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
-  ComplexMethod:
+  CyclomaticComplexMethod:
     active: false
     threshold: 15
     ignoreSingleWhenExpression: false
@@ -258,7 +258,6 @@ formatting:
     active: false
     autoCorrect: false
     indentSize: 4
-    continuationIndentSize: 4
   MaximumLineLength:
     active: true
     maxLineLength: 120
@@ -359,7 +358,6 @@ naming:
     parameterPattern: '[a-z][A-Za-z0-9]*'
     privateParameterPattern: '[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
   EnumNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
@@ -381,13 +379,11 @@ naming:
     excludes: ['**/test/**', '**/androidTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
     functionPattern: '^([a-z$][a-zA-Z$0-9]*)|(`.*`)$'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
   FunctionParameterNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
     parameterPattern: '[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
   InvalidPackageDeclaration:  # If you want to use this, set the root package and enable it
     active: false
     rootPackage: 'template'
@@ -429,7 +425,6 @@ naming:
     variablePattern: '[a-z][A-Za-z0-9]*'
     privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
 
 performance:
   active: true
@@ -447,8 +442,6 @@ performance:
 potential-bugs:
   active: true
   Deprecation:
-    active: true
-  DuplicateCaseInWhenExpression:
     active: true
   EqualsAlwaysReturnsTrueOrFalse:
     active: true
@@ -474,15 +467,11 @@ potential-bugs:
   LateinitUsage:
     active: false
     excludes: ['**/test/**', '**/androidTest/**', '**/*.Test.kt', '**/*.Spec.kt', '**/*.Spek.kt']
-    excludeAnnotatedProperties: []
+    ignoreAnnotated: []
     ignoreOnClassesPattern: ''
   MapGetWithNotNullAssertionOperator:
     active: true
-  MissingWhenCase:
-    active: true
   NullableToStringCall:
-    active: true
-  RedundantElseInWhen:
     active: true
   UnconditionalJumpStatementInLoop:
     active: true
@@ -503,13 +492,15 @@ potential-bugs:
 
 style:
   active: true
+  BracesOnWhenStatements:
+      active: true
   ClassOrdering:
     active: true
   CollapsibleIfStatements:
     active: true
   DataClassContainsFunctions:
     active: false
-    conversionFunctionPrefix: 'to'
+    conversionFunctionPrefix: ['to']
   DataClassShouldBeImmutable:
     active: false
   EqualsNullCall:
@@ -525,7 +516,7 @@ style:
     includeLineWrapping: false
   ForbiddenComment:
     active: false
-    values: ['TODO:', 'FIXME:', 'STOPSHIP:']
+    comments: ['TODO:', 'FIXME:', 'STOPSHIP:']
     allowedPatterns: ''
   ForbiddenImport:
     active: false
@@ -534,9 +525,6 @@ style:
   ForbiddenMethodCall:
     active: false
     methods: []
-  ForbiddenPublicDataClass:
-    active: false
-    ignorePackages: ['*.internal', '*.internal.*']
   ForbiddenVoid:
     active: true
     ignoreOverridden: true
@@ -544,8 +532,8 @@ style:
   FunctionOnlyReturningConstant:
     active: true
     ignoreOverridableFunction: true
-    excludedFunctions: 'describeContents'
-    excludeAnnotatedFunction: ['dagger.Provides']
+    excludedFunctions: ['describeContents']
+    ignoreAnnotated: ['dagger.Provides']
   LibraryCodeMustSpecifyReturnType:
     active: true
   LibraryEntitiesShouldNotBePublic:
@@ -566,7 +554,7 @@ style:
     ignoreNamedArgument: true
     ignoreEnums: true
     ignoreRanges: false
-  MandatoryBracesIfStatements:
+  BracesOnIfStatements:
     active: true
   MandatoryBracesLoops:
     active: true
@@ -590,8 +578,6 @@ style:
     active: true
   OptionalUnit:
     active: false
-  OptionalWhenBraces:
-    active: true
   PreferToOverPairSyntax:
     active: true
   ProtectedMemberInFinalClass:
@@ -603,7 +589,7 @@ style:
   ReturnCount:
     active: false
     max: 2
-    excludedFunctions: 'equals'
+    excludedFunctions: ['equals']
     excludeLabeled: false
     excludeReturnFromLambda: true
     excludeGuardClauses: false
@@ -620,10 +606,10 @@ style:
     active: true
   UnderscoresInNumericLiterals:
     active: true
-    acceptableDecimalLength: 5
+    acceptableLength: 5
   UnnecessaryAbstractClass:
     active: true
-    excludeAnnotatedClasses: ['dagger.Module']
+    ignoreAnnotated: ['dagger.Module']
   UnnecessaryAnnotationUseSiteTarget:
     active: true
   UnnecessaryApply:
@@ -638,6 +624,8 @@ style:
     active: true
   UnusedImports:
     active: true
+  UnusedParameter:
+    active: false
   UnusedPrivateClass:
     active: true
   UnusedPrivateMember:
@@ -651,7 +639,7 @@ style:
     active: true
   UseDataClass:
     active: true
-    excludeAnnotatedClasses: []
+    ignoreAnnotated: []
     allowVars: false
   UseEmptyCounterpart:
     active: true

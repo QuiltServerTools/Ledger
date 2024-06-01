@@ -72,7 +72,7 @@ public abstract class BucketItemMixin {
         }
     }
 
-    @Inject(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/stat/Stat;)V"))
+    @Inject(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/stat/Stat;)V", ordinal = 0))
     private void logFluidPickup(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir, @Local(ordinal = 0) BlockPos pos, @Local BlockState blockState) {
         if (blockState.getBlock() instanceof Waterloggable) {
             BlockChangeCallback.EVENT.invoker().changeBlock(

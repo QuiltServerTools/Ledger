@@ -528,7 +528,7 @@ object DatabaseManager {
             .toSet() // SQLite doesn't support update where so select by ID. Might not be as efficent
         actions.addAll(getActionsFromQuery(selectQuery))
 
-        val updateQuery = Tables.Actions
+        Tables.Actions
             .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq false) }) {
                 it[rolledBack] = true
             }
@@ -555,7 +555,7 @@ object DatabaseManager {
         val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet()
         actions.addAll(getActionsFromQuery(selectQuery))
 
-        val updateQuery = Tables.Actions
+        Tables.Actions
             .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq true) }) {
                 it[rolledBack] = false
             }
@@ -695,5 +695,4 @@ object DatabaseManager {
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
-
 }

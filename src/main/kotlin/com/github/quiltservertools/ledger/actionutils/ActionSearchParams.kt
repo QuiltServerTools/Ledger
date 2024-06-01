@@ -29,7 +29,17 @@ data class ActionSearchParams(
         builder.worlds
     )
 
-    fun isEmpty() = listOf(bounds, before, after, actions, objects, sourceNames, sourcePlayerIds, worlds, rolledBack).all { it == null }
+    fun isEmpty() = listOf(
+        bounds,
+        before,
+        after,
+        actions,
+        objects,
+        sourceNames,
+        sourcePlayerIds,
+        worlds,
+        rolledBack
+    ).all { it == null }
 
     companion object {
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()

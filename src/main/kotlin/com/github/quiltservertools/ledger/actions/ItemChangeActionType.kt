@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
@@ -36,8 +37,14 @@ abstract class ItemChangeActionType : AbstractActionType() {
         }
     }
 
-    override fun getObjectMessage(): Text {
-        val stack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+    private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
+        extraData,
+        objectIdentifier,
+        server.registryManager
+    )
+
+    override fun getObjectMessage(source: ServerCommandSource): Text {
+        val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
             Text.translatable(
@@ -63,17 +70,17 @@ abstract class ItemChangeActionType : AbstractActionType() {
             if (it) {
                 val otherPos = getOtherChestSide(state, pos)
                 if (otherPos != null) {
-                    addPreview(preview, otherPos, insert)
+                    addPreview(preview, player, otherPos, insert)
                 }
             }
         }
-        addPreview(preview, pos, insert)
+        addPreview(preview, player, pos, insert)
     }
 
-    private fun addPreview(preview: Preview, pos: BlockPos, insert: Boolean) {
+    private fun addPreview(preview: Preview, player: ServerPlayerEntity, pos: BlockPos, insert: Boolean) {
         preview.modifiedItems.compute(pos) { _, list ->
             list ?: mutableListOf()
-        }?.add(Pair(NbtUtils.itemFromProperties(extraData, objectIdentifier), insert))
+        }?.add(Pair(getStack(player.server), insert))
     }
 
     private fun getInventory(world: ServerWorld): Inventory? {
@@ -100,7 +107,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null) {
-            val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+            val rollbackStack = getStack(server)
 
             if (inventory != null) {
                 for (i in 0 until inventory.size()) {
@@ -128,7 +135,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val inventory = world?.let { getInventory(it) }
 
         if (world != null) {
-            val rollbackStack = NbtUtils.itemFromProperties(extraData, objectIdentifier)
+            val rollbackStack = getStack(server)
 
             if (inventory != null) {
                 for (i in 0 until inventory.size()) {

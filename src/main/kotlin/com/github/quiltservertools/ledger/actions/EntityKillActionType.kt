@@ -57,7 +57,7 @@ class EntityKillActionType : AbstractActionType() {
             entity.readNbt(StringNbtReader.parse(extraData))
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
-            if (entity is LivingEntity) { entity.health = entity.defaultMaxHealth.toFloat() }
+            if (entity is LivingEntity) entity.health = entity.defaultMaxHealth.toFloat()
 
             world?.spawnEntity(entity)
 

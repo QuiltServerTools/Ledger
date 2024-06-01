@@ -11,10 +11,14 @@ object TextColorPallet {
     val primary: Style
         get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.primary]).getOrNull())
 
-    val primaryVariant: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.primaryVariant]).getOrNull())
+    val primaryVariant: Style get() = Style.EMPTY.withColor(
+        TextColor.parse(config[ColorSpec.primaryVariant]).getOrNull()
+    )
     val secondary: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.secondary]).getOrNull())
-    val secondaryVariant: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.secondaryVariant]).getOrNull())
+    val secondaryVariant: Style get() = Style.EMPTY.withColor(
+        TextColor.parse(config[ColorSpec.secondaryVariant]).getOrNull()
+    )
     val light: Style get() = Style.EMPTY.withColor(TextColor.parse(config[ColorSpec.light]).getOrNull())
 }
 
-fun DataResult<TextColor>.getOrNull(): TextColor? = this.get().left().orElse(null)
+fun DataResult<TextColor>.getOrNull(): TextColor? = this.result().orElse(null)

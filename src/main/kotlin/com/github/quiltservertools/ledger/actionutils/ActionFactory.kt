@@ -96,7 +96,7 @@ object ActionFactory {
         action.objectState = NbtUtils.blockStateToProperties(state)?.asString()
         action.oldObjectState = NbtUtils.blockStateToProperties(oldState)?.asString()
         action.sourceName = source
-        action.extraData = entity?.createNbt()?.asString()
+        action.extraData = entity?.createNbt(world.registryManager)?.asString()
     }
 
     fun itemInsertAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemInsertActionType {
@@ -193,7 +193,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registries.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = NbtUtils.itemToProperties(stack)?.asString()
+        action.extraData = stack.encode(world.registryManager)?.asString()
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {
@@ -209,7 +209,9 @@ object ActionFactory {
                 val source = Registries.ENTITY_TYPE.getId(killer.type).path
                 setEntityData(action, pos, world, entity, source)
             }
-            else -> setEntityData(action, pos, world, entity, cause.name)
+            else -> {
+                setEntityData(action, pos, world, entity, cause.name)
+            }
         }
 
         return action

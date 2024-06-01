@@ -30,7 +30,6 @@ class Preview(
     // Preview items that should be modified in screen handlers (true = added, false = removed)
     val modifiedItems = mutableMapOf<BlockPos, MutableList<Pair<ItemStack, Boolean>>>()
 
-
     init {
         player.sendMessage(
             Text.translatable(

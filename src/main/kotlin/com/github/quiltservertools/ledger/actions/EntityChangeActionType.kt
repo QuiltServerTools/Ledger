@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger.actions
 
-import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
@@ -14,6 +13,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
@@ -31,7 +31,7 @@ class EntityChangeActionType : AbstractActionType() {
         }
     }
 
-    override fun getObjectMessage(): Text {
+    override fun getObjectMessage(source: ServerCommandSource): Text {
         val text = Text.literal("")
         text.append(
             Text.translatable(
@@ -46,10 +46,11 @@ class EntityChangeActionType : AbstractActionType() {
                         objectIdentifier.toString().literal()
                     )
                 )
-            })
+            }
+        )
 
         if (extraData != null && Identifier(extraData) != Identifier.tryParse("minecraft:air")) {
-            val stack = NbtUtils.itemFromProperties(null, Identifier(extraData))
+            val stack = ItemStack(Registries.ITEM.get(Identifier(extraData)))
             text.append(Text.literal(" ").append(Text.translatable("text.ledger.action_message.with")).append(" "))
             text.append(
                 Text.translatable(
@@ -64,7 +65,8 @@ class EntityChangeActionType : AbstractActionType() {
                             HoverEvent.ItemStackContent(stack)
                         )
                     )
-                })
+                }
+            )
         }
         return text
     }
@@ -88,7 +90,6 @@ class EntityChangeActionType : AbstractActionType() {
         }
         return false
     }
-
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)

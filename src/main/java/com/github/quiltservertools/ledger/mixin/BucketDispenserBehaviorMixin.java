@@ -15,18 +15,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net/minecraft/block/dispenser/DispenserBehavior$9")
+@Mixin(targets = "net/minecraft/block/dispenser/DispenserBehavior$16")
 public abstract class BucketDispenserBehaviorMixin extends ItemDispenserBehavior {
 
     @Inject(
-            method = "dispenseSilently(Lnet/minecraft/util/math/BlockPointer;Lnet/minecraft/item/ItemStack;)Lnet/minecraft/item/ItemStack;",
+            method = "dispenseSilently",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;",
                     shift = At.Shift.AFTER
             )
     )
-    private void logFluidPickup(BlockPointer pointer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @Local ItemStack itemStack, @Local BlockPos pos, @Local BlockState blockState) {
+    private void logFluidPickup(BlockPointer pointer, ItemStack stack, CallbackInfoReturnable<ItemStack> cir, @Local(argsOnly = true) ItemStack itemStack, @Local BlockPos pos, @Local BlockState blockState) {
         var world = pointer.world();
         if (!itemStack.isEmpty()) {
             if (blockState.isLiquid() || blockState.isOf(Blocks.POWDER_SNOW)) {
