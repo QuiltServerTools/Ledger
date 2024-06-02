@@ -59,8 +59,8 @@ open class ItemDropActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.parse(objectState)
-        val uuid = newEntity!!.getUuid(UUID) ?: return false
+        val newEntityNbt = StringNbtReader.parse(objectState)
+        val uuid = newEntityNbt!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
         if (entity != null) {
@@ -73,14 +73,14 @@ open class ItemDropActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.parse(objectState)
-        val uuid = newEntity!!.getUuid(UUID) ?: return false
+        val newEntityNbt = StringNbtReader.parse(objectState)
+        val uuid = newEntityNbt!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
         if (entity == null) {
-            val entity = ItemEntity(EntityType.ITEM, world)
-            entity.readNbt(newEntity)
-            world?.spawnEntity(entity)
+            val newEntity = ItemEntity(EntityType.ITEM, world)
+            newEntity.readNbt(newEntityNbt)
+            world?.spawnEntity(newEntity)
         }
         return true
     }

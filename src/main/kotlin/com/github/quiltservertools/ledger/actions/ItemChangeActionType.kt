@@ -27,7 +27,9 @@ import net.minecraft.text.Text
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 
-abstract class ItemChangeActionType : AbstractActionType() {
+open class ItemChangeActionType : AbstractActionType() {
+    override val identifier: String = "item-change"
+    
     override fun getTranslationType(): String {
         val item = Registries.ITEM.get(objectIdentifier)
         return if (item is BlockItem && item !is AliasedBlockItem) {

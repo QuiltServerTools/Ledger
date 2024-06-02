@@ -27,7 +27,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Slot.class)
 public abstract class SlotMixin implements HandledSlot {
+    @Unique
     private ScreenHandler handler = null;
+    @Unique
     private ItemStack oldStack = null;
 
     @Shadow

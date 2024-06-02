@@ -22,8 +22,8 @@ public abstract class NetherPortalMixin {
 
     @Inject(method = "method_30488", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/WorldAccess;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     public void logPortalPlacement(BlockState state, BlockPos pos, CallbackInfo ci) {
-        if (this.world instanceof ServerWorld world) {
-            BlockPlaceCallback.EVENT.invoker().place(world, pos.toImmutable(), state, null, Sources.PORTAL);
+        if (this.world instanceof ServerWorld serverWorld) {
+            BlockPlaceCallback.EVENT.invoker().place(serverWorld, pos.toImmutable(), state, null, Sources.PORTAL);
         }
     }
 }

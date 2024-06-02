@@ -8,6 +8,7 @@ import net.minecraft.block.SpongeBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SpongeBlock.class)
 public abstract class SpongeBlockMixin {
 
+    @Unique
     private BlockState oldBlockState;
 
     @Inject(method = "method_49829", at = @At(value = "INVOKE",

@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(targets = "net/minecraft/block/ChestBlock$2$1")
 public abstract class ChestBlockMixin {
 
+    // fixme
     @Shadow
     ChestBlockEntity field_17358;
 
@@ -24,6 +25,8 @@ public abstract class ChestBlockMixin {
     )
     private void addPositionContext(int i, PlayerInventory playerInventory, PlayerEntity playerEntity, CallbackInfoReturnable<ScreenHandler> cir) {
         ScreenHandler screenHandler = cir.getReturnValue();
+
+
         if (screenHandler != null) {
             ((HandlerWithContext) screenHandler).setPos(this.field_17358.getPos());
         }

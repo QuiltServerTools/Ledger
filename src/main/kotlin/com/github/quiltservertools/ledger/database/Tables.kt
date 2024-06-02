@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger.database
 
-import com.github.quiltservertools.ledger.actions.ActionType
 import net.minecraft.util.Identifier
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass

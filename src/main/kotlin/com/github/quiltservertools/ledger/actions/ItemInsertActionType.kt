@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.actionutils.Preview
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 
+@Deprecated("")
 class ItemInsertActionType : ItemChangeActionType() {
     override val identifier: String = "item-insert"
 

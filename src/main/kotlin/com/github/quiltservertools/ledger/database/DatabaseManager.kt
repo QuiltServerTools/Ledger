@@ -82,9 +82,11 @@ object DatabaseManager {
 
     private fun getDefaultDatasource(): DataSource {
         val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
-        return SQLiteDataSource(SQLiteConfig().apply {
+        return SQLiteDataSource(
+            SQLiteConfig().apply {
             setJournalMode(SQLiteConfig.JournalMode.WAL)
-        }).apply {
+            }
+        ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
     }
@@ -457,7 +459,8 @@ object DatabaseManager {
             .innerJoin(
                 Tables.oldObjectTable,
                 { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
+            )
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -499,7 +502,8 @@ object DatabaseManager {
             .innerJoin(
                 Tables.oldObjectTable,
                 { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
+            )
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -520,7 +524,8 @@ object DatabaseManager {
             .innerJoin(
                 Tables.oldObjectTable,
                 { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
+            )
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -548,7 +553,8 @@ object DatabaseManager {
             .innerJoin(
                 Tables.oldObjectTable,
                 { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] })
+                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
+            )
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
@@ -619,7 +625,6 @@ object DatabaseManager {
 
     private fun getOrCreateSourceId(source: String): Int =
         getOrCreateObjectId(source, cache.sourceKeys, Tables.Source, Tables.Sources, Tables.Sources.name)
-
 
     private fun getOrCreateActionId(actionTypeId: String): Int =
         getOrCreateObjectId(
