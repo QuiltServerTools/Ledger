@@ -7,6 +7,7 @@ import com.github.quiltservertools.ledger.actions.BlockChangeActionType
 import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityChangeActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
+import com.github.quiltservertools.ledger.actions.ItemChangeActionType
 import com.github.quiltservertools.ledger.actions.ItemDropActionType
 import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemPickUpActionType
@@ -41,6 +42,7 @@ object ActionRegistry {
         registerActionType { BlockChangeActionType() }
         registerActionType { ItemInsertActionType() }
         registerActionType { ItemRemoveActionType() }
+        registerActionType { ItemChangeActionType() }
         registerActionType { ItemPickUpActionType() }
         registerActionType { ItemDropActionType() }
         registerActionType { EntityKillActionType() }

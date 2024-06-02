@@ -189,6 +189,7 @@ object DatabaseManager {
             type.extraData = action[Tables.Actions.extraData]
             type.rolledBack = action[Tables.Actions.rolledBack]
             type.itemData = action[Tables.Actions.itemData]
+            type.count = action[Tables.Actions.count]
 
             actions.add(type)
         }
@@ -431,6 +432,7 @@ object DatabaseManager {
             this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getOrCreatePlayerId(it.id) }
             this[Tables.Actions.extraData] = action.extraData
             this[Tables.Actions.itemData] = action.itemData
+            this[Tables.Actions.count] = action.count
         }
     }
 
@@ -450,23 +452,11 @@ object DatabaseManager {
 
     private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
         val actions = mutableListOf<ActionType>()
-        var totalActions: Long
 
-        var query = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+        var query = joinTables().selectAll()
             .andWhere { buildQueryParams(params) }
 
-        totalActions = countActions(params)
+        val totalActions = countActions(params)
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
@@ -495,18 +485,7 @@ object DatabaseManager {
 
         val isRestore = type == Preview.Type.RESTORE
 
-        val selectQuery = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+        val selectQuery = joinTables().selectAll()
             .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq isRestore) }
             .orderBy(Tables.Actions.id, if (isRestore) SortOrder.ASC else SortOrder.DESC)
         actions.addAll(getActionsFromQuery(selectQuery))
@@ -517,18 +496,7 @@ object DatabaseManager {
     private fun Transaction.selectAndRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
         val actions = mutableListOf<ActionType>()
 
-        val selectQuery = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+        val selectQuery = joinTables().selectAll()
             .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq false) }
             .orderBy(Tables.Actions.id, SortOrder.DESC)
         val actionIds = selectQuery.map { it[Tables.Actions.id] }
@@ -543,21 +511,22 @@ object DatabaseManager {
         return actions
     }
 
+    private fun Transaction.joinTables() = Tables.Actions
+        .innerJoin(Tables.ActionIdentifiers)
+        .innerJoin(Tables.Worlds)
+        .leftJoin(Tables.Players)
+        .innerJoin(
+            Tables.oldObjectTable,
+            { Tables.Actions.oldObjectId },
+            { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
+        )
+        .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+        .innerJoin(Tables.Sources)
+
     private fun Transaction.selectAndRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
         val actions = mutableListOf<ActionType>()
 
-        val selectQuery = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+        val selectQuery = joinTables().selectAll()
             .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq true) }
             .orderBy(Tables.Actions.id, SortOrder.ASC)
         val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet()
@@ -574,14 +543,14 @@ object DatabaseManager {
     fun getKnownSources() =
         cache.sourceKeys.asMap().keys
 
-    private fun <T> getObjectId(
+    private fun <T : Any> getObjectId(
         obj: T,
         cache: Cache<T, Int>,
         table: EntityClass<Int, Entity<Int>>,
         column: Column<T>
     ): Int? = getObjectId(obj, Function.identity(), cache, table, column)
 
-    private fun <T, S> getObjectId(
+    private fun <T : Any, S> getObjectId(
         obj: T,
         mapper: Function<T, S>,
         cache: Cache<T, Int>,
@@ -594,7 +563,7 @@ object DatabaseManager {
         }
     }
 
-    private fun <T> getOrCreateObjectId(
+    private fun <T : Any> getOrCreateObjectId(
         obj: T,
         cache: Cache<T, Int>,
         entity: IntEntityClass<*>,
@@ -603,7 +572,7 @@ object DatabaseManager {
     ): Int =
         getOrCreateObjectId(obj, Function.identity(), cache, entity, table, column)
 
-    private fun <T, S> getOrCreateObjectId(
+    private fun <T : Any, S> getOrCreateObjectId(
         obj: T,
         mapper: Function<T, S>,
         cache: Cache<T, Int>,

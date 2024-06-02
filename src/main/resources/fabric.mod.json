@@ -28,8 +28,7 @@
     "depends": {
         "fabricloader": ">=0.15.10",
         "fabric": ">=${fabricApi}",
-        "fabric-language-kotlin": ">=${fabricKotlin}",
-        "minecraft": ">=${minecraft}"
+        "fabric-language-kotlin": ">=${fabricKotlin}"
     },
     "breaks": {
         "cardboard": "*"

@@ -112,6 +112,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun serverStopped(server: MinecraftServer) {
         runBlocking {
             try {

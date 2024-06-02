@@ -68,6 +68,7 @@ object Tables {
         val sourcePlayer = optReference("player_id", Players.id).index()
         val extraData = text("extra_data").nullable()
         val itemData = text("item_data").nullable()
+        val count = integer("count")
         val rolledBack = bool("rolled_back").clientDefault { false }
 
         init {
@@ -90,6 +91,7 @@ object Tables {
         var sourcePlayer by Player optionalReferencedOn Actions.sourcePlayer
         var extraData by Actions.extraData
         var itemData by Actions.itemData
+        var count by Actions.count
         var rolledBack by Actions.rolledBack
 
         companion object : IntEntityClass<Action>(Actions)

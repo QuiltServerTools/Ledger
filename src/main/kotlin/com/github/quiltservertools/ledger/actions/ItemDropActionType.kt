@@ -59,8 +59,8 @@ open class ItemDropActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntityNbt = StringNbtReader.parse(objectState)
-        val uuid = newEntityNbt!!.getUuid(UUID) ?: return false
+        val newEntity = StringNbtReader.parse(objectState)
+        val uuid = newEntity!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
         if (entity != null) {

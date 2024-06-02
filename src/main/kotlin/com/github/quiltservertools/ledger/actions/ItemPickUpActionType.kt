@@ -59,14 +59,14 @@ open class ItemPickUpActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = StringNbtReader.parse(oldObjectState)
-        val uuid = oldEntity!!.getUuid(UUID) ?: return false
+        val oldEntityNbt = StringNbtReader.parse(oldObjectState)
+        val uuid = oldEntityNbt!!.getUuid(UUID) ?: return false
         val entity = world?.getEntity(uuid)
 
         if (entity == null) {
-            val entity = ItemEntity(EntityType.ITEM, world)
-            entity.readNbt(oldEntity)
-            world?.spawnEntity(entity)
+            val oldEntity = ItemEntity(EntityType.ITEM, world)
+            oldEntity.readNbt(oldEntityNbt)
+            world?.spawnEntity(oldEntity)
         }
         return true
     }

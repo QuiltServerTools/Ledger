@@ -224,7 +224,12 @@ object SearchParamArgument {
             context: CommandContext<ServerCommandSource>,
             builder: SuggestionsBuilder
         ): CompletableFuture<Suggestions> {
-            val builder = if (builder.remaining.startsWith("!")) builder.createOffset(builder.start + 1) else builder
+            @Suppress("NAME_SHADOWING")
+            val builder = if (builder.remaining.startsWith("!")) {
+                builder.createOffset(builder.start + 1)
+            } else {
+                builder
+            }
             return super.listSuggestions(context, builder)
         }
 

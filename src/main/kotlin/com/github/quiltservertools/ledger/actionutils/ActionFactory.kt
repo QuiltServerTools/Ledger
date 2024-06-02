@@ -138,6 +138,7 @@ object ActionFactory {
     ): ItemChangeActionType {
         val action = ItemChangeActionType()
         setItemData(action, pos, world, stack, Sources.PLAYER)
+        action.count = -stack.count
         action.sourceProfile = source.gameProfile
 
         return action

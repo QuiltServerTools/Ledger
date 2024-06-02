@@ -55,6 +55,7 @@ fun onBlockBreak(
     ActionQueueService.addToQueue(action)
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun onBlockChange(
     world: World,
     pos: BlockPos,

@@ -26,10 +26,11 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
+import kotlin.math.abs
 
 open class ItemChangeActionType : AbstractActionType() {
     override val identifier: String = "item-change"
-    
+
     override fun getTranslationType(): String {
         val item = Registries.ITEM.get(objectIdentifier)
         return if (item is BlockItem && item !is AliasedBlockItem) {
@@ -39,11 +40,23 @@ open class ItemChangeActionType : AbstractActionType() {
         }
     }
 
-    private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
-        extraData,
-        objectIdentifier,
-        server.registryManager
-    )
+    private fun getStack(server: MinecraftServer): ItemStack {
+        return if (itemData == null) {
+            // old format
+            NbtUtils.itemFromProperties(
+                extraData,
+                objectIdentifier,
+                server.registryManager
+            )
+        } else {
+            ItemStack(
+                Registries.ITEM.get(objectIdentifier),
+                abs(count) // count is positive for insert, negative for remove
+            ).apply {
+                applyChanges(NbtUtils.componentsFromNbt(itemData!!))
+            }
+        }
+    }
 
     override fun getObjectMessage(source: ServerCommandSource): Text {
         val stack = getStack(source.server)
@@ -68,21 +81,18 @@ open class ItemChangeActionType : AbstractActionType() {
     protected fun previewItemChange(preview: Preview, player: ServerPlayerEntity, insert: Boolean) {
         val world = player.server.getWorld(world)
         val state = world?.getBlockState(pos)
-        state?.isOf(Blocks.CHEST)?.let {
-            if (it) {
-                val otherPos = getOtherChestSide(state, pos)
-                if (otherPos != null) {
-                    addPreview(preview, player, otherPos, insert)
-                }
+        if (state?.isOf(Blocks.CHEST) == true) {
+            val otherPos = getOtherChestSide(state, pos)
+            if (otherPos != null) {
+                addPreview(preview, player, otherPos, insert)
             }
         }
         addPreview(preview, player, pos, insert)
     }
 
     private fun addPreview(preview: Preview, player: ServerPlayerEntity, pos: BlockPos, insert: Boolean) {
-        preview.modifiedItems.compute(pos) { _, list ->
-            list ?: mutableListOf()
-        }?.add(Pair(getStack(player.server), insert))
+        preview.modifiedItems.computeIfAbsent(pos) { mutableListOf() }
+            .add(Pair(getStack(player.server), insert))
     }
 
     private fun getInventory(world: ServerWorld): Inventory? {
@@ -159,4 +169,26 @@ open class ItemChangeActionType : AbstractActionType() {
 
         return false
     }
+
+    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
+        previewItemChange(preview, player, count < 0)
+    }
+
+    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
+        previewItemChange(preview, player, count > 0)
+    }
+
+    override fun rollback(server: MinecraftServer) =
+        if (count > 0) {
+            removeMatchingItem(server)
+        } else {
+            addItem(server)
+        }
+
+    override fun restore(server: MinecraftServer) =
+        if (count > 0) {
+            addItem(server)
+        } else {
+            removeMatchingItem(server)
+        }
 }
