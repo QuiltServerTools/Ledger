@@ -9,20 +9,22 @@
   "text.ledger.footer.page_backward": "<<",
   "text.ledger.footer.page_backward.hover": "上一頁",
 
-  "text.ledger.status.queue": "資料庫隊列狀態: %s ",
+  "text.ledger.status.queue": "資料庫佇列: %s ",
   "text.ledger.status.queue.busy": "繁忙",
   "text.ledger.status.queue.empty": "閒置",
   "text.ledger.status.version": "版本: %s",
-  "text.ledger.status.discord": "單擊以加入 Ledger  discord 伺服器",
+  "text.ledger.status.discord": "Discord:%s",
   "text.ledger.status.discord.join": "單擊以加入",
+  "text.ledger.status.db_type": "資料庫類型: %s",
   "text.ledger.status.wiki": "Wiki: %s",
   "text.ledger.status.wiki.view": "單擊跳轉WIKI",
 
-  "text.ledger.preview.start": "功能預覽",
+  "text.ledger.preview.start": "預覽開始",
 
   "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
-  "text.ledger.action_message.time_diff": "%s ago",
+  "text.ledger.action_message.time_diff": "%s 前",
   "text.ledger.action_message.location.hover": "單擊傳送至此",
+  "text.ledger.action_message.with": "和",
 
   "text.ledger.rollback.start": "正在回滾，共 %s 次更改",
   "text.ledger.rollback.finish": "完成了指定規則內的回滾",
@@ -46,9 +48,19 @@
 
   "text.ledger.action.block-place": "放置",
   "text.ledger.action.block-break": "破壞",
+  "text.ledger.action.block-change": "改變",
   "text.ledger.action.item-insert": "放入",
   "text.ledger.action.item-remove": "拿取",
+  "text.ledger.action.item-pick-up": "撿起",
+  "text.ledger.action.item-drop": "掉落",
   "text.ledger.action.entity-kill": "殺死",
+  "text.ledger.action.entity-change": "改變",
 
-  "text.ledger.network.protocols_mismatched": "協議版本不匹配: 用戶端協議版本 %d 服務端版本為 %d"
+  "text.ledger.network.protocols_mismatched": "協議版本不匹配: 用戶端協議版本 %d 服務端版本為 %d",
+  "text.ledger.network.no_mod_info": "無法確定您的客戶端模組的模組資訊",
+
+  "text.ledger.purge.starting": "------ 開始清除 ------",
+  "text.ledger.purge.complete": "------ 完成清除 ------",
+
+  "text.ledger.player.result": "%1$s: 首次加入 %2$s. 最後加入: %3$s"
 }
