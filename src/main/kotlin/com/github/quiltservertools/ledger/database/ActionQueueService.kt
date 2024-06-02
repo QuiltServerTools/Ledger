@@ -44,7 +44,8 @@ object ActionQueueService {
             if (it !is ItemChangeActionType) return@removeIf false
             val list = containerMap.computeIfAbsent(it.pos) { mutableListOf() }
             val action = list.firstOrNull { other ->
-                other.itemData == it.itemData && other.objectIdentifier == it.objectIdentifier
+                other.itemData == it.itemData && other.objectIdentifier == it.objectIdentifier &&
+                        it.sourceName == other.sourceName && it.sourceProfile == other.sourceProfile
             }
             if (action != null) {
                 action.count += it.count
@@ -54,6 +55,7 @@ object ActionQueueService {
                 false
             }
         }
+        batch.removeIf { it is ItemChangeActionType && it.count == 0 } // remove empty events
 
         DatabaseManager.logActionBatch(batch)
     }
