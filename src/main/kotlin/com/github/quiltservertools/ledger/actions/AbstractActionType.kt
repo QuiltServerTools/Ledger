@@ -31,7 +31,9 @@ abstract class AbstractActionType : ActionType {
     override var sourceName: String = Sources.UNKNOWN
     override var sourceProfile: GameProfile? = null
     override var extraData: String? = null
+    override var itemData: String? = null
     override var rolledBack: Boolean = false
+    override var count: Int = 1
 
     override fun rollback(server: MinecraftServer): Boolean = false
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) = Unit

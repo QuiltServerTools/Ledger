@@ -186,6 +186,7 @@ object DatabaseManager {
             }
             type.extraData = action[Tables.Actions.extraData]
             type.rolledBack = action[Tables.Actions.rolledBack]
+            type.itemData = action[Tables.Actions.itemData]
 
             actions.add(type)
         }
@@ -427,6 +428,7 @@ object DatabaseManager {
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
             this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getOrCreatePlayerId(it.id) }
             this[Tables.Actions.extraData] = action.extraData
+            this[Tables.Actions.itemData] = action.itemData
         }
     }
 
