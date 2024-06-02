@@ -56,7 +56,7 @@
   "text.ledger.action.entity-kill": "殺死",
   "text.ledger.action.entity-change": "改變",
 
-  "text.ledger.network.protocols_mismatched": "協議版本不匹配: 用戶端協議版本 %d 服務端版本為 %d",
+  "text.ledger.network.protocols_mismatched": "協議版本不匹配: 用戶端協議版本 %d 伺服器端版本為 %d",
   "text.ledger.network.no_mod_info": "無法確定您的客戶端模組的模組資訊",
 
   "text.ledger.purge.starting": "------ 開始清除 ------",
