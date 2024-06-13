@@ -144,7 +144,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         registerEntityListeners()
     }
 
-    fun identifier(path: String) = Identifier.method_60655(MOD_ID, path)
+    fun identifier(path: String) = Identifier.of(MOD_ID, path)
 }
 
 fun logDebug(message: String) = Ledger.logger.debug(message)

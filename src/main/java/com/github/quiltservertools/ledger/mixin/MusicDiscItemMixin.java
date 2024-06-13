@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.mixin;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
-import net.minecraft.class_9792;
+import net.minecraft.component.type.JukeboxPlayableComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ItemActionResult;
@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
 
 
-@Mixin(class_9792.class)
+@Mixin(net.minecraft.component.type.JukeboxPlayableComponent.class)
 public abstract class MusicDiscItemMixin {
 
-    @Inject(method = "method_60747", at = @At(value = "INVOKE",
+    @Inject(method = "tryPlayStack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/entity/JukeboxBlockEntity;setStack(Lnet/minecraft/item/ItemStack;)V"))
     private static void ledgerPlayerInsertMusicDisc(World world, BlockPos pos, ItemStack itemStack, PlayerEntity player, CallbackInfoReturnable<ItemActionResult> cir) {
         BlockState blockState = world.getBlockState(pos);

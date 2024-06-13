@@ -24,8 +24,8 @@ abstract class AbstractActionType : ActionType {
     override var timestamp: Instant = Instant.now()
     override var pos: BlockPos = BlockPos.ORIGIN
     override var world: Identifier? = null
-    override var objectIdentifier: Identifier = Identifier.method_60656("air")
-    override var oldObjectIdentifier: Identifier = Identifier.method_60656("air")
+    override var objectIdentifier: Identifier = Identifier.of("air")
+    override var oldObjectIdentifier: Identifier = Identifier.of("air")
     override var objectState: String? = null
     override var oldObjectState: String? = null
     override var sourceName: String = Sources.UNKNOWN
