@@ -4,7 +4,7 @@ import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentEffectContext;
-import net.minecraft.enchantment.effect.entity.ReplaceDiscEnchantmentEffectType;
+import net.minecraft.enchantment.effect.entity.ReplaceDiskEnchantmentEffect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(ReplaceDiscEnchantmentEffectType.class)
+@Mixin(ReplaceDiskEnchantmentEffect.class)
 public abstract class FrostWalkerEnchantmentMixin {
     @ModifyArgs(method = "apply", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"))
     private void logFrostWalkerPlacement(Args args, ServerWorld world, int level, EnchantmentEffectContext context, Entity entity, Vec3d vec3d) {

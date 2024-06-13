@@ -9,5 +9,5 @@ import net.minecraft.util.Identifier
 // which provides the necessary constructor
 data class IdentifierWrapper(val identifier: Identifier) {
     @JsonCreator
-    constructor(id: String) : this(Identifier.method_60654(id))
+    constructor(id: String) : this(Identifier.of(id))
 }
