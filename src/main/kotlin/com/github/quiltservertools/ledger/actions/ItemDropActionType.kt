@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
@@ -9,7 +10,6 @@ import net.minecraft.entity.EntityType
 import net.minecraft.entity.ItemEntity
 import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
@@ -30,8 +30,14 @@ open class ItemDropActionType : AbstractActionType() {
         }
     }
 
+    private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
+        extraData,
+        objectIdentifier,
+        server.registryManager
+    )
+
     override fun getObjectMessage(source: ServerCommandSource): Text {
-        val stack = ItemStack.fromNbtOrEmpty(source.registryManager, StringNbtReader.parse(extraData))
+        val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
             Text.translatable(
