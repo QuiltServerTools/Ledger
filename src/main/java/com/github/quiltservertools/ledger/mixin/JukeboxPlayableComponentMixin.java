@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
 
 
-@Mixin(net.minecraft.component.type.JukeboxPlayableComponent.class)
-public abstract class MusicDiscItemMixin {
+@Mixin(JukeboxPlayableComponent.class)
+public abstract class JukeboxPlayableComponentMixin {
 
     @Inject(method = "tryPlayStack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/entity/JukeboxBlockEntity;setStack(Lnet/minecraft/item/ItemStack;)V"))
