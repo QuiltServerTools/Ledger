@@ -19,7 +19,7 @@ const val ITEM_COMPONENTS_DATA_VERSION = 3825
 
 const val COMPONENTS = "components" // ItemStack
 const val PROPERTIES = "Properties" // BlockState
-const val COUNT = "Count" // ItemStack
+const val COUNT = "count" // ItemStack
 const val TAG = "tag" // ItemStack
 const val UUID = "UUID" // Entity
 
