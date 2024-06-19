@@ -39,7 +39,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.jetbrains.exposed.sql.vendors.SQLiteDialect
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
@@ -144,7 +144,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         registerEntityListeners()
     }
 
-    fun identifier(path: String) = Identifier(MOD_ID, path)
+    fun identifier(path: String) = Identifier.of(MOD_ID, path)
 }
 
 fun logDebug(message: String) = Ledger.logger.debug(message)

@@ -23,7 +23,7 @@ class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
 
     override fun getTranslationType(): String {
-        val item = Registries.ITEM.get(Identifier(extraData))
+        val item = Registries.ITEM.get(Identifier.of(extraData))
         return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {
@@ -49,14 +49,14 @@ class EntityChangeActionType : AbstractActionType() {
             }
         )
 
-        if (extraData != null && Identifier(extraData) != Identifier.tryParse("minecraft:air")) {
-            val stack = ItemStack(Registries.ITEM.get(Identifier(extraData)))
+        if (extraData != null && Identifier.of(extraData) != Identifier.tryParse("minecraft:air")) {
+            val stack = ItemStack(Registries.ITEM.get(Identifier.of(extraData)))
             text.append(Text.literal(" ").append(Text.translatable("text.ledger.action_message.with")).append(" "))
             text.append(
                 Text.translatable(
                     Util.createTranslationKey(
                         this.getTranslationType(),
-                        Identifier(extraData)
+                        Identifier.of(extraData)
                     )
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
