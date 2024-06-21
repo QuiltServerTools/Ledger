@@ -20,7 +20,7 @@
         "HoneycombItemMixin",
         "ItemScattererMixin",
         "LockableContainerBlockEntityMixin",
-        "MusicDiscItemMixin",
+        "JukeboxPlayableComponentMixin",
         "NetherPortalMixin",
         "ScreenHandlerMixin",
         "SetBlockCommandMixin",

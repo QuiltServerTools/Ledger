@@ -85,7 +85,7 @@ object DatabaseManager {
         return SQLiteDataSource(
             SQLiteConfig().apply {
             setJournalMode(SQLiteConfig.JournalMode.WAL)
-            }
+        }
         ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
@@ -176,8 +176,8 @@ object DatabaseManager {
             type.timestamp = action[Tables.Actions.timestamp]
             type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
             type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
-            type.objectIdentifier = Identifier(action[Tables.ObjectIdentifiers.identifier])
-            type.oldObjectIdentifier = Identifier(
+            type.objectIdentifier = Identifier.of(action[Tables.ObjectIdentifiers.identifier])
+            type.oldObjectIdentifier = Identifier.of(
                 action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
             )
             type.objectState = action[Tables.Actions.blockState]
@@ -456,7 +456,7 @@ object DatabaseManager {
         var query = joinTables().selectAll()
             .andWhere { buildQueryParams(params) }
 
-        val totalActions = countActions(params)
+        var totalActions = countActions(params)
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
@@ -522,6 +522,7 @@ object DatabaseManager {
         )
         .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
         .innerJoin(Tables.Sources)
+
 
     private fun Transaction.selectAndRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
         val actions = mutableListOf<ActionType>()
