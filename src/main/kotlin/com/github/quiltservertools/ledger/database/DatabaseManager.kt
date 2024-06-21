@@ -523,7 +523,6 @@ object DatabaseManager {
         .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
         .innerJoin(Tables.Sources)
 
-
     private fun Transaction.selectAndRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
         val actions = mutableListOf<ActionType>()
 

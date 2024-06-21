@@ -18,6 +18,7 @@ import net.minecraft.util.Identifier
 const val ITEM_NBT_DATA_VERSION = 3817
 const val ITEM_COMPONENTS_DATA_VERSION = 3825
 
+const val COMPONENTS = "components" // ItemStack
 const val PROPERTIES = "Properties" // BlockState
 const val COUNT_PRE_1_20_5 = "Count" // ItemStack
 const val COUNT = "count" // ItemStack
