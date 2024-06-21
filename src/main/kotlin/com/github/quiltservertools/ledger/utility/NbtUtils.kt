@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.utility
 
 import com.mojang.serialization.Dynamic
 import net.minecraft.block.BlockState
+import net.minecraft.component.ComponentChanges
 import net.minecraft.datafixer.Schemas
 import net.minecraft.datafixer.TypeReferences
 import net.minecraft.item.ItemStack
@@ -17,6 +18,7 @@ import net.minecraft.util.Identifier
 const val ITEM_NBT_DATA_VERSION = 3817
 const val ITEM_COMPONENTS_DATA_VERSION = 3825
 
+const val COMPONENTS = "components" // ItemStack
 const val PROPERTIES = "Properties" // BlockState
 const val COUNT_PRE_1_20_5 = "Count" // ItemStack
 const val COUNT = "count" // ItemStack
@@ -61,5 +63,10 @@ object NbtUtils {
         }
 
         return ItemStack.fromNbt(registries, itemTag).get()
+    }
+
+    fun componentsFromNbt(nbt: String): ComponentChanges {
+        val tag = StringNbtReader.parse(nbt)
+        return ComponentChanges.CODEC.parse(NbtOps.INSTANCE, tag.get(COMPONENTS)).orThrow
     }
 }

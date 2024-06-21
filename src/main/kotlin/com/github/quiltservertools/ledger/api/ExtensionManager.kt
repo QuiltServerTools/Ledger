@@ -26,6 +26,7 @@ object ExtensionManager {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     internal fun serverStarting(server: MinecraftServer) {
         extensions.forEach {
             if (it is DatabaseExtension) {

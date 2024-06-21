@@ -19,7 +19,6 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemPlacementContext
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayNetworkHandler
 import net.minecraft.util.ActionResult
@@ -39,10 +38,12 @@ fun registerPlayerListeners() {
     ItemDropCallback.EVENT.register(::onItemDrop)
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun onLeave(handler: ServerPlayNetworkHandler, server: MinecraftServer) {
     handler.player.disableNetworking()
 }
 
+@Suppress("UNUSED_PARAMETER")
 private fun onUseBlock(
     player: PlayerEntity,
     world: World,
@@ -57,6 +58,7 @@ private fun onUseBlock(
     return ActionResult.PASS
 }
 
+@Suppress("UNUSED_PARAMETER")
 private fun onBlockAttack(
     player: PlayerEntity,
     world: World,
@@ -74,29 +76,11 @@ private fun onBlockAttack(
     return ActionResult.PASS
 }
 
+@Suppress("UNUSED_PARAMETER")
 private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
     Ledger.launch {
         DatabaseManager.logPlayer(networkHandler.player.uuid, networkHandler.player.nameForScoreboard)
     }
-}
-
-private fun onBlockPlace(
-    world: World,
-    player: PlayerEntity,
-    pos: BlockPos,
-    state: BlockState,
-    context: ItemPlacementContext?,
-    blockEntity: BlockEntity?
-) {
-    ActionQueueService.addToQueue(
-        ActionFactory.blockPlaceAction(
-            world,
-            pos,
-            state,
-            player,
-            blockEntity
-        )
-    )
 }
 
 private fun onBlockBreak(

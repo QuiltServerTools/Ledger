@@ -20,6 +20,7 @@ fun registerWorldEventListeners() {
     ServerWorldEvents.LOAD.register(::onWorldLoad)
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun onWorldLoad(server: MinecraftServer, world: ServerWorld) {
     Ledger.launch {
         DatabaseManager.registerWorld(world.registryKey.value)

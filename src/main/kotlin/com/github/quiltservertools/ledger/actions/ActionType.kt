@@ -25,7 +25,9 @@ interface ActionType {
     var sourceName: String
     var sourceProfile: GameProfile?
     var extraData: String?
+    var itemData: String?
     var rolledBack: Boolean
+    var count: Int
 
     fun rollback(server: MinecraftServer): Boolean
     fun restore(server: MinecraftServer): Boolean

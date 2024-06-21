@@ -3,6 +3,8 @@ package com.github.quiltservertools.ledger.mixin.blocks.sign;
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import java.util.UUID;
+import java.util.function.UnaryOperator;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
@@ -14,9 +16,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-
-import java.util.UUID;
-import java.util.function.UnaryOperator;
 
 @Mixin(SignBlockEntity.class)
 public abstract class SignBlockEntityMixin {
@@ -49,6 +48,7 @@ public abstract class SignBlockEntityMixin {
     ) {
 
         World world = instance.getWorld();
+        assert world != null;
         DynamicRegistryManager registryManager = world.getRegistryManager();
         BlockPos pos = instance.getPos();
         BlockState state = instance.getCachedState();
@@ -58,8 +58,6 @@ public abstract class SignBlockEntityMixin {
 
         boolean result = original.call(instance, textChanger, front);
         if (result && oldSignEntity != null) {
-
-            assert world != null : "World cannot be null, this is already in the target method";
 
             UUID editorID = instance.getEditor();
             PlayerEntity player = world.getPlayerByUuid(editorID);

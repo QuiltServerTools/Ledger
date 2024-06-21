@@ -6,21 +6,22 @@ import com.github.quiltservertools.ledger.actions.BlockChangeActionType
 import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityChangeActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
+import com.github.quiltservertools.ledger.actions.ItemChangeActionType
 import com.github.quiltservertools.ledger.actions.ItemDropActionType
-import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemPickUpActionType
-import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.component.ComponentChanges
 import net.minecraft.entity.Entity
 import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtOps
 import net.minecraft.registry.Registries
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
@@ -99,9 +100,10 @@ object ActionFactory {
         action.extraData = entity?.createNbt(world.registryManager)?.asString()
     }
 
-    fun itemInsertAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemInsertActionType {
-        val action = ItemInsertActionType()
+    fun itemInsertAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemChangeActionType {
+        val action = ItemChangeActionType()
         setItemData(action, pos, world, stack, source)
+        action.count = stack.count
 
         return action
     }
@@ -111,17 +113,19 @@ object ActionFactory {
         stack: ItemStack,
         pos: BlockPos,
         source: PlayerEntity
-    ): ItemInsertActionType {
-        val action = ItemInsertActionType()
+    ): ItemChangeActionType {
+        val action = ItemChangeActionType()
         setItemData(action, pos, world, stack, Sources.PLAYER)
+        action.count = stack.count
         action.sourceProfile = source.gameProfile
 
         return action
     }
 
-    fun itemRemoveAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemRemoveActionType {
-        val action = ItemRemoveActionType()
+    fun itemRemoveAction(world: World, stack: ItemStack, pos: BlockPos, source: String): ItemChangeActionType {
+        val action = ItemChangeActionType()
         setItemData(action, pos, world, stack, source)
+        action.count = -stack.count
 
         return action
     }
@@ -131,9 +135,10 @@ object ActionFactory {
         stack: ItemStack,
         pos: BlockPos,
         source: PlayerEntity
-    ): ItemRemoveActionType {
-        val action = ItemRemoveActionType()
+    ): ItemChangeActionType {
+        val action = ItemChangeActionType()
         setItemData(action, pos, world, stack, Sources.PLAYER)
+        action.count = -stack.count
         action.sourceProfile = source.gameProfile
 
         return action
@@ -193,7 +198,13 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registries.ITEM.getId(stack.item)
         action.sourceName = source
-        action.extraData = stack.encode(world.registryManager)?.asString()
+        if (!stack.componentChanges.isEmpty) {
+            val element = ComponentChanges.CODEC.encodeStart(
+                world.registryManager.getOps(NbtOps.INSTANCE),
+                stack.componentChanges
+            ).getOrThrow()
+            action.itemData = element?.asString()
+        }
     }
 
     fun entityKillAction(world: World, pos: BlockPos, entity: Entity, cause: DamageSource): EntityKillActionType {

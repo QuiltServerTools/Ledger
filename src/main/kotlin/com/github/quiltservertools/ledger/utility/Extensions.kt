@@ -16,8 +16,8 @@ fun MutableText.appendWithSpace(text: Text) {
     this.append(" ".literal())
 }
 
-fun String.literal() = Text.literal(this)
-fun String.translate() = Text.translatable(this)
+fun String.literal() = Text.literal(this)!!
+fun String.translate() = Text.translatable(this)!!
 
 fun ServerCommandSource.hasPlayer() = this.entity is ServerPlayerEntity
 
