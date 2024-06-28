@@ -9,14 +9,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.component.ComponentChanges;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HandlerWithContext {
-    Map<ItemStack, Integer> changedStacks = HashMap.newHashMap(19);
+    Map<Pair<Item, ComponentChanges>, Integer> changedStacks = HashMap.newHashMap(19);
     @Unique
     private ServerPlayerEntity player = null;
     
@@ -64,8 +67,9 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
     @Inject(method = "onClosed", at = @At(value = "RETURN"))
     private void ledgerCloseScreenLogChanges(PlayerEntity player, CallbackInfo ci) {
         if (!player.getWorld().isClient) {
-            for (ItemStack stack : changedStacks.keySet()) {
-                int count = changedStacks.get(stack);
+            for (var pair : changedStacks.keySet()) {
+                ItemStack stack = new ItemStack(pair.getLeft().getRegistryEntry(), 1, pair.getRight());
+                int count = changedStacks.get(pair);
                 int countAbs = Math.abs(count);
                 List<ItemStack> splitStacks = new ArrayList<>();
                 while (countAbs > 0) {
@@ -107,7 +111,7 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
     public void onStackChanged(@NotNull ItemStack old, @NotNull ItemStack itemStack, @NotNull BlockPos pos) {
         if (old.isEmpty() && !itemStack.isEmpty()) {
             // Add item
-            ItemStack key = itemStack.copyWithCount(1);
+            var key = new Pair<>(itemStack.getItem(), itemStack.getComponentChanges());
             if (changedStacks.containsKey(key)) {
                 changedStacks.put(key, changedStacks.get(key) + 1);
             } else {
@@ -115,7 +119,7 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
             }
         } else if (!old.isEmpty() && itemStack.isEmpty()) {
             // Remove item
-            ItemStack key = old.copyWithCount(1);
+            var key = new Pair<>(itemStack.getItem(), itemStack.getComponentChanges());
             if (changedStacks.containsKey(key)) {
                 changedStacks.put(key, changedStacks.get(key) - 1);
             } else {
@@ -123,13 +127,12 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
             }
         } else {
             // Change item
-            ItemStack key = old.copyWithCount(1);
+            var key = new Pair<>(itemStack.getItem(), itemStack.getComponentChanges());
             if (changedStacks.containsKey(key)) {
                 changedStacks.put(key, changedStacks.get(key) - 1);
             } else {
                 changedStacks.put(key, -1);
             }
-            key = itemStack.copyWithCount(1);
             if (changedStacks.containsKey(key)) {
                 changedStacks.put(key, changedStacks.get(key) + 1);
             } else {
