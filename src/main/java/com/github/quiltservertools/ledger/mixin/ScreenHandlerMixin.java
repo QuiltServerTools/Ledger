@@ -1,13 +1,22 @@
 package com.github.quiltservertools.ledger.mixin;
 
+import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback;
+import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback;
 import com.github.quiltservertools.ledger.utility.HandledSlot;
 import com.github.quiltservertools.ledger.utility.HandlerWithContext;
+import com.github.quiltservertools.ledger.utility.Sources;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HandlerWithContext {
+    Map<ItemStack, Integer> changedStacks = HashMap.newHashMap(19);
     @Unique
     private ServerPlayerEntity player = null;
     
@@ -51,6 +61,31 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
         this.player = (ServerPlayerEntity) player;
     }
 
+    @Inject(method = "onClosed", at = @At(value = "RETURN"))
+    private void ledgerCloseScreenLogChanges(PlayerEntity player, CallbackInfo ci) {
+        if (!player.getWorld().isClient) {
+            for (ItemStack stack : changedStacks.keySet()) {
+                int count = changedStacks.get(stack);
+                int countAbs = Math.abs(count);
+                List<ItemStack> splitStacks = new ArrayList<>();
+                while (countAbs > 0) {
+                    ItemStack addStack = stack.copyWithCount(Math.min(countAbs, stack.getMaxCount()));
+                    splitStacks.add(addStack);
+                    countAbs -= addStack.getCount();
+                }
+                if (count > 0) {
+                    for (ItemStack splitStack : splitStacks) {
+                        ItemInsertCallback.EVENT.invoker().insert(splitStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
+                    }
+                } else {
+                    for (ItemStack splitStack : splitStacks) {
+                        ItemRemoveCallback.EVENT.invoker().remove(splitStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
+                    }
+                }
+            }
+        }
+    }
+
     @Nullable
     @Override
     public ServerPlayerEntity getPlayer() {
@@ -66,5 +101,40 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
     @Override
     public void setPos(@NotNull BlockPos pos) {
         this.pos = pos;
+    }
+
+    @Override
+    public void onStackChanged(@NotNull ItemStack old, @NotNull ItemStack itemStack, @NotNull BlockPos pos) {
+        if (old.isEmpty() && !itemStack.isEmpty()) {
+            // Add item
+            ItemStack key = itemStack.copyWithCount(1);
+            if (changedStacks.containsKey(key)) {
+                changedStacks.put(key, changedStacks.get(key) + 1);
+            } else {
+                changedStacks.put(key, 1);
+            }
+        } else if (!old.isEmpty() && itemStack.isEmpty()) {
+            // Remove item
+            ItemStack key = old.copyWithCount(1);
+            if (changedStacks.containsKey(key)) {
+                changedStacks.put(key, changedStacks.get(key) - 1);
+            } else {
+                changedStacks.put(key, -1);
+            }
+        } else {
+            // Change item
+            ItemStack key = old.copyWithCount(1);
+            if (changedStacks.containsKey(key)) {
+                changedStacks.put(key, changedStacks.get(key) - 1);
+            } else {
+                changedStacks.put(key, -1);
+            }
+            key = itemStack.copyWithCount(1);
+            if (changedStacks.containsKey(key)) {
+                changedStacks.put(key, changedStacks.get(key) + 1);
+            } else {
+                changedStacks.put(key, 1);
+            }
+        }
     }
 }

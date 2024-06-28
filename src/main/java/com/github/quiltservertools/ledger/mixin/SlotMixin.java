@@ -2,18 +2,12 @@ package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.actionutils.DoubleInventoryHelper;
 import com.github.quiltservertools.ledger.actionutils.LocationalInventory;
-import com.github.quiltservertools.ledger.callbacks.ItemInsertCallback;
-import com.github.quiltservertools.ledger.callbacks.ItemRemoveCallback;
 import com.github.quiltservertools.ledger.utility.HandledSlot;
 import com.github.quiltservertools.ledger.utility.HandlerWithContext;
-import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +52,7 @@ public abstract class SlotMixin implements HandledSlot {
         HandlerWithContext handlerWithContext = (HandlerWithContext) handler;
 
         if (pos != null && handlerWithContext.getPlayer() != null) {
-            logChange(handlerWithContext.getPlayer(), oldStack, this.getStack().copy(), pos);
+            handlerWithContext.onStackChanged(oldStack, this.getStack().copy(), pos);
         }
 
         oldStack = this.getStack().copy();
@@ -76,35 +70,5 @@ public abstract class SlotMixin implements HandledSlot {
         }
 
         return null;
-    }
-
-    @Unique
-    private void logChange(PlayerEntity player, ItemStack stack, ItemStack newStack, BlockPos pos) {
-        if (stack.isEmpty() && newStack.isEmpty()) return; // nothing to do
-
-        if (!stack.isEmpty() && !newStack.isEmpty()) { // 2 non-empty stacks
-            if (stack.getItem() == newStack.getItem()) { // add or remove to stack of same type
-                int newCount = newStack.getCount();
-                int oldCount = stack.getCount();
-                if (newCount > oldCount) { // add items
-                    logChange(player, ItemStack.EMPTY, new ItemStack(newStack.getItem(), newCount - oldCount), pos);
-                } else { // remove items
-                    logChange(player, new ItemStack(newStack.getItem(), oldCount - newCount), ItemStack.EMPTY, pos);
-                }
-            } else { // split up the actions
-                logChange(player, stack, ItemStack.EMPTY, pos); // log taking out the old stack
-                logChange(player, ItemStack.EMPTY, newStack, pos); // log putting in the new stack
-            }
-            return;
-        }
-
-        boolean oldEmpty = stack.isEmpty(); // we know only one is empty
-        ItemStack changedStack = oldEmpty ? newStack : stack;
-
-        if (oldEmpty) {
-            ItemInsertCallback.EVENT.invoker().insert(changedStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
-        } else {
-            ItemRemoveCallback.EVENT.invoker().remove(changedStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
-        }
     }
 }
