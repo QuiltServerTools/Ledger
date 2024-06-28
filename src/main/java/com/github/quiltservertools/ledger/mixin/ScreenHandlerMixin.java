@@ -127,7 +127,8 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
             } else {
                 changedStacks.put(key, -old.getCount());
             }
-        } else {
+        } else if (!old.isEmpty() && !itemStack.isEmpty()) {
+            // Item changed
             onStackChanged(old, ItemStack.EMPTY, pos);
             onStackChanged(ItemStack.EMPTY, itemStack, pos);
         }
