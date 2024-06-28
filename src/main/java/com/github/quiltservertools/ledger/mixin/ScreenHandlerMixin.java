@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ScreenHandler.class)
 public abstract class ScreenHandlerMixin implements HandlerWithContext {
+    @Unique
     Map<ItemData, Integer> changedStacks = HashMap.newHashMap(19);
     @Unique
     private ServerPlayerEntity player = null;
