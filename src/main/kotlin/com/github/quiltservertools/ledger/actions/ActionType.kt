@@ -14,6 +14,7 @@ import java.time.Instant
 import kotlin.time.ExperimentalTime
 
 interface ActionType {
+    var id: Int
     val identifier: String
     var timestamp: Instant
     var pos: BlockPos
