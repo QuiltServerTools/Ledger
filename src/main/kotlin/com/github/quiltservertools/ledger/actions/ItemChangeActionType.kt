@@ -3,9 +3,11 @@ package com.github.quiltservertools.ledger.actions
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.addItem
 import com.github.quiltservertools.ledger.utility.getOtherChestSide
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
+import com.github.quiltservertools.ledger.utility.removeMatchingItem
 import net.minecraft.block.Blocks
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.InventoryProvider
@@ -108,15 +110,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
         if (world != null) {
             val rollbackStack = getStack(server)
-
             if (inventory != null) {
-                for (i in 0 until inventory.size()) {
-                    val stack = inventory.getStack(i)
-                    if (ItemStack.areItemsEqual(stack, rollbackStack)) {
-                        inventory.setStack(i, ItemStack.EMPTY)
-                        return true
-                    }
-                }
+                return removeMatchingItem(rollbackStack, inventory)
             } else if (rollbackStack.isOf(Items.WRITABLE_BOOK) || rollbackStack.isOf(Items.WRITTEN_BOOK)) {
                 val blockEntity = world.getBlockEntity(pos)
                 if (blockEntity is LecternBlockEntity) {
@@ -136,15 +131,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
 
         if (world != null) {
             val rollbackStack = getStack(server)
-
             if (inventory != null) {
-                for (i in 0 until inventory.size()) {
-                    val stack = inventory.getStack(i)
-                    if (stack.isEmpty) {
-                        inventory.setStack(i, rollbackStack)
-                        return true
-                    }
-                }
+                return addItem(rollbackStack, inventory)
             } else if (rollbackStack.isOf(Items.WRITABLE_BOOK) || rollbackStack.isOf(Items.WRITTEN_BOOK)) {
                 val blockEntity = world.getBlockEntity(pos)
                 if (blockEntity is LecternBlockEntity && !blockEntity.hasBook()) {

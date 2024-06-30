@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.actionutils.Preview;
 import com.github.quiltservertools.ledger.utility.HandlerWithContext;
 import com.llamalad7.mixinextras.sugar.Local;
 import kotlin.Pair;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -17,6 +18,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import java.util.List;
+
+import static com.github.quiltservertools.ledger.utility.ItemChangeLogicKt.addItem;
+import static com.github.quiltservertools.ledger.utility.ItemChangeLogicKt.removeMatchingItem;
 
 @Mixin(targets = "net.minecraft.server.network.ServerPlayerEntity$1")
 public abstract class ServerPlayerEntityMixin {
@@ -40,28 +44,14 @@ public abstract class ServerPlayerEntityMixin {
         if (preview == null) return stacks;
         List<Pair<ItemStack, Boolean>> modifiedItems = preview.getModifiedItems().get(pos);
         if (modifiedItems == null) return stacks;
-        // Copy original list
-        DefaultedList<ItemStack> previewStacks = DefaultedList.of();
-        previewStacks.addAll(stacks);
+        SimpleInventory inventory = new SimpleInventory(stacks.toArray(new ItemStack[]{}));
         for (Pair<ItemStack, Boolean> modifiedItem : modifiedItems) {
             if (modifiedItem.component2()) {
-                // Add item
-                for (int i = 0; i < previewStacks.size(); i++) {
-                    if (previewStacks.get(i).isEmpty()) {
-                        previewStacks.set(i, modifiedItem.component1());
-                        break;
-                    }
-                }
+                addItem(modifiedItem.component1(), inventory);
             } else {
-                // Remove item
-                for (int i = 0; i < previewStacks.size(); i++) {
-                    if (ItemStack.areItemsEqual(previewStacks.get(i), modifiedItem.component1())) {
-                        previewStacks.set(i, ItemStack.EMPTY);
-                        break;
-                    }
-                }
+                removeMatchingItem(modifiedItem.component1(), inventory);
             }
         }
-        return previewStacks;
+        return inventory.getHeldStacks();
     }
 }
