@@ -45,6 +45,9 @@
     "error.ledger.no_more_pages": "No more pages",
     "error.ledger.unknown_param": "Unknown parameter %s",
     "error.ledger.no_preview": "No current preview",
+    "error.ledger.unspecific.range": "Please specify a range.",
+    "error.ledger.unspecific.range_to_big": "The maximum range is %s.",
+    "error.ledger.unspecific.source_or_time": "Please specify a source or time (after).",
 
     "text.ledger.action.block-place": "placed",
     "text.ledger.action.block-break": "broke",
@@ -55,6 +58,15 @@
     "text.ledger.action.item-drop": "dropped",
     "text.ledger.action.entity-kill": "killed",
     "text.ledger.action.entity-change": "changed",
+
+    "text.ledger.parameter.action.description": "Filter by type of performed action.",
+    "text.ledger.parameter.after.description": "Filter by time (after the provided time).",
+    "text.ledger.parameter.before.description": "Filter by time (before the provided time). Usually you want to use after.",
+    "text.ledger.parameter.object.description": "Filter by matching an object. Could be a block, item or entity.",
+    "text.ledger.parameter.range.description": "Filter by location (square radius around your location).",
+    "text.ledger.parameter.rolledback.description": "Filter by rolled back state.",
+    "text.ledger.parameter.source.description": "Filter by source (player name or source with '@').",
+    "text.ledger.parameter.world.description": "Filter by provided dimension.",
 
     "text.ledger.network.protocols_mismatched": "Protocol versions mismatched: client mod is Ledger protocol version %d and the client version is %d",
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",

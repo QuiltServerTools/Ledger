@@ -43,8 +43,6 @@ Multiple Allowed - `No`
 Example - `range:5`
 
 This parameter allows you to filter your selection based on your location.
-This will not filter by your dimension, so you may still get results from other worlds.
-Use the [dimension parameter](#dimension) to filter by world.
 
 ## Source
 Key - `source:`  

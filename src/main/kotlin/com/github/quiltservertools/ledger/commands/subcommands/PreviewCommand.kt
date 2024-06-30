@@ -51,12 +51,10 @@ object PreviewCommand : BuildableCommand {
             .build()
     }
 
-    private fun preview(context: Context, params: ActionSearchParams?, type: Preview.Type): Int {
+    private fun preview(context: Context, params: ActionSearchParams, type: Preview.Type): Int {
         val source = context.source
         val player = source.playerOrThrow
-
-        if (params == null) return -1
-
+        params.ensureSpecific()
         Ledger.launch(Dispatchers.IO) {
             MessageUtils.warnBusy(source)
             val actions = DatabaseManager.previewActions(params, type)

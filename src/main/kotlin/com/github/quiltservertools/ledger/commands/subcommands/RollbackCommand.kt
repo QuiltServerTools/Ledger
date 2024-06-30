@@ -6,7 +6,12 @@ import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
 import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.utility.*
+import com.github.quiltservertools.ledger.utility.Context
+import com.github.quiltservertools.ledger.utility.LiteralNode
+import com.github.quiltservertools.ledger.utility.MessageUtils
+import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.launchMain
+import com.github.quiltservertools.ledger.utility.literal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
@@ -24,11 +29,9 @@ object RollbackCommand : BuildableCommand {
             .build()
     }
 
-    fun rollback(context: Context, params: ActionSearchParams?): Int {
+    fun rollback(context: Context, params: ActionSearchParams): Int {
         val source = context.source
-
-        if (params == null) return -1
-
+        params.ensureSpecific()
         Ledger.launch(Dispatchers.IO) {
             MessageUtils.warnBusy(source)
             val actions = DatabaseManager.rollbackActions(params)

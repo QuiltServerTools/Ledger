@@ -22,6 +22,7 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.server.command.CommandManager
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockBox
 import net.minecraft.util.math.BlockPos
@@ -190,7 +191,7 @@ object SearchParamArgument {
         val input = builder.remaining.lowercase()
         for (param in paramSuggesters.keys) {
             if (param.startsWith(input)) {
-                builder.suggest("$param:")
+                builder.suggest("$param:", Text.translatable("text.ledger.parameter.$param.description"))
             }
         }
         return builder
