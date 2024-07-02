@@ -23,7 +23,7 @@
 
   "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
   "text.ledger.action_message.time_diff": "%s 前",
-  "text.ledger.action_message.location.hover": "單擊傳送至此",
+  "text.ledger.action_message.location.hover": "按這裡傳送",
   "text.ledger.action_message.with": "和",
 
   "text.ledger.rollback.start": "正在復原 %s 個動作",
