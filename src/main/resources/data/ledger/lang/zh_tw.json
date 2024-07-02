@@ -26,13 +26,13 @@
   "text.ledger.action_message.location.hover": "按這裡傳送",
   "text.ledger.action_message.with": "和",
 
-  "text.ledger.rollback.start": "正在復原 %s 個動作",
+  "text.ledger.rollback.start": "正在復原 %s 項動作",
   "text.ledger.rollback.finish": "復原完成",
-  "text.ledger.rollback.fail": "回滾失敗 %s x%s",
+  "text.ledger.rollback.fail": "復原失敗 %s ×%s",
 
-  "text.ledger.restore.start": "正在還原 %s 次回溯更改",
+  "text.ledger.restore.start": "正在還原 %s 項動作",
   "text.ledger.restore.finish": "還原完成",
-  "text.ledger.restore.fail": "還原失敗 %s x%s",
+  "text.ledger.restore.fail": "還原失敗 %s ×%s",
 
   "text.ledger.inspect.toggle": "檢查模式：%s",
   "text.ledger.inspect.on": "已啟用",
