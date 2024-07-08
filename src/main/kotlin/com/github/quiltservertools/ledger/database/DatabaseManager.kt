@@ -17,6 +17,7 @@ import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.google.common.cache.Cache
 import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.newSingleThreadContext
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.Entity
@@ -74,6 +75,7 @@ object DatabaseManager {
         get() = database.dialect.name
 
     private val cache = DatabaseCacheService
+    private val databaseCoroutine = newSingleThreadContext("Ledger")
 
     fun setup(dataSource: DataSource?) {
         val source = dataSource ?: getDefaultDatasource()
@@ -369,7 +371,7 @@ object DatabaseManager {
             delay(timeMillis = 1000)
         }
 
-        return newSuspendedTransaction(db = database) {
+        return newSuspendedTransaction(context = databaseCoroutine, db = database) {
             repetitionAttempts = MAX_QUERY_RETRIES
             minRepetitionDelay = MIN_RETRY_DELAY
             maxRepetitionDelay = MAX_RETRY_DELAY
