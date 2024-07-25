@@ -1,7 +1,6 @@
 package com.github.quiltservertools.ledger.mixin.entities.silverfish;
 
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
-import com.github.quiltservertools.ledger.utility.Sources;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.entity.Entity;

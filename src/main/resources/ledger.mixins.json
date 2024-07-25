@@ -91,6 +91,7 @@
         "entities.VillagerEntityMixin",
         "entities.WolfEntityMixin",
         "entities.silverfish.CallForHelpGoalMixin",
+        "entities.silverfish.WanderAndInfestGoalMixin",
         "preview.ChestBlockMixin",
         "preview.EntityTrackerEntryAccessor",
         "preview.LockableContainerBlockEntityMixin",
