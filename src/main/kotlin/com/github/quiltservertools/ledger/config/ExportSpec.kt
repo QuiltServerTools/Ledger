@@ -7,12 +7,12 @@ import net.minecraft.util.WorldSavePath
 import java.nio.file.Path
 
 object ExportSpec : ConfigSpec() {
-    val location by optional<String?>(null)
+    val location by optional<String?>("")
 }
 
 fun Config.getExportDir(): Path {
     val location = config[ExportSpec.location]
-    return if (location != null) {
+    return if (!location.isNullOrEmpty()) {
         Path.of(location)
     } else {
         Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger-export")

@@ -41,6 +41,7 @@ object ExportCommand : BuildableCommand {
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     private fun run(source: ServerCommandSource, params: ActionSearchParams): Int {
         Ledger.launch {
+            // query from db
             source.sendFeedback(
                 { Text.translatable("text.ledger.export.started").setStyle(TextColorPallet.primary) },
                 false
@@ -61,19 +62,21 @@ object ExportCommand : BuildableCommand {
                 ).setStyle(TextColorPallet.secondary)
             }, false)
 
+            // export to file
             val time = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))
-            val path = config.getExportDir().resolve("ledger-export-$time.txt")
             var string = ""
             actions.forEach {
                 string += "${it.getMessage(source).string}\n"
             }
-            Files.createFile(path)
-            Files.writeString(path, string)
+            val exportDir = config.getExportDir()
+            exportDir.toFile().mkdirs()
+            val exportPath = exportDir.resolve("ledger-export-$time.txt")
+            Files.createFile(exportPath)
+            Files.writeString(exportPath, string)
             source.sendFeedback({
                 Text.translatable(
                     "text.ledger.export.completed",
-                    
-                    path.pathString.literal()
+                    exportPath.pathString.literal()
                     .setStyle(TextColorPallet.primaryVariant)
                 ).setStyle(TextColorPallet.primary)
             }, false)
