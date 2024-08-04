@@ -8,7 +8,19 @@ Permission: `ledger.commands.export`
 The export command allows you to save the results of the search command to a txt file for easy sharing.
 For more information, see [search](../commands/search.md)
 
+**Configuration**
+
+```toml
+[export]
+# Files export location, default at "./<world-name>/data/"
+location=
+# Export format. "csv" only currently.
+type=csv
+```
+
 **Exported CSV Example**
+
+Named like `ledger-export-2024-08-04_22-45-44.csv`
 
 | Time                | Source     | Action    | Object        | X    | Y    | Z    | World               |
 | ------------------- | ---------- | --------- | ------------- | ---- | ---- | ---- | ------------------- |

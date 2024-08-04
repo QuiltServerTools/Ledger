@@ -16,6 +16,6 @@ fun Config.getExportDir(): Path {
     return if (!location.isNullOrEmpty()) {
         Path.of(location)
     } else {
-        Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger-export")
+        Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("data")
     }.normalize()
 }
