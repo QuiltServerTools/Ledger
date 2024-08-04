@@ -62,5 +62,9 @@
     "text.ledger.purge.starting": "------ Starting purge ------",
     "text.ledger.purge.complete": "------ Completed purge ------",
 
-    "text.ledger.player.result": "%1$s: First joined %2$s. Last joined: %3$s"
+    "text.ledger.player.result": "%1$s: First joined %2$s. Last joined: %3$s",
+
+    "text.ledger.export.started": "------ Starting export ------",
+    "text.ledger.export.actions": "Exporting %d actions",
+    "text.ledger.export.completed": "------ Exported actions to file %d ------"
 }

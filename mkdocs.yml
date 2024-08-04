@@ -18,6 +18,7 @@ nav:
     - commands/purge.md
     - commands/status.md
     - commands/teleport.md
+    - commands/export.md
   - Extensions:
     - extensions/extensions.md
   - API:
