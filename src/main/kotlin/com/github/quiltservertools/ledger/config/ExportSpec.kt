@@ -8,6 +8,7 @@ import java.nio.file.Path
 
 object ExportSpec : ConfigSpec() {
     val location by optional<String?>("")
+    val format by optional<String?>("csv")
 }
 
 fun Config.getExportDir(): Path {
@@ -16,5 +17,5 @@ fun Config.getExportDir(): Path {
         Path.of(location)
     } else {
         Ledger.server.getSavePath(WorldSavePath.ROOT).resolve("ledger-export")
-    }
+    }.normalize()
 }

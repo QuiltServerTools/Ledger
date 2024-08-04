@@ -109,7 +109,7 @@ object MessageUtils {
 //        }
     }
 
-    fun instantToText(time: Instant): MutableText {
+    fun instantTimeToDiffText(time: Instant): MutableText {
         val duration = Duration.between(time, Instant.now()).toKotlinDuration()
         val text: MutableText = "".literal()
 
@@ -137,5 +137,10 @@ object MessageUtils {
             )
         }
         return message
+    }
+
+    fun instantTimeToFullText(time: Instant): MutableText {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").withZone(Ledger.config[SearchSpec.timeZone])
+            .format(time).literal()
     }
 }

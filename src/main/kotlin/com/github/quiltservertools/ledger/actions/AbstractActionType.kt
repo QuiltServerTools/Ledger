@@ -57,8 +57,17 @@ abstract class AbstractActionType : ActionType {
         return message
     }
 
+    override fun getExportedData(source: ServerCommandSource): Text {
+        val timeData: String = MessageUtils.instantTimeToFullText(timestamp).string
+        val sourceData: String = getSourceMessage().string
+        val actionData: String = getActionMessage().string
+        val objectData: String = getObjectMessage(source).string
+        val worldData: String = world?.let { "$it" } ?: ""
+        return "$timeData, $sourceData, $actionData, $objectData, ${pos.x}, ${pos.y}, ${pos.z}, $worldData".literal()
+    }
+
     @ExperimentalTime
-    open fun getTimeMessage(): Text = MessageUtils.instantToText(timestamp)
+    open fun getTimeMessage(): Text = MessageUtils.instantTimeToDiffText(timestamp)
 
     open fun getSourceMessage(): Text {
         if (sourceProfile == null) {

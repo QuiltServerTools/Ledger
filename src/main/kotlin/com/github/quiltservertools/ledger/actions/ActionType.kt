@@ -36,6 +36,8 @@ interface ActionType {
     @ExperimentalTime
     fun getMessage(source: ServerCommandSource): Text
 
+    fun getExportedData(source: ServerCommandSource): Text
+
     fun isBlacklisted() = config[ActionsSpec.typeBlacklist].contains(identifier) ||
             config[ActionsSpec.objectBlacklist].contains(objectIdentifier) ||
             config[ActionsSpec.objectBlacklist].contains(oldObjectIdentifier) ||

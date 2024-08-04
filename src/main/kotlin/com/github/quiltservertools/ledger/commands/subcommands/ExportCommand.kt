@@ -41,11 +41,12 @@ object ExportCommand : BuildableCommand {
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
     private fun run(source: ServerCommandSource, params: ActionSearchParams): Int {
         Ledger.launch {
-            // query from db
             source.sendFeedback(
                 { Text.translatable("text.ledger.export.started").setStyle(TextColorPallet.primary) },
                 false
             )
+
+            // query from db
             var results = DatabaseManager.searchActions(params, 0)
             val actions = mutableListOf<ActionType>()
             for (i in results.page..results.pages) {
@@ -63,16 +64,18 @@ object ExportCommand : BuildableCommand {
             }, false)
 
             // export to file
-            val time = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))
-            var string = ""
-            actions.forEach {
-                string += "${it.getMessage(source).string}\n"
-            }
             val exportDir = config.getExportDir()
             exportDir.toFile().mkdirs()
-            val exportPath = exportDir.resolve("ledger-export-$time.txt")
+            val time = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))
+            val exportPath = exportDir.resolve("ledger-export-$time.csv")
+            val exportedCsvData = StringBuilder()
+            exportedCsvData.append("${Text.translatable("text.ledger.export.csvTitle").string}\n")
+            actions.forEach {
+                exportedCsvData.append("${it.getExportedData(source).string}\n")
+            }
             Files.createFile(exportPath)
-            Files.writeString(exportPath, string)
+            Files.writeString(exportPath, exportedCsvData)
+
             source.sendFeedback({
                 Text.translatable(
                     "text.ledger.export.completed",
