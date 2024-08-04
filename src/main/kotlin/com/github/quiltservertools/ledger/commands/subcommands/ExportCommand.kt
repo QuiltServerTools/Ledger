@@ -6,13 +6,14 @@ import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
+import com.github.quiltservertools.ledger.config.config
+import com.github.quiltservertools.ledger.config.getExportDir
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
@@ -54,14 +55,14 @@ object ExportCommand : BuildableCommand {
             }
             source.sendFeedback({
                 Text.translatable(
-                "text.ledger.export.actions",
-                results.pages.toString().literal()
-                .setStyle(TextColorPallet.secondaryVariant)
-            ).setStyle(TextColorPallet.secondary)
+                    "text.ledger.export.actions",
+                    results.pages.toString().literal()
+                    .setStyle(TextColorPallet.secondaryVariant)
+                ).setStyle(TextColorPallet.secondary)
             }, false)
 
-            val time = SimpleDateFormat("ss-mm-HH-dd-MM-yyyy").format(Date.from(Instant.now()))
-            val path = FabricLoader.getInstance().gameDir.resolve("ledger-export-$time.txt")
+            val time = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date.from(Instant.now()))
+            val path = config.getExportDir().resolve("ledger-export-$time.txt")
             var string = ""
             actions.forEach {
                 string += "${it.getMessage(source).string}\n"
@@ -70,12 +71,13 @@ object ExportCommand : BuildableCommand {
             Files.writeString(path, string)
             source.sendFeedback({
                 Text.translatable(
-                "text.ledger.export.completed",
-                path.pathString.literal()
-                .setStyle(TextColorPallet.primaryVariant)
-            ).setStyle(TextColorPallet.primary)
+                    "text.ledger.export.completed",
+                    
+                    path.pathString.literal()
+                    .setStyle(TextColorPallet.primaryVariant)
+                ).setStyle(TextColorPallet.primary)
             }, false)
-            }
+        }
         return 1
     }
 }
