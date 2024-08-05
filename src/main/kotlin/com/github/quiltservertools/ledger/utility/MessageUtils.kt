@@ -139,8 +139,8 @@ object MessageUtils {
         return message
     }
 
-    fun instantTimeToFullText(time: Instant): MutableText {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss").withZone(Ledger.config[SearchSpec.timeZone])
+    fun instantTimeToFullText(time: Instant, formatPattern: String = "yyyy-MM-dd HH:mm:ss"): MutableText {
+        return DateTimeFormatter.ofPattern(formatPattern).withZone(Ledger.config[SearchSpec.timeZone])
             .format(time).literal()
     }
 }
