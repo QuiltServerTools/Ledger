@@ -13,9 +13,9 @@ For more information, see [search](../commands/search.md)
 ```toml
 [export]
 # Files export location, default at "./<world-name>/data/"
-location=
+location = "..."
 # Export format. "csv" only currently.
-type=csv
+type = "csv"
 ```
 
 **Exported CSV Example**

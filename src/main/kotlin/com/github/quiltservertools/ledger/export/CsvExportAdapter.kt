@@ -21,7 +21,7 @@ class CsvExportAdapter : AbstractExportAdapter() {
         val x = action.pos.x
         val y = action.pos.y
         val z = action.pos.z
-        val worldName: String = action.world?.let { "$it" } ?: ""
+        val worldName: String = action.world?.toString() ?: ""
         return "$timeStr, $sourceName, $actionName, $objectName, $x, $y, $z, $worldName".literal()
     }
 
