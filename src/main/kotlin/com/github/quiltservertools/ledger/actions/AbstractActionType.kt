@@ -45,7 +45,7 @@ abstract class AbstractActionType : ActionType {
             getTimeMessage(),
             getSourceMessage(),
             getActionMessage(),
-            getObjectMessage(source),
+            getObjectMessage(),
             getLocationMessage()
         )
         message.style = TextColorPallet.light
@@ -55,15 +55,6 @@ abstract class AbstractActionType : ActionType {
         }
 
         return message
-    }
-
-    override fun getExportedData(source: ServerCommandSource): Text {
-        val timeData: String = MessageUtils.instantTimeToFullText(timestamp).string
-        val sourceData: String = getSourceMessage().string
-        val actionData: String = getActionMessage().string
-        val objectData: String = getObjectMessage(source).string
-        val worldData: String = world?.let { "$it" } ?: ""
-        return "$timeData, $sourceData, $actionData, $objectData, ${pos.x}, ${pos.y}, ${pos.z}, $worldData".literal()
     }
 
     @ExperimentalTime
@@ -91,7 +82,7 @@ abstract class AbstractActionType : ActionType {
             )
         }
 
-    open fun getObjectMessage(source: ServerCommandSource): Text = Text.translatable(
+    open fun getObjectMessage(): Text = Text.translatable(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier

@@ -5,7 +5,6 @@ import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
@@ -32,7 +31,7 @@ class BlockPlaceActionType : BlockChangeActionType() {
         return true
     }
 
-    override fun getObjectMessage(source: ServerCommandSource): Text = Text.translatable(
+    override fun getObjectMessage(): Text = Text.translatable(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier

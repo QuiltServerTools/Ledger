@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
@@ -13,7 +14,6 @@ import net.minecraft.item.BlockItem
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Util
@@ -36,8 +36,8 @@ open class ItemPickUpActionType : AbstractActionType() {
         server.registryManager
     )
 
-    override fun getObjectMessage(source: ServerCommandSource): Text {
-        val stack = getStack(source.server)
+    override fun getObjectMessage(): Text {
+        val stack = getStack(Ledger.server)
 
         return "${stack.count} ".literal().append(
             Text.translatable(

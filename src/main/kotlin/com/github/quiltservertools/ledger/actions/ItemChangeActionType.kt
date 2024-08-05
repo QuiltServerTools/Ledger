@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
@@ -19,7 +20,6 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
@@ -43,8 +43,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
         server.registryManager
     )
 
-    override fun getObjectMessage(source: ServerCommandSource): Text {
-        val stack = getStack(source.server)
+    override fun getObjectMessage(): Text {
+        val stack = getStack(Ledger.server)
 
         return "${stack.count} ".literal().append(
             Text.translatable(
