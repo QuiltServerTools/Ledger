@@ -468,16 +468,22 @@ object DatabaseManager {
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
-        query = query.limit(
-            config[SearchSpec.pageSize],
-            (config[SearchSpec.pageSize] * (page - 1)).toLong()
-        ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
+        if (page < 0) {
+            // if page < 0, return all results once without pagination
+            actions.addAll(getActionsFromQuery(query))
+            return SearchResults(actions, params, 1, 1)
+        } else {
+            query = query.limit(
+                config[SearchSpec.pageSize],
+                (config[SearchSpec.pageSize] * (page - 1)).toLong()
+            ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
 
-        actions.addAll(getActionsFromQuery(query))
+            actions.addAll(getActionsFromQuery(query))
 
-        val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
+            val totalPages = ceil(totalActions.toDouble() / config[SearchSpec.pageSize].toDouble()).toInt()
 
-        return SearchResults(actions, params, page, totalPages)
+            return SearchResults(actions, params, page, totalPages)
+        }
     }
 
     private fun Transaction.countActions(params: ActionSearchParams): Long = Tables.Actions
