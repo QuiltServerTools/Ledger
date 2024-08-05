@@ -69,5 +69,5 @@
   "text.ledger.export.actions": "正在导出 %d 条数据",
   "text.ledger.export.completed": "------ 已导出数据至 %d ------",
   "text.ledger.export.failed": "------ 导出失败! ------",
-  "text.ledger.export.csvTitle": "时间, 来源, 动作, 目标, X, Y, Z, 世界"
+  "text.ledger.export.csvTitle": "时间, 来源, 动作, 目标, X, Y, Z, 世界, 额外信息"
 }

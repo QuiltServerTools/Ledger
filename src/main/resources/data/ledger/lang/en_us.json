@@ -68,5 +68,5 @@
     "text.ledger.export.actions": "Exporting %d actions",
     "text.ledger.export.completed": "------ Exported actions to %d ------",
     "text.ledger.export.failed": "------ Export failed! ------",
-    "text.ledger.export.csvTitle": "Time, Source, Action, Object, X, Y, Z, World"
+    "text.ledger.export.csvTitle": "Time, Source, Action, Object, X, Y, Z, World, Extra"
 }
