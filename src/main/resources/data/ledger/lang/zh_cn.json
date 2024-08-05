@@ -50,5 +50,24 @@
   "text.ledger.action.item-remove": "拿取",
   "text.ledger.action.entity-kill": "杀死",
 
-  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d"
+  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d",
+
+  "text.ledger.status.db_type": "数据库类型: %s",
+  "text.ledger.action_message.with": "with",
+  "text.ledger.action.block-change": "改变",
+  "text.ledger.action.item-pick-up": "捡起",
+  "text.ledger.action.item-drop": "丢弃",
+  "text.ledger.action.entity-change": "改变",
+
+  "text.ledger.network.no_mod_info": "无法确定客户端模组的模组信息",
+
+  "text.ledger.purge.starting": "------ 开始清理 ------",
+  "text.ledger.purge.complete": "------ 清理已完成 ------",
+  "text.ledger.player.result": "%1$s: 首次加入 %2$s. 最后加入: %3$s",
+
+  "text.ledger.export.started": "------ 开始导出 ------",
+  "text.ledger.export.actions": "正在导出 %d 条数据",
+  "text.ledger.export.completed": "------ 已导出数据至 %d ------",
+  "text.ledger.export.failed": "------ 导出失败! ------",
+  "text.ledger.export.csvTitle": "时间, 来源, 动作, 目标, X, Y, Z, 世界"
 }
