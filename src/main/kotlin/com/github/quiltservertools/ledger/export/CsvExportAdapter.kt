@@ -21,7 +21,9 @@ class CsvExportAdapter : AbstractExportAdapter() {
         val y = action.pos.y
         val z = action.pos.z
         val worldName: String = action.world?.toString() ?: ""
-        val extraData: String = if(action.extraData == null) "" else {
+        val extraData: String = if (action.extraData == null) {
+            ""
+        } else {
             // Escape " in data and finally wrap "" to avoid bad column
             val escapedExtraData = action.extraData!!.replace("\"", "\"\"")
             "\"${escapedExtraData}\""
