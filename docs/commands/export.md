@@ -22,24 +22,27 @@ type = "csv"
 
 Named like `ledger-export-2024-08-04_22-45-44.csv`
 
-| Time                | Source     | Action    | Object        | X    | Y    | Z    | World               |
-| ------------------- | ---------- | --------- | ------------- | ---- | ---- | ---- | ------------------- |
-| 2024-08-04 11:38:13 | yqs1123582 | picked up | 1 Black Wool  | -5   | 68   | -13  | minecraft:overworld |
-| 2024-08-04 11:38:13 | yqs1123582 | picked up | 1 Raw Mutton  | -6   | 68   | -12  | minecraft:overworld |
-| 2024-08-04 11:38:12 | @fire      | broke     | Oak Planks    | 65   | -39  | -13  | minecraft:overworld |
-| 2024-08-04 11:38:12 | yqs1123582 | killed    | Sheep         | -5   | 68   | -13  | minecraft:overworld |
-| 2024-08-04 11:38:11 | @gravity   | broke     | Fire          | -37  | -31  | -6   | minecraft:overworld |
-| 2024-08-04 11:38:06 | @gravity   | broke     | Fire          | 66   | -38  | -13  | minecraft:overworld |
-| 2024-08-04 11:38:06 | @fire      | broke     | Oak Planks    | 66   | -39  | -13  | minecraft:overworld |
-| 2024-08-04 11:38:05 | @fire      | broke     | Oak Planks    | 66   | -35  | -12  | minecraft:overworld |
-| 2024-08-04 11:38:02 | yqs1123582 | picked up | 1 Wheat Seeds | -6   | 68   | -4   | minecraft:overworld |
-| 2024-08-04 11:38:01 | @gravity   | broke     | Fire          | 65   | -36  | -10  | minecraft:overworld |
-| 2024-08-04 11:38:01 | @gravity   | broke     | Fire          | 66   | -36  | -9   | minecraft:overworld |
-| 2024-08-04 11:38:01 | @fire      | broke     | Oak Planks    | 65   | -36  | -9   | minecraft:overworld |
-| 2024-08-04 11:38:00 | yqs1123582 | broke     | Grass Block   | -6   | 68   | -3   | minecraft:overworld |
-| 2024-08-04 11:38:00 | @gravity   | broke     | Short Grass   | -6   | 69   | -3   | minecraft:overworld |
-| 2024-08-04 11:37:58 | @fire      | broke     | Oak Planks    | 66   | -36  | -9   | minecraft:overworld |
-| 2024-08-04 11:37:58 | @gravity   | broke     | Fire          | 66   | -38  | -10  | minecraft:overworld |
-| 2024-08-04 11:37:58 | @fire      | broke     | Oak Fence     | 66   | -38  | -9   | minecraft:overworld |
-| 2024-08-04 11:37:55 | @fluid     | placed    | Obsidian      | 76   | -55  | 12   | minecraft:overworld |
-| 2024-08-04 11:37:55 | @fluid     | placed    | Obsidian      | 77   | -55  | 12   | minecraft:overworld |
+| Time           | Source   | Action    | Object              | X    | Y    | Z    | World                | Extra                                           |
+| -------------- | -------- | --------- | ------------------- | ---- | ---- | ---- | -------------------- | ----------------------------------------------- |
+| 2024/8/5 13:36 | X1aoSa   | added     | 64 Cobblestone      | -19  | 62   | 121  | minecraft:overworld  | {count:64,id:"minecraft:cobblestone"}           |
+| 2024/8/5 13:36 | X1aoSa   | picked up | 1 Red Shulker Box   | -15  | 65   | 119  | minecraft:overworld  | {components:{"minecraft:container":[{…          |
+| 2024/8/5 13:36 | X1aoSa   | broke     | Red Shulker Box     | -15  | 65   | 120  | minecraft:overworld  | {Items:[{Slot:1b,count:64,id:"minecraft:…       |
+| 2024/8/5 13:36 | X1aoSa   | removed   | 64 Cobblestone      | -15  | 65   | 120  | minecraft:overworld  | {count:64,id:"minecraft:cobblestone"}           |
+| 2024/8/5 13:36 | X1aoSa   | removed   | 64 Cobblestone      | -15  | 65   | 120  | minecraft:overworld  | {count:64,id:"minecraft:cobblestone"}           |
+| 2024/8/5 13:36 | X1aoSa   | placed    | Red Shulker Box     | -15  | 65   | 120  | minecraft:overworld  | {Items:[{Slot:0b,count:64,id:"minecraft:…       |
+| 2024/8/5 13:36 | X1aoSa   | picked up | 1 White Shulker Box | -16  | 65   | 121  | minecraft:overworld  | {components:{"minecraft:container":[…           |
+| 2024/8/5 13:36 | X1aoSa   | broke     | White Shulker Box   | -16  | 65   | 120  | minecraft:overworld  | {Items:[{Slot:0b,count:64,id:"minecraft:…       |
+| 2024/8/5 13:36 | X1aoSa   | placed    | White Shulker Box   | -16  | 65   | 120  | minecraft:overworld  | {Items:[{Slot:0b,count:64,id:"minecraft:rail... |
+| 2024/8/5 13:35 | X1aoSa   | removed   | 64 Smooth Stone     | -17  | 64   | 104  | minecraft:overworld  | {count:64,id:"minecraft:smooth_stone"}          |
+| 2024/8/5 13:35 | X1aoSa   | removed   | 64 Smooth Stone     | -17  | 64   | 104  | minecraft:overworld  | {count:64,id:"minecraft:smooth_stone"}          |
+| 2024/8/5 13:35 | X1aoSa   | removed   | 2 Smooth Stone      | -17  | 64   | 104  | minecraft:overworld  | {count:2,id:"minecraft:smooth_stone"}           |
+| 2024/8/5 13:35 | X1aoSa   | removed   | 11 Smooth Stone     | -17  | 64   | 104  | minecraft:overworld  | {count:11,id:"minecraft:smooth_stone"}          |
+| 2024/8/5 13:35 | X1aoSa   | added     | 64 Cobblestone      | -19  | 62   | 121  | minecraft:overworld  | {count:64,id:"minecraft:cobblestone"}           |
+| 2024/8/5 13:34 | X1aoSa   | changed   | Lever               | -24  | 65   | 119  | minecraft:overworld  |                                                 |
+| 2024/8/5 13:34 | X1aoSa   | changed   | Lever               | -24  | 65   | 119  | minecraft:overworld  |                                                 |
+| 2024/8/5 13:34 | @lava    | killed    | Bat                 | -9   | -55  | 152  | minecraft:overworld  | {AbsorptionAmount:0.0f,Air:300s,…               |
+| 2024/8/5 13:34 | @fall    | killed    | Zombified Piglin    | 36   | 188  | 98   | minecraft:the_nether | {AbsorptionAmount:0.0f,Air:300s,…               |
+| 2024/8/5 13:34 | @fall    | killed    | Zombified Piglin    | 35   | 188  | 98   | minecraft:the_nether | {AbsorptionAmount:0.0f,Air:300s,…               |
+| 2024/8/5 13:34 | X1aoSa   | killed    | Magma Cube          | -14  | 65   | 129  | minecraft:overworld  | {AbsorptionAmount:0.0f,Air:300s,…               |
+| 2024/8/5 13:34 | X1aoSa   | broke     | Sunflower           | -14  | 65   | 128  | minecraft:overworld  |                                                 |
+| 2024/8/5 13:34 | @gravity | broke     | Sunflower           | -14  | 66   | 128  | minecraft:overworld  |                                                 |

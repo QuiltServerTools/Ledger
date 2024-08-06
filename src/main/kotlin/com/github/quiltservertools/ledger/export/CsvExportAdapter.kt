@@ -21,8 +21,12 @@ class CsvExportAdapter : AbstractExportAdapter() {
         val y = action.pos.y
         val z = action.pos.z
         val worldName: String = action.world?.toString() ?: ""
-        val extraData: String = action.extraData ?: ""
-        return "$timeStr, $sourceName, $actionName, $objectName, $x, $y, $z, $worldName, $extraData"
+        val extraData: String = if(action.extraData == null) "" else {
+            // Escape " in data and finally wrap "" to avoid bad column
+            val escapedExtraData = action.extraData!!.replace("\"", "\"\"")
+            "\"${escapedExtraData}\""
+        }
+        return "$timeStr,$sourceName,$actionName,$objectName,$x,$y,$z,$worldName,$extraData"
     }
 
     override suspend fun exportFromData(actions: List<ActionType>, exportDir: Path): Path? {
