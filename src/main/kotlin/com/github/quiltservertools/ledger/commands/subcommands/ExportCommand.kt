@@ -49,11 +49,7 @@ object ExportCommand : BuildableCommand {
                 "csv" -> CsvExportAdapter()
                 else -> CsvExportAdapter()
             }
-            val dataExporter = DataExporter(params, exportAdapter)
-            val exportCount = dataExporter.getExportDataCount()
-            source.sendFeedback({
-                Text.translatable("text.ledger.export.actions", exportCount).setStyle(TextColorPallet.secondary)
-            }, false)
+            val dataExporter = DataExporter(params, exportAdapter, source)
 
             val exportedFilePath: Path? = dataExporter.exportTo(config.getExportDir())
             if (exportedFilePath == null) {

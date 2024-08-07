@@ -6,12 +6,16 @@ import com.github.quiltservertools.ledger.utility.MessageUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.minecraft.text.Text
+import java.io.FileOutputStream
 import java.io.IOException
-import java.nio.file.Files
+import java.io.OutputStreamWriter
 import java.nio.file.Path
 import java.time.Instant
 
 class CsvExportAdapter : AbstractExportAdapter() {
+    private lateinit var exportFileStream: FileOutputStream
+    private lateinit var exportFileWriter: OutputStreamWriter
+
     private fun actionToCsvData(action: AbstractActionType): String {
         val timeStr: String = MessageUtils.instantTimeToFullText(action.timestamp).string
         val sourceName: String = action.getSourceMessage().string
@@ -31,23 +35,31 @@ class CsvExportAdapter : AbstractExportAdapter() {
         return "$timeStr,$sourceName,$actionName,$objectName,$x,$y,$z,$worldName,$extraData"
     }
 
-    override suspend fun exportFromData(actions: List<ActionType>, exportDir: Path): Path? {
+    @Throws(IOException::class)
+    override suspend fun startExport(exportDir: Path): Path? {
         val time = MessageUtils.instantTimeToFullText(Instant.now(), "yyyy-MM-dd_HH-mm-ss").string
         val exportPath = exportDir.resolve("ledger-export-$time.csv")
-        val exportedCsvData = StringBuilder()
-        exportedCsvData.append("${Text.translatable("text.ledger.export.csvTitle").string}\n")
-        actions.forEach {
-            exportedCsvData.append(actionToCsvData(it as AbstractActionType))
-            exportedCsvData.append("\n")
-        }
-        try {
-            withContext(Dispatchers.IO) {
-                Files.createFile(exportPath)
-                Files.writeString(exportPath, exportedCsvData)
+        exportFileStream = FileOutputStream(exportPath.normalize().toFile())
+        exportFileWriter = OutputStreamWriter(exportFileStream, "UTF-8")
+        exportFileWriter.append("${Text.translatable("text.ledger.export.csvTitle").string}\n")
+        return exportPath
+    }
+
+    @Throws(IOException::class)
+    override suspend fun addData(actions: List<ActionType>): Boolean {
+        withContext(Dispatchers.IO) {
+            actions.forEach {
+                exportFileWriter.append(actionToCsvData(it as AbstractActionType))
+                exportFileWriter.append("\n")
             }
-            return exportPath
-        } catch (_: IOException) {
-            return null
         }
+        return true
+    }
+
+    @Throws(IOException::class)
+    override suspend fun endExport(): Boolean {
+        exportFileWriter.close()
+        exportFileStream.close()
+        return true
     }
 }

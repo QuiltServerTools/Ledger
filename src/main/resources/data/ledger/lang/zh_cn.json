@@ -66,8 +66,9 @@
   "text.ledger.player.result": "%1$s: 首次加入 %2$s. 最后加入: %3$s",
 
   "text.ledger.export.started": "------ 开始导出 ------",
-  "text.ledger.export.actions": "正在导出 %d 条数据",
-  "text.ledger.export.completed": "------ 已导出数据至 %d ------",
+    "text.ledger.export.actions": "共有 %d 条数据将被导出",
+    "text.ledger.export.exporting": "正在导出第 $d/$d 页",
+  "text.ledger.export.completed": "------ 已导出数据至 %s ------",
   "text.ledger.export.failed": "------ 导出失败! ------",
   "text.ledger.export.csvTitle": "时间, 来源, 动作, 目标, X, Y, Z, 世界, 额外信息"
 }

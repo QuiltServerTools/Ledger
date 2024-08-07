@@ -65,8 +65,9 @@
     "text.ledger.player.result": "%1$s: First joined %2$s. Last joined: %3$s",
 
     "text.ledger.export.started": "------ Starting export ------",
-    "text.ledger.export.actions": "Exporting %d actions",
-    "text.ledger.export.completed": "------ Exported actions to %d ------",
+    "text.ledger.export.actions": "%d actions will be exported in total",
+    "text.ledger.export.exporting": "Exporting page $d/$d",
+    "text.ledger.export.completed": "------ Exported actions to %s ------",
     "text.ledger.export.failed": "------ Export failed! ------",
     "text.ledger.export.csvTitle": "Time, Source, Action, Object, X, Y, Z, World, Extra"
 }
