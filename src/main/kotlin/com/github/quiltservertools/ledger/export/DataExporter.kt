@@ -9,7 +9,7 @@ import java.io.IOException
 import java.nio.file.Path
 import kotlin.math.ceil
 
-const val EXPORTER_QUERY_PAGE_SIZE = 1000
+const val EXPORTER_QUERY_PAGE_SIZE = 10000
 
 class DataExporter(
     private val searchParams: ActionSearchParams,
