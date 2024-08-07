@@ -18,6 +18,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager.literal
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.Text
+import java.io.IOException
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.pathString
@@ -51,20 +52,28 @@ object ExportCommand : BuildableCommand {
             }
             val dataExporter = DataExporter(params, exportAdapter, source)
 
-            val exportedFilePath: Path? = dataExporter.exportTo(config.getExportDir())
-            if (exportedFilePath == null) {
+            try {
+                val exportedFilePath: Path? = dataExporter.exportTo(config.getExportDir())
+                if (exportedFilePath == null) {
+                    source.sendFeedback({
+                        Text.translatable("text.ledger.export.failed").setStyle(TextColorPallet.primary)
+                    }, false)
+                } else {
+                    source.sendFeedback({
+                        Text.translatable(
+                            "text.ledger.export.completed",
+                            exportedFilePath.pathString.literal()
+                                .setStyle(TextColorPallet.primaryVariant)
+                        ).setStyle(TextColorPallet.primary)
+                    }, false)
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
                 source.sendFeedback({
                     Text.translatable("text.ledger.export.failed").setStyle(TextColorPallet.primary)
                 }, false)
-            } else {
-                source.sendFeedback({
-                    Text.translatable(
-                        "text.ledger.export.completed",
-                        exportedFilePath.pathString.literal()
-                            .setStyle(TextColorPallet.primaryVariant)
-                    ).setStyle(TextColorPallet.primary)
-                }, false)
             }
+
         }
         return 1
     }
