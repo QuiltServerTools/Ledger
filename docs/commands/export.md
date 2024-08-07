@@ -14,8 +14,10 @@ For more information, see [search](../commands/search.md)
 [export]
 # Files export location, default at "./<world-name>/data/"
 location = "..."
-# Export format. "csv" only currently.
+# Export format. "csv" only currently
 type = "csv"
+# The number of actions to query from the database at once when exporting
+batchSize = 10000
 ```
 
 **Exported CSV Example**

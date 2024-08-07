@@ -59,3 +59,5 @@ networking = true
 #location = "./world/data/"
 # Export format. "csv" only currently.
 type = "csv"
+# The number of actions to query from the database at once when exporting
+batchSize = 10000
