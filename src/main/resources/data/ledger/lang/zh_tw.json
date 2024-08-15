@@ -1,50 +1,50 @@
 {
-  "text.ledger.header.search.pos": "--- 位於 %s 的紀錄---",
-  "text.ledger.header.search": "------ 記錄搜尋 ------",
+  "text.ledger.header.search.pos": "--- 在 %s 搜尋記錄---",
+  "text.ledger.header.search": "------ 搜尋記錄 ------",
   "text.ledger.header.status": "------ Ledger ------",
 
-  "text.ledger.footer.search": "------- %s [第 %s 頁 共 %s 頁] %s -------",
+  "text.ledger.footer.search": "------- %s [第 %s 頁/共 %s 頁] %s -------",
   "text.ledger.footer.page_forward": ">>",
   "text.ledger.footer.page_forward.hover": "下一頁",
   "text.ledger.footer.page_backward": "<<",
   "text.ledger.footer.page_backward.hover": "上一頁",
 
-  "text.ledger.status.queue": "資料庫佇列: %s ",
-  "text.ledger.status.queue.busy": "繁忙",
-  "text.ledger.status.queue.empty": "閒置",
-  "text.ledger.status.version": "版本: %s",
-  "text.ledger.status.discord": "Discord:%s",
-  "text.ledger.status.discord.join": "單擊以加入",
-  "text.ledger.status.db_type": "資料庫類型: %s",
-  "text.ledger.status.wiki": "Wiki: %s",
-  "text.ledger.status.wiki.view": "單擊跳轉WIKI",
+  "text.ledger.status.queue": "資料庫佇列：%s ",
+  "text.ledger.status.queue.busy": "忙碌",
+  "text.ledger.status.queue.empty": "空",
+  "text.ledger.status.version": "版本：%s",
+  "text.ledger.status.discord": "Discord：%s",
+  "text.ledger.status.discord.join": "按這裡加入",
+  "text.ledger.status.db_type": "資料庫類型：%s",
+  "text.ledger.status.wiki": "wiki：%s",
+  "text.ledger.status.wiki.view": "按這裡瀏覽 wiki",
 
-  "text.ledger.preview.start": "預覽開始",
+  "text.ledger.preview.start": "開始預覽",
 
   "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
   "text.ledger.action_message.time_diff": "%s 前",
-  "text.ledger.action_message.location.hover": "單擊傳送至此",
+  "text.ledger.action_message.location.hover": "按這裡傳送",
   "text.ledger.action_message.with": "和",
 
-  "text.ledger.rollback.start": "正在回滾，共 %s 次更改",
-  "text.ledger.rollback.finish": "完成了指定規則內的回滾",
-  "text.ledger.rollback.fail": "回滾失敗 %s x%s",
+  "text.ledger.rollback.start": "正在復原 %s 項動作",
+  "text.ledger.rollback.finish": "復原完成",
+  "text.ledger.rollback.fail": "復原失敗 %s ×%s",
 
-  "text.ledger.restore.start": "正在還原 %s 次回溯更改",
-  "text.ledger.restore.finish": "完成了指定規則內的還原",
-  "text.ledger.restore.fail": "還原失敗 %s x%s",
+  "text.ledger.restore.start": "正在還原 %s 項動作",
+  "text.ledger.restore.finish": "還原完成",
+  "text.ledger.restore.fail": "還原失敗 %s ×%s",
 
-  "text.ledger.inspect.toggle": "查詢模式: %s",
-  "text.ledger.inspect.on": "開啟",
-  "text.ledger.inspect.off": "關閉",
+  "text.ledger.inspect.toggle": "檢查模式：%s",
+  "text.ledger.inspect.on": "已啟用",
+  "text.ledger.inspect.off": "已停用",
 
-  "text.ledger.database.busy": "資料庫任務繁忙. 這可能需要一點時間",
+  "text.ledger.database.busy": "資料庫目前忙碌中，這可能需要一點時間",
 
-  "error.ledger.no_cached_params": "沒有快取搜尋. 嘗試先執行搜尋",
-  "error.ledger.command.no_results": "沒有查詢到任何結果",
-  "error.ledger.no_more_pages": "沒有更多頁了",
-  "error.ledger.unknown_param": "非法參數--> %s",
-  "error.ledger.no_preview": "沒有可預覽的結果,預覽失敗",
+  "error.ledger.no_cached_params": "沒有快取搜尋，請先嘗試進行搜尋",
+  "error.ledger.command.no_results": "該搜尋沒有結果",
+  "error.ledger.no_more_pages": "沒有更多頁面",
+  "error.ledger.unknown_param": "無效引數 %s",
+  "error.ledger.no_preview": "沒有目前的預覽",
 
   "text.ledger.action.block-place": "放置",
   "text.ledger.action.block-break": "破壞",
@@ -56,11 +56,11 @@
   "text.ledger.action.entity-kill": "殺死",
   "text.ledger.action.entity-change": "改變",
 
-  "text.ledger.network.protocols_mismatched": "協議版本不匹配: 用戶端協議版本 %d 伺服器端版本為 %d",
-  "text.ledger.network.no_mod_info": "無法確定您的客戶端模組的模組資訊",
+  "text.ledger.network.protocols_mismatched": "協議版本不符：用戶端版本為 Ledger 協定版本 %d，伺服器版本為 %d",
+  "text.ledger.network.no_mod_info": "無法確定您用戶端模組的模組資訊",
 
   "text.ledger.purge.starting": "------ 開始清除 ------",
   "text.ledger.purge.complete": "------ 完成清除 ------",
 
-  "text.ledger.player.result": "%1$s: 首次加入 %2$s. 最後加入: %3$s"
+  "text.ledger.player.result": "%1$s：第一次加入 %2$s。最後加入：%3$s"
 }

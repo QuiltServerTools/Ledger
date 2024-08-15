@@ -1,0 +1,66 @@
+{
+    "text.ledger.header.search.pos": "--- Пошук журналів на %s ---",
+    "text.ledger.header.search": "------ Пошук журналів ------",
+    "text.ledger.header.status": "------ Ledger ------",
+
+    "text.ledger.footer.search": "------- %s [Сторінка %s з %s] %s -------",
+    "text.ledger.footer.page_forward": ">>",
+    "text.ledger.footer.page_forward.hover": "Наступна сторінка",
+    "text.ledger.footer.page_backward": "<<",
+    "text.ledger.footer.page_backward.hover": "Минула сторінка",
+
+    "text.ledger.status.queue": "Черга бази даних: %s",
+    "text.ledger.status.queue.busy": "Зайнято",
+    "text.ledger.status.queue.empty": "Порожньо",
+    "text.ledger.status.version": "Версія: %s",
+    "text.ledger.status.discord": "Дискорд: %s",
+    "text.ledger.status.discord.join": "Натисніть, щоб приєднатися",
+    "text.ledger.status.db_type": "Тип бази даних: %s",
+    "text.ledger.status.wiki": "Керівництво: %s",
+    "text.ledger.status.wiki.view": "Натисніть, щоб переглянути",
+
+    "text.ledger.preview.start": "Початок попереднього перегляду",
+
+    "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+    "text.ledger.action_message.time_diff": "%s тому",
+    "text.ledger.action_message.location.hover": "Натисніть, щоб телепортуватися",
+    "text.ledger.action_message.with": "з",
+
+    "text.ledger.rollback.start": "Відкат %s дій",
+    "text.ledger.rollback.finish": "Відкат завершено",
+    "text.ledger.rollback.fail": "Не вдалося відкотити %s x%s",
+
+    "text.ledger.restore.start": "Відновлення %s дій",
+    "text.ledger.restore.finish": "Відновлення завершено",
+    "text.ledger.restore.fail": "Не вдалося відновити %s x%s",
+
+    "text.ledger.inspect.toggle": "Режим огляду: %s",
+    "text.ledger.inspect.on": "Увімкнено",
+    "text.ledger.inspect.off": "Вимкнено",
+
+    "text.ledger.database.busy": "База даних зараз зайнята. Це може зайняти деякий час",
+
+    "error.ledger.no_cached_params": "Немає кешованого пошуку. Спробуйте спочатку виконати пошук",
+    "error.ledger.command.no_results": "Немає результатів для цього пошуку",
+    "error.ledger.no_more_pages": "Більше немає сторінок",
+    "error.ledger.unknown_param": "Невідомий параметр %s",
+    "error.ledger.no_preview": "Немає поточного попереднього перегляду",
+
+    "text.ledger.action.block-place": "розмістив",
+    "text.ledger.action.block-break": "зламав",
+    "text.ledger.action.block-change": "змінив",
+    "text.ledger.action.item-insert": "додав",
+    "text.ledger.action.item-remove": "видалив",
+    "text.ledger.action.item-pick-up": "підібрав",
+    "text.ledger.action.item-drop": "скинув",
+    "text.ledger.action.entity-kill": "вбив",
+    "text.ledger.action.entity-change": "змінив",
+
+    "text.ledger.network.protocols_mismatched": "Невідповідність версій протоколу: клієнтський мод – це версія протоколу Ledger %d, а версія клієнта – %d",
+    "text.ledger.network.no_mod_info": "Неможливо визначити інформацію для вашого клієнтського моду",
+
+    "text.ledger.purge.starting": "------ Початок очищення ------",
+    "text.ledger.purge.complete": "------ Очищення завершене ------",
+
+    "text.ledger.player.result": "%1$s: Вперше приєднався: %2$s. Востаннє приєднався: %3$s"
+}

@@ -31,6 +31,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlLogger
@@ -150,18 +151,49 @@ object DatabaseManager {
     }
 
     suspend fun rollbackActions(params: ActionSearchParams): List<ActionType> = execute {
-        return@execute selectAndRollbackActions(params)
+        val actions = selectRollback(params)
+        val actionIds = actions.map { it.id }.toSet()
+        rollbackActions(actionIds)
+        return@execute actions
+    }
+
+    suspend fun rollbackActions(actionIds: Set<Int>) = execute {
+        return@execute rollbackActions(actionIds)
     }
 
     suspend fun restoreActions(params: ActionSearchParams): List<ActionType> = execute {
-        return@execute selectAndRestoreActions(params)
+        val actions = selectRestore(params)
+        val actionIds = actions.map { it.id }.toSet()
+        restoreActions(actionIds)
+        return@execute actions
+    }
+
+    suspend fun restoreActions(actionIds: Set<Int>) = execute {
+        return@execute restoreActions(actionIds)
+    }
+
+    suspend fun selectRollback(params: ActionSearchParams): List<ActionType> = execute {
+        val query = buildQuery()
+            .where(buildQueryParams(params) and (Tables.Actions.rolledBack eq false))
+            .orderBy(Tables.Actions.id, SortOrder.DESC)
+        return@execute getActionsFromQuery(query)
+    }
+
+    suspend fun selectRestore(params: ActionSearchParams): List<ActionType> = execute {
+        val query = buildQuery()
+            .where(buildQueryParams(params) and (Tables.Actions.rolledBack eq true))
+            .orderBy(Tables.Actions.id, SortOrder.ASC)
+        return@execute getActionsFromQuery(query)
     }
 
     suspend fun previewActions(
         params: ActionSearchParams,
         type: Preview.Type
     ): List<ActionType> = execute {
-        return@execute selectActionsPreview(params, type)
+        when (type) {
+            Preview.Type.ROLLBACK -> return@execute selectRollback(params)
+            Preview.Type.RESTORE -> return@execute selectRestore(params)
+        }
     }
 
     private fun getActionsFromQuery(query: Query): List<ActionType> {
@@ -175,6 +207,7 @@ object DatabaseManager {
             }
 
             val type = typeSupplier.get()
+            type.id = action[Tables.Actions.id].value
             type.timestamp = action[Tables.Actions.timestamp]
             type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
             type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
@@ -450,23 +483,11 @@ object DatabaseManager {
 
     private fun Transaction.selectActionsSearch(params: ActionSearchParams, page: Int): SearchResults {
         val actions = mutableListOf<ActionType>()
-        var totalActions: Long
 
-        var query = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
+        var query = buildQuery()
             .andWhere { buildQueryParams(params) }
 
-        totalActions = countActions(params)
+        val totalActions: Long = countActions(params)
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
@@ -487,15 +508,8 @@ object DatabaseManager {
         .andWhere { buildQueryParams(params) }
         .count()
 
-    private fun Transaction.selectActionsPreview(
-        params: ActionSearchParams,
-        type: Preview.Type
-    ): MutableList<ActionType> {
-        val actions = mutableListOf<ActionType>()
-
-        val isRestore = type == Preview.Type.RESTORE
-
-        val selectQuery = Tables.Actions
+    private fun Transaction.buildQuery(): Query {
+        return Tables.Actions
             .innerJoin(Tables.ActionIdentifiers)
             .innerJoin(Tables.Worlds)
             .leftJoin(Tables.Players)
@@ -507,68 +521,20 @@ object DatabaseManager {
             .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
             .innerJoin(Tables.Sources)
             .selectAll()
-            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq isRestore) }
-            .orderBy(Tables.Actions.id, if (isRestore) SortOrder.ASC else SortOrder.DESC)
-        actions.addAll(getActionsFromQuery(selectQuery))
-
-        return actions
     }
 
-    private fun Transaction.selectAndRollbackActions(params: ActionSearchParams): MutableList<ActionType> {
-        val actions = mutableListOf<ActionType>()
-
-        val selectQuery = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
-            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq false) }
-            .orderBy(Tables.Actions.id, SortOrder.DESC)
-        val actionIds = selectQuery.map { it[Tables.Actions.id] }
-            .toSet() // SQLite doesn't support update where so select by ID. Might not be as efficent
-        actions.addAll(getActionsFromQuery(selectQuery))
-
+    private fun Transaction.rollbackActions(actionIds: Set<Int>) {
         Tables.Actions
-            .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq false) }) {
+            .update({ Tables.Actions.id inList actionIds }) {
                 it[rolledBack] = true
             }
-
-        return actions
     }
 
-    private fun Transaction.selectAndRestoreActions(params: ActionSearchParams): MutableList<ActionType> {
-        val actions = mutableListOf<ActionType>()
-
-        val selectQuery = Tables.Actions
-            .innerJoin(Tables.ActionIdentifiers)
-            .innerJoin(Tables.Worlds)
-            .leftJoin(Tables.Players)
-            .innerJoin(
-                Tables.oldObjectTable,
-                { Tables.Actions.oldObjectId },
-                { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
-            )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
-            .innerJoin(Tables.Sources)
-            .selectAll()
-            .andWhere { buildQueryParams(params) and (Tables.Actions.rolledBack eq true) }
-            .orderBy(Tables.Actions.id, SortOrder.ASC)
-        val actionIds = selectQuery.map { it[Tables.Actions.id] }.toSet()
-        actions.addAll(getActionsFromQuery(selectQuery))
-
+    private fun Transaction.restoreActions(actionIds: Set<Int>) {
         Tables.Actions
-            .update({ Tables.Actions.id inList actionIds and (Tables.Actions.rolledBack eq true) }) {
+            .update({ Tables.Actions.id inList actionIds }) {
                 it[rolledBack] = false
             }
-
-        return actions
     }
 
     fun getKnownSources() =

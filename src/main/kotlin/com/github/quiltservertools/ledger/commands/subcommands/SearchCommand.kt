@@ -28,10 +28,6 @@ object SearchCommand : BuildableCommand {
 
     private fun search(context: Context, params: ActionSearchParams): Int {
         val source = context.source
-        if (params.isEmpty()) {
-            source.sendError(Text.translatable("error.ledger.command.no_params"))
-            return -1
-        }
 
         Ledger.launch {
             Ledger.searchCache[source.name] = params

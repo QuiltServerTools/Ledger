@@ -40,6 +40,8 @@ Found under `[search]`
 `timeZone` [Default: "UTC"] sets the timezone to display timestamps in when hovered. 
 This uses the Java TimeZone format. You can provide offsets ("UTC", "UTC+3"), but the "continent/region" format is preferred. A full list can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
+`maxRange` [Default: 100] controls the maximum range allowed in rollback / restore
+
 ### Message theme
 
 Found under `[color]`

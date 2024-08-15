@@ -1,10 +1,15 @@
 package com.github.quiltservertools.ledger.actionutils
 
+import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.utility.Negatable
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
+import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockBox
 import java.time.Instant
-import java.util.UUID
+import java.util.*
+import kotlin.math.max
 
 data class ActionSearchParams(
     val bounds: BlockBox?,
@@ -29,17 +34,20 @@ data class ActionSearchParams(
         builder.worlds
     )
 
-    fun isEmpty() = listOf(
-        bounds,
-        before,
-        after,
-        actions,
-        objects,
-        sourceNames,
-        sourcePlayerIds,
-        worlds,
-        rolledBack
-    ).all { it == null }
+    fun ensureSpecific() {
+        if (bounds == null) {
+            throw SimpleCommandExceptionType(Text.translatable("error.ledger.unspecific.range")).create()
+        }
+        val range = (max(bounds.blockCountX, max(bounds.blockCountY, bounds.blockCountZ)) + 1) / 2
+        if (range > Ledger.config[SearchSpec.maxRange]) {
+            throw SimpleCommandExceptionType(
+                Text.translatable("error.ledger.unspecific.range_to_big", Ledger.config[SearchSpec.maxRange])
+            ).create()
+        }
+        if (sourceNames == null && sourcePlayerIds == null && after == null && before == null) {
+            throw SimpleCommandExceptionType(Text.translatable("error.ledger.unspecific.source_or_time")).create()
+        }
+    }
 
     companion object {
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
