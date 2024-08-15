@@ -7,4 +7,5 @@ object SearchSpec : ConfigSpec() {
     val pageSize by required<Int>()
     val purgePermissionLevel by required<Int>()
     val timeZone by required<ZoneId>()
+    val maxRange by required<Int>()
 }
