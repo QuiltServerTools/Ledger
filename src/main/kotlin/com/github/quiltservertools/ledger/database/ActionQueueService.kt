@@ -46,7 +46,7 @@ object ActionQueueService {
             if (queue.size < Ledger.config[DatabaseSpec.batchSize]) {
                 delay(Ledger.config[DatabaseSpec.batchDelay].ticks)
             }
-            drainBatch()
+            if (queue.isNotEmpty()) drainBatch()
             prepareNextBatch()
         }
     }

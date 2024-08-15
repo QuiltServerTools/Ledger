@@ -8,7 +8,6 @@ import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.mojang.brigadier.arguments.IntegerArgumentType
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.server.command.CommandManager.argument
 import net.minecraft.server.command.CommandManager.literal
@@ -28,7 +27,7 @@ object PageCommand : BuildableCommand {
 
         val params = Ledger.searchCache[source.name]
         if (params != null) {
-            Ledger.launch(Dispatchers.IO) {
+            Ledger.launch {
                 MessageUtils.warnBusy(source)
                 val results = DatabaseManager.searchActions(params, page)
 
