@@ -34,7 +34,7 @@ object RollbackCommand : BuildableCommand {
         params.ensureSpecific()
         Ledger.launch(Dispatchers.IO) {
             MessageUtils.warnBusy(source)
-            val actions = DatabaseManager.rollbackActions(params)
+            val actions = DatabaseManager.selectRollback(params)
 
             if (actions.isEmpty()) {
                 source.sendError(Text.translatable("error.ledger.command.no_results"))
@@ -53,12 +53,16 @@ object RollbackCommand : BuildableCommand {
 
             context.source.world.launchMain {
                 val fails = HashMap<String, Int>()
-
+                val actionIds = HashSet<Int>()
                 for (action in actions) {
                     if (!action.rollback(context.source.server)) {
                         fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
+                    } else {
+                        actionIds.add(action.id)
                     }
-                    action.rolledBack = true
+                }
+                Ledger.launch(Dispatchers.IO) {
+                    DatabaseManager.rollbackActions(actionIds)
                 }
 
                 for (entry in fails.entries) {
