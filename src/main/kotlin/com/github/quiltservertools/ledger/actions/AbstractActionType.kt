@@ -21,6 +21,7 @@ import java.time.Instant
 import kotlin.time.ExperimentalTime
 
 abstract class AbstractActionType : ActionType {
+    override var id: Int = -1
     override var timestamp: Instant = Instant.now()
     override var pos: BlockPos = BlockPos.ORIGIN
     override var world: Identifier? = null

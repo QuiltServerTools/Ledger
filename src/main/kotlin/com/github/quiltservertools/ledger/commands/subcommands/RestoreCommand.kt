@@ -6,7 +6,12 @@ import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
 import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.utility.*
+import com.github.quiltservertools.ledger.utility.Context
+import com.github.quiltservertools.ledger.utility.LiteralNode
+import com.github.quiltservertools.ledger.utility.MessageUtils
+import com.github.quiltservertools.ledger.utility.TextColorPallet
+import com.github.quiltservertools.ledger.utility.launchMain
+import com.github.quiltservertools.ledger.utility.literal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
@@ -26,10 +31,10 @@ object RestoreCommand : BuildableCommand {
 
     fun restore(context: Context, params: ActionSearchParams): Int {
         val source = context.source
-
+        params.ensureSpecific()
         Ledger.launch(Dispatchers.IO) {
             MessageUtils.warnBusy(source)
-            val actions = DatabaseManager.restoreActions(params)
+            val actions = DatabaseManager.selectRestore(params)
 
             if (actions.isEmpty()) {
                 source.sendError(Text.translatable("error.ledger.command.no_results"))
@@ -48,12 +53,16 @@ object RestoreCommand : BuildableCommand {
 
             context.source.world.launchMain {
                 val fails = HashMap<String, Int>()
-
+                val actionIds = HashSet<Int>()
                 for (action in actions) {
                     if (!action.restore(context.source.server)) {
                         fails[action.identifier] = fails.getOrPut(action.identifier) { 0 } + 1
+                    } else {
+                        actionIds.add(action.id)
                     }
-                    action.rolledBack = true
+                }
+                Ledger.launch(Dispatchers.IO) {
+                    DatabaseManager.restoreActions(actionIds)
                 }
 
                 for (entry in fails.entries) {
