@@ -13,7 +13,6 @@ import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
@@ -31,7 +30,7 @@ class EntityChangeActionType : AbstractActionType() {
         }
     }
 
-    override fun getObjectMessage(source: ServerCommandSource): Text {
+    override fun getObjectMessage(): Text {
         val text = Text.literal("")
         text.append(
             Text.translatable(

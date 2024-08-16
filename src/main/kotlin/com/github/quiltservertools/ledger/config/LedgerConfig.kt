@@ -14,6 +14,7 @@ val config: Config = Config {
     addSpec(ActionsSpec)
     addSpec(ColorSpec)
     addSpec(NetworkingSpec)
+    addSpec(ExportSpec)
 }
     .apply { this.mapper.addMixIn(Identifier::class.java, IdentifierMixin::class.java) }
     .from.toml.resource(CONFIG_PATH)
