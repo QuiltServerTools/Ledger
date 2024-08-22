@@ -6,7 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.component.type.JukeboxPlayableComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ItemActionResult;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +22,7 @@ public abstract class JukeboxPlayableComponentMixin {
 
     @Inject(method = "tryPlayStack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/entity/JukeboxBlockEntity;setStack(Lnet/minecraft/item/ItemStack;)V"))
-    private static void ledgerPlayerInsertMusicDisc(World world, BlockPos pos, ItemStack itemStack, PlayerEntity player, CallbackInfoReturnable<ItemActionResult> cir) {
+    private static void ledgerPlayerInsertMusicDisc(World world, BlockPos pos, ItemStack itemStack, PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
         BlockState blockState = world.getBlockState(pos);
 
         BlockChangeCallback.EVENT.invoker().changeBlock(

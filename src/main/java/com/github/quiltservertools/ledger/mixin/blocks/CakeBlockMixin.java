@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -62,7 +61,7 @@ public abstract class CakeBlockMixin {
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
             shift = At.Shift.AFTER))
     private void ledgerLogCakeAddCandle(
-            ItemStack itemStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<ItemActionResult> cir) {
+            ItemStack itemStack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<ActionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 player.getWorld(),
                 pos,

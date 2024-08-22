@@ -1,9 +1,9 @@
 [versions]
-minecraft = "1.21"
-yarn-mappings = "1.21+build.1"
-fabric-loader = "0.15.11"
+minecraft = "24w34a"
+yarn-mappings = "24w34a+build.3"
+fabric-loader = "0.16.2"
 
-fabric-api = "0.100.1+1.21"
+fabric-api = "0.102.3+1.21.2"
 
 # Kotlin
 kotlin = "2.0.0"
@@ -48,7 +48,7 @@ wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detect" }
-loom = { id = "fabric-loom", version = "1.6.+" }
+loom = { id = "fabric-loom", version = "1.7.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
 # https://github.com/johnrengelman/shadow/issues/894
 shadow = { id = "io.github.goooler.shadow", version = "8.1.7" }
