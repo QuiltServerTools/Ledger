@@ -248,7 +248,7 @@ object ActionFactory {
         action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
 
         if (itemStack != null) {
-            action.extraData = Registries.ITEM.getId(itemStack.item).toString()
+            action.extraData = itemStack.encode(world.registryManager)?.asString()
         }
         action.oldObjectState = oldEntityTags.asString()
         action.objectState = entity.writeNbt(NbtCompound())?.asString()
