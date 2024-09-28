@@ -35,5 +35,6 @@ object Sources {
     const val SHEAR = "shear"
     const val DYE = "dye"
     const val STATUE = "statue"
+    const val CONVERSION = "conversion"
     const val UNKNOWN = "unknown"
 }

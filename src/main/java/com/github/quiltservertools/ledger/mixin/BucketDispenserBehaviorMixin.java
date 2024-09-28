@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(targets = "net/minecraft/block/dispenser/DispenserBehavior$16")
+@Mixin(targets = "net/minecraft/block/dispenser/DispenserBehavior$13")
 public abstract class BucketDispenserBehaviorMixin extends ItemDispenserBehavior {
 
     @Inject(

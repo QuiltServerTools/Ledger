@@ -21,7 +21,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
         val world = player.server.getWorld(world)
 
-        val entityType = Registries.ENTITY_TYPE.getOrEmpty(objectIdentifier)
+        val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
         if (entityType.isEmpty) return
 
         val entity: LivingEntity = (entityType.get().create(world, SpawnReason.COMMAND) as LivingEntity?)!!
@@ -52,7 +52,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val entityType = Registries.ENTITY_TYPE.getOrEmpty(objectIdentifier)
+        val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
         if (entityType.isPresent) {
             val entity = entityType.get().create(world, SpawnReason.COMMAND)!!
             entity.readNbt(StringNbtReader.parse(extraData))

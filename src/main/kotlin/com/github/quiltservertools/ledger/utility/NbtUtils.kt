@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.utility
 
 import com.mojang.serialization.Dynamic
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.datafixer.Schemas
 import net.minecraft.datafixer.TypeReferences
@@ -10,7 +11,7 @@ import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.registry.Registries
+import net.minecraft.registry.RegistryEntryLookup
 import net.minecraft.registry.RegistryWrapper
 import net.minecraft.util.Identifier
 
@@ -37,11 +38,15 @@ object NbtUtils {
         }
     }
 
-    fun blockStateFromProperties(tag: NbtCompound, name: Identifier): BlockState {
+    fun blockStateFromProperties(
+        tag: NbtCompound,
+        name: Identifier,
+        blockLookup: RegistryEntryLookup<Block>
+    ): BlockState {
         val stateTag = NbtCompound()
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
-        return NbtHelper.toBlockState(Registries.BLOCK.readOnlyWrapper, stateTag)
+        return NbtHelper.toBlockState(blockLookup, stateTag)
     }
 
     fun itemFromProperties(tag: String?, name: Identifier, registries: RegistryWrapper.WrapperLookup): ItemStack {

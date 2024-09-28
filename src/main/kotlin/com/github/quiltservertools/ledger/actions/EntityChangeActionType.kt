@@ -7,7 +7,6 @@ import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.decoration.AbstractDecorationEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
-import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
@@ -24,7 +23,7 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun getTranslationType(): String {
         val item = Registries.ITEM.get(Identifier.of(extraData))
-        return if (item is BlockItem && item !is AliasedBlockItem) {
+        return if (item is BlockItem) {
             "block"
         } else {
             "item"

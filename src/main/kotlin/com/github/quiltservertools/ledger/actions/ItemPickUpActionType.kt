@@ -8,7 +8,6 @@ import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ItemEntity
-import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
@@ -23,7 +22,7 @@ open class ItemPickUpActionType : AbstractActionType() {
 
     override fun getTranslationType(): String {
         val item = Registries.ITEM.get(objectIdentifier)
-        return if (item is BlockItem && item !is AliasedBlockItem) {
+        return if (item is BlockItem) {
             "block"
         } else {
             "item"

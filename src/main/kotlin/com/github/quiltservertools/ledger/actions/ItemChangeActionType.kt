@@ -15,7 +15,6 @@ import net.minecraft.block.LecternBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.block.entity.LecternBlockEntity
 import net.minecraft.inventory.Inventory
-import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -32,7 +31,7 @@ import net.minecraft.util.math.BlockPos
 abstract class ItemChangeActionType : AbstractActionType() {
     override fun getTranslationType(): String {
         val item = Registries.ITEM.get(objectIdentifier)
-        return if (item is BlockItem && item !is AliasedBlockItem) {
+        return if (item is BlockItem) {
             "block"
         } else {
             "item"
