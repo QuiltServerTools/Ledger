@@ -9,7 +9,7 @@ import com.github.quiltservertools.ledger.network.packet.response.ResponseCodes
 import com.github.quiltservertools.ledger.network.packet.response.ResponseContent
 import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
 import com.github.quiltservertools.ledger.utility.MessageUtils
-import com.github.quiltservertools.ledger.utility.launchMain
+import com.github.quiltservertools.ledger.utility.TextColorPallet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
@@ -17,26 +17,27 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.packet.CustomPayload
+import net.minecraft.text.Text
 
-data class SearchC2SPacket(val restore: Boolean, val args: String) : CustomPayload {
+data class SearchC2SPacket(val args: String, val pages: Int) : CustomPayload {
 
     override fun getId() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<SearchC2SPacket> {
         val ID: CustomPayload.Id<SearchC2SPacket> = CustomPayload.Id(LedgerPacketTypes.SEARCH.id)
         val CODEC: PacketCodec<PacketByteBuf, SearchC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
-            SearchC2SPacket(it.readBoolean(), it.readString())
+            SearchC2SPacket(it.readString(), it.readInt())
         })
 
         override fun receive(payload: SearchC2SPacket, context: ServerPlayNetworking.Context) {
             val player = context.player()
             val sender = context.responseSender()
             if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
-                !Permissions.check(player, "ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL)
+                !Permissions.check(player, "ledger.commands.search", CommandConsts.PERMISSION_LEVEL)
             ) {
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(
-                        LedgerPacketTypes.ROLLBACK.id,
+                        LedgerPacketTypes.SEARCH.id,
                         ResponseCodes.NO_PERMISSION.code
                     ),
                     sender
@@ -49,58 +50,34 @@ data class SearchC2SPacket(val restore: Boolean, val args: String) : CustomPaylo
             val params = SearchParamArgument.get(payload.args, source)
 
             ResponseS2CPacket.sendResponse(
-                ResponseContent(LedgerPacketTypes.ROLLBACK.id, ResponseCodes.EXECUTING.code),
+                ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.EXECUTING.code),
                 sender
             )
 
             Ledger.launch(Dispatchers.IO) {
+                Ledger.searchCache[source.name] = params
+
                 MessageUtils.warnBusy(source)
-                if (payload.restore) {
-                    val actions = DatabaseManager.selectRestore(params)
+                val results = DatabaseManager.searchActions(params, 1)
 
-                    source.world.launchMain {
-                        val actionIds = HashSet<Int>()
-
-                        for (action in actions) {
-                            if (action.restore(source.server)) {
-                                actionIds.add(action.id)
-                            }
-                        }
-                        Ledger.launch(Dispatchers.IO) {
-                            DatabaseManager.restoreActions(actionIds)
-                        }
-
-                        ResponseS2CPacket.sendResponse(
-                            ResponseContent(
-                                LedgerPacketTypes.ROLLBACK.id,
-                                ResponseCodes.COMPLETED.code
-                            ),
-                            sender
-                        )
-                    }
-                } else {
-                    val actions = DatabaseManager.selectRollback(params)
-
-                    source.world.launchMain {
-                        val actionIds = HashSet<Int>()
-
-                        for (action in actions) {
-                            if (action.rollback(source.server)) {
-                                actionIds.add(action.id)
-                            }
-                        }
-                        Ledger.launch(Dispatchers.IO) {
-                            DatabaseManager.rollbackActions(actionIds)
-                        }
-                        ResponseS2CPacket.sendResponse(
-                            ResponseContent(
-                                LedgerPacketTypes.ROLLBACK.id,
-                                ResponseCodes.COMPLETED.code
-                            ),
-                            sender
-                        )
-                    }
+                for (i in 1..payload.pages) {
+                    val page = DatabaseManager.searchActions(results.searchParams, i)
+                    MessageUtils.sendSearchResults(
+                        source,
+                        page,
+                        Text.translatable(
+                            "text.ledger.header.search"
+                        ).setStyle(TextColorPallet.primary)
+                    )
                 }
+
+                ResponseS2CPacket.sendResponse(
+                    ResponseContent(
+                        LedgerPacketTypes.SEARCH.id,
+                        ResponseCodes.COMPLETED.code
+                    ),
+                    sender
+                )
             }
         }
     }
