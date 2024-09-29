@@ -54,7 +54,7 @@ object Tables {
         companion object : IntEntityClass<ObjectIdentifier>(ObjectIdentifiers)
     }
 
-    object Actions : IntIdTable("actions") {
+    object Actions : IntIdTable("actions_v2") {
         val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
         val timestamp = long("time")
         val x = integer("x")
@@ -92,6 +92,46 @@ object Tables {
         var rolledBack by Actions.rolledBack
 
         companion object : IntEntityClass<Action>(Actions)
+    }
+
+    object ActionsLegacy : IntIdTable("actions") {
+        val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
+        val timestamp = timestamp("time")
+        val x = integer("x")
+        val y = integer("y")
+        val z = integer("z")
+        val world = reference("world_id", Worlds.id)
+        val objectId = reference("object_id", ObjectIdentifiers.id).index()
+        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id).index()
+        val blockState = text("block_state").nullable()
+        val oldBlockState = text("old_block_state").nullable()
+        val sourceName = reference("source", Sources.id).index()
+        val sourcePlayer = optReference("player_id", Players.id).index()
+        val extraData = text("extra_data").nullable()
+        val rolledBack = bool("rolled_back").clientDefault { false }
+
+        init {
+            index("actions_by_location", false, x, y, z, world)
+        }
+    }
+
+    class ActionOld(id: EntityID<Int>) : IntEntity(id) {
+        var actionIdentifier by ActionIdentifier referencedOn ActionsLegacy.actionIdentifier
+        var timestamp by ActionsLegacy.timestamp
+        var x by ActionsLegacy.x
+        var y by ActionsLegacy.y
+        var z by ActionsLegacy.z
+        var world by World referencedOn ActionsLegacy.world
+        var objectId by ObjectIdentifier referencedOn ActionsLegacy.objectId
+        var oldObjectId by ObjectIdentifier referencedOn ActionsLegacy.oldObjectId
+        var blockState by ActionsLegacy.blockState
+        var oldBlockState by ActionsLegacy.oldBlockState
+        var sourceName by Source referencedOn ActionsLegacy.sourceName
+        var sourcePlayer by Player optionalReferencedOn ActionsLegacy.sourcePlayer
+        var extraData by ActionsLegacy.extraData
+        var rolledBack by ActionsLegacy.rolledBack
+
+        companion object : IntEntityClass<ActionOld>(ActionsLegacy)
     }
 
     object Sources : IntIdTable("sources") {

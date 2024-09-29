@@ -43,6 +43,7 @@ import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.or
@@ -691,5 +692,30 @@ object DatabaseManager {
         }
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
+    }
+
+    suspend fun Transaction.convertActions() {
+        Tables.ActionsLegacy.selectAll().forEach { row ->
+            newSuspendedTransaction {
+                // start a new transaction to avoid failing on the same row
+                Tables.Actions.insert {
+                    it[actionIdentifier] = row[Tables.ActionsLegacy.actionIdentifier]
+                    it[timestamp] = row[Tables.ActionsLegacy.timestamp].toEpochMilli()
+                    it[x] = row[Tables.ActionsLegacy.x]
+                    it[y] = row[Tables.ActionsLegacy.y]
+                    it[z] = row[Tables.ActionsLegacy.z]
+                    it[world] = row[Tables.ActionsLegacy.world]
+                    it[objectId] = row[Tables.ActionsLegacy.objectId]
+                    it[oldObjectId] = row[Tables.ActionsLegacy.oldObjectId]
+                    it[blockState] = row[Tables.ActionsLegacy.blockState]?.let(::getStringId)
+                    it[oldBlockState] = row[Tables.ActionsLegacy.oldBlockState]?.let(::getStringId)
+                    it[sourceName] = row[Tables.ActionsLegacy.sourceName]
+                    it[sourcePlayer] = row[Tables.ActionsLegacy.sourcePlayer]
+                    it[extraData] = row[Tables.ActionsLegacy.extraData]?.let(::getStringId)
+                    it[rolledBack] = row[Tables.ActionsLegacy.rolledBack]
+                }
+                Tables.ActionsLegacy.deleteWhere { Tables.ActionsLegacy.id eq row[Tables.ActionsLegacy.id] }
+            }
+        }
     }
 }
