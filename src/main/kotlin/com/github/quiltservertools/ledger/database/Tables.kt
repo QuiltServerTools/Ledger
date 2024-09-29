@@ -94,6 +94,7 @@ object Tables {
         companion object : IntEntityClass<Action>(Actions)
     }
 
+    @Deprecated("legacy")
     object ActionsLegacy : IntIdTable("actions") {
         val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
         val timestamp = timestamp("time")
