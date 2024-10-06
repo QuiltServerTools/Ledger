@@ -802,7 +802,7 @@ object DatabaseManager {
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
     }
 
-    suspend fun Transaction.convertActions(progressReporter: (done: Long, total: Long) -> Unit) {
+    suspend fun convertActions(progressReporter: (done: Long, total: Long) -> Unit) = execute {
         val total = Tables.ActionsLegacy.selectAll().count()
         var done = 0L
         Tables.ActionsLegacy.selectAll().forEach { row ->
