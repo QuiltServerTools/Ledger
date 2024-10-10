@@ -71,7 +71,7 @@ object Tables {
         val rolledBack = bool("rolled_back").clientDefault { false }
 
         init {
-            index("actions_by_location", false, x, y, z, world)
+            index("actions_v2_by_location", false, x, y, z, world)
         }
     }
 
