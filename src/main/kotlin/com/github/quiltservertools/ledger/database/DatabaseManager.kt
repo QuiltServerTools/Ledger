@@ -16,6 +16,7 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.google.common.cache.Cache
 import com.mojang.authlib.GameProfile
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.delay
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
@@ -42,6 +43,7 @@ import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.or
@@ -65,6 +67,7 @@ import kotlin.math.ceil
 const val MAX_QUERY_RETRIES = 10
 const val MIN_RETRY_DELAY = 1000L
 const val MAX_RETRY_DELAY = 300_000L
+const val DAY_SECONDS = 24 * 3600 * 1000
 
 object DatabaseManager {
 
@@ -75,6 +78,7 @@ object DatabaseManager {
         get() = database.dialect.name
 
     private val cache = DatabaseCacheService
+    private val strings = Long2ObjectOpenHashMap<String>()
 
     fun setup(dataSource: DataSource?) {
         val source = dataSource ?: getDefaultDatasource()
@@ -85,8 +89,8 @@ object DatabaseManager {
         val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         return SQLiteDataSource(
             SQLiteConfig().apply {
-            setJournalMode(SQLiteConfig.JournalMode.WAL)
-        }
+                setJournalMode(SQLiteConfig.JournalMode.WAL)
+            }
         ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
@@ -105,6 +109,7 @@ object DatabaseManager {
             Tables.ObjectIdentifiers,
             Tables.Sources,
             Tables.Worlds,
+            Tables.Strings,
             withLogs = true
         )
         logInfo("Tables created")
@@ -132,10 +137,14 @@ object DatabaseManager {
             execute {
                 Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
                 val deleted = Tables.Actions.deleteWhere {
-                    Tables.Actions.timestamp lessEq Instant.now()
-                        .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                    timestamp lessEq
+                            System.currentTimeMillis() - config[DatabaseSpec.autoPurgeDays].toLong() * DAY_SECONDS
                 }
-                Ledger.logger.info("Successfully purged $deleted actions")
+                val legacyDeleted = Tables.ActionsLegacy.deleteWhere {
+                    timestamp lessEq
+                            Instant.now().minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                }
+                Ledger.logger.info("Successfully purged ${deleted + legacyDeleted} actions")
             }
         }
     }
@@ -194,7 +203,17 @@ object DatabaseManager {
         }
     }
 
-    private fun getActionsFromQuery(query: Query): List<ActionType> {
+    private fun Transaction.getString(id: Long?): String? {
+        if (id == null) return ""
+        if (id in strings) return strings[id]
+        Tables.Strings.select(Tables.Strings.value).where { Tables.Strings.id eq id }.firstOrNull()?.let {
+            strings[id] = it[Tables.Strings.value]
+            return it[Tables.Strings.value]
+        }
+        return null
+    }
+
+    private fun Transaction.getActionsFromQuery(query: Query): List<ActionType> {
         val actions = mutableListOf<ActionType>()
 
         for (action in query) {
@@ -206,21 +225,57 @@ object DatabaseManager {
 
             val type = typeSupplier.get()
             type.id = action[Tables.Actions.id].value
-            type.timestamp = action[Tables.Actions.timestamp]
+            type.timestamp = Instant.ofEpochMilli(action[Tables.Actions.timestamp])
             type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
             type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
             type.objectIdentifier = Identifier.of(action[Tables.ObjectIdentifiers.identifier])
             type.oldObjectIdentifier = Identifier.of(
                 action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
             )
-            type.objectState = action[Tables.Actions.blockState]
-            type.oldObjectState = action[Tables.Actions.oldBlockState]
+            type.objectState = getString(action[Tables.Actions.blockState]?.value)
+            type.oldObjectState = getString(action[Tables.Actions.oldBlockState]?.value)
             type.sourceName = action[Tables.Sources.name]
             type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
                 GameProfile(it, action[Tables.Players.playerName])
             }
-            type.extraData = action[Tables.Actions.extraData]
+            type.extraData = getString(action[Tables.Actions.extraData]?.value)
             type.rolledBack = action[Tables.Actions.rolledBack]
+
+            actions.add(type)
+        }
+
+        return actions
+    }
+
+    @Deprecated("legacy")
+    private fun Transaction.getActionsFromLegacyQuery(query: Query): List<ActionType> {
+        val actions = mutableListOf<ActionType>()
+
+        for (action in query) {
+            val typeSupplier = ActionRegistry.getType(action[Tables.ActionIdentifiers.actionIdentifier])
+            if (typeSupplier == null) {
+                logWarn("Unknown action type ${action[Tables.ActionIdentifiers.actionIdentifier]}")
+                continue
+            }
+
+            val type = typeSupplier.get()
+            type.id = action[Tables.ActionsLegacy.id].value
+            type.timestamp = action[Tables.ActionsLegacy.timestamp]
+            type.pos =
+                BlockPos(action[Tables.ActionsLegacy.x], action[Tables.ActionsLegacy.y], action[Tables.ActionsLegacy.z])
+            type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
+            type.objectIdentifier = Identifier.of(action[Tables.ObjectIdentifiers.identifier])
+            type.oldObjectIdentifier = Identifier.of(
+                action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
+            )
+            type.objectState = action[Tables.ActionsLegacy.blockState]
+            type.oldObjectState = action[Tables.ActionsLegacy.oldBlockState]
+            type.sourceName = action[Tables.Sources.name]
+            type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
+                GameProfile(it, action[Tables.Players.playerName])
+            }
+            type.extraData = action[Tables.ActionsLegacy.extraData]
+            type.rolledBack = action[Tables.ActionsLegacy.rolledBack]
 
             actions.add(type)
         }
@@ -239,12 +294,14 @@ object DatabaseManager {
 
         if (params.before != null && params.after != null) {
             op = op.and {
-                Tables.Actions.timestamp.greaterEq(params.after) and Tables.Actions.timestamp.lessEq(params.before)
+                Tables.Actions.timestamp.greaterEq(params.after.toEpochMilli()) and Tables.Actions.timestamp.lessEq(
+                    params.before.toEpochMilli()
+                )
             }
         } else if (params.before != null) {
-            op = op.and { Tables.Actions.timestamp.lessEq(params.before) }
+            op = op.and { Tables.Actions.timestamp.lessEq(params.before.toEpochMilli()) }
         } else if (params.after != null) {
-            op = op.and { Tables.Actions.timestamp.greaterEq(params.after) }
+            op = op.and { Tables.Actions.timestamp.greaterEq(params.after.toEpochMilli()) }
         }
 
         if (params.rolledBack != null) {
@@ -285,6 +342,70 @@ object DatabaseManager {
             params.sourcePlayerIds,
             DatabaseManager::getPlayerId,
             Tables.Actions.sourcePlayer
+        )
+
+        return op
+    }
+
+    @Deprecated("legacy")
+    private fun buildQueryParamsLegacy(params: ActionSearchParams): Op<Boolean> {
+        var op: Op<Boolean> = Op.TRUE
+
+        if (params.bounds != null) {
+            op = op.and { Tables.ActionsLegacy.x.between(params.bounds.minX, params.bounds.maxX) }
+            op = op.and { Tables.ActionsLegacy.y.between(params.bounds.minY, params.bounds.maxY) }
+            op = op.and { Tables.ActionsLegacy.z.between(params.bounds.minZ, params.bounds.maxZ) }
+        }
+
+        if (params.before != null && params.after != null) {
+            op = op.and {
+                Tables.ActionsLegacy.timestamp.greaterEq(params.after) and
+                        Tables.ActionsLegacy.timestamp.lessEq(params.before)
+            }
+        } else if (params.before != null) {
+            op = op.and { Tables.ActionsLegacy.timestamp.lessEq(params.before) }
+        } else if (params.after != null) {
+            op = op.and { Tables.ActionsLegacy.timestamp.greaterEq(params.after) }
+        }
+
+        if (params.rolledBack != null) {
+            op = op.and { Tables.ActionsLegacy.rolledBack.eq(params.rolledBack) }
+        }
+
+        op = addParameters(
+            op,
+            params.sourceNames,
+            DatabaseManager::getSourceId,
+            Tables.ActionsLegacy.sourceName
+        )
+
+        op = addParameters(
+            op,
+            params.actions,
+            DatabaseManager::getActionId,
+            Tables.ActionsLegacy.actionIdentifier
+        )
+
+        op = addParameters(
+            op,
+            params.worlds,
+            DatabaseManager::getWorldId,
+            Tables.ActionsLegacy.world
+        )
+
+        op = addParameters(
+            op,
+            params.objects,
+            DatabaseManager::getRegistryKeyId,
+            Tables.ActionsLegacy.objectId,
+            Tables.ActionsLegacy.oldObjectId
+        )
+
+        op = addParameters(
+            op,
+            params.sourcePlayerIds,
+            DatabaseManager::getPlayerId,
+            Tables.ActionsLegacy.sourcePlayer
         )
 
         return op
@@ -447,21 +568,32 @@ object DatabaseManager {
         }
     }
 
+    private fun getStringId(value: String): Long {
+        val existing = Tables.Strings.select(Tables.Strings.id).where {
+            Tables.Strings.hash eq value.hashCode() and (Tables.Strings.value eq value)
+        }.firstOrNull()
+        if (existing != null) return existing[Tables.Strings.id].value
+        return Tables.Strings.insertAndGetId {
+            it[Tables.Strings.value] = value
+            it[Tables.Strings.hash] = value.hashCode()
+        }.value
+    }
+
     private fun Transaction.insertActions(actions: List<ActionType>) {
         Tables.Actions.batchInsert(actions, shouldReturnGeneratedValues = false) { action ->
             this[Tables.Actions.actionIdentifier] = getOrCreateActionId(action.identifier)
-            this[Tables.Actions.timestamp] = action.timestamp
+            this[Tables.Actions.timestamp] = action.timestamp.toEpochMilli()
             this[Tables.Actions.x] = action.pos.x
             this[Tables.Actions.y] = action.pos.y
             this[Tables.Actions.z] = action.pos.z
             this[Tables.Actions.objectId] = getOrCreateRegistryKeyId(action.objectIdentifier)
             this[Tables.Actions.oldObjectId] = getOrCreateRegistryKeyId(action.oldObjectIdentifier)
             this[Tables.Actions.world] = getOrCreateWorldId(action.world ?: Ledger.server.overworld.registryKey.value)
-            this[Tables.Actions.blockState] = action.objectState
-            this[Tables.Actions.oldBlockState] = action.oldObjectState
+            this[Tables.Actions.blockState] = action.objectState?.let(::getStringId)
+            this[Tables.Actions.oldBlockState] = action.oldObjectState?.let(::getStringId)
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
             this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getOrCreatePlayerId(it.id) }
-            this[Tables.Actions.extraData] = action.extraData
+            this[Tables.Actions.extraData] = action.extraData?.let(::getStringId)
         }
     }
 
@@ -656,7 +788,10 @@ object DatabaseManager {
         .deleteWhere {
             Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
                 .where(buildQueryParams(params))
-        }
+        } + Tables.ActionsLegacy.deleteWhere {
+        Tables.ActionsLegacy.id inSubQuery Tables.ActionsLegacy.select(Tables.ActionsLegacy.id)
+            .where(buildQueryParamsLegacy(params))
+    }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
@@ -665,5 +800,34 @@ object DatabaseManager {
         }
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
+    }
+
+    suspend fun convertActions(progressReporter: (done: Long, total: Long) -> Unit) = execute {
+        val total = Tables.ActionsLegacy.selectAll().count()
+        var done = 0L
+        Tables.ActionsLegacy.selectAll().forEach { row ->
+            newSuspendedTransaction {
+                // start a new transaction to avoid failing on some rows
+                Tables.Actions.insert {
+                    it[actionIdentifier] = row[Tables.ActionsLegacy.actionIdentifier]
+                    it[timestamp] = row[Tables.ActionsLegacy.timestamp].toEpochMilli()
+                    it[x] = row[Tables.ActionsLegacy.x]
+                    it[y] = row[Tables.ActionsLegacy.y]
+                    it[z] = row[Tables.ActionsLegacy.z]
+                    it[world] = row[Tables.ActionsLegacy.world]
+                    it[objectId] = row[Tables.ActionsLegacy.objectId]
+                    it[oldObjectId] = row[Tables.ActionsLegacy.oldObjectId]
+                    it[blockState] = row[Tables.ActionsLegacy.blockState]?.let(::getStringId)
+                    it[oldBlockState] = row[Tables.ActionsLegacy.oldBlockState]?.let(::getStringId)
+                    it[sourceName] = row[Tables.ActionsLegacy.sourceName]
+                    it[sourcePlayer] = row[Tables.ActionsLegacy.sourcePlayer]
+                    it[extraData] = row[Tables.ActionsLegacy.extraData]?.let(::getStringId)
+                    it[rolledBack] = row[Tables.ActionsLegacy.rolledBack]
+                }
+                Tables.ActionsLegacy.deleteWhere { Tables.ActionsLegacy.id eq row[Tables.ActionsLegacy.id] }
+                done++
+                progressReporter(done, total)
+            }
+        }
     }
 }
