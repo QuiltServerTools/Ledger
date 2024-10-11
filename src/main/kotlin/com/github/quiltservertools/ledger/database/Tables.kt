@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.javatime.timestamp
 import java.time.Instant
@@ -53,24 +54,24 @@ object Tables {
         companion object : IntEntityClass<ObjectIdentifier>(ObjectIdentifiers)
     }
 
-    object Actions : IntIdTable("actions") {
+    object Actions : IntIdTable("actions_v2") {
         val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
-        val timestamp = timestamp("time")
+        val timestamp = long("time")
         val x = integer("x")
         val y = integer("y")
         val z = integer("z")
         val world = reference("world_id", Worlds.id)
         val objectId = reference("object_id", ObjectIdentifiers.id).index()
         val oldObjectId = reference("old_object_id", ObjectIdentifiers.id).index()
-        val blockState = text("block_state").nullable()
-        val oldBlockState = text("old_block_state").nullable()
+        val blockState = optReference("block_state_ref", Strings.id)
+        val oldBlockState = optReference("old_block_state_ref", Strings.id)
         val sourceName = reference("source", Sources.id).index()
         val sourcePlayer = optReference("player_id", Players.id).index()
-        val extraData = text("extra_data").nullable()
+        val extraData = optReference("extra_data_ref", Strings.id)
         val rolledBack = bool("rolled_back").clientDefault { false }
 
         init {
-            index("actions_by_location", false, x, y, z, world)
+            index("actions_v2_by_location", false, x, y, z, world)
         }
     }
 
@@ -93,6 +94,28 @@ object Tables {
         companion object : IntEntityClass<Action>(Actions)
     }
 
+    @Deprecated("legacy")
+    object ActionsLegacy : IntIdTable("actions") {
+        val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
+        val timestamp = timestamp("time")
+        val x = integer("x")
+        val y = integer("y")
+        val z = integer("z")
+        val world = reference("world_id", Worlds.id)
+        val objectId = reference("object_id", ObjectIdentifiers.id).index()
+        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id).index()
+        val blockState = text("block_state").nullable()
+        val oldBlockState = text("old_block_state").nullable()
+        val sourceName = reference("source", Sources.id).index()
+        val sourcePlayer = optReference("player_id", Players.id).index()
+        val extraData = text("extra_data").nullable()
+        val rolledBack = bool("rolled_back").clientDefault { false }
+
+        init {
+            index("actions_by_location", false, x, y, z, world)
+        }
+    }
+
     object Sources : IntIdTable("sources") {
         val name = varchar("name", MAX_SOURCE_NAME_LENGTH).uniqueIndex()
     }
@@ -111,5 +134,11 @@ object Tables {
         var identifier by Worlds.identifier.transform({ it.toString() }, { Identifier.tryParse(it)!! })
 
         companion object : IntEntityClass<World>(Worlds)
+    }
+
+    object Strings : LongIdTable("strings") {
+        val hash = integer("java_hash_code").index()
+        val value = blob("value")
+        val gzip = bool("gzip").default(false)
     }
 }

@@ -12,6 +12,9 @@ batchDelay = 10
 # The location of the database file. Defaults to the world folder if not specified
 #location = "./custom-dir"
 
+# uncomment the following line to enable smart purge
+#smartPurge = true
+
 [search]
 # Number of actions to show per page
 pageSize = 8

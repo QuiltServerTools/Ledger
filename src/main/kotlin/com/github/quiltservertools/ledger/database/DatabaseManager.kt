@@ -16,7 +16,9 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.google.common.cache.Cache
 import com.mojang.authlib.GameProfile
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.Entity
@@ -40,24 +42,31 @@ import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.orWhere
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.StatementContext
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.sqlite.SQLiteConfig
 import org.sqlite.SQLiteDataSource
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.function.Function
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import javax.sql.DataSource
 import kotlin.io.path.pathString
 import kotlin.math.ceil
@@ -65,6 +74,9 @@ import kotlin.math.ceil
 const val MAX_QUERY_RETRIES = 10
 const val MIN_RETRY_DELAY = 1000L
 const val MAX_RETRY_DELAY = 300_000L
+const val DAY_SECONDS = 24 * 3600 * 1000
+const val GZIP_THRESHOLD = 920
+const val MEMORY_100MB = 100_000 // units are KB, sqlite cache size
 
 object DatabaseManager {
 
@@ -75,6 +87,7 @@ object DatabaseManager {
         get() = database.dialect.name
 
     private val cache = DatabaseCacheService
+    private val strings = Long2ObjectOpenHashMap<String>()
 
     fun setup(dataSource: DataSource?) {
         val source = dataSource ?: getDefaultDatasource()
@@ -85,8 +98,10 @@ object DatabaseManager {
         val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         return SQLiteDataSource(
             SQLiteConfig().apply {
-            setJournalMode(SQLiteConfig.JournalMode.WAL)
-        }
+                enforceForeignKeys(true)
+                setCacheSize(MEMORY_100MB)
+                setJournalMode(SQLiteConfig.JournalMode.WAL)
+            }
         ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
@@ -105,6 +120,7 @@ object DatabaseManager {
             Tables.ObjectIdentifiers,
             Tables.Sources,
             Tables.Worlds,
+            Tables.Strings,
             withLogs = true
         )
         logInfo("Tables created")
@@ -132,11 +148,57 @@ object DatabaseManager {
             execute {
                 Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
                 val deleted = Tables.Actions.deleteWhere {
-                    Tables.Actions.timestamp lessEq Instant.now()
-                        .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                    timestamp lessEq
+                            System.currentTimeMillis() - config[DatabaseSpec.autoPurgeDays].toLong() * DAY_SECONDS
                 }
                 Ledger.logger.info("Successfully purged $deleted actions")
             }
+        }
+        if (config[DatabaseSpec.smartPurge]) {
+            var totalDelete = 0
+            Ledger.logger.info(
+                "Smart purging actions, smart purge threshold: ${config[DatabaseSpec.smartPurgeThreshold]}, " +
+                        "smart purge filter: ${config[DatabaseSpec.smartPurgeFilter]}"
+            )
+            execute {
+                val count = Tables.Actions.id.count()
+                val columns = Tables.Actions.columns.filter {
+                    it.name in config[DatabaseSpec.smartPurgeFilter]
+                }
+
+                @Suppress("SpreadOperator")
+                val rows = Tables.Actions.select(columns + listOf(count)).having {
+                    count greater config[DatabaseSpec.smartPurgeThreshold].toLong()
+                }.groupBy(*columns.toTypedArray()).toList()
+                rows.forEachIndexed { index, row ->
+                    val total = row[count]
+                    Ledger.logger.info("Smart purge found $total actions to delete, params: $row")
+                    val ids = Tables.Actions.select(Tables.Actions.id).where {
+                        columns.map {
+                            if (row[it] != null) {
+                                it eq it.asLiteral(row[it])
+                            } else {
+                                it.isNull()
+                            }
+                        }.reduce { acc, op -> acc and op }
+                    }.orderBy(Tables.Actions.timestamp, SortOrder.ASC)
+                        .limit(total.toInt() - config[DatabaseSpec.smartPurgeThreshold])
+                    val deleted = Tables.Actions.deleteWhere { Tables.Actions.id inSubQuery ids }
+                    var strings = 0
+                    findStringRefs {
+                        Tables.Actions.id inSubQuery ids
+                    }.forEach { ref ->
+                        execute {
+                            runCatching {
+                                strings += Tables.Strings.deleteWhere { Tables.Strings.id eq ref }
+                            }
+                        }
+                    }
+                    Ledger.logger.info("Smart purged $deleted actions & $strings strings ($index / ${rows.size})")
+                    totalDelete += deleted
+                }
+            }
+            Ledger.logger.info("Smart purge complete, deleted $totalDelete actions")
         }
     }
 
@@ -194,7 +256,62 @@ object DatabaseManager {
         }
     }
 
-    private fun getActionsFromQuery(query: Query): List<ActionType> {
+    private fun Transaction.getString(id: Long?): String? {
+        if (id == null) return ""
+        if (id in strings) return strings[id]
+        Tables.Strings.selectAll().where { Tables.Strings.id eq id }.firstOrNull()?.let {
+            if (!it[Tables.Strings.gzip]) {
+                strings[id] = it[Tables.Strings.value].bytes.decodeToString()
+                return strings[id]
+            } else {
+                val bytes = it[Tables.Strings.value].bytes
+                ByteArrayInputStream(bytes).use { byteArrayInputStream ->
+                    GZIPInputStream(byteArrayInputStream).use { gzip ->
+                        strings[id] = gzip.readBytes().decodeToString()
+                        return strings[id]
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    private fun getStringId(value: String): Long {
+        Tables.Strings.select(Tables.Strings.id).where {
+            not(Tables.Strings.gzip) and
+                    (Tables.Strings.hash eq value.hashCode()) and
+                    (Tables.Strings.value eq ExposedBlob(value.encodeToByteArray()))
+        }.firstOrNull()?.let {
+            return it[Tables.Strings.id].value
+        }
+        if (value.length > GZIP_THRESHOLD) {
+            val bytes = value.encodeToByteArray()
+            val gzipped = ByteArrayOutputStream().let { arrayOutputStream ->
+                GZIPOutputStream(arrayOutputStream).use { gzip ->
+                    gzip.write(bytes)
+                }
+                arrayOutputStream.toByteArray()
+            }
+            Tables.Strings.select(Tables.Strings.id).where {
+                Tables.Strings.gzip and
+                        (Tables.Strings.hash eq value.hashCode()) and
+                        (Tables.Strings.value eq ExposedBlob(gzipped))
+            }.firstOrNull()?.let {
+                return it[Tables.Strings.id].value
+            }
+            return Tables.Strings.insertAndGetId {
+                it[Tables.Strings.value] = ExposedBlob(gzipped)
+                it[Tables.Strings.hash] = value.hashCode()
+                it[Tables.Strings.gzip] = true
+            }.value
+        }
+        return Tables.Strings.insertAndGetId {
+            it[Tables.Strings.value] = ExposedBlob(value.encodeToByteArray())
+            it[Tables.Strings.hash] = value.hashCode()
+        }.value
+    }
+
+    private fun Transaction.getActionsFromQuery(query: Query): List<ActionType> {
         val actions = mutableListOf<ActionType>()
 
         for (action in query) {
@@ -206,20 +323,20 @@ object DatabaseManager {
 
             val type = typeSupplier.get()
             type.id = action[Tables.Actions.id].value
-            type.timestamp = action[Tables.Actions.timestamp]
+            type.timestamp = Instant.ofEpochMilli(action[Tables.Actions.timestamp])
             type.pos = BlockPos(action[Tables.Actions.x], action[Tables.Actions.y], action[Tables.Actions.z])
             type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
             type.objectIdentifier = Identifier.of(action[Tables.ObjectIdentifiers.identifier])
             type.oldObjectIdentifier = Identifier.of(
                 action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
             )
-            type.objectState = action[Tables.Actions.blockState]
-            type.oldObjectState = action[Tables.Actions.oldBlockState]
+            type.objectState = getString(action[Tables.Actions.blockState]?.value)
+            type.oldObjectState = getString(action[Tables.Actions.oldBlockState]?.value)
             type.sourceName = action[Tables.Sources.name]
             type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
                 GameProfile(it, action[Tables.Players.playerName])
             }
-            type.extraData = action[Tables.Actions.extraData]
+            type.extraData = getString(action[Tables.Actions.extraData]?.value)
             type.rolledBack = action[Tables.Actions.rolledBack]
 
             actions.add(type)
@@ -239,12 +356,14 @@ object DatabaseManager {
 
         if (params.before != null && params.after != null) {
             op = op.and {
-                Tables.Actions.timestamp.greaterEq(params.after) and Tables.Actions.timestamp.lessEq(params.before)
+                Tables.Actions.timestamp.greaterEq(params.after.toEpochMilli()) and Tables.Actions.timestamp.lessEq(
+                    params.before.toEpochMilli()
+                )
             }
         } else if (params.before != null) {
-            op = op.and { Tables.Actions.timestamp.lessEq(params.before) }
+            op = op.and { Tables.Actions.timestamp.lessEq(params.before.toEpochMilli()) }
         } else if (params.after != null) {
-            op = op.and { Tables.Actions.timestamp.greaterEq(params.after) }
+            op = op.and { Tables.Actions.timestamp.greaterEq(params.after.toEpochMilli()) }
         }
 
         if (params.rolledBack != null) {
@@ -450,18 +569,18 @@ object DatabaseManager {
     private fun Transaction.insertActions(actions: List<ActionType>) {
         Tables.Actions.batchInsert(actions, shouldReturnGeneratedValues = false) { action ->
             this[Tables.Actions.actionIdentifier] = getOrCreateActionId(action.identifier)
-            this[Tables.Actions.timestamp] = action.timestamp
+            this[Tables.Actions.timestamp] = action.timestamp.toEpochMilli()
             this[Tables.Actions.x] = action.pos.x
             this[Tables.Actions.y] = action.pos.y
             this[Tables.Actions.z] = action.pos.z
             this[Tables.Actions.objectId] = getOrCreateRegistryKeyId(action.objectIdentifier)
             this[Tables.Actions.oldObjectId] = getOrCreateRegistryKeyId(action.oldObjectIdentifier)
             this[Tables.Actions.world] = getOrCreateWorldId(action.world ?: Ledger.server.overworld.registryKey.value)
-            this[Tables.Actions.blockState] = action.objectState
-            this[Tables.Actions.oldBlockState] = action.oldObjectState
+            this[Tables.Actions.blockState] = action.objectState?.let(::getStringId)
+            this[Tables.Actions.oldBlockState] = action.oldObjectState?.let(::getStringId)
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
             this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getOrCreatePlayerId(it.id) }
-            this[Tables.Actions.extraData] = action.extraData
+            this[Tables.Actions.extraData] = action.extraData?.let(::getStringId)
         }
     }
 
@@ -652,11 +771,40 @@ object DatabaseManager {
         )
 
     // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
-    private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
-        .deleteWhere {
-            Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
-                .where(buildQueryParams(params))
+    private fun Transaction.purgeActions(params: ActionSearchParams): Int {
+        val refs = findStringRefs {
+            buildQueryParams(params)
         }
+        val deleted = Tables.Actions
+            .deleteWhere {
+                Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
+                    .where(buildQueryParams(params))
+            }
+        refs.forEach { ref ->
+            Ledger.launch {
+                execute {
+                    runCatching {
+                        Tables.Strings.deleteWhere { Tables.Strings.id eq ref }
+                    }
+                }
+            }
+        }
+        return deleted
+    }
+
+    private fun findStringRefs(where: () -> Op<Boolean>): List<Long> {
+        val refs = Tables.Strings.select(Tables.Strings.id).withDistinct().where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.blockState)
+                .where(where())
+        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).withDistinct().where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.oldBlockState)
+                .where(where())
+        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).withDistinct().where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.extraData)
+                .where(where())
+        }.map { it[Tables.Strings.id].value }.toList()
+        return refs.toSet().toList()
+    }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
@@ -665,5 +813,34 @@ object DatabaseManager {
         }
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }
+    }
+
+    suspend fun convertActions(progressReporter: (done: Long, total: Long) -> Unit) = execute {
+        val total = Tables.ActionsLegacy.selectAll().count()
+        var done = 0L
+        Tables.ActionsLegacy.selectAll().forEach { row ->
+            newSuspendedTransaction {
+                // start a new transaction to avoid failing on some rows
+                Tables.Actions.insert {
+                    it[actionIdentifier] = row[Tables.ActionsLegacy.actionIdentifier]
+                    it[timestamp] = row[Tables.ActionsLegacy.timestamp].toEpochMilli()
+                    it[x] = row[Tables.ActionsLegacy.x]
+                    it[y] = row[Tables.ActionsLegacy.y]
+                    it[z] = row[Tables.ActionsLegacy.z]
+                    it[world] = row[Tables.ActionsLegacy.world]
+                    it[objectId] = row[Tables.ActionsLegacy.objectId]
+                    it[oldObjectId] = row[Tables.ActionsLegacy.oldObjectId]
+                    it[blockState] = row[Tables.ActionsLegacy.blockState]?.let(::getStringId)
+                    it[oldBlockState] = row[Tables.ActionsLegacy.oldBlockState]?.let(::getStringId)
+                    it[sourceName] = row[Tables.ActionsLegacy.sourceName]
+                    it[sourcePlayer] = row[Tables.ActionsLegacy.sourcePlayer]
+                    it[extraData] = row[Tables.ActionsLegacy.extraData]?.let(::getStringId)
+                    it[rolledBack] = row[Tables.ActionsLegacy.rolledBack]
+                }
+                Tables.ActionsLegacy.deleteWhere { Tables.ActionsLegacy.id eq row[Tables.ActionsLegacy.id] }
+                done++
+                progressReporter(done, total)
+            }
+        }
     }
 }
