@@ -11,6 +11,19 @@ object DatabaseSpec : ConfigSpec() {
     val queueTimeoutMin by required<Long>()
     val queueCheckDelaySec by required<Long>()
     val autoPurgeDays by required<Int>()
+    val smartPurge by optional<Boolean>(false)
+    val smartPurgeThreshold by optional<Int>(100)
+    val smartPurgeFilter by optional<List<String>>(
+        listOf(
+            "action_id",
+            "world_id",
+            "x",
+            "y",
+            "z",
+            "object_id",
+            "player_id"
+        )
+    )
     val batchSize by optional<Int>(1000)
     val batchDelay by optional<Int>(10)
     val logSQL by optional<Boolean>(false)

@@ -42,6 +42,7 @@ import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
@@ -152,6 +153,42 @@ object DatabaseManager {
                 }
                 Ledger.logger.info("Successfully purged $deleted actions")
             }
+        }
+        if (config[DatabaseSpec.smartPurge]) {
+            var totalDelete = 0
+            Ledger.logger.info(
+                "Smart purging actions, smart purge threshold: ${config[DatabaseSpec.smartPurgeThreshold]}, " +
+                        "smart purge filter: ${config[DatabaseSpec.smartPurgeFilter]}"
+            )
+            execute {
+                val count = Tables.Actions.id.count()
+                val columns = Tables.Actions.columns.filter {
+                    it.name in config[DatabaseSpec.smartPurgeFilter]
+                }
+
+                @Suppress("SpreadOperator")
+                val rows = Tables.Actions.select(columns + listOf(count)).having {
+                    count greater config[DatabaseSpec.smartPurgeThreshold].toLong()
+                }.groupBy(*columns.toTypedArray()).toList()
+                rows.forEachIndexed { index, row ->
+                    val total = row[count]
+                    Ledger.logger.info("Smart purge found $total actions to delete, params: $row")
+                    val ids = Tables.Actions.select(Tables.Actions.id).where {
+                        columns.map {
+                            if (row[it] != null) {
+                                it eq it.asLiteral(row[it])
+                            } else {
+                                it.isNull()
+                            }
+                        }.reduce { acc, op -> acc and op }
+                    }.orderBy(Tables.Actions.timestamp, SortOrder.ASC)
+                        .limit(total.toInt() - config[DatabaseSpec.smartPurgeThreshold])
+                    val deleted = Tables.Actions.deleteWhere { Tables.Actions.id inSubQuery ids }
+                    Ledger.logger.info("Smart purge deleted $deleted actions ($index / ${rows.size})")
+                    totalDelete += deleted
+                }
+            }
+            Ledger.logger.info("Smart purge complete, deleted $totalDelete actions")
         }
     }
 
