@@ -18,6 +18,7 @@ import com.google.common.cache.Cache
 import com.mojang.authlib.GameProfile
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.Entity
@@ -46,20 +47,25 @@ import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.not
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.orWhere
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.StatementContext
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 import org.jetbrains.exposed.sql.statements.expandArgs
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.sqlite.SQLiteConfig
 import org.sqlite.SQLiteDataSource
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
 import java.util.function.Function
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import javax.sql.DataSource
 import kotlin.io.path.pathString
 import kotlin.math.ceil
@@ -68,6 +74,8 @@ const val MAX_QUERY_RETRIES = 10
 const val MIN_RETRY_DELAY = 1000L
 const val MAX_RETRY_DELAY = 300_000L
 const val DAY_SECONDS = 24 * 3600 * 1000
+const val GZIP_THRESHOLD = 920
+const val MEMORY_100MB = 100_000 // units are KB, sqlite cache size
 
 object DatabaseManager {
 
@@ -89,6 +97,8 @@ object DatabaseManager {
         val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         return SQLiteDataSource(
             SQLiteConfig().apply {
+                enforceForeignKeys(true)
+                setCacheSize(MEMORY_100MB)
                 setJournalMode(SQLiteConfig.JournalMode.WAL)
             }
         ).apply {
@@ -140,11 +150,7 @@ object DatabaseManager {
                     timestamp lessEq
                             System.currentTimeMillis() - config[DatabaseSpec.autoPurgeDays].toLong() * DAY_SECONDS
                 }
-                val legacyDeleted = Tables.ActionsLegacy.deleteWhere {
-                    timestamp lessEq
-                            Instant.now().minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
-                }
-                Ledger.logger.info("Successfully purged ${deleted + legacyDeleted} actions")
+                Ledger.logger.info("Successfully purged $deleted actions")
             }
         }
     }
@@ -206,11 +212,56 @@ object DatabaseManager {
     private fun Transaction.getString(id: Long?): String? {
         if (id == null) return ""
         if (id in strings) return strings[id]
-        Tables.Strings.select(Tables.Strings.value).where { Tables.Strings.id eq id }.firstOrNull()?.let {
-            strings[id] = it[Tables.Strings.value]
-            return it[Tables.Strings.value]
+        Tables.Strings.selectAll().where { Tables.Strings.id eq id }.firstOrNull()?.let {
+            if (!it[Tables.Strings.gzip]) {
+                strings[id] = it[Tables.Strings.value].bytes.decodeToString()
+                return strings[id]
+            } else {
+                val bytes = it[Tables.Strings.value].bytes
+                ByteArrayInputStream(bytes).use { byteArrayInputStream ->
+                    GZIPInputStream(byteArrayInputStream).use { gzip ->
+                        strings[id] = gzip.readBytes().decodeToString()
+                        return strings[id]
+                    }
+                }
+            }
         }
         return null
+    }
+
+    private fun getStringId(value: String): Long {
+        Tables.Strings.select(Tables.Strings.id).where {
+            not(Tables.Strings.gzip) and
+                    (Tables.Strings.hash eq value.hashCode()) and
+                    (Tables.Strings.value eq ExposedBlob(value.encodeToByteArray()))
+        }.firstOrNull()?.let {
+            return it[Tables.Strings.id].value
+        }
+        if (value.length > GZIP_THRESHOLD) {
+            val bytes = value.encodeToByteArray()
+            val gzipped = ByteArrayOutputStream().let { arrayOutputStream ->
+                GZIPOutputStream(arrayOutputStream).use { gzip ->
+                    gzip.write(bytes)
+                }
+                arrayOutputStream.toByteArray()
+            }
+            Tables.Strings.select(Tables.Strings.id).where {
+                Tables.Strings.gzip and
+                        (Tables.Strings.hash eq value.hashCode()) and
+                        (Tables.Strings.value eq ExposedBlob(gzipped))
+            }.firstOrNull()?.let {
+                return it[Tables.Strings.id].value
+            }
+            return Tables.Strings.insertAndGetId {
+                it[Tables.Strings.value] = ExposedBlob(gzipped)
+                it[Tables.Strings.hash] = value.hashCode()
+                it[Tables.Strings.gzip] = true
+            }.value
+        }
+        return Tables.Strings.insertAndGetId {
+            it[Tables.Strings.value] = ExposedBlob(value.encodeToByteArray())
+            it[Tables.Strings.hash] = value.hashCode()
+        }.value
     }
 
     private fun Transaction.getActionsFromQuery(query: Query): List<ActionType> {
@@ -240,42 +291,6 @@ object DatabaseManager {
             }
             type.extraData = getString(action[Tables.Actions.extraData]?.value)
             type.rolledBack = action[Tables.Actions.rolledBack]
-
-            actions.add(type)
-        }
-
-        return actions
-    }
-
-    @Deprecated("legacy")
-    private fun Transaction.getActionsFromLegacyQuery(query: Query): List<ActionType> {
-        val actions = mutableListOf<ActionType>()
-
-        for (action in query) {
-            val typeSupplier = ActionRegistry.getType(action[Tables.ActionIdentifiers.actionIdentifier])
-            if (typeSupplier == null) {
-                logWarn("Unknown action type ${action[Tables.ActionIdentifiers.actionIdentifier]}")
-                continue
-            }
-
-            val type = typeSupplier.get()
-            type.id = action[Tables.ActionsLegacy.id].value
-            type.timestamp = action[Tables.ActionsLegacy.timestamp]
-            type.pos =
-                BlockPos(action[Tables.ActionsLegacy.x], action[Tables.ActionsLegacy.y], action[Tables.ActionsLegacy.z])
-            type.world = Identifier.tryParse(action[Tables.Worlds.identifier])
-            type.objectIdentifier = Identifier.of(action[Tables.ObjectIdentifiers.identifier])
-            type.oldObjectIdentifier = Identifier.of(
-                action[Tables.ObjectIdentifiers.alias("oldObjects")[Tables.ObjectIdentifiers.identifier]]
-            )
-            type.objectState = action[Tables.ActionsLegacy.blockState]
-            type.oldObjectState = action[Tables.ActionsLegacy.oldBlockState]
-            type.sourceName = action[Tables.Sources.name]
-            type.sourceProfile = action.getOrNull(Tables.Players.playerId)?.let {
-                GameProfile(it, action[Tables.Players.playerName])
-            }
-            type.extraData = action[Tables.ActionsLegacy.extraData]
-            type.rolledBack = action[Tables.ActionsLegacy.rolledBack]
 
             actions.add(type)
         }
@@ -342,70 +357,6 @@ object DatabaseManager {
             params.sourcePlayerIds,
             DatabaseManager::getPlayerId,
             Tables.Actions.sourcePlayer
-        )
-
-        return op
-    }
-
-    @Deprecated("legacy")
-    private fun buildQueryParamsLegacy(params: ActionSearchParams): Op<Boolean> {
-        var op: Op<Boolean> = Op.TRUE
-
-        if (params.bounds != null) {
-            op = op.and { Tables.ActionsLegacy.x.between(params.bounds.minX, params.bounds.maxX) }
-            op = op.and { Tables.ActionsLegacy.y.between(params.bounds.minY, params.bounds.maxY) }
-            op = op.and { Tables.ActionsLegacy.z.between(params.bounds.minZ, params.bounds.maxZ) }
-        }
-
-        if (params.before != null && params.after != null) {
-            op = op.and {
-                Tables.ActionsLegacy.timestamp.greaterEq(params.after) and
-                        Tables.ActionsLegacy.timestamp.lessEq(params.before)
-            }
-        } else if (params.before != null) {
-            op = op.and { Tables.ActionsLegacy.timestamp.lessEq(params.before) }
-        } else if (params.after != null) {
-            op = op.and { Tables.ActionsLegacy.timestamp.greaterEq(params.after) }
-        }
-
-        if (params.rolledBack != null) {
-            op = op.and { Tables.ActionsLegacy.rolledBack.eq(params.rolledBack) }
-        }
-
-        op = addParameters(
-            op,
-            params.sourceNames,
-            DatabaseManager::getSourceId,
-            Tables.ActionsLegacy.sourceName
-        )
-
-        op = addParameters(
-            op,
-            params.actions,
-            DatabaseManager::getActionId,
-            Tables.ActionsLegacy.actionIdentifier
-        )
-
-        op = addParameters(
-            op,
-            params.worlds,
-            DatabaseManager::getWorldId,
-            Tables.ActionsLegacy.world
-        )
-
-        op = addParameters(
-            op,
-            params.objects,
-            DatabaseManager::getRegistryKeyId,
-            Tables.ActionsLegacy.objectId,
-            Tables.ActionsLegacy.oldObjectId
-        )
-
-        op = addParameters(
-            op,
-            params.sourcePlayerIds,
-            DatabaseManager::getPlayerId,
-            Tables.ActionsLegacy.sourcePlayer
         )
 
         return op
@@ -566,17 +517,6 @@ object DatabaseManager {
         Tables.ObjectIdentifiers.batchInsert(identifiers, true) { identifier ->
             this[Tables.ObjectIdentifiers.identifier] = identifier.toString()
         }
-    }
-
-    private fun getStringId(value: String): Long {
-        val existing = Tables.Strings.select(Tables.Strings.id).where {
-            Tables.Strings.hash eq value.hashCode() and (Tables.Strings.value eq value)
-        }.firstOrNull()
-        if (existing != null) return existing[Tables.Strings.id].value
-        return Tables.Strings.insertAndGetId {
-            it[Tables.Strings.value] = value
-            it[Tables.Strings.hash] = value.hashCode()
-        }.value
     }
 
     private fun Transaction.insertActions(actions: List<ActionType>) {
@@ -784,13 +724,32 @@ object DatabaseManager {
         )
 
     // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
-    private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
-        .deleteWhere {
-            Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
+    private fun Transaction.purgeActions(params: ActionSearchParams): Int {
+        val refs = Tables.Strings.select(Tables.Strings.id).where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.blockState)
                 .where(buildQueryParams(params))
-        } + Tables.ActionsLegacy.deleteWhere {
-        Tables.ActionsLegacy.id inSubQuery Tables.ActionsLegacy.select(Tables.ActionsLegacy.id)
-            .where(buildQueryParamsLegacy(params))
+        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.oldBlockState)
+                .where(buildQueryParams(params))
+        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.extraData)
+                .where(buildQueryParams(params))
+        }.map { it[Tables.Strings.id].value }.toList()
+        val deleted = Tables.Actions
+            .deleteWhere {
+                Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
+                    .where(buildQueryParams(params))
+            }
+        refs.forEach { ref ->
+            Ledger.launch {
+                execute {
+                    runCatching {
+                        Tables.Strings.deleteWhere { Tables.Strings.id eq ref }
+                    }
+                }
+            }
+        }
+        return deleted
     }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {

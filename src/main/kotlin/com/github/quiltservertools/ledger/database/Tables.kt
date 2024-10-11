@@ -116,25 +116,6 @@ object Tables {
         }
     }
 
-    class ActionOld(id: EntityID<Int>) : IntEntity(id) {
-        var actionIdentifier by ActionIdentifier referencedOn ActionsLegacy.actionIdentifier
-        var timestamp by ActionsLegacy.timestamp
-        var x by ActionsLegacy.x
-        var y by ActionsLegacy.y
-        var z by ActionsLegacy.z
-        var world by World referencedOn ActionsLegacy.world
-        var objectId by ObjectIdentifier referencedOn ActionsLegacy.objectId
-        var oldObjectId by ObjectIdentifier referencedOn ActionsLegacy.oldObjectId
-        var blockState by ActionsLegacy.blockState
-        var oldBlockState by ActionsLegacy.oldBlockState
-        var sourceName by Source referencedOn ActionsLegacy.sourceName
-        var sourcePlayer by Player optionalReferencedOn ActionsLegacy.sourcePlayer
-        var extraData by ActionsLegacy.extraData
-        var rolledBack by ActionsLegacy.rolledBack
-
-        companion object : IntEntityClass<ActionOld>(ActionsLegacy)
-    }
-
     object Sources : IntIdTable("sources") {
         val name = varchar("name", MAX_SOURCE_NAME_LENGTH).uniqueIndex()
     }
@@ -157,6 +138,7 @@ object Tables {
 
     object Strings : LongIdTable("strings") {
         val hash = integer("java_hash_code").index()
-        val value = text("value")
+        val value = blob("value")
+        val gzip = bool("gzip").default(false)
     }
 }
