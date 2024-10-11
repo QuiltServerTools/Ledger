@@ -184,7 +184,17 @@ object DatabaseManager {
                     }.orderBy(Tables.Actions.timestamp, SortOrder.ASC)
                         .limit(total.toInt() - config[DatabaseSpec.smartPurgeThreshold])
                     val deleted = Tables.Actions.deleteWhere { Tables.Actions.id inSubQuery ids }
-                    Ledger.logger.info("Smart purge deleted $deleted actions ($index / ${rows.size})")
+                    var strings = 0
+                    findStringRefs {
+                        Tables.Actions.id inSubQuery ids
+                    }.forEach { ref ->
+                        execute {
+                            runCatching {
+                                strings += Tables.Strings.deleteWhere { Tables.Strings.id eq ref }
+                            }
+                        }
+                    }
+                    Ledger.logger.info("Smart purged $deleted actions & $strings strings ($index / ${rows.size})")
                     totalDelete += deleted
                 }
             }
@@ -762,16 +772,9 @@ object DatabaseManager {
 
     // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
     private fun Transaction.purgeActions(params: ActionSearchParams): Int {
-        val refs = Tables.Strings.select(Tables.Strings.id).where {
-            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.blockState)
-                .where(buildQueryParams(params))
-        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).where {
-            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.oldBlockState)
-                .where(buildQueryParams(params))
-        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).where {
-            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.extraData)
-                .where(buildQueryParams(params))
-        }.map { it[Tables.Strings.id].value }.toList()
+        val refs = findStringRefs {
+            buildQueryParams(params)
+        }
         val deleted = Tables.Actions
             .deleteWhere {
                 Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
@@ -787,6 +790,20 @@ object DatabaseManager {
             }
         }
         return deleted
+    }
+
+    private fun findStringRefs(where: () -> Op<Boolean>): List<Long> {
+        val refs = Tables.Strings.select(Tables.Strings.id).withDistinct().where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.blockState)
+                .where(where())
+        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).withDistinct().where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.oldBlockState)
+                .where(where())
+        }.map { it[Tables.Strings.id].value } + Tables.Strings.select(Tables.Strings.id).withDistinct().where {
+            Tables.Strings.id inSubQuery Tables.Actions.select(Tables.Actions.extraData)
+                .where(where())
+        }.map { it[Tables.Strings.id].value }.toList()
+        return refs.toSet().toList()
     }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
