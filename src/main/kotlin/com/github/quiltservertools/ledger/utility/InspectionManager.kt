@@ -4,7 +4,6 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.database.DatabaseManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.minecraft.block.BedBlock
 import net.minecraft.block.BlockState
@@ -56,7 +55,7 @@ fun PlayerEntity.inspectOff(): Int {
 fun ServerCommandSource.inspectBlock(pos: BlockPos) {
     val source = this
 
-    Ledger.launch(Dispatchers.IO) {
+    Ledger.launch {
         var area = BlockBox(pos)
 
         val state = source.world.getBlockState(pos)

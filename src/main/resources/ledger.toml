@@ -19,6 +19,8 @@ pageSize = 8
 purgePermissionLevel = 4
 # Time zone to display timestamps in (UTC, UTC+1, America/Los_Angeles)
 timeZone = "UTC"
+# Maximum range allowed in rollback / restore commands
+maxRange = 100
 
 [color]
 # Colors in hex format
