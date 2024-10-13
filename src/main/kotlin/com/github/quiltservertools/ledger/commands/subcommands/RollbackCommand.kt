@@ -12,7 +12,6 @@ import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.launchMain
 import com.github.quiltservertools.ledger.utility.literal
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager
@@ -32,7 +31,7 @@ object RollbackCommand : BuildableCommand {
     fun rollback(context: Context, params: ActionSearchParams): Int {
         val source = context.source
         params.ensureSpecific()
-        Ledger.launch(Dispatchers.IO) {
+        Ledger.launch {
             MessageUtils.warnBusy(source)
             val actions = DatabaseManager.selectRollback(params)
 
@@ -61,7 +60,7 @@ object RollbackCommand : BuildableCommand {
                         actionIds.add(action.id)
                     }
                 }
-                Ledger.launch(Dispatchers.IO) {
+                Ledger.launch {
                     DatabaseManager.rollbackActions(actionIds)
                 }
 
