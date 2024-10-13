@@ -53,3 +53,13 @@ sourceBlacklist = []
 
 # Change to true to allow Ledger client mod packets
 networking = true
+
+[export]
+# Settings for export command
+
+# Files export location, default at "./<world-name>/data/"
+#location = "./world/data/"
+# Export format. "csv" only currently.
+type = "csv"
+# The number of actions to query from the database at once when exporting
+batchSize = 10000

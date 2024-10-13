@@ -46,7 +46,7 @@ abstract class AbstractActionType : ActionType {
             getTimeMessage(),
             getSourceMessage(),
             getActionMessage(),
-            getObjectMessage(source),
+            getObjectMessage(),
             getLocationMessage()
         )
         message.style = TextColorPallet.light
@@ -59,7 +59,7 @@ abstract class AbstractActionType : ActionType {
     }
 
     @ExperimentalTime
-    open fun getTimeMessage(): Text = MessageUtils.instantToText(timestamp)
+    open fun getTimeMessage(): Text = MessageUtils.instantTimeToDiffText(timestamp)
 
     open fun getSourceMessage(): Text {
         if (sourceProfile == null) {
@@ -83,7 +83,7 @@ abstract class AbstractActionType : ActionType {
             )
         }
 
-    open fun getObjectMessage(source: ServerCommandSource): Text = Text.translatable(
+    open fun getObjectMessage(): Text = Text.translatable(
         Util.createTranslationKey(
             this.getTranslationType(),
             objectIdentifier
