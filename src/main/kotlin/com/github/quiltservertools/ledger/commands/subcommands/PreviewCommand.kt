@@ -10,7 +10,6 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.server.command.CommandManager
@@ -55,7 +54,7 @@ object PreviewCommand : BuildableCommand {
         val source = context.source
         val player = source.playerOrThrow
         params.ensureSpecific()
-        Ledger.launch(Dispatchers.IO) {
+        Ledger.launch {
             MessageUtils.warnBusy(source)
             val actions = DatabaseManager.previewActions(params, type)
 

@@ -20,6 +20,7 @@ import com.github.quiltservertools.ledger.network.packet.handshake.HandshakeS2CP
 import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
 import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.uchuhimo.konf.Config
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
@@ -61,7 +62,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
     @JvmField // Required for mixin access
     val previewCache = ConcurrentHashMap<UUID, Preview>()
 
-    override val coroutineContext: CoroutineContext = Dispatchers.IO
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + CoroutineName("Ledger")
 
     override fun onInitializeServer() {
         val version = FabricLoader.getInstance().getModContainer(MOD_ID).get().metadata.version
@@ -116,7 +117,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         runBlocking {
             try {
                 withTimeout(config[DatabaseSpec.queueTimeoutMin].minutes) {
-                    Ledger.launch(Dispatchers.Default) {
+                    Ledger.launch {
                         while (ActionQueueService.size > 0) {
                             logInfo(
                                 "Database is still busy. If you exit now data WILL be lost. " +
