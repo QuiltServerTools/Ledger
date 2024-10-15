@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.decoration.AbstractDecorationEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
@@ -11,6 +12,7 @@ import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
@@ -23,11 +25,23 @@ class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
 
     override fun getTranslationType(): String {
-        val item = Registries.ITEM.get(Identifier.of(extraData))
+        val item = getStack(DynamicRegistryManager.EMPTY).item
         return if (item is BlockItem && item !is AliasedBlockItem) {
             "block"
         } else {
             "item"
+        }
+    }
+
+    private fun getStack(registryManager: DynamicRegistryManager): ItemStack {
+        if (extraData == null) return ItemStack.EMPTY
+        try {
+            val itemTag = StringNbtReader.parse(extraData)
+            return ItemStack.fromNbt(registryManager, itemTag).orElse(ItemStack.EMPTY)
+        } catch (_: CommandSyntaxException) {
+            // In an earlier version of ledger extraData only stored the item id
+            val item = Registries.ITEM.get(Identifier.of(extraData))
+            return item.defaultStack
         }
     }
 
@@ -49,15 +63,12 @@ class EntityChangeActionType : AbstractActionType() {
             }
         )
 
-        if (extraData != null && Identifier.of(extraData) != Identifier.tryParse("minecraft:air")) {
-            val stack = ItemStack(Registries.ITEM.get(Identifier.of(extraData)))
+        val stack = getStack(source.registryManager)
+        if (!stack.isEmpty) {
             text.append(Text.literal(" ").append(Text.translatable("text.ledger.action_message.with")).append(" "))
             text.append(
                 Text.translatable(
-                    Util.createTranslationKey(
-                        this.getTranslationType(),
-                        Identifier.of(extraData)
-                    )
+                    stack.translationKey
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
                         HoverEvent(

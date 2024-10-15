@@ -17,10 +17,10 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 object LedgerTest : ClientModInitializer {
-    val HANDSHAKE = Identifier("ledger", "handshake")
-    val INSPECT = Identifier("ledger", "inspect")
-    val SEARCH = Identifier("ledger", "search")
-    val ACTION = Identifier("ledger", "action")
+    val HANDSHAKE = Identifier.of("ledger", "handshake")
+    val INSPECT = Identifier.of("ledger", "inspect")
+    val SEARCH = Identifier.of("ledger", "search")
+    val ACTION = Identifier.of("ledger", "action")
     val LOGGER: Logger = LogManager.getLogger("LedgerTestmod")
 
     override fun onInitializeClient() {
