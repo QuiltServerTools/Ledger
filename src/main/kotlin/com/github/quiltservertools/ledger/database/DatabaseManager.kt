@@ -16,7 +16,12 @@ import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.google.common.cache.Cache
 import com.mojang.authlib.GameProfile
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.newSingleThreadContext
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.Entity
@@ -75,10 +80,16 @@ object DatabaseManager {
         get() = database.dialect.name
 
     private val cache = DatabaseCacheService
+    private var databaseContext = Dispatchers.IO + CoroutineName("Ledger Database")
 
+    @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun setup(dataSource: DataSource?) {
-        val source = dataSource ?: getDefaultDatasource()
-        database = Database.connect(source)
+        if (dataSource == null) {
+            database = Database.connect(getDefaultDatasource())
+            databaseContext = newSingleThreadContext("Ledger Database")
+        } else {
+            database = Database.connect(dataSource)
+        }
     }
 
     private fun getDefaultDatasource(): DataSource {
@@ -402,7 +413,7 @@ object DatabaseManager {
             delay(timeMillis = 1000)
         }
 
-        return newSuspendedTransaction(db = database) {
+        return newSuspendedTransaction(context = databaseContext, db = database) {
             repetitionAttempts = MAX_QUERY_RETRIES
             minRepetitionDelay = MIN_RETRY_DELAY
             maxRepetitionDelay = MAX_RETRY_DELAY

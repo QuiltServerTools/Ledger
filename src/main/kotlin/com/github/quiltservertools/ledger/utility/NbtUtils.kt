@@ -65,6 +65,6 @@ object NbtUtils {
             ).cast(NbtOps.INSTANCE) as NbtCompound?
         }
 
-        return ItemStack.fromNbt(registries, itemTag).get()
+        return ItemStack.fromNbt(registries, itemTag).orElse(ItemStack.EMPTY)
     }
 }
