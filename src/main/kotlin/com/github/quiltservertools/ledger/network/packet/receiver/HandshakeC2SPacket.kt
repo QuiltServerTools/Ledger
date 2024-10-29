@@ -31,7 +31,7 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
 
         override fun receive(payload: HandshakeC2SPacket, context: ServerPlayNetworking.Context) {
             val player = context.player()
-            if (!Permissions.check(player.commandSource, "ledger.networking", CommandConsts.PERMISSION_LEVEL)) return
+            if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL)) return
             // This should be sent by the client whenever a player joins with a client mod
             // We do some validation on the packet to make sure it's complete and intact
             val info = readInfo(payload.nbt)

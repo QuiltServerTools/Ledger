@@ -31,8 +31,8 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPayload {
         override fun receive(payload: SearchC2SPacket, context: ServerPlayNetworking.Context) {
             val player = context.player()
             val sender = context.responseSender()
-            if (!Permissions.check(player.commandSource, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
-                !Permissions.check(player.commandSource, "ledger.commands.search", CommandConsts.PERMISSION_LEVEL)
+            if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
+                !Permissions.check(player, "ledger.commands.search", CommandConsts.PERMISSION_LEVEL)
             ) {
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(
