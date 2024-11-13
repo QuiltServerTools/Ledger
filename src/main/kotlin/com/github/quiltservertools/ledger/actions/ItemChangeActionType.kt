@@ -15,28 +15,19 @@ import net.minecraft.block.LecternBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.block.entity.LecternBlockEntity
 import net.minecraft.inventory.Inventory
-import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
-import net.minecraft.util.Util
 import net.minecraft.util.math.BlockPos
 
 abstract class ItemChangeActionType : AbstractActionType() {
-    override fun getTranslationType(): String {
-        val item = Registries.ITEM.get(objectIdentifier)
-        return if (item is BlockItem) {
-            "block"
-        } else {
-            "item"
-        }
-    }
+    // Not used
+    override fun getTranslationType(): String = "item"
 
     private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
         extraData,
@@ -48,12 +39,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
         val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
-            Text.translatable(
-                Util.createTranslationKey(
-                    getTranslationType(),
-                    objectIdentifier
-                )
-            )
+            stack.itemName
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
