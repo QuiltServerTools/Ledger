@@ -9,6 +9,7 @@ import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +36,7 @@ public abstract class ItemFrameEntityMixin {
     }
 
     @Inject(method = "dropHeldStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V"))
-    private void ledgerLogOldEntity2(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
+    private void ledgerLogOldEntity2(ServerWorld world, Entity entityActor, boolean dropSelf, CallbackInfo ci) {
         if (entityActor == null) {
             return;
         }
@@ -51,7 +52,7 @@ public abstract class ItemFrameEntityMixin {
     }
 
     @Inject(method = "dropHeldStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V"))
-    private void ledgerItemFrameRemove(@Nullable Entity entityActor, boolean alwaysDrop, CallbackInfo ci) {
+    private void ledgerItemFrameRemove(ServerWorld world, Entity entityActor, boolean dropSelf, CallbackInfo ci) {
         ItemStack entityStack = this.getHeldItemStack();
         if (entityStack.isEmpty() || entityActor == null) {
             return;
@@ -66,8 +67,8 @@ public abstract class ItemFrameEntityMixin {
         EntityModifyCallback.EVENT.invoker().modify(player.getWorld(), entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.ROTATE);
     }
 
-    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/AbstractDecorationEntity;damage(Lnet/minecraft/entity/damage/DamageSource;F)Z"))
-    private void ledgerItemFrameKill(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/AbstractDecorationEntity;damage(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/damage/DamageSource;F)Z"))
+    private void ledgerItemFrameKill(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity entity = (Entity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.getWorld(), entity.getBlockPos(), entity, source);
     }

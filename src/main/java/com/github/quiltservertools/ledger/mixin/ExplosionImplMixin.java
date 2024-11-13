@@ -4,16 +4,16 @@ import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.PlayerCausable;
 import com.github.quiltservertools.ledger.utility.Sources;
 import com.llamalad7.mixinextras.sugar.Local;
-import it.unimi.dsi.fastutil.objects.ObjectListIterator;
+import java.util.List;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.explosion.ExplosionImpl;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,11 +22,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Explosion.class)
-public abstract class ExplosionMixin {
+@Mixin(ExplosionImpl.class)
+public abstract class ExplosionImplMixin {
     @Shadow
     @Final
-    private World world;
+    private ServerWorld world;
 
     @Shadow
     public abstract @Nullable LivingEntity getCausingEntity();
@@ -37,14 +37,13 @@ public abstract class ExplosionMixin {
     private Entity entity;
 
     @Inject(
-        method = "affectWorld",
+        method = "createFire",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"
+            target = "Lnet/minecraft/server/world/ServerWorld;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z"
         )
     )
-    private void ledgerExplosionFireCallback(boolean particles, CallbackInfo ci,
-                                             @Local ObjectListIterator<BlockPos> affectedBlocks, @Local BlockPos blockPos) {
+    private void ledgerExplosionFireCallback(List<BlockPos> positions, CallbackInfo ci, @Local BlockPos blockPos) {
         BlockState blockState = AbstractFireBlock.getState(world, blockPos);
 
         LivingEntity entity;

@@ -8,7 +8,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.decoration.AbstractDecorationEntity
 import net.minecraft.entity.decoration.ItemFrameEntity
-import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.BlockItem
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.StringNbtReader
@@ -26,7 +25,7 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun getTranslationType(): String {
         val item = getStack(DynamicRegistryManager.EMPTY).item
-        return if (item is BlockItem && item !is AliasedBlockItem) {
+        return if (item is BlockItem) {
             "block"
         } else {
             "item"
@@ -68,7 +67,7 @@ class EntityChangeActionType : AbstractActionType() {
             text.append(Text.literal(" ").append(Text.translatable("text.ledger.action_message.with")).append(" "))
             text.append(
                 Text.translatable(
-                    stack.translationKey
+                    stack.item.translationKey
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
                         HoverEvent(

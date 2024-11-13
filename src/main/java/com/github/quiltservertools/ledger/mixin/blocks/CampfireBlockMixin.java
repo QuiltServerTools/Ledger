@@ -11,8 +11,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -35,7 +35,7 @@ public abstract class CampfireBlockMixin {
     @Inject(method = "onUseWithItem", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/util/Identifier;)V")
     )
-    public void logCampfireAddItem(ItemStack itemStack, BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<ItemActionResult> cir, @Local BlockEntity oldBlockEntity) {
+    public void logCampfireAddItem(ItemStack itemStack, BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<ActionResult> cir, @Local BlockEntity oldBlockEntity) {
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, world.getBlockState(pos), oldBlockEntity, world.getBlockEntity(pos), Sources.INSERT, player);
     }
 

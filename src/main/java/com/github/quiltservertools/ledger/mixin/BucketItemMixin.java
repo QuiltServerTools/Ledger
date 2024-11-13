@@ -10,9 +10,8 @@ import net.minecraft.block.Waterloggable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -73,7 +72,7 @@ public abstract class BucketItemMixin {
     }
 
     @Inject(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;incrementStat(Lnet/minecraft/stat/Stat;)V", ordinal = 0))
-    private void logFluidPickup(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<TypedActionResult<ItemStack>> cir, @Local(ordinal = 0) BlockPos pos, @Local BlockState blockState) {
+    private void logFluidPickup(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir, @Local(ordinal = 0) BlockPos pos, @Local BlockState blockState) {
         if (blockState.getBlock() instanceof Waterloggable) {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     world,

@@ -38,4 +38,3 @@ jobs:
 
                 files: |
                   build/libs/!(*-@(dev-all|sources|javadoc)).jar
-                  build/libs/*-@(dev-all|sources|javadocs).jar

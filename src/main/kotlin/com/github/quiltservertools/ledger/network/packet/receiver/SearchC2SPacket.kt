@@ -10,7 +10,6 @@ import com.github.quiltservertools.ledger.network.packet.response.ResponseConten
 import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
-import com.github.quiltservertools.ledger.utility.launchMain
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking

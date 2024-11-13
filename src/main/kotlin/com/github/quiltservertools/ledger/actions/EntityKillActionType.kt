@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.SpawnReason
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
@@ -20,10 +21,10 @@ class EntityKillActionType : AbstractActionType() {
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
         val world = player.server.getWorld(world)
 
-        val entityType = Registries.ENTITY_TYPE.getOrEmpty(objectIdentifier)
+        val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
         if (entityType.isEmpty) return
 
-        val entity: LivingEntity = (entityType.get().create(world) as LivingEntity?)!!
+        val entity: LivingEntity = (entityType.get().create(world, SpawnReason.COMMAND) as LivingEntity?)!!
         entity.readNbt(StringNbtReader.parse(extraData))
         entity.health = entity.defaultMaxHealth.toFloat()
         entity.velocity = Vec3d.ZERO
@@ -51,9 +52,9 @@ class EntityKillActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val entityType = Registries.ENTITY_TYPE.getOrEmpty(objectIdentifier)
+        val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
         if (entityType.isPresent) {
-            val entity = entityType.get().create(world)!!
+            val entity = entityType.get().create(world, SpawnReason.COMMAND)!!
             entity.readNbt(StringNbtReader.parse(extraData))
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0

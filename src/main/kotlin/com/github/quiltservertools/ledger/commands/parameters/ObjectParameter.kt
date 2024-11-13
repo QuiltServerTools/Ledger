@@ -54,9 +54,9 @@ class ObjectParameter : SimpleParameter<List<Identifier>>() {
         return if (builder.remaining.startsWith("#")) {
             CommandSource.suggestIdentifiers(
                 mutableListOf<Identifier>().apply {
-                    addAll(Registries.BLOCK.streamTags().map { it.id }.toList())
-                    addAll(Registries.ITEM.streamTags().map { it.id }.toList())
-                    addAll(Registries.ENTITY_TYPE.streamTags().map { it.id }.toList())
+                    addAll(Registries.BLOCK.streamTags().map { it.tag.id }.toList())
+                    addAll(Registries.ITEM.streamTags().map { it.tag.id }.toList())
+                    addAll(Registries.ENTITY_TYPE.streamTags().map { it.tag.id }.toList())
                 },
                 builder.createOffset(builder.start + 1)
             )

@@ -6,11 +6,14 @@ import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
+import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
 import net.minecraft.registry.Registries
+import net.minecraft.registry.RegistryEntryLookup
+import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
@@ -24,7 +27,7 @@ open class BlockChangeActionType : AbstractActionType() {
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        world?.setBlockState(pos, oldBlockState())
+        world?.setBlockState(pos, oldBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
         world?.getBlockEntity(pos)?.read(StringNbtReader.parse(extraData), server.registryManager)
         world?.chunkManager?.markForUpdate(pos)
 
@@ -33,7 +36,9 @@ open class BlockChangeActionType : AbstractActionType() {
 
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
         if (player.world.registryKey.value == world) {
-            player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, oldBlockState()))
+            player.networkHandler.sendPacket(
+                BlockUpdateS2CPacket(pos, oldBlockState(player.world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
+            )
             preview.positions.add(pos)
         }
     }
@@ -41,14 +46,16 @@ open class BlockChangeActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        world?.setBlockState(pos, newBlockState())
+        world?.setBlockState(pos, newBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
 
         return true
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
         if (player.world.registryKey.value == world) {
-            player.networkHandler.sendPacket(BlockUpdateS2CPacket(pos, newBlockState()))
+            player.networkHandler.sendPacket(
+                BlockUpdateS2CPacket(pos, newBlockState(player.world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
+            )
             preview.positions.add(pos)
         }
     }
@@ -93,28 +100,30 @@ open class BlockChangeActionType : AbstractActionType() {
         return text
     }
 
-    fun oldBlockState() = checkForBlockState(
+    fun oldBlockState(blockLookup: RegistryEntryLookup<Block>) = checkForBlockState(
         oldObjectIdentifier,
         oldObjectState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
-            oldObjectIdentifier
+            oldObjectIdentifier,
+            blockLookup
         )
     }
     )
 
-    fun newBlockState() = checkForBlockState(
+    fun newBlockState(blockLookup: RegistryEntryLookup<Block>) = checkForBlockState(
         objectIdentifier,
         objectState?.let {
         NbtUtils.blockStateFromProperties(
             StringNbtReader.parse(it),
-            objectIdentifier
+            objectIdentifier,
+            blockLookup
         )
     }
     )
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
-        val block = Registries.BLOCK.getOrEmpty(identifier)
+        val block = Registries.BLOCK.getOptionalValue(identifier)
         if (block.isEmpty) {
             logWarn("Unknown block $identifier")
             return Blocks.AIR.defaultState

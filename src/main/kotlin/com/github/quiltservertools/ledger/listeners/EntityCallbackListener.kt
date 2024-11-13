@@ -27,6 +27,17 @@ private fun onKill(
     )
 }
 
+fun onKill(
+    world: World,
+    pos: BlockPos,
+    entity: Entity,
+    source: String
+) {
+    ActionQueueService.addToQueue(
+        ActionFactory.entityKillAction(world, pos, entity, source)
+    )
+}
+
 private fun onModify(
     world: World,
     pos: BlockPos,

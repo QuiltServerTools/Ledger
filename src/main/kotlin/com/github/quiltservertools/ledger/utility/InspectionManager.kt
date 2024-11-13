@@ -15,6 +15,7 @@ import net.minecraft.block.enums.ChestType
 import net.minecraft.block.enums.DoubleBlockHalf
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.math.BlockBox
@@ -134,8 +135,8 @@ private fun getOtherBedPart(state: BlockState, pos: BlockPos): BlockPos {
     }
 }
 
-suspend fun PlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
-    val source = this.commandSource
+suspend fun ServerPlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
+    val source = this.getCommandSource(this.serverWorld)
     val params = ActionSearchParams.build {
         bounds = BlockBox(pos)
     }

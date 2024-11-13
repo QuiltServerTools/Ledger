@@ -8,27 +8,17 @@ import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ItemEntity
-import net.minecraft.item.AliasedBlockItem
-import net.minecraft.item.BlockItem
 import net.minecraft.nbt.StringNbtReader
-import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
-import net.minecraft.util.Util
 
 open class ItemPickUpActionType : AbstractActionType() {
     override val identifier = "item-pick-up"
 
-    override fun getTranslationType(): String {
-        val item = Registries.ITEM.get(objectIdentifier)
-        return if (item is BlockItem && item !is AliasedBlockItem) {
-            "block"
-        } else {
-            "item"
-        }
-    }
+    // Not used
+    override fun getTranslationType(): String = "item"
 
     private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
         extraData,
@@ -40,12 +30,7 @@ open class ItemPickUpActionType : AbstractActionType() {
         val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
-            Text.translatable(
-                Util.createTranslationKey(
-                    getTranslationType(),
-                    objectIdentifier
-                )
-            )
+            stack.itemName
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
                 HoverEvent(
