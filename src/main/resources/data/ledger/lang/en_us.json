@@ -46,7 +46,7 @@
     "error.ledger.unknown_param": "Unknown parameter %s",
     "error.ledger.no_preview": "No current preview",
     "error.ledger.unspecific.range": "Please specify a range.",
-    "error.ledger.unspecific.range_to_big": "The maximum range is %s.",
+    "error.ledger.unspecific.range_to_big": "The maximum range is %s. Use @global to confirm running on the entire server!",
     "error.ledger.unspecific.source_or_time": "Please specify a source or time (after).",
 
     "text.ledger.action.block-place": "placed",

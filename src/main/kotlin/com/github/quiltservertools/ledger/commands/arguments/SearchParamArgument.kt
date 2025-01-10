@@ -107,13 +107,18 @@ object SearchParamArgument {
 
             when (param) {
                 "range" -> {
-                    val range = value as Int - 1
-                    builder.bounds = BlockBox.create(
-                        BlockPos.ofFloored(source.position).subtract(Vec3i(range, range, range)),
-                        BlockPos.ofFloored(source.position).add(Vec3i(range, range, range))
-                    )
-                    val world = Negatable.allow(source.world.registryKey.value)
-                    if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
+                    val range = value as Int?
+                    if (range != null) {
+                        val range = range - 1
+                        builder.bounds = BlockBox.create(
+                            BlockPos.ofFloored(source.position).subtract(Vec3i(range, range, range)),
+                            BlockPos.ofFloored(source.position).add(Vec3i(range, range, range))
+                        )
+                        val world = Negatable.allow(source.world.registryKey.value)
+                        if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
+                    } else {
+                        builder.bounds = ActionSearchParams.GLOBAL
+                    }
                 }
                 "world" -> {
                     val world = value as Negatable<Identifier>
@@ -211,9 +216,13 @@ object SearchParamArgument {
         }
 
         open fun getRemaining(s: String): Int {
-            val reader = StringReader(s)
-            parameter.parse(reader)
-            return reader.remainingLength
+            try {
+                val reader = StringReader(s)
+                parameter.parse(reader)
+                return reader.remainingLength
+            } catch (_: CommandSyntaxException) {
+                return 0
+            }
         }
 
         @Throws(CommandSyntaxException::class)

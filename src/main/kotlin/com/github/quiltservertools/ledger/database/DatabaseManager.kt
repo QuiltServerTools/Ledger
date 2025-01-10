@@ -242,7 +242,7 @@ object DatabaseManager {
     private fun buildQueryParams(params: ActionSearchParams): Op<Boolean> {
         var op: Op<Boolean> = Op.TRUE
 
-        if (params.bounds != null) {
+        if (params.bounds != null && params.bounds != ActionSearchParams.GLOBAL) {
             op = op.and { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
             op = op.and { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
             op = op.and { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }

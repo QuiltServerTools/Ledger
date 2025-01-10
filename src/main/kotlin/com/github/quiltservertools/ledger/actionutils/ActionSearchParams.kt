@@ -39,7 +39,7 @@ data class ActionSearchParams(
             throw SimpleCommandExceptionType(Text.translatable("error.ledger.unspecific.range")).create()
         }
         val range = (max(bounds.blockCountX, max(bounds.blockCountY, bounds.blockCountZ)) + 1) / 2
-        if (range > Ledger.config[SearchSpec.maxRange]) {
+        if (range > Ledger.config[SearchSpec.maxRange] && bounds != GLOBAL) {
             throw SimpleCommandExceptionType(
                 Text.translatable("error.ledger.unspecific.range_to_big", Ledger.config[SearchSpec.maxRange])
             ).create()
@@ -50,6 +50,8 @@ data class ActionSearchParams(
     }
 
     companion object {
+        val GLOBAL: BlockBox =
+            BlockBox(-Int.MAX_VALUE, -Int.MAX_VALUE, -Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
     }
 
