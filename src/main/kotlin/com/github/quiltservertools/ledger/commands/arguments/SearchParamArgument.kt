@@ -115,7 +115,13 @@ object SearchParamArgument {
                             BlockPos.ofFloored(source.position).add(Vec3i(range, range, range))
                         )
                         val world = Negatable.allow(source.world.registryKey.value)
-                        if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
+                        if (builder.worlds == null) {
+                            builder.worlds = mutableSetOf(world)
+                        } else {
+                            builder.worlds!!.add(
+                            world
+                        )
+                        }
                     } else {
                         builder.bounds = ActionSearchParams.GLOBAL
                     }
