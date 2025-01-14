@@ -1,0 +1,78 @@
+{
+    "text.ledger.header.search.pos": "--- Pošuk žurnalaŭ na %s ---",
+    "text.ledger.header.search": "------ Pošuk žurnalaŭ ------",
+    "text.ledger.header.status": "------ Ledger ------",
+
+    "text.ledger.footer.search": "------- %s [Staronka %s z %s] %s -------",
+    "text.ledger.footer.page_forward": ">>",
+    "text.ledger.footer.page_forward.hover": "Nastupnaja staronka",
+    "text.ledger.footer.page_backward": "<<",
+    "text.ledger.footer.page_backward.hover": "Minulaja staronka",
+
+    "text.ledger.status.queue": "Čerha bazy dadzienych: %s",
+    "text.ledger.status.queue.busy": "Zaniata",
+    "text.ledger.status.queue.empty": "Pusta",
+    "text.ledger.status.version": "Viersija: %s",
+    "text.ledger.status.discord": "Discord: %s",
+    "text.ledger.status.discord.join": "Nacisnicie, kab dalučycca",
+    "text.ledger.status.db_type": "Typ bazy dadzienych: %s",
+    "text.ledger.status.wiki": "Kiraŭnictva: %s",
+    "text.ledger.status.wiki.view": "Nacisnicie dlia prahliadu",
+
+    "text.ledger.preview.start": "Pačatak papiaredniaha prahliadu",
+
+    "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+    "text.ledger.action_message.time_diff": "%s tamu",
+    "text.ledger.action_message.location.hover": "Nacisnicie, kab teliepartavacca",
+    "text.ledger.action_message.with": "z",
+
+    "text.ledger.rollback.start": "Adkat %s dziejanniaŭ",
+    "text.ledger.rollback.finish": "Adkat zavieršany",
+    "text.ledger.rollback.fail": "Nie ŭdalosia adkacić %s x%s",
+
+    "text.ledger.restore.start": "Adnaŭliennie %s dziejanniaŭ",
+    "text.ledger.restore.finish": "Adnaŭliennie zavieršana",
+    "text.ledger.restore.fail": "Nie ŭdalosia adnavić %s x%s",
+
+    "text.ledger.inspect.toggle": "Režym ahliadu: %s",
+    "text.ledger.inspect.on": "Ukliučany",
+    "text.ledger.inspect.off": "Vykliučany",
+
+    "text.ledger.database.busy": "Bazy dadzienych zaraz zaniata. Heta moža zaniać niekatory čas",
+
+    "error.ledger.no_cached_params": "Niama kešavanaha pošuku. Pasprabujcie spačatku pašukać",
+    "error.ledger.command.no_results": "Niama rezuĺtataŭ dlia hetaha pošuku",
+    "error.ledger.no_more_pages": "Boĺš niama staronak",
+    "error.ledger.unknown_param": "Nieviadomy paramietr %s",
+    "error.ledger.no_preview": "Niama ciakučaha papiaredniaha prahliadu",
+    "error.ledger.unspecific.range": "Kali laska, ukažycie dyjapazon.",
+    "error.ledger.unspecific.range_to_big": "Maksimaĺny dyjapazon skladaje %s.",
+    "error.ledger.unspecific.source_or_time": "Kali laska, ukažycie krynicu abo čas (paslia).",
+
+    "text.ledger.action.block-place": "pastaviŭ",
+    "text.ledger.action.block-break": "zlamaŭ",
+    "text.ledger.action.block-change": "zmianiŭ",
+    "text.ledger.action.item-insert": "paklaŭ",
+    "text.ledger.action.item-remove": "uziaŭ",
+    "text.ledger.action.item-pick-up": "padabraŭ",
+    "text.ledger.action.item-drop": "skinuŭ",
+    "text.ledger.action.entity-kill": "zabiŭ",
+    "text.ledger.action.entity-change": "zmianiŭ",
+
+    "text.ledger.parameter.action.description": "Fiĺtravać pa typu vykananaha dziejannia.",
+    "text.ledger.parameter.after.description": "Fiĺtravać pa časie (paslia vyznačanaha času).",
+    "text.ledger.parameter.before.description": "Fiĺtravać pa časie (da vyznačanaha času). Zvyčajna varta vykarystoŭvać paslia.",
+    "text.ledger.parameter.object.description": "Fiĺtravać pa abjektach. Heta moža być blok, pradmiet abo sutnasć.",
+    "text.ledger.parameter.range.description": "Fiĺtravać pa miescaznachodžannie (kvadratny radyus vakol vašaha miescaznachodžannia).",
+    "text.ledger.parameter.rolledback.description": "Fiĺtravać pa adkačanym stanie.",
+    "text.ledger.parameter.source.description": "Fiĺtravać pa krynicy (imia huĺca abo krynica z ’@’).",
+    "text.ledger.parameter.world.description": "Fiĺtravać pa ŭkazanym sviecie.",
+
+    "text.ledger.network.protocols_mismatched": "Niesumiaščaĺnasć viersii pratakola: viersija pratakola moda Ledger %d, a viersija klijenta %d",
+    "text.ledger.network.no_mod_info": "Niemahčyma vyznačyć infarmacyju pra mod dlia vašaha klijenta",
+
+    "text.ledger.purge.starting": "------ Pačatak čystki ------",
+    "text.ledger.purge.complete": "------ Čystka zavieršana ------",
+
+    "text.ledger.player.result": "%1$s: Upieršyniu dalučyŭsia %2$s. Apošni raz dalučyŭsia: %3$s"
+}
