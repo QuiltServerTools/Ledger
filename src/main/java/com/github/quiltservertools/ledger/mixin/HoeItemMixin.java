@@ -7,6 +7,7 @@ import net.minecraft.item.HoeItem;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.ItemUsageContext;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,6 +25,7 @@ public abstract class HoeItemMixin {
         log(state, context);
     }
 
+    @Unique
     private static void log(BlockState state, ItemUsageContext context) {
         var player = context.getPlayer();
         if (player != null) {

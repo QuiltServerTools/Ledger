@@ -13,6 +13,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -50,6 +51,7 @@ public interface CauldronBehaviorMixin {
         ledgerLogFillCauldron(world, pos, state, world.getBlockState(pos), player);
     }
 
+    @Unique
     private static void ledgerLogDrainCauldron(World world, BlockPos pos, BlockState oldState, PlayerEntity player) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
@@ -62,6 +64,7 @@ public interface CauldronBehaviorMixin {
                 player);
     }
 
+    @Unique
     private static void ledgerLogFillCauldron(World world, BlockPos pos, BlockState oldState, BlockState newState, PlayerEntity player) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
