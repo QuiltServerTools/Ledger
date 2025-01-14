@@ -8,8 +8,6 @@ plugins {
     `maven-publish`
 }
 
-val props = properties
-
 val modId: String by project
 val modName: String by project
 val modVersion: String by project

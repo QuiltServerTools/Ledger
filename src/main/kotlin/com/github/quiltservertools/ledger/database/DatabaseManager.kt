@@ -414,9 +414,9 @@ object DatabaseManager {
         }
 
         return newSuspendedTransaction(context = databaseContext, db = database) {
-            repetitionAttempts = MAX_QUERY_RETRIES
-            minRepetitionDelay = MIN_RETRY_DELAY
-            maxRepetitionDelay = MAX_RETRY_DELAY
+            maxAttempts = MAX_QUERY_RETRIES
+            minRetryDelay = MIN_RETRY_DELAY
+            maxRetryDelay = MAX_RETRY_DELAY
 
             if (Ledger.config[DatabaseSpec.logSQL]) {
                 addLogger(object : SqlLogger {
@@ -500,8 +500,7 @@ object DatabaseManager {
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
-        query = query.limit(
-            config[SearchSpec.pageSize],
+        query = query.limit(config[SearchSpec.pageSize]).offset(
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
         ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
 
