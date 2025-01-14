@@ -50,5 +50,3 @@ kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detect" }
 loom = { id = "fabric-loom", version = "1.7.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
-# https://github.com/johnrengelman/shadow/issues/894
-shadow = { id = "io.github.goooler.shadow", version = "8.1.7" }
