@@ -80,6 +80,7 @@ dependencies {
     includeImplementation(libs.exposed.dao)
     includeImplementation(libs.exposed.java.time)
     includeImplementation(libs.exposed.jdbc)
+    includeImplementation(libs.exposed.migration)
     includeImplementation(libs.sqlite.jdbc)
 
     // Config

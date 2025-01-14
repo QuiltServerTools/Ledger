@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.database
 
+import MigrationUtils
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
@@ -33,7 +34,6 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
@@ -96,8 +96,8 @@ object DatabaseManager {
         val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         return SQLiteDataSource(
             SQLiteConfig().apply {
-            setJournalMode(SQLiteConfig.JournalMode.WAL)
-        }
+                setJournalMode(SQLiteConfig.JournalMode.WAL)
+            }
         ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
@@ -109,7 +109,7 @@ object DatabaseManager {
                 Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
             }
         })
-        SchemaUtils.createMissingTablesAndColumns(
+        MigrationUtils.statementsRequiredForDatabaseMigration(
             Tables.Players,
             Tables.Actions,
             Tables.ActionIdentifiers,
@@ -117,7 +117,7 @@ object DatabaseManager {
             Tables.Sources,
             Tables.Worlds,
             withLogs = true
-        )
+        ).forEach(::exec)
         logInfo("Tables created")
     }
 
