@@ -18,7 +18,7 @@ sqlite-jdbc = "3.47.2.0"
 
 konf = "1.1.2"
 
-detect = "1.23.7"
+detekt = "1.23.7"
 
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
@@ -40,10 +40,10 @@ sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detect" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detect" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 loom = { id = "fabric-loom", version = "1.9.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
