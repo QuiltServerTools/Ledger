@@ -66,7 +66,7 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
 
     @Inject(method = "onClosed", at = @At(value = "RETURN"))
     private void ledgerCloseScreenLogChanges(PlayerEntity player, CallbackInfo ci) {
-        if (!player.getWorld().isClient) {
+        if (!player.getWorld().isClient && pos != null) {
             for (var pair : changedStacks.keySet()) {
                 ItemStack stack = new ItemStack(Registries.ITEM.getEntry(pair.getItem()), 1, pair.getChanges());
                 if (stack.isEmpty()) {
