@@ -7,7 +7,6 @@ import net.minecraft.datafixer.Schemas
 import net.minecraft.datafixer.TypeReferences
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtHelper
 import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.StringNbtReader
@@ -27,15 +26,7 @@ object NbtUtils {
     fun blockStateToProperties(state: BlockState): NbtCompound? {
         val stateTag = NbtHelper.fromBlockState(state)
         if (state.block.defaultState == state) return null // Don't store default block state
-        return if (stateTag.contains(
-                PROPERTIES,
-                NbtElement.COMPOUND_TYPE.toInt()
-            )
-        ) {
-            stateTag.getCompound(PROPERTIES)
-        } else {
-            null
-        }
+        return stateTag.getCompound(PROPERTIES).orElse(null)
     }
 
     fun blockStateFromProperties(
@@ -50,7 +41,7 @@ object NbtUtils {
     }
 
     fun itemFromProperties(tag: String?, name: Identifier, registries: RegistryWrapper.WrapperLookup): ItemStack {
-        val extraDataTag = StringNbtReader.parse(tag ?: "{}")
+        val extraDataTag = StringNbtReader.readCompound(tag ?: "{}")
         var itemTag = extraDataTag
         if (!extraDataTag.contains(COUNT)) {
             // 1.20.4 and lower (need data fixing)

@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(FallingBlockEntity.class)
 public abstract class FallingBlockEntityMixin {
     @Shadow
-    private BlockState block;
+    private BlockState blockState;
 
     @Inject(
             method = "spawnFromBlock",
@@ -37,6 +37,6 @@ public abstract class FallingBlockEntityMixin {
     private void ledgerBlockLandInvoker(Args args) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
         BlockPos pos = args.get(0);
-        BlockPlaceCallback.EVENT.invoker().place(entity.getWorld(), pos, this.block, null, Sources.GRAVITY);
+        BlockPlaceCallback.EVENT.invoker().place(entity.getWorld(), pos, this.blockState, null, Sources.GRAVITY);
     }
 }

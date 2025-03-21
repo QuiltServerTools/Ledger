@@ -48,12 +48,11 @@ object MessageUtils {
                         .styled {
                             if (results.page > 1) {
                                 it.withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         Text.translatable("text.ledger.footer.page_backward.hover")
                                     )
                                 ).withClickEvent(
-                                    ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page - 1}")
+                                    ClickEvent.RunCommand("/lg pg ${results.page - 1}")
                                 )
                             } else {
                                 Style.EMPTY
@@ -65,12 +64,11 @@ object MessageUtils {
                         .styled {
                             if (results.page < results.pages) {
                                 it.withHoverEvent(
-                                    HoverEvent(
-                                        HoverEvent.Action.SHOW_TEXT,
+                                    HoverEvent.ShowText(
                                         Text.translatable("text.ledger.footer.page_forward.hover")
                                     )
                                 ).withClickEvent(
-                                    ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lg pg ${results.page + 1}")
+                                    ClickEvent.RunCommand("/lg pg ${results.page + 1}")
                                 )
                             } else {
                                 Style.EMPTY
@@ -130,8 +128,7 @@ object MessageUtils {
 
         message.styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
+                HoverEvent.ShowText(
                     timeMessage
                 )
             )

@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.Uuids
 
 open class ItemPickUpActionType : AbstractActionType() {
     override val identifier = "item-pick-up"
@@ -33,9 +34,8 @@ open class ItemPickUpActionType : AbstractActionType() {
             stack.itemName
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_ITEM,
-                    HoverEvent.ItemStackContent(stack)
+                HoverEvent.ShowItem(
+                    stack
                 )
             )
         }
@@ -44,9 +44,10 @@ open class ItemPickUpActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = StringNbtReader.parse(oldObjectState)
-        val uuid = oldEntity!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val oldEntity = StringNbtReader.readCompound(oldObjectState)
+        val optionalUUID = oldEntity.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity == null) {
             val entity = ItemEntity(EntityType.ITEM, world)
@@ -59,9 +60,10 @@ open class ItemPickUpActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = StringNbtReader.parse(oldObjectState)
-        val uuid = oldEntity!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val oldEntity = StringNbtReader.readCompound(oldObjectState)
+        val optionalUUID = oldEntity.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
             entity.remove(Entity.RemovalReason.DISCARDED)

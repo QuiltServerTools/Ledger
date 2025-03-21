@@ -13,6 +13,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.Uuids
 
 // TODO remove duplication from ItemPickUpActionType and ItemDropActionType
 open class ItemDropActionType : AbstractActionType() {
@@ -34,9 +35,8 @@ open class ItemDropActionType : AbstractActionType() {
             stack.itemName
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_ITEM,
-                    HoverEvent.ItemStackContent(stack)
+                HoverEvent.ShowItem(
+                    stack
                 )
             )
         }
@@ -45,9 +45,10 @@ open class ItemDropActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.parse(objectState)
-        val uuid = newEntity!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val newEntity = StringNbtReader.readCompound(objectState)
+        val optionalUUID = newEntity!!.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
             entity.remove(Entity.RemovalReason.DISCARDED)
@@ -59,9 +60,10 @@ open class ItemDropActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.parse(objectState)
-        val uuid = newEntity!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val newEntity = StringNbtReader.readCompound(objectState)
+        val optionalUUID = newEntity!!.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity == null) {
             val entity = ItemEntity(EntityType.ITEM, world)

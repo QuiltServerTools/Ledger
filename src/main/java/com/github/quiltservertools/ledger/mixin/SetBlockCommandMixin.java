@@ -22,8 +22,14 @@ import java.util.function.Predicate;
 
 @Mixin(SetBlockCommand.class)
 public abstract class SetBlockCommandMixin {
-    @ModifyArgs(method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/command/argument/BlockStateArgument;setBlockState(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;I)Z"))
-    private static void logSetBlockChange(Args args, ServerCommandSource source, BlockPos pos, BlockStateArgument block, SetBlockCommand.Mode mode, @Nullable Predicate<CachedBlockPosition> condition) {
+    @ModifyArgs(
+            method = "execute",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/command/argument/BlockStateArgument;setBlockState(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;I)Z"
+            )
+    )
+    private static void logSetBlockChange(Args args, ServerCommandSource source, BlockPos pos, BlockStateArgument block, SetBlockCommand.Mode mode, @Nullable Predicate<CachedBlockPosition> condition, boolean strict) {
         ServerWorld world = args.get(0);
 
         BlockState oldState = world.getBlockState(pos);

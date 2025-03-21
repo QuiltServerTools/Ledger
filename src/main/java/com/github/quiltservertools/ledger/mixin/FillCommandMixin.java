@@ -15,6 +15,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
@@ -38,6 +39,7 @@ public abstract class FillCommandMixin {
             BlockStateArgument block,
             @Coerce Object mode,
             Predicate<CachedBlockPosition> filter,
+            boolean strict,
             CallbackInfoReturnable<Integer> cir,
             @Local BlockPos pos) {
         ServerWorld world = source.getWorld();

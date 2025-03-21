@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LecternBlock.class)
 public class LecternBlockMixin {
-    @Inject(method = "putBook", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FF)V"))
+    @Inject(method = "putBook", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSound(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/sound/SoundEvent;Lnet/minecraft/sound/SoundCategory;FF)V"))
     private static void logPutBook(LivingEntity user, World world, BlockPos pos, BlockState state, ItemStack stack, CallbackInfo ci) {
         LecternBlockEntity blockEntity = (LecternBlockEntity) world.getBlockEntity(pos);
         if (blockEntity == null) return;

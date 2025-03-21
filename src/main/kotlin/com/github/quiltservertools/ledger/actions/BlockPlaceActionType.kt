@@ -28,7 +28,7 @@ class BlockPlaceActionType : BlockChangeActionType() {
             val state = newBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK))
             world.setBlockState(pos, state)
             if (state.hasBlockEntity()) {
-                world.getBlockEntity(pos)?.read(StringNbtReader.parse(extraData), server.registryManager)
+                world.getBlockEntity(pos)?.read(StringNbtReader.readCompound(extraData), server.registryManager)
             }
         }
 
@@ -42,8 +42,7 @@ class BlockPlaceActionType : BlockChangeActionType() {
         )
     ).setStyle(TextColorPallet.secondaryVariant).styled {
         it.withHoverEvent(
-            HoverEvent(
-                HoverEvent.Action.SHOW_TEXT,
+            HoverEvent.ShowText(
                 objectIdentifier.toString().literal()
             )
         )

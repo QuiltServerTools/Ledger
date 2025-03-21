@@ -11,6 +11,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.EntityTrackerEntry
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.Uuids
 import net.minecraft.util.math.Vec3d
 
 class EntityKillActionType : AbstractActionType() {
@@ -25,11 +26,11 @@ class EntityKillActionType : AbstractActionType() {
         if (entityType.isEmpty) return
 
         val entity: LivingEntity = (entityType.get().create(world, SpawnReason.COMMAND) as LivingEntity?)!!
-        entity.readNbt(StringNbtReader.parse(extraData))
+        entity.readNbt(StringNbtReader.readCompound(extraData))
         entity.health = entity.defaultMaxHealth.toFloat()
         entity.velocity = Vec3d.ZERO
         entity.fireTicks = 0
-        val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false) { }
+        val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, { }, { _, _ -> })
         entityTrackerEntry.startTracking(player)
         preview.spawnedEntityTrackers.add(entityTrackerEntry)
     }
@@ -37,12 +38,13 @@ class EntityKillActionType : AbstractActionType() {
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
         val world = player.server.getWorld(world)
 
-        val tag = StringNbtReader.parse(extraData)
-        if (tag.containsUuid("UUID")) {
-            val uuid = tag.getUuid("UUID")
+        val tag = StringNbtReader.readCompound(extraData)
+        val optionalUuid = tag.get("UUID", Uuids.INT_STREAM_CODEC)
+        if (optionalUuid.isPresent) {
+            val uuid = optionalUuid.get()
             val entity = world?.getEntity(uuid)
             entity?.let {
-                val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false) { }
+                val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, { }, { _, _ -> })
                 entityTrackerEntry.stopTracking(player)
                 preview.removedEntityTrackers.add(entityTrackerEntry)
             }
@@ -55,7 +57,7 @@ class EntityKillActionType : AbstractActionType() {
         val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
         if (entityType.isPresent) {
             val entity = entityType.get().create(world, SpawnReason.COMMAND)!!
-            entity.readNbt(StringNbtReader.parse(extraData))
+            entity.readNbt(StringNbtReader.readCompound(extraData))
             entity.velocity = Vec3d.ZERO
             entity.fireTicks = 0
             if (entity is LivingEntity) entity.health = entity.defaultMaxHealth.toFloat()
@@ -71,8 +73,9 @@ class EntityKillActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val uuid = StringNbtReader.parse(extraData)!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val optionalUUID = StringNbtReader.readCompound(extraData)!!.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
             entity.remove(Entity.RemovalReason.DISCARDED)

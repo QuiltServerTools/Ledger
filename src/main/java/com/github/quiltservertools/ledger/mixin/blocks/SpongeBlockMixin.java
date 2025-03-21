@@ -26,7 +26,7 @@ public abstract class SpongeBlockMixin {
     }
 
     @Inject(method = "method_49829", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;"))
+            target = "Lnet/minecraft/block/FluidDrainable;tryDrainFluid(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/item/ItemStack;"))
     private static void logWaterDrainSource(BlockPos actorBlockPos, World world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
     }

@@ -17,6 +17,7 @@ import net.fabricmc.loader.api.SemanticVersion
 import net.minecraft.server.command.CommandManager
 import net.minecraft.text.ClickEvent
 import net.minecraft.text.Text
+import java.net.URI
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -73,9 +74,8 @@ object StatusCommand : BuildableCommand {
                             .setStyle(TextColorPallet.secondaryVariant)
                             .styled {
                                 it.withClickEvent(
-                                    ClickEvent(
-                                        ClickEvent.Action.OPEN_URL,
-                                        "https://discord.gg/FpRNYrQaGP"
+                                    ClickEvent.OpenUrl(
+                                        URI("https://discord.gg/FpRNYrQaGP")
                                     )
                                 )
                             }
@@ -91,9 +91,8 @@ object StatusCommand : BuildableCommand {
                             .setStyle(TextColorPallet.secondaryVariant)
                             .styled {
                                 it.withClickEvent(
-                                    ClickEvent(
-                                        ClickEvent.Action.OPEN_URL,
-                                        "https://quiltservertools.github.io/Ledger/latest/"
+                                    ClickEvent.OpenUrl(
+                                        URI("https://quiltservertools.github.io/Ledger/latest/")
                                     )
                                 )
                             }

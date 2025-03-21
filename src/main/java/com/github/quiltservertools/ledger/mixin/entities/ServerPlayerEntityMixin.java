@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(PlayerEntity.class)
 public abstract class ServerPlayerEntityMixin {
-    @Inject(method = "dropPlayerItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ItemEntity;setPickupDelay(I)V"))
-    private void logPlayerItemDrop(ItemStack stack, boolean throwRandomly, boolean retainOwnership, CallbackInfoReturnable<ItemEntity> cir, @Local ItemEntity itemEntity) {
+    @Inject(method = "dropItem", at = @At("RETURN"))
+    private void logPlayerItemDrop(ItemStack stack, boolean retainOwnership, CallbackInfoReturnable<ItemEntity> cir) {
         PlayerEntity player = (PlayerEntity) (Object) this;
-        ItemDropCallback.EVENT.invoker().drop(itemEntity, player);
+        ItemDropCallback.EVENT.invoker().drop(cir.getReturnValue(), player);
     }
 }
