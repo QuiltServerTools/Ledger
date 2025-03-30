@@ -5,8 +5,7 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 
 interface HandlerWithContext {
+    var pos: BlockPos?
     fun getPlayer(): ServerPlayerEntity?
-    fun getPos(): BlockPos?
-    fun setPos(pos: BlockPos)
     fun onStackChanged(old: ItemStack, new: ItemStack, pos: BlockPos)
 }
