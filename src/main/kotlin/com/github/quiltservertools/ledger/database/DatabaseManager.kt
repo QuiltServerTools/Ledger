@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.database
 
+import MigrationUtils
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
@@ -33,7 +34,6 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
@@ -81,6 +81,11 @@ object DatabaseManager {
 
     private val cache = DatabaseCacheService
     private var databaseContext = Dispatchers.IO + CoroutineName("Ledger Database")
+    private val ledgerLogger = object : SqlLogger {
+        override fun log(context: StatementContext, transaction: Transaction) {
+            Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun setup(dataSource: DataSource?) {
@@ -96,20 +101,16 @@ object DatabaseManager {
         val dbFilepath = config.getDatabasePath().resolve("ledger.sqlite").pathString
         return SQLiteDataSource(
             SQLiteConfig().apply {
-            setJournalMode(SQLiteConfig.JournalMode.WAL)
-        }
+                setJournalMode(SQLiteConfig.JournalMode.WAL)
+            }
         ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
     }
 
     fun ensureTables() = transaction {
-        addLogger(object : SqlLogger {
-            override fun log(context: StatementContext, transaction: Transaction) {
-                Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
-            }
-        })
-        SchemaUtils.createMissingTablesAndColumns(
+        addLogger(ledgerLogger)
+        MigrationUtils.statementsRequiredForDatabaseMigration(
             Tables.Players,
             Tables.Actions,
             Tables.ActionIdentifiers,
@@ -117,7 +118,7 @@ object DatabaseManager {
             Tables.Sources,
             Tables.Worlds,
             withLogs = true
-        )
+        ).forEach(::exec)
         logInfo("Tables created")
     }
 
@@ -143,8 +144,7 @@ object DatabaseManager {
             execute {
                 Ledger.logger.info("Purging actions older than ${config[DatabaseSpec.autoPurgeDays]} days")
                 val deleted = Tables.Actions.deleteWhere {
-                    Tables.Actions.timestamp lessEq Instant.now()
-                        .minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
+                    timestamp lessEq Instant.now().minus(config[DatabaseSpec.autoPurgeDays].toLong(), ChronoUnit.DAYS)
                 }
                 Ledger.logger.info("Successfully purged $deleted actions")
             }
@@ -242,7 +242,7 @@ object DatabaseManager {
     private fun buildQueryParams(params: ActionSearchParams): Op<Boolean> {
         var op: Op<Boolean> = Op.TRUE
 
-        if (params.bounds != null) {
+        if (params.bounds != null && params.bounds != ActionSearchParams.GLOBAL) {
             op = op.and { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
             op = op.and { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
             op = op.and { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
@@ -414,16 +414,12 @@ object DatabaseManager {
         }
 
         return newSuspendedTransaction(context = databaseContext, db = database) {
-            repetitionAttempts = MAX_QUERY_RETRIES
-            minRepetitionDelay = MIN_RETRY_DELAY
-            maxRepetitionDelay = MAX_RETRY_DELAY
+            maxAttempts = MAX_QUERY_RETRIES
+            minRetryDelay = MIN_RETRY_DELAY
+            maxRetryDelay = MAX_RETRY_DELAY
 
             if (Ledger.config[DatabaseSpec.logSQL]) {
-                addLogger(object : SqlLogger {
-                    override fun log(context: StatementContext, transaction: Transaction) {
-                        Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
-                    }
-                })
+                addLogger(ledgerLogger)
             }
             body(this)
         }
@@ -500,8 +496,7 @@ object DatabaseManager {
         if (totalActions == 0L) return SearchResults(actions, params, page, 0)
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
-        query = query.limit(
-            config[SearchSpec.pageSize],
+        query = query.limit(config[SearchSpec.pageSize]).offset(
             (config[SearchSpec.pageSize] * (page - 1)).toLong()
         ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
 
@@ -527,7 +522,7 @@ object DatabaseManager {
                 { Tables.Actions.oldObjectId },
                 { Tables.oldObjectTable[Tables.ObjectIdentifiers.id] }
             )
-            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { Tables.ObjectIdentifiers.id })
+            .innerJoin(Tables.ObjectIdentifiers, { Tables.Actions.objectId }, { id })
             .innerJoin(Tables.Sources)
             .selectAll()
     }
@@ -563,7 +558,7 @@ object DatabaseManager {
         table: EntityClass<Int, Entity<Int>>,
         column: Column<S>
     ): Int? {
-        cache.getIfPresent(obj)?.let { return it }
+        cache.getIfPresent(obj!!)?.let { return it }
         return table.find { column eq mapper.apply(obj) }.firstOrNull()?.id?.value?.also {
             cache.put(obj, it)
         }
@@ -592,7 +587,7 @@ object DatabaseManager {
             table.insertAndGetId {
                 it[column] = mapper.apply(obj)
             }
-        ].id.value.also { cache.put(obj, it) }
+        ].id.value.also { cache.put(obj!!, it) }
     }
 
     private fun getOrCreatePlayerId(playerId: UUID): Int =
@@ -665,8 +660,7 @@ object DatabaseManager {
     // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
     private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
         .deleteWhere {
-            Tables.Actions.id inSubQuery Tables.Actions.select(Tables.Actions.id)
-                .where(buildQueryParams(params))
+            id inSubQuery Tables.Actions.select(id).where(buildQueryParams(params))
         }
 
     private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {

@@ -8,6 +8,7 @@ import net.minecraft.block.SpongeBlock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SpongeBlock.class)
 public abstract class SpongeBlockMixin {
 
+    @Unique
     private BlockState oldBlockState;
 
     @Inject(method = "method_49829", at = @At(value = "INVOKE",
@@ -43,7 +45,7 @@ public abstract class SpongeBlockMixin {
             target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
     public void ledgerLogSpongeToWetSponge(World world, BlockPos pos, CallbackInfo ci) {
         BlockState newBlockState = world.getBlockState(pos);
-        if (oldBlockState == newBlockState) {return;} // if the sponge is already wet dont log
+        if (oldBlockState == newBlockState) {return;} // if the sponge is already wet don't log
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, oldBlockState, newBlockState, null, null, Sources.WET);
         // logs if sponge comes into contact with water.
     }

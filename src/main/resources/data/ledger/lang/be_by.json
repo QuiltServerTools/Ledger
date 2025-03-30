@@ -1,0 +1,78 @@
+{
+    "text.ledger.header.search.pos": "--- Пошук журналаў на %s ---",
+    "text.ledger.header.search": "------ Пошук журналаў ------",
+    "text.ledger.header.status": "------ Ledger ------",
+
+    "text.ledger.footer.search": "------- %s [Старонка %s з %s] %s -------",
+    "text.ledger.footer.page_forward": ">>",
+    "text.ledger.footer.page_forward.hover": "Наступная старонка",
+    "text.ledger.footer.page_backward": "<<",
+    "text.ledger.footer.page_backward.hover": "Мінулая старонка",
+
+    "text.ledger.status.queue": "Чэрга базы дадзеных: %s",
+    "text.ledger.status.queue.busy": "Занята",
+    "text.ledger.status.queue.empty": "Пуста",
+    "text.ledger.status.version": "Версія: %s",
+    "text.ledger.status.discord": "Discord: %s",
+    "text.ledger.status.discord.join": "Націсніце, каб далучыцца",
+    "text.ledger.status.db_type": "Тып базы дадзеных: %s",
+    "text.ledger.status.wiki": "Кіраўніцтва: %s",
+    "text.ledger.status.wiki.view": "Націсніце для прагляду",
+
+    "text.ledger.preview.start": "Пачатак папярэдняга прагляду",
+
+    "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
+    "text.ledger.action_message.time_diff": "%s таму",
+    "text.ledger.action_message.location.hover": "Націсніце, каб тэлепартавацца",
+    "text.ledger.action_message.with": "з",
+
+    "text.ledger.rollback.start": "Адкат %s дзеянняў",
+    "text.ledger.rollback.finish": "Адкат завершаны",
+    "text.ledger.rollback.fail": "Не ўдалося адкаціць %s x%s",
+
+    "text.ledger.restore.start": "Аднаўленне %s дзеянняў",
+    "text.ledger.restore.finish": "Аднаўленне завершана",
+    "text.ledger.restore.fail": "Не ўдалося аднавіць %s x%s",
+
+    "text.ledger.inspect.toggle": "Рэжым агляду: %s",
+    "text.ledger.inspect.on": "Уключаны",
+    "text.ledger.inspect.off": "Выключаны",
+
+    "text.ledger.database.busy": "Базы дадзеных зараз занята. Гэта можа заняць некаторы час",
+
+    "error.ledger.no_cached_params": "Няма кэшаванага пошуку. Паспрабуйце спачатку пашукаць",
+    "error.ledger.command.no_results": "Няма рэзультатаў для гэтага пошуку",
+    "error.ledger.no_more_pages": "Больш няма старонак",
+    "error.ledger.unknown_param": "Невядомы параметр %s",
+    "error.ledger.no_preview": "Няма цякучага папярэдняга прагляду",
+    "error.ledger.unspecific.range": "Калі ласка, укажыце дыяпазон.",
+    "error.ledger.unspecific.range_to_big": "Максімальны дыяпазон складае %s.",
+    "error.ledger.unspecific.source_or_time": "Калі ласка, укажыце крыніцу або час (пасля).",
+
+    "text.ledger.action.block-place": "паставіў",
+    "text.ledger.action.block-break": "зламаў",
+    "text.ledger.action.block-change": "змяніў",
+    "text.ledger.action.item-insert": "паклаў",
+    "text.ledger.action.item-remove": "узяў",
+    "text.ledger.action.item-pick-up": "падабраў",
+    "text.ledger.action.item-drop": "скінуў",
+    "text.ledger.action.entity-kill": "забіў",
+    "text.ledger.action.entity-change": "змяніў",
+
+    "text.ledger.parameter.action.description": "Фільтраваць па тыпу выкананага дзеяння.",
+    "text.ledger.parameter.after.description": "Фільтраваць па часе (пасля вызначанага часу).",
+    "text.ledger.parameter.before.description": "Фільтраваць па часе (да вызначанага часу). Звычайна варта выкарыстоўваць пасля.",
+    "text.ledger.parameter.object.description": "Фільтраваць па аб'ектах. Гэта можа быць блок, прадмет або сутнасць.",
+    "text.ledger.parameter.range.description": "Фільтраваць па месцазнаходжанне (квадратны радыус вакол вашага месцазнаходжання).",
+    "text.ledger.parameter.rolledback.description": "Фільтраваць па адкачаным стане.",
+    "text.ledger.parameter.source.description": "Фільтраваць па крыніцы (імя гульца або крыніца з '@').",
+    "text.ledger.parameter.world.description": "Фільтраваць па ўказаным свеце.",
+
+    "text.ledger.network.protocols_mismatched": "Несумяшчальнасць версіі пратакола: версія пратакола мода Ledger %d, а версія кліента %d",
+    "text.ledger.network.no_mod_info": "Немагчыма вызначыць інфармацыю пра мод для вашага кліента",
+
+    "text.ledger.purge.starting": "------ Пачатак чысткі ------",
+    "text.ledger.purge.complete": "------ Чыстка завершана ------",
+
+    "text.ledger.player.result": "%1$s: Упершыню далучыўся %2$s. Апошні раз далучыўся: %3$s"
+}

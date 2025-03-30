@@ -13,7 +13,7 @@
     "text.ledger.status.queue.busy": "Зайнято",
     "text.ledger.status.queue.empty": "Порожньо",
     "text.ledger.status.version": "Версія: %s",
-    "text.ledger.status.discord": "Дискорд: %s",
+    "text.ledger.status.discord": "Discord: %s",
     "text.ledger.status.discord.join": "Натисніть, щоб приєднатися",
     "text.ledger.status.db_type": "Тип бази даних: %s",
     "text.ledger.status.wiki": "Керівництво: %s",
@@ -45,22 +45,34 @@
     "error.ledger.no_more_pages": "Більше немає сторінок",
     "error.ledger.unknown_param": "Невідомий параметр %s",
     "error.ledger.no_preview": "Немає поточного попереднього перегляду",
+    "error.ledger.unspecific.range": "Будь ласка, вкажіть діапазон.",
+    "error.ledger.unspecific.range_to_big": "Максимальний діапазон становить %s.",
+    "error.ledger.unspecific.source_or_time": "Будь ласка, вкажіть джерело або час (після).",
 
     "text.ledger.action.block-place": "розмістив",
     "text.ledger.action.block-break": "зламав",
     "text.ledger.action.block-change": "змінив",
-    "text.ledger.action.item-insert": "додав",
-    "text.ledger.action.item-remove": "видалив",
+    "text.ledger.action.item-insert": "поклав",
+    "text.ledger.action.item-remove": "взяв",
     "text.ledger.action.item-pick-up": "підібрав",
     "text.ledger.action.item-drop": "скинув",
     "text.ledger.action.entity-kill": "вбив",
     "text.ledger.action.entity-change": "змінив",
 
-    "text.ledger.network.protocols_mismatched": "Невідповідність версій протоколу: клієнтський мод – це версія протоколу Ledger %d, а версія клієнта – %d",
-    "text.ledger.network.no_mod_info": "Неможливо визначити інформацію для вашого клієнтського моду",
+    "text.ledger.parameter.action.description": "Фільтрувати за типом виконаної дії.",
+    "text.ledger.parameter.after.description": "Фільтрувати за часом (після вказаного часу).",
+    "text.ledger.parameter.before.description": "Фільтрувати за часом (до вказаного часу). Зазвичай слід використовувати після.",
+    "text.ledger.parameter.object.description": "Фільтрувати за об'єктом. Це може бути блок, предмет або сутність.",
+    "text.ledger.parameter.range.description": "Фільтрувати за локацією (квадратний радіус навколо вашого місця розташування).",
+    "text.ledger.parameter.rolledback.description": "Фільтрувати за відкоченим станом.",
+    "text.ledger.parameter.source.description": "Фільтрувати за джерелом (ім'я гравця або джерело з '@').",
+    "text.ledger.parameter.world.description": "Фільтрувати за вказаним виміром.",
+
+    "text.ledger.network.protocols_mismatched": "Несумісність версій протоколу: версія протоколу моду Ledger %d, а версія клієнта %d",
+    "text.ledger.network.no_mod_info": "Неможливо визначити інформацію про мод для вашого клієнтського моду",
 
     "text.ledger.purge.starting": "------ Початок очищення ------",
-    "text.ledger.purge.complete": "------ Очищення завершене ------",
+    "text.ledger.purge.complete": "------ Очищення завершено ------",
 
-    "text.ledger.player.result": "%1$s: Вперше приєднався: %2$s. Востаннє приєднався: %3$s"
+    "text.ledger.player.result": "%1$s: Вперше приєднався %2$s. Востаннє приєднався: %3$s"
 }

@@ -71,7 +71,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         if (!Files.exists(FabricLoader.getInstance().configDir.resolve(CONFIG_PATH))) {
             logInfo("No config file, Creating")
             Files.copy(
-                FabricLoader.getInstance().getModContainer(MOD_ID).get().getPath(CONFIG_PATH),
+                FabricLoader.getInstance().getModContainer(MOD_ID).get().findPath(CONFIG_PATH).get(),
                 FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
             )
         }

@@ -1,20 +1,19 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.loom)
     alias(libs.plugins.detekt)
     alias(libs.plugins.git.hooks)
-    alias(libs.plugins.shadow)
     `maven-publish`
 }
-
-val props = properties
 
 val modId: String by project
 val modName: String by project
 val modVersion: String by project
 val mavenGroup: String by project
 
-base.archivesBaseName = modId
+base.archivesName.set(modId)
 version = "$modVersion${getVersionMetadata()}"
 group = mavenGroup
 
@@ -38,8 +37,6 @@ loom {
     }
 }
 
-configurations.implementation.get().extendsFrom(configurations.shadow.get())
-
 fun DependencyHandlerScope.modImplementationAndInclude(dep: Any) {
     modImplementation(dep)
     include(dep)
@@ -52,6 +49,10 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     mavenCentral()
     mavenLocal()
+}
+
+val includeImplementation: Configuration by configurations.creating {
+    configurations.implementation.configure { extendsFrom(this@creating) }
 }
 
 dependencies {
@@ -75,22 +76,21 @@ dependencies {
     modImplementation(libs.fabric.kotlin)
 
     // Database
-    shadow(libs.exposed.core)
-    shadow(libs.exposed.dao)
-    shadow(libs.exposed.jdbc)
-    shadow(libs.exposed.java.time)
-    shadow(libs.sqlite.jdbc)
+    includeImplementation(libs.exposed.core)
+    includeImplementation(libs.exposed.dao)
+    includeImplementation(libs.exposed.java.time)
+    includeImplementation(libs.exposed.jdbc)
+    includeImplementation(libs.exposed.migration)
+    includeImplementation(libs.sqlite.jdbc)
 
     // Config
-    shadow(libs.konf.core)
-    shadow(libs.konf.toml)
+    includeImplementation(libs.konf.core)
+    includeImplementation(libs.konf.toml)
 
     detektPlugins(libs.detekt.formatting)
 }
 
 tasks {
-    val javaVersion = JavaVersion.VERSION_21
-
     processResources {
         inputs.property("id", modId)
         inputs.property("name", modName)
@@ -110,70 +110,20 @@ tasks {
         }
     }
 
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-        sourceCompatibility = javaVersion.toString()
-        targetCompatibility = javaVersion.toString()
-        options.release.set(javaVersion.toString().toInt())
-    }
-
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = javaVersion.toString()
-        }
-    }
-
     jar {
         from("LICENSE")
     }
+}
 
-    java {
-        toolchain { languageVersion.set(JavaLanguageVersion.of(javaVersion.toString())) }
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
-        withSourcesJar()
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    withSourcesJar()
+}
 
-    remapJar {
-        dependsOn(shadowJar)
-        input.set(shadowJar.get().archiveFile)
-    }
-
-    shadowJar {
-        from("LICENSE")
-
-        configurations = listOf(
-            project.configurations.shadow.get()
-        )
-        archiveClassifier.set("dev-all")
-
-        exclude("kotlin/**", "kotlinx/**", "javax/**")
-        exclude("org/checkerframework/**", "org/intellij/**", "org/jetbrains/annotations/**")
-        exclude("com/google/gson/**")
-        exclude("net/kyori/**")
-        exclude("org/slf4j/**")
-
-        val relocPath = "com.github.quiltservertools.libs."
-        relocate("com.fasterxml", relocPath + "com.fasterxml")
-        relocate("com.moandjiezana.toml", relocPath + "com.moandjiezana.toml")
-        relocate("javassist", relocPath + "javassist")
-        // Relocate each apache lib separately as just org.apache.commons will relocate things that aren't shadowed and break stuff
-        relocate("org.apache.commons.lang3", relocPath + "org.apache.commons.lang3")
-        relocate("org.apache.commons.text", relocPath + "org.apache.commons.text")
-        relocate("org.reflections", relocPath + "org.reflections")
-        // it appears you cannot relocate sqlite due to the native libraries
-        // relocate("org.sqlite", relocPath + "org.sqlite")
-    }
-
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = javaVersion.toString()
-        }
-    }
-    compileTestKotlin {
-        kotlinOptions {
-            jvmTarget = javaVersion.toString()
-        }
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
     }
 }
 
@@ -194,7 +144,7 @@ publishing {
 detekt {
     buildUponDefaultConfig = true
     autoCorrect = true
-    config = rootProject.files("detekt.yml")
+    config.setFrom(rootProject.files("detekt.yml"))
 }
 
 gitHooks {
@@ -218,4 +168,43 @@ fun getVersionMetadata(): String {
 
     // No tracking information could be found about the build
     return "+local"
+}
+
+afterEvaluate {
+    dependencies {
+        handleIncludes(includeImplementation)
+    }
+}
+
+/* Thanks to https://github.com/jakobkmar for original script */
+fun DependencyHandlerScope.includeTransitive(
+    dependencies: Set<ResolvedDependency>,
+    minecraftLibs: Set<ResolvedDependency>,
+    kotlinDependency: ResolvedDependency,
+    checkedDependencies: MutableSet<ResolvedDependency> = HashSet()
+) {
+    dependencies.forEach {
+        if (checkedDependencies.contains(it) || it.moduleGroup == "org.jetbrains.kotlin" || it.moduleGroup == "org.jetbrains.kotlinx") return@forEach
+
+        if (kotlinDependency.children.any { dep -> dep.name == it.name }) {
+            println("Skipping -> ${it.name} (already in fabric-language-kotlin)")
+        } else if (minecraftLibs.any { dep -> dep.moduleGroup == it.moduleGroup && dep.moduleName == it.moduleName }) {
+            println("Skipping -> ${it.name} (already in minecraft)")
+        } else {
+            include(it.name)
+            println("Including -> ${it.name}")
+        }
+        checkedDependencies += it
+
+        includeTransitive(it.children, minecraftLibs, kotlinDependency, checkedDependencies)
+    }
+}
+
+fun DependencyHandlerScope.handleIncludes(configuration: Configuration) {
+    includeTransitive(
+        configuration.resolvedConfiguration.firstLevelModuleDependencies,
+        configurations.minecraftLibraries.get().resolvedConfiguration.firstLevelModuleDependencies,
+        configurations.modImplementation.get().resolvedConfiguration.firstLevelModuleDependencies
+            .first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" },
+    )
 }

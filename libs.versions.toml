@@ -6,21 +6,19 @@ fabric-loader = "0.16.10"
 fabric-api = "0.119.5+1.21.5"
 
 # Kotlin
-kotlin = "2.0.0"
+kotlin = "2.1.0"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.11.0+kotlin.2.0.0"
+fabric-kotlin = "1.13.0+kotlin.2.1.0"
 
 fabric-permissions = "0.3.3"
 translations = "2.5.0+1.21.5-rc1"
 
-exposed = "0.46.0"
-sqlite-jdbc = "3.44.1.0"
+exposed = "0.58.0"
+sqlite-jdbc = "3.47.2.0"
 
 konf = "1.1.2"
 
-wdmcf = "1.0.2"
-
-detect = "1.23.6"
+detekt = "1.23.7"
 
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
@@ -35,20 +33,17 @@ translations = { module = "xyz.nucleoid:server-translations-api", version.ref = 
 
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
-exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-migration = { module = "org.jetbrains.exposed:exposed-migration", version.ref = "exposed" }
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detect" }
-
-wdmcf = { module = "me.bymartrixx:wdmcf", version.ref = "wdmcf" }
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detect" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 loom = { id = "fabric-loom", version = "1.10.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
-# https://github.com/johnrengelman/shadow/issues/894
-shadow = { id = "io.github.goooler.shadow", version = "8.1.7" }
