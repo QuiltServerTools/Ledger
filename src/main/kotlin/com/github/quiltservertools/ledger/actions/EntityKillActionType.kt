@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.EntityTrackerEntry
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Uuids
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.Vec3d
 
 class EntityKillActionType : AbstractActionType() {
@@ -19,17 +20,23 @@ class EntityKillActionType : AbstractActionType() {
 
     override fun getTranslationType() = "entity"
 
-    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
-        val world = player.server.getWorld(world)
-
+    private fun getEntity(world: ServerWorld): Entity? {
         val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
-        if (entityType.isEmpty) return
+        if (entityType.isEmpty) return null
 
-        val entity: LivingEntity = (entityType.get().create(world, SpawnReason.COMMAND) as LivingEntity?)!!
+        val entity = entityType.get().create(world, SpawnReason.COMMAND)!!
         entity.readNbt(StringNbtReader.readCompound(extraData))
-        entity.health = entity.defaultMaxHealth.toFloat()
         entity.velocity = Vec3d.ZERO
         entity.fireTicks = 0
+        if (entity is LivingEntity) entity.health = entity.defaultMaxHealth.toFloat()
+
+        return entity
+    }
+
+    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
+        val world = player.server.getWorld(world)!!
+        val entity = getEntity(world)
+
         val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, { }, { _, _ -> })
         entityTrackerEntry.startTracking(player)
         preview.spawnedEntityTrackers.add(entityTrackerEntry)
@@ -52,22 +59,11 @@ class EntityKillActionType : AbstractActionType() {
     }
 
     override fun rollback(server: MinecraftServer): Boolean {
-        val world = server.getWorld(world)
+        val world = server.getWorld(world)!!
+        val entity = getEntity(world) ?: return false
 
-        val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
-        if (entityType.isPresent) {
-            val entity = entityType.get().create(world, SpawnReason.COMMAND)!!
-            entity.readNbt(StringNbtReader.readCompound(extraData))
-            entity.velocity = Vec3d.ZERO
-            entity.fireTicks = 0
-            if (entity is LivingEntity) entity.health = entity.defaultMaxHealth.toFloat()
-
-            world?.spawnEntity(entity)
-
-            return true
-        }
-
-        return false
+        world.spawnEntity(entity)
+        return true
     }
 
     override fun restore(server: MinecraftServer): Boolean {
