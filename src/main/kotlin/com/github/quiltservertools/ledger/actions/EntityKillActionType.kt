@@ -11,8 +11,8 @@ import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.EntityTrackerEntry
 import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.Uuids
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.Uuids
 import net.minecraft.util.math.Vec3d
 
 class EntityKillActionType : AbstractActionType() {
