@@ -28,7 +28,7 @@ open class BlockChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         world?.setBlockState(pos, oldBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
-        world?.getBlockEntity(pos)?.read(StringNbtReader.parse(extraData), server.registryManager)
+        world?.getBlockEntity(pos)?.read(StringNbtReader.readCompound(extraData), server.registryManager)
         world?.chunkManager?.markForUpdate(pos)
 
         return true
@@ -72,8 +72,7 @@ open class BlockChangeActionType : AbstractActionType() {
             )
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
+                HoverEvent.ShowText(
                     oldObjectIdentifier.toString().literal()
                 )
             )
@@ -89,8 +88,7 @@ open class BlockChangeActionType : AbstractActionType() {
                     )
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
-                        HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT,
+                        HoverEvent.ShowText(
                             objectIdentifier.toString().literal()
                         )
                     )
@@ -104,7 +102,7 @@ open class BlockChangeActionType : AbstractActionType() {
         oldObjectIdentifier,
         oldObjectState?.let {
         NbtUtils.blockStateFromProperties(
-            StringNbtReader.parse(it),
+            StringNbtReader.readCompound(it),
             oldObjectIdentifier,
             blockLookup
         )
@@ -115,7 +113,7 @@ open class BlockChangeActionType : AbstractActionType() {
         objectIdentifier,
         objectState?.let {
         NbtUtils.blockStateFromProperties(
-            StringNbtReader.parse(it),
+            StringNbtReader.readCompound(it),
             objectIdentifier,
             blockLookup
         )

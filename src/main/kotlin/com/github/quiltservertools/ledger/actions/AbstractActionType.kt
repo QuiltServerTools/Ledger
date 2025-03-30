@@ -76,8 +76,7 @@ abstract class AbstractActionType : ActionType {
     open fun getActionMessage(): Text = Text.translatable("text.ledger.action.$identifier")
         .styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
+                HoverEvent.ShowText(
                     identifier.literal()
                 )
             )
@@ -90,8 +89,7 @@ abstract class AbstractActionType : ActionType {
         )
     ).setStyle(TextColorPallet.secondaryVariant).styled {
         it.withHoverEvent(
-            HoverEvent(
-                HoverEvent.Action.SHOW_TEXT,
+            HoverEvent.ShowText(
                 objectIdentifier.toString().literal()
             )
         )
@@ -101,14 +99,12 @@ abstract class AbstractActionType : ActionType {
         .setStyle(TextColorPallet.secondary)
         .styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
+                HoverEvent.ShowText(
                     Text.literal(world?.let { "$it\n" } ?: "")
                         .append(Text.translatable("text.ledger.action_message.location.hover"))
                 )
             ).withClickEvent(
-                ClickEvent(
-                    ClickEvent.Action.RUN_COMMAND,
+                ClickEvent.RunCommand(
                     "/lg tp ${world ?: World.OVERWORLD.value} ${pos.x} ${pos.y} ${pos.z}"
                 )
             )

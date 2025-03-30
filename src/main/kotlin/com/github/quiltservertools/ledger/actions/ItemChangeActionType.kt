@@ -42,9 +42,8 @@ abstract class ItemChangeActionType : AbstractActionType() {
             stack.itemName
         ).setStyle(TextColorPallet.secondaryVariant).styled {
             it.withHoverEvent(
-                HoverEvent(
-                    HoverEvent.Action.SHOW_ITEM,
-                    HoverEvent.ItemStackContent(stack)
+                HoverEvent.ShowItem(
+                    stack
                 )
             )
         }

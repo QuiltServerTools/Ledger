@@ -19,6 +19,7 @@ import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
+import net.minecraft.util.Uuids
 
 class EntityChangeActionType : AbstractActionType() {
     override val identifier = "entity-change"
@@ -35,7 +36,7 @@ class EntityChangeActionType : AbstractActionType() {
     private fun getStack(registryManager: DynamicRegistryManager): ItemStack {
         if (extraData == null) return ItemStack.EMPTY
         try {
-            val itemTag = StringNbtReader.parse(extraData)
+            val itemTag = StringNbtReader.readCompound(extraData)
             return ItemStack.fromNbt(registryManager, itemTag).orElse(ItemStack.EMPTY)
         } catch (_: CommandSyntaxException) {
             // In an earlier version of ledger extraData only stored the item id
@@ -54,8 +55,7 @@ class EntityChangeActionType : AbstractActionType() {
                 )
             ).setStyle(TextColorPallet.secondaryVariant).styled {
                 it.withHoverEvent(
-                    HoverEvent(
-                        HoverEvent.Action.SHOW_TEXT,
+                    HoverEvent.ShowText(
                         objectIdentifier.toString().literal()
                     )
                 )
@@ -70,9 +70,8 @@ class EntityChangeActionType : AbstractActionType() {
                     stack.item.translationKey
                 ).setStyle(TextColorPallet.secondaryVariant).styled {
                     it.withHoverEvent(
-                        HoverEvent(
-                            HoverEvent.Action.SHOW_ITEM,
-                            HoverEvent.ItemStackContent(stack)
+                        HoverEvent.ShowItem(
+                            stack
                         )
                     )
                 }
@@ -84,9 +83,10 @@ class EntityChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = StringNbtReader.parse(oldObjectState)
-        val uuid = oldEntity!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val oldEntity = StringNbtReader.readCompound(oldObjectState)
+        val optionalUUID = oldEntity.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
             if (entity is ItemFrameEntity) {
@@ -103,9 +103,10 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val newEntity = StringNbtReader.parse(objectState)
-        val uuid = newEntity!!.getUuid(UUID) ?: return false
-        val entity = world?.getEntity(uuid)
+        val newEntity = StringNbtReader.readCompound(objectState)
+        val optionalUUID = newEntity.get(UUID, Uuids.INT_STREAM_CODEC)
+        if (optionalUUID.isEmpty) return false
+        val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
             if (entity is ItemFrameEntity) {

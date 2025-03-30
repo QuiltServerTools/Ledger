@@ -9,7 +9,6 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,19 +27,19 @@ public abstract class ServerPlayerEntityMixin {
     // synthetic field ServerPlayerEntity from the outer class
     @Final
     @Shadow
-    ServerPlayerEntity field_29182;
+    ServerPlayerEntity field_58075;
 
     @ModifyArg(
             method = "updateState",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/network/packet/s2c/play/InventoryS2CPacket;<init>(IILnet/minecraft/util/collection/DefaultedList;Lnet/minecraft/item/ItemStack;)V"
+                    target = "Lnet/minecraft/network/packet/s2c/play/InventoryS2CPacket;<init>(IILjava/util/List;Lnet/minecraft/item/ItemStack;)V"
             ), index = 2
     )
-    private DefaultedList<ItemStack> modifyStacks(DefaultedList<ItemStack> stacks, @Local(argsOnly = true) ScreenHandler handler) {
+    private List<ItemStack> modifyStacks(List<ItemStack> stacks, @Local(argsOnly = true) ScreenHandler handler) {
         BlockPos pos = ((HandlerWithContext) handler).getPos();
         if (pos == null) return stacks;
-        Preview preview = Ledger.previewCache.get(field_29182.getUuid());
+        Preview preview = Ledger.previewCache.get(field_58075.getUuid());
         if (preview == null) return stacks;
         List<Pair<ItemStack, Boolean>> modifiedItems = preview.getModifiedItems().get(pos);
         if (modifiedItems == null) return stacks;
