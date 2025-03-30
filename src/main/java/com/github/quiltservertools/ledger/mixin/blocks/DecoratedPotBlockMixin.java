@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DecoratedPotBlock.class)
 public abstract class DecoratedPotBlockMixin {
-    @Inject(method = "onUseWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/DecoratedPotBlockEntity;markDirty()V"))
+    @Inject(method = "onUseWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;splitUnlessCreative(ILnet/minecraft/entity/LivingEntity;)Lnet/minecraft/item/ItemStack;"))
     public void logItemInsert(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir, @Local DecoratedPotBlockEntity decoratedPotBlockEntity) {
         ItemInsertCallback.EVENT.invoker().insert(stack.copyWithCount(1), pos, (ServerWorld) world, Sources.PLAYER, (ServerPlayerEntity) player);
     }
