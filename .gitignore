@@ -2,6 +2,7 @@
 .gradle/
 build/
 out/
+.kotlin/
 
 # idea
 .idea/
