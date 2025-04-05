@@ -10,6 +10,7 @@
     "BucketDispenserBehaviorMixin",
     "BucketItemMixin",
     "CampfireBlockEntityMixin",
+    "ChestBlockMixin",
     "DoubleInventoryMixin",
     "DyeItemMixin",
     "ExplosionImplMixin",
