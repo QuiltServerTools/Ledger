@@ -7,7 +7,6 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.launch
 import net.minecraft.block.BedBlock
 import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.DoorBlock
 import net.minecraft.block.enums.BedPart
@@ -60,7 +59,7 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
         var area = BlockBox(pos)
 
         val state = source.world.getBlockState(pos)
-        if (state.isOf(Blocks.CHEST)) {
+        if (state.block is ChestBlock) {
             getOtherChestSide(state, pos)?.let {
                 area = BlockBox.create(pos, it)
             }
