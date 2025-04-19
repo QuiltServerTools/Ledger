@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.listeners
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
+import com.github.quiltservertools.ledger.callbacks.EntityRideCallback
 import com.github.quiltservertools.ledger.callbacks.ItemDropCallback
 import com.github.quiltservertools.ledger.callbacks.ItemPickUpCallback
 import com.github.quiltservertools.ledger.database.ActionQueueService
@@ -17,6 +18,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.entity.Entity
 import net.minecraft.entity.ItemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
@@ -38,6 +40,7 @@ fun registerPlayerListeners() {
     UseBlockCallback.EVENT.register(::onUseBlock)
     ItemPickUpCallback.EVENT.register(::onItemPickUp)
     ItemDropCallback.EVENT.register(::onItemDrop)
+    EntityRideCallback.EVENT.register(::onEntityRide)
 }
 
 fun onLeave(handler: ServerPlayNetworkHandler, server: MinecraftServer) {
@@ -126,4 +129,11 @@ private fun onItemDrop(
     player: PlayerEntity
 ) {
     ActionQueueService.addToQueue(ActionFactory.itemDropAction(entity, player))
+}
+
+private fun onEntityRide(
+    entity: Entity,
+    playerEntity: PlayerEntity,
+) {
+    ActionQueueService.addToQueue(ActionFactory.entityRideAction(entity, playerEntity))
 }

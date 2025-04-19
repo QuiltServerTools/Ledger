@@ -6,6 +6,7 @@ import com.github.quiltservertools.ledger.actions.BlockChangeActionType
 import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityChangeActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
+import com.github.quiltservertools.ledger.actions.EntityMountActionType
 import com.github.quiltservertools.ledger.actions.ItemDropActionType
 import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemPickUpActionType
@@ -207,10 +208,12 @@ object ActionFactory {
                 setEntityData(action, pos, world, entity, Sources.PLAYER)
                 action.sourceProfile = killer.gameProfile
             }
+
             killer != null -> {
                 val source = Registries.ENTITY_TYPE.getId(killer.type).path
                 setEntityData(action, pos, world, entity, source)
             }
+
             else -> {
                 setEntityData(action, pos, world, entity, cause.name)
             }
@@ -265,6 +268,27 @@ object ActionFactory {
         if (entityActor is PlayerEntity) {
             action.sourceProfile = entityActor.gameProfile
         }
+
+        return action
+    }
+
+    fun entityRideAction(
+        entity: Entity,
+        player: PlayerEntity,
+    ): EntityMountActionType {
+        val world = entity.world
+
+        val action = EntityMountActionType()
+
+        action.pos = entity.blockPos
+        action.world = world.registryKey.value
+        action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
+        action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
+
+        action.objectState = entity.writeNbt(NbtCompound())?.toString()
+        action.sourceName = Sources.PLAYER
+
+        action.sourceProfile = player.gameProfile
 
         return action
     }
