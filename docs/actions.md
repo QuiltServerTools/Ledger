@@ -8,3 +8,5 @@ These are the currently logged action types:
 - item-insert
 - item-remove
 - entity-killed
+- entity-mount
+- entity-dismount
