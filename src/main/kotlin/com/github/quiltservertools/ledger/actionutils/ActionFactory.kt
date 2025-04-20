@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.actions.BlockBreakActionType
 import com.github.quiltservertools.ledger.actions.BlockChangeActionType
 import com.github.quiltservertools.ledger.actions.BlockPlaceActionType
 import com.github.quiltservertools.ledger.actions.EntityChangeActionType
+import com.github.quiltservertools.ledger.actions.EntityDismountActionType
 import com.github.quiltservertools.ledger.actions.EntityKillActionType
 import com.github.quiltservertools.ledger.actions.EntityMountActionType
 import com.github.quiltservertools.ledger.actions.ItemDropActionType
@@ -272,13 +273,34 @@ object ActionFactory {
         return action
     }
 
-    fun entityRideAction(
+    fun entityMountAction(
         entity: Entity,
         player: PlayerEntity,
     ): EntityMountActionType {
         val world = entity.world
 
         val action = EntityMountActionType()
+
+        action.pos = entity.blockPos
+        action.world = world.registryKey.value
+        action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
+        action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
+
+        action.objectState = entity.writeNbt(NbtCompound())?.toString()
+        action.sourceName = Sources.PLAYER
+
+        action.sourceProfile = player.gameProfile
+
+        return action
+    }
+
+    fun entityDismountAction(
+        entity: Entity,
+        player: PlayerEntity,
+    ): EntityDismountActionType {
+        val world = entity.world
+
+        val action = EntityDismountActionType()
 
         action.pos = entity.blockPos
         action.world = world.registryKey.value

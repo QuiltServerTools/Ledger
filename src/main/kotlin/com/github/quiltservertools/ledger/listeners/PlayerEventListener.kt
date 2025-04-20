@@ -2,7 +2,8 @@ package com.github.quiltservertools.ledger.listeners
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
-import com.github.quiltservertools.ledger.callbacks.EntityRideCallback
+import com.github.quiltservertools.ledger.callbacks.EntityDismountCallback
+import com.github.quiltservertools.ledger.callbacks.EntityMountCallback
 import com.github.quiltservertools.ledger.callbacks.ItemDropCallback
 import com.github.quiltservertools.ledger.callbacks.ItemPickUpCallback
 import com.github.quiltservertools.ledger.database.ActionQueueService
@@ -40,7 +41,8 @@ fun registerPlayerListeners() {
     UseBlockCallback.EVENT.register(::onUseBlock)
     ItemPickUpCallback.EVENT.register(::onItemPickUp)
     ItemDropCallback.EVENT.register(::onItemDrop)
-    EntityRideCallback.EVENT.register(::onEntityRide)
+    EntityMountCallback.EVENT.register(::onEntityMount)
+    EntityDismountCallback.EVENT.register(::onEntityDismount)
 }
 
 fun onLeave(handler: ServerPlayNetworkHandler, server: MinecraftServer) {
@@ -131,9 +133,16 @@ private fun onItemDrop(
     ActionQueueService.addToQueue(ActionFactory.itemDropAction(entity, player))
 }
 
-private fun onEntityRide(
+private fun onEntityMount(
     entity: Entity,
     playerEntity: PlayerEntity,
 ) {
-    ActionQueueService.addToQueue(ActionFactory.entityRideAction(entity, playerEntity))
+    ActionQueueService.addToQueue(ActionFactory.entityMountAction(entity, playerEntity))
+}
+
+private fun onEntityDismount(
+    entity: Entity,
+    playerEntity: PlayerEntity,
+) {
+    ActionQueueService.addToQueue(ActionFactory.entityDismountAction(entity, playerEntity))
 }

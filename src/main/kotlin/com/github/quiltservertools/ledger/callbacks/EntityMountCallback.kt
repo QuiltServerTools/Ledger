@@ -5,16 +5,16 @@ import net.fabricmc.fabric.api.event.EventFactory
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.PlayerEntity
 
-fun interface EntityRideCallback {
-    fun ride(entity: Entity, playerEntity: PlayerEntity)
+fun interface EntityMountCallback {
+    fun mount(entity: Entity, playerEntity: PlayerEntity)
 
     companion object {
         @JvmField
-        val EVENT: Event<EntityRideCallback> =
-            EventFactory.createArrayBacked(EntityRideCallback::class.java) { listeners ->
-                EntityRideCallback { entity, player ->
+        val EVENT: Event<EntityMountCallback> =
+            EventFactory.createArrayBacked(EntityMountCallback::class.java) { listeners ->
+                EntityMountCallback { entity, player ->
                     for (listener in listeners) {
-                        listener.ride(entity, player)
+                        listener.mount(entity, player)
                     }
                 }
             }

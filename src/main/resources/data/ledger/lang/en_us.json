@@ -59,6 +59,7 @@
     "text.ledger.action.entity-kill": "killed",
     "text.ledger.action.entity-change": "changed",
     "text.ledger.action.entity-mount": "mounted",
+    "text.ledger.action.entity-dismount": "dismounted",
 
     "text.ledger.parameter.action.description": "Filter by type of performed action.",
     "text.ledger.parameter.after.description": "Filter by time (after the provided time).",

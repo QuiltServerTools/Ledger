@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.mixin;
 
-import com.github.quiltservertools.ledger.callbacks.EntityRideCallback;
+import com.github.quiltservertools.ledger.callbacks.EntityMountCallback;
 import com.github.quiltservertools.ledger.utility.HandlerWithContext;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.entity.BlockEntity;
@@ -8,7 +8,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,6 +38,6 @@ public abstract class ServerPlayerEntityMixin {
             return;
         }
 
-        EntityRideCallback.EVENT.invoker().ride(entity, player);
+        EntityMountCallback.EVENT.invoker().mount(entity, player);
     }
 }
