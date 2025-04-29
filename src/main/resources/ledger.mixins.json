@@ -89,7 +89,6 @@
     "entities.LightningEntityMixin",
     "entities.LivingEntityMixin",
     "entities.MobEntityMixin",
-    "entities.PlayerEntityMixin",
     "entities.RavagerEntityMixin",
     "entities.ServerPlayerEntityMixin",
     "entities.SheepEntityMixin",
