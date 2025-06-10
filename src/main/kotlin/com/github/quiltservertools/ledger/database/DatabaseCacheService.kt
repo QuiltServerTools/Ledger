@@ -1,18 +1,18 @@
 package com.github.quiltservertools.ledger.database
 
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
+import com.google.common.collect.BiMap
+import com.google.common.collect.HashBiMap
 import net.minecraft.util.Identifier
 import java.util.UUID
 
 object DatabaseCacheService {
-    val actionIdentifierKeys: Cache<String, Int> = CacheBuilder.newBuilder().build()
+    val actionIdentifierKeys: BiMap<String, Int> = HashBiMap.create()
 
-    val worldIdentifierKeys: Cache<Identifier, Int> = CacheBuilder.newBuilder().build()
+    val worldIdentifierKeys: BiMap<Identifier, Int> = HashBiMap.create()
 
-    val objectIdentifierKeys: Cache<Identifier, Int> = CacheBuilder.newBuilder().build()
+    val objectIdentifierKeys: BiMap<Identifier, Int> = HashBiMap.create()
 
-    val sourceKeys: Cache<String, Int> = CacheBuilder.newBuilder().build()
+    val sourceKeys: BiMap<String, Int> = HashBiMap.create()
 
-    val playerKeys: Cache<UUID, Int> = CacheBuilder.newBuilder().build()
+    val playerKeys: BiMap<UUID, Int> = HashBiMap.create()
 }
