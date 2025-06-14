@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.blocks.sign;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
+import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.block.BlockState;
@@ -54,7 +55,7 @@ public abstract class SignBlockEntityMixin {
         BlockState state = instance.getCachedState();
 
         // a bad hack to copy the old sign block entity for rollbacks
-        @Nullable BlockEntity oldSignEntity = BlockEntity.createFromNbt(pos, state, instance.createNbtWithId(registryManager), registryManager);
+        @Nullable BlockEntity oldSignEntity = BlockEntity.createFromNbt(pos, state, NbtUtils.INSTANCE.createNbt(instance, registryManager), registryManager);
 
         boolean result = original.call(instance, textChanger, front);
         if (result && oldSignEntity != null) {

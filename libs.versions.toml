@@ -1,17 +1,17 @@
 [versions]
-minecraft = "1.21.5"
-yarn-mappings = "1.21.5+build.1"
-fabric-loader = "0.16.10"
+minecraft = "1.21.6-rc1"
+yarn-mappings = "1.21.6-rc1+build.1"
+fabric-loader = "0.16.14"
 
-fabric-api = "0.119.5+1.21.5"
+fabric-api = "0.126.1+1.21.6"
 
 # Kotlin
 kotlin = "2.1.0"
 # Also modrinth version in gradle.properties
 fabric-kotlin = "1.13.0+kotlin.2.1.0"
 
-fabric-permissions = "0.3.3"
-translations = "2.5.0+1.21.5-rc1"
+fabric-permissions = "0.4.0-SNAPSHOT"
+translations = "2.5.1+1.21.5"
 
 exposed = "0.58.0"
 sqlite-jdbc = "3.47.2.0"

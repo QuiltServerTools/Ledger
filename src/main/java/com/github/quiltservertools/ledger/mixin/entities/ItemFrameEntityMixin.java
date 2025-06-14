@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
+import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -31,7 +32,7 @@ public abstract class ItemFrameEntityMixin {
     @Inject(method = "interact", at = @At(value = "HEAD"))
     private void ledgerLogOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Entity entity = (Entity) (Object) this;
-        oldEntityTags = entity.writeNbt(new NbtCompound());
+        oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
     }
 
     @Inject(method = "dropHeldStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V"))
@@ -40,7 +41,7 @@ public abstract class ItemFrameEntityMixin {
             return;
         }
         Entity entity = (Entity) (Object) this;
-        oldEntityTags = entity.writeNbt(new NbtCompound());
+        oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
     }
 
     @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER))

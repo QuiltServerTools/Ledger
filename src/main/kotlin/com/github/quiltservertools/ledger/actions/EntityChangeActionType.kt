@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
@@ -15,8 +16,10 @@ import net.minecraft.registry.DynamicRegistryManager
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.storage.NbtReadView
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.ErrorReporter
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 import net.minecraft.util.Uuids
@@ -36,8 +39,12 @@ class EntityChangeActionType : AbstractActionType() {
     private fun getStack(registryManager: DynamicRegistryManager): ItemStack {
         if (extraData == null) return ItemStack.EMPTY
         try {
-            val itemTag = StringNbtReader.readCompound(extraData)
-            return ItemStack.fromNbt(registryManager, itemTag).orElse(ItemStack.EMPTY)
+            val readView = NbtReadView.create(
+                ErrorReporter.EMPTY,
+                registryManager,
+                StringNbtReader.readCompound(extraData)
+            )
+            return readView.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY)
         } catch (_: CommandSyntaxException) {
             // In an earlier version of ledger extraData only stored the item id
             val item = Registries.ITEM.get(Identifier.of(extraData))
@@ -89,12 +96,15 @@ class EntityChangeActionType : AbstractActionType() {
         val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
-            if (entity is ItemFrameEntity) {
-                entity.heldItemStack = ItemStack.EMPTY
-            }
-            when (entity) {
-                is LivingEntity -> entity.readCustomDataFromNbt(oldEntity)
-                is AbstractDecorationEntity -> entity.readCustomDataFromNbt(oldEntity)
+            ErrorReporter.Logging({ "ledger:rollback:entity-change@$pos" }, LOGGER).use {
+                val readView = NbtReadView.create(it, server.registryManager, oldEntity)
+                if (entity is ItemFrameEntity) {
+                    entity.heldItemStack = ItemStack.EMPTY
+                }
+                when (entity) {
+                    is LivingEntity -> entity.readData(readView)
+                    is AbstractDecorationEntity -> entity.readData(readView)
+                }
             }
             return true
         }
@@ -109,12 +119,15 @@ class EntityChangeActionType : AbstractActionType() {
         val entity = world?.getEntity(optionalUUID.get())
 
         if (entity != null) {
-            if (entity is ItemFrameEntity) {
-                entity.heldItemStack = ItemStack.EMPTY
-            }
-            when (entity) {
-                is LivingEntity -> entity.readCustomDataFromNbt(newEntity)
-                is AbstractDecorationEntity -> entity.readCustomDataFromNbt(newEntity)
+            ErrorReporter.Logging({ "ledger:restore:entity-change@$pos" }, LOGGER).use {
+                val readView = NbtReadView.create(it, server.registryManager, newEntity)
+                if (entity is ItemFrameEntity) {
+                    entity.heldItemStack = ItemStack.EMPTY
+                }
+                when (entity) {
+                    is LivingEntity -> entity.readData(readView)
+                    is AbstractDecorationEntity -> entity.readData(readView)
+                }
             }
             return true
         }

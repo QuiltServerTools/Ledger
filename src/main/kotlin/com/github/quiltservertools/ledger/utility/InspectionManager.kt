@@ -135,7 +135,7 @@ private fun getOtherBedPart(state: BlockState, pos: BlockPos): BlockPos {
 }
 
 suspend fun ServerPlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
-    val source = this.getCommandSource(this.serverWorld)
+    val source = this.commandSource
     val params = ActionSearchParams.build {
         bounds = BlockBox(pos)
     }

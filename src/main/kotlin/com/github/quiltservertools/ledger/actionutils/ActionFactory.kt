@@ -11,6 +11,7 @@ import com.github.quiltservertools.ledger.actions.ItemInsertActionType
 import com.github.quiltservertools.ledger.actions.ItemPickUpActionType
 import com.github.quiltservertools.ledger.actions.ItemRemoveActionType
 import com.github.quiltservertools.ledger.utility.NbtUtils
+import com.github.quiltservertools.ledger.utility.NbtUtils.createNbt
 import com.github.quiltservertools.ledger.utility.Sources
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
@@ -147,7 +148,7 @@ object ActionFactory {
 
         setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
 
-        action.oldObjectState = entity.writeNbt(NbtCompound())?.toString()
+        action.oldObjectState = entity.createNbt().toString()
         action.sourceProfile = source.gameProfile
 
         return action
@@ -161,7 +162,7 @@ object ActionFactory {
 
         setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
 
-        action.objectState = entity.writeNbt(NbtCompound())?.toString()
+        action.objectState = entity.createNbt().toString()
         action.sourceProfile = source.gameProfile
 
         return action
@@ -194,7 +195,7 @@ object ActionFactory {
         action.objectIdentifier = Registries.ITEM.getId(stack.item)
         action.sourceName = source
         if (!stack.isEmpty) {
-            action.extraData = stack.toNbt(world.registryManager)?.toString()
+            action.extraData = stack.createNbt(world.registryManager).toString()
         }
     }
 
@@ -236,7 +237,7 @@ object ActionFactory {
         action.world = world.registryKey.value
         action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
         action.sourceName = source
-        action.extraData = entity.writeNbt(NbtCompound())?.toString()
+        action.extraData = entity.createNbt().toString()
     }
 
     fun entityChangeAction(
@@ -256,10 +257,10 @@ object ActionFactory {
         action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
 
         if (itemStack != null && !itemStack.isEmpty) {
-            action.extraData = itemStack.toNbt(world.registryManager)?.toString()
+            action.extraData = itemStack.createNbt(world.registryManager).toString()
         }
         action.oldObjectState = oldEntityTags.toString()
-        action.objectState = entity.writeNbt(NbtCompound())?.toString()
+        action.objectState = entity.createNbt().toString()
         action.sourceName = sourceType
 
         if (entityActor is PlayerEntity) {
