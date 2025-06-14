@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
+import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.WolfEntity;
@@ -22,7 +23,7 @@ public abstract class WolfEntityMixin {
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/WolfEntity;setCollarColor(Lnet/minecraft/util/DyeColor;)V"))
     private void ledgerOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        oldEntityTags = entity.writeNbt(new NbtCompound());
+        oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
     }
 
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/WolfEntity;setCollarColor(Lnet/minecraft/util/DyeColor;)V", shift = At.Shift.AFTER))
