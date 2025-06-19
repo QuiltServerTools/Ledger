@@ -10,6 +10,13 @@
     "aliases": []
   },
   {
+    "version": "1.3.11",
+    "title": "1.3.11",
+    "aliases": [
+      "latest"
+    ]
+  },
+  {
     "version": "1.3.10",
     "title": "1.3.10",
     "aliases": []
@@ -27,9 +34,7 @@
   {
     "version": "1.3.8-backport",
     "title": "1.3.8-backport",
-    "aliases": [
-      "latest"
-    ]
+    "aliases": []
   },
   {
     "version": "1.3.7",
