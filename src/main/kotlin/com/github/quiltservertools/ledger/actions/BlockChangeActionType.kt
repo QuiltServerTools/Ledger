@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.logWarn
+import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
@@ -17,8 +18,10 @@ import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.storage.NbtReadView
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.ErrorReporter
 import net.minecraft.util.Identifier
 import net.minecraft.util.Util
 
@@ -28,7 +31,15 @@ open class BlockChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
         world?.setBlockState(pos, oldBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
-        world?.getBlockEntity(pos)?.read(StringNbtReader.readCompound(extraData), server.registryManager)
+        ErrorReporter.Logging({ "ledger:rollback:block-change@$pos" }, LOGGER).use {
+            world?.getBlockEntity(pos)?.read(
+                NbtReadView.create(
+                    it,
+                    server.registryManager,
+                    StringNbtReader.readCompound(extraData)
+                )
+            )
+        }
         world?.chunkManager?.markForUpdate(pos)
 
         return true
@@ -101,23 +112,23 @@ open class BlockChangeActionType : AbstractActionType() {
     fun oldBlockState(blockLookup: RegistryEntryLookup<Block>) = checkForBlockState(
         oldObjectIdentifier,
         oldObjectState?.let {
-        NbtUtils.blockStateFromProperties(
-            StringNbtReader.readCompound(it),
-            oldObjectIdentifier,
-            blockLookup
-        )
-    }
+            NbtUtils.blockStateFromProperties(
+                StringNbtReader.readCompound(it),
+                oldObjectIdentifier,
+                blockLookup
+            )
+        }
     )
 
     fun newBlockState(blockLookup: RegistryEntryLookup<Block>) = checkForBlockState(
         objectIdentifier,
         objectState?.let {
-        NbtUtils.blockStateFromProperties(
-            StringNbtReader.readCompound(it),
-            objectIdentifier,
-            blockLookup
-        )
-    }
+            NbtUtils.blockStateFromProperties(
+                StringNbtReader.readCompound(it),
+                objectIdentifier,
+                blockLookup
+            )
+        }
     )
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {

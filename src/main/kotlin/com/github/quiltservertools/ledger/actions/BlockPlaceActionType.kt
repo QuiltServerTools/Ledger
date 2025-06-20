@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
@@ -7,8 +8,10 @@ import net.minecraft.nbt.StringNbtReader
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.storage.NbtReadView
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.ErrorReporter
 import net.minecraft.util.Util
 
 class BlockPlaceActionType : BlockChangeActionType() {
@@ -28,7 +31,15 @@ class BlockPlaceActionType : BlockChangeActionType() {
             val state = newBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK))
             world.setBlockState(pos, state)
             if (state.hasBlockEntity()) {
-                world.getBlockEntity(pos)?.read(StringNbtReader.readCompound(extraData), server.registryManager)
+                ErrorReporter.Logging({ "ledger:restore:block-place@$pos" }, LOGGER).use {
+                    world.getBlockEntity(pos)?.read(
+                        NbtReadView.create(
+                            it,
+                            server.registryManager,
+                            StringNbtReader.readCompound(extraData)
+                        )
+                    )
+                }
             }
         }
 

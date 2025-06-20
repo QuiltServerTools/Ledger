@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
+import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.github.quiltservertools.ledger.utility.Sources;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.BlockState;
@@ -32,7 +33,7 @@ public abstract class SnowGolemEntityMixin {
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/sound/SoundCategory;Lnet/minecraft/item/ItemStack;)V"))
     private void ledgerOldEntity(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        oldEntityTags = entity.writeNbt(new NbtCompound());
+        oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
     }
 
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SnowGolemEntity;sheared(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/sound/SoundCategory;Lnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER))

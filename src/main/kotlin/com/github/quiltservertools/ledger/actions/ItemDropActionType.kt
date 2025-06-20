@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
@@ -11,8 +12,10 @@ import net.minecraft.entity.ItemEntity
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.storage.NbtReadView
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.ErrorReporter
 import net.minecraft.util.Uuids
 
 // TODO remove duplication from ItemPickUpActionType and ItemDropActionType
@@ -58,17 +61,20 @@ open class ItemDropActionType : AbstractActionType() {
     }
 
     override fun restore(server: MinecraftServer): Boolean {
-        val world = server.getWorld(world)
+        val world = server.getWorld(world)!!
 
         val newEntity = StringNbtReader.readCompound(objectState)
         val optionalUUID = newEntity!!.get(UUID, Uuids.INT_STREAM_CODEC)
         if (optionalUUID.isEmpty) return false
-        val entity = world?.getEntity(optionalUUID.get())
+        val entity = world.getEntity(optionalUUID.get())
 
         if (entity == null) {
             val entity = ItemEntity(EntityType.ITEM, world)
-            entity.readNbt(newEntity)
-            world?.spawnEntity(entity)
+            ErrorReporter.Logging({ "ledger:restore:item-drop@$pos" }, LOGGER).use {
+                val readView = NbtReadView.create(it, world.registryManager, newEntity)
+                entity.readData(readView)
+                world.spawnEntity(entity)
+            }
         }
         return true
     }

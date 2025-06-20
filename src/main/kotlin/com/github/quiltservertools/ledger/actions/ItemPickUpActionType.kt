@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.actions
 
+import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
@@ -11,8 +12,10 @@ import net.minecraft.entity.ItemEntity
 import net.minecraft.nbt.StringNbtReader
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.storage.NbtReadView
 import net.minecraft.text.HoverEvent
 import net.minecraft.text.Text
+import net.minecraft.util.ErrorReporter
 import net.minecraft.util.Uuids
 
 open class ItemPickUpActionType : AbstractActionType() {
@@ -42,17 +45,20 @@ open class ItemPickUpActionType : AbstractActionType() {
     }
 
     override fun rollback(server: MinecraftServer): Boolean {
-        val world = server.getWorld(world)
+        val world = server.getWorld(world)!!
 
         val oldEntity = StringNbtReader.readCompound(oldObjectState)
         val optionalUUID = oldEntity.get(UUID, Uuids.INT_STREAM_CODEC)
         if (optionalUUID.isEmpty) return false
-        val entity = world?.getEntity(optionalUUID.get())
+        val entity = world.getEntity(optionalUUID.get())
 
         if (entity == null) {
             val entity = ItemEntity(EntityType.ITEM, world)
-            entity.readNbt(oldEntity)
-            world?.spawnEntity(entity)
+            ErrorReporter.Logging({ "ledger:rollback:item-pick-up@$pos" }, LOGGER).use {
+                val readView = NbtReadView.create(it, world.registryManager, oldEntity)
+                entity.readData(readView)
+                world.spawnEntity(entity)
+            }
         }
         return true
     }

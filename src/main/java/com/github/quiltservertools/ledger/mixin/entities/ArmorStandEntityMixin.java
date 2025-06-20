@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin.entities;
 
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
+import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -29,7 +30,7 @@ public abstract class ArmorStandEntityMixin {
     @Inject(method = "equip", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ArmorStandEntity;equipStack(Lnet/minecraft/entity/EquipmentSlot;Lnet/minecraft/item/ItemStack;)V"))
     private void legerLogOldEntity(PlayerEntity player, EquipmentSlot slot, ItemStack playerStack, Hand hand, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        this.oldEntityTags = entity.writeNbt(new NbtCompound());
+        this.oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
         this.oldEntityStack = entity.getEquippedStack(slot);
     }
 
