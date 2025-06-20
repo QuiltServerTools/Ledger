@@ -287,7 +287,7 @@ object ActionFactory {
         action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
         action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
 
-        action.objectState = entity.writeNbt(NbtCompound())?.toString()
+        action.objectState = entity.createNbt().toString()
         action.sourceName = Sources.PLAYER
 
         action.sourceProfile = player.gameProfile
@@ -308,7 +308,7 @@ object ActionFactory {
         action.objectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
         action.oldObjectIdentifier = Registries.ENTITY_TYPE.getId(entity.type)
 
-        action.objectState = entity.writeNbt(NbtCompound())?.toString()
+        action.objectState = entity.createNbt().toString()
         action.sourceName = Sources.PLAYER
 
         action.sourceProfile = player.gameProfile
