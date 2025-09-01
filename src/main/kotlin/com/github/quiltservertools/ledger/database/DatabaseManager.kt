@@ -1,6 +1,5 @@
 package com.github.quiltservertools.ledger.database
 
-import MigrationUtils
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
@@ -34,6 +33,7 @@ import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
@@ -108,15 +108,14 @@ object DatabaseManager {
 
     fun ensureTables() = transaction {
         addLogger(ledgerLogger)
-        MigrationUtils.statementsRequiredForDatabaseMigration(
+        SchemaUtils.create(
             Tables.Players,
             Tables.Actions,
             Tables.ActionIdentifiers,
             Tables.ObjectIdentifiers,
             Tables.Sources,
             Tables.Worlds,
-            withLogs = true
-        ).forEach(::exec)
+        )
         logInfo("Tables created")
     }
 

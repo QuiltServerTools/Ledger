@@ -1,24 +1,24 @@
 [versions]
-minecraft = "1.21.6"
-yarn-mappings = "1.21.6+build.1"
-fabric-loader = "0.16.14"
+minecraft = "1.21.8"
+yarn-mappings = "1.21.8+build.1"
+fabric-loader = "0.17.1"
 
-fabric-api = "0.127.1+1.21.6"
+fabric-api = "0.131.0+1.21.8"
 
 # Kotlin
-kotlin = "2.1.21"
+kotlin = "2.2.0"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.13.3+kotlin.2.1.21"
+fabric-kotlin = "1.13.4+kotlin.2.2.0"
 
-fabric-permissions = "0.4.0"
+fabric-permissions = "0.4.1"
 translations = "2.5.1+1.21.5"
 
-exposed = "0.58.0"
-sqlite-jdbc = "3.47.2.0"
+exposed = "0.61.0"
+sqlite-jdbc = "3.50.3.0"
 
 konf = "1.1.2"
 
-detekt = "1.23.7"
+detekt = "1.23.8"
 
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
@@ -45,5 +45,5 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-loom = { id = "fabric-loom", version = "1.10.+" }
+loom = { id = "fabric-loom", version = "1.11.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }
