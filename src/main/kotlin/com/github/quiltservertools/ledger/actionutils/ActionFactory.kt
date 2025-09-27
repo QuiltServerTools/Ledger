@@ -20,7 +20,9 @@ import net.minecraft.block.Blocks
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.ItemEntity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.passive.CopperGolemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
@@ -113,11 +115,18 @@ object ActionFactory {
         world: World,
         stack: ItemStack,
         pos: BlockPos,
-        source: PlayerEntity
+        source: LivingEntity
     ): ItemInsertActionType {
         val action = ItemInsertActionType()
-        setItemData(action, pos, world, stack, Sources.PLAYER)
-        action.sourceProfile = source.playerConfigEntry
+        var sourceType = Sources.UNKNOWN
+        if (source is PlayerEntity) {
+            sourceType = Sources.PLAYER
+            action.sourceProfile = source.playerConfigEntry
+        } else if (source is CopperGolemEntity) {
+            sourceType = Sources.COPPER_GOLEM
+            action.sourceName = sourceType
+        }
+        setItemData(action, pos, world, stack, sourceType)
 
         return action
     }
@@ -133,11 +142,18 @@ object ActionFactory {
         world: World,
         stack: ItemStack,
         pos: BlockPos,
-        source: PlayerEntity
+        source: LivingEntity
     ): ItemRemoveActionType {
         val action = ItemRemoveActionType()
-        setItemData(action, pos, world, stack, Sources.PLAYER)
-        action.sourceProfile = source.playerConfigEntry
+        var sourceType = Sources.UNKNOWN
+        if (source is PlayerEntity) {
+            sourceType = Sources.PLAYER
+            action.sourceProfile = source.playerConfigEntry
+        } else if (source is CopperGolemEntity) {
+            sourceType = Sources.COPPER_GOLEM
+            action.sourceName = sourceType
+        }
+        setItemData(action, pos, world, stack, sourceType)
 
         return action
     }
@@ -158,14 +174,18 @@ object ActionFactory {
 
     fun itemDropAction(
         entity: ItemEntity,
-        source: PlayerEntity
+        source: LivingEntity
     ): ItemDropActionType {
         val action = ItemDropActionType()
 
         setItemData(action, entity.blockPos, entity.entityWorld, entity.stack, Sources.PLAYER)
 
         action.objectState = entity.createNbt().toString()
-        action.sourceProfile = source.playerConfigEntry
+        if (source is PlayerEntity) {
+            action.sourceProfile = source.playerConfigEntry
+        } else if (source is CopperGolemEntity) {
+            action.sourceName = Sources.COPPER_GOLEM
+        }
 
         return action
     }
