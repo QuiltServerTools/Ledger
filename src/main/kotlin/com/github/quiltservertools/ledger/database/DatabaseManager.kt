@@ -15,13 +15,13 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.github.quiltservertools.ledger.utility.PlayerResult
 import com.google.common.collect.BiMap
-import com.mojang.authlib.GameProfile
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
+import net.minecraft.server.PlayerConfigEntry
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import org.jetbrains.exposed.dao.Entity
@@ -236,7 +236,7 @@ object DatabaseManager {
             type.oldObjectState = action[Tables.Actions.oldBlockState]
             type.sourceName = sourceCache[action[Tables.Actions.sourceName].value]!!
             type.sourceProfile = action.getOrNull(Tables.Actions.sourcePlayer)?.let {
-                Ledger.server.userCache?.getByUuid(playerCache[it.value]!!)?.orElse(null)
+                Ledger.server.apiServices.nameToIdCache?.getByUuid(playerCache[it.value]!!)?.orElse(null)
             }
             type.extraData = action[Tables.Actions.extraData]
             type.rolledBack = action[Tables.Actions.rolledBack]
@@ -439,7 +439,7 @@ object DatabaseManager {
         }
     }
 
-    suspend fun searchPlayers(players: Set<GameProfile>): List<PlayerResult> =
+    suspend fun searchPlayers(players: Set<PlayerConfigEntry>): List<PlayerResult> =
         execute {
             return@execute selectPlayers(players)
         }
@@ -659,10 +659,10 @@ object DatabaseManager {
             id inSubQuery Tables.Actions.select(id).where(buildQueryParams(params))
         }
 
-    private fun Transaction.selectPlayers(players: Set<GameProfile>): List<PlayerResult> {
+    private fun Transaction.selectPlayers(players: Set<PlayerConfigEntry>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
         for (player in players) {
-            query.orWhere { Tables.Players.playerId eq player.id }
+            query.orWhere { Tables.Players.playerId eq player.id() }
         }
 
         return Tables.Player.wrapRows(query).toList().map { PlayerResult.fromRow(it) }

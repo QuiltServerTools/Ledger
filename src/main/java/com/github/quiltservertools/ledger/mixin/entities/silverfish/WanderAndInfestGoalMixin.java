@@ -40,7 +40,7 @@ public abstract class WanderAndInfestGoalMixin extends WanderAroundGoal {
 
         BlockChangeCallback.EVENT.invoker()
                 .changeBlock(
-                        this.mob.getWorld(),
+                        this.mob.getEntityWorld(),
                         pos,
                         oldState,
                         state,

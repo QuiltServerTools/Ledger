@@ -50,7 +50,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     }
 
     protected fun previewItemChange(preview: Preview, player: ServerPlayerEntity, insert: Boolean) {
-        val world = player.world.server.getWorld(world)
+        val world = player.entityWorld.server.getWorld(world)
         val state = world?.getBlockState(pos)
         state?.isOf(Blocks.CHEST)?.let {
             if (it) {
@@ -66,7 +66,7 @@ abstract class ItemChangeActionType : AbstractActionType() {
     private fun addPreview(preview: Preview, player: ServerPlayerEntity, pos: BlockPos, insert: Boolean) {
         preview.modifiedItems.compute(pos) { _, list ->
             list ?: mutableListOf()
-        }?.add(Pair(getStack(player.world.server), insert))
+        }?.add(Pair(getStack(player.entityWorld.server), insert))
     }
 
     private fun getInventory(world: ServerWorld): Inventory? {

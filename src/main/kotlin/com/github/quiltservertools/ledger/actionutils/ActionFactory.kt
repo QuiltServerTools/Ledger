@@ -51,7 +51,7 @@ object ActionFactory {
         source: String = Sources.PLAYER
     ): BlockChangeActionType {
         val action = blockBreakAction(world, pos, state, source, entity)
-        action.sourceProfile = player.gameProfile
+        action.sourceProfile = player.playerConfigEntry
 
         return action
     }
@@ -78,7 +78,7 @@ object ActionFactory {
         source: String = Sources.PLAYER
     ): BlockChangeActionType {
         val action = blockPlaceAction(world, pos, state, source, entity)
-        action.sourceProfile = player.gameProfile
+        action.sourceProfile = player.playerConfigEntry
 
         return action
     }
@@ -117,7 +117,7 @@ object ActionFactory {
     ): ItemInsertActionType {
         val action = ItemInsertActionType()
         setItemData(action, pos, world, stack, Sources.PLAYER)
-        action.sourceProfile = source.gameProfile
+        action.sourceProfile = source.playerConfigEntry
 
         return action
     }
@@ -137,7 +137,7 @@ object ActionFactory {
     ): ItemRemoveActionType {
         val action = ItemRemoveActionType()
         setItemData(action, pos, world, stack, Sources.PLAYER)
-        action.sourceProfile = source.gameProfile
+        action.sourceProfile = source.playerConfigEntry
 
         return action
     }
@@ -148,10 +148,10 @@ object ActionFactory {
     ): ItemPickUpActionType {
         val action = ItemPickUpActionType()
 
-        setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
+        setItemData(action, entity.blockPos, entity.entityWorld, entity.stack, Sources.PLAYER)
 
         action.oldObjectState = entity.createNbt().toString()
-        action.sourceProfile = source.gameProfile
+        action.sourceProfile = source.playerConfigEntry
 
         return action
     }
@@ -162,10 +162,10 @@ object ActionFactory {
     ): ItemDropActionType {
         val action = ItemDropActionType()
 
-        setItemData(action, entity.blockPos, entity.world, entity.stack, Sources.PLAYER)
+        setItemData(action, entity.blockPos, entity.entityWorld, entity.stack, Sources.PLAYER)
 
         action.objectState = entity.createNbt().toString()
-        action.sourceProfile = source.gameProfile
+        action.sourceProfile = source.playerConfigEntry
 
         return action
     }
@@ -181,7 +181,7 @@ object ActionFactory {
     ): ActionType {
         val action = BlockChangeActionType()
         setBlockData(action, pos, world, newState, oldState, source, oldBlockEntity)
-        action.sourceProfile = player?.gameProfile
+        action.sourceProfile = player?.playerConfigEntry
         return action
     }
 
@@ -208,7 +208,7 @@ object ActionFactory {
         when {
             killer is PlayerEntity -> {
                 setEntityData(action, pos, world, entity, Sources.PLAYER)
-                action.sourceProfile = killer.gameProfile
+                action.sourceProfile = killer.playerConfigEntry
             }
 
             killer != null -> {
@@ -268,7 +268,7 @@ object ActionFactory {
         action.sourceName = sourceType
 
         if (entityActor is PlayerEntity) {
-            action.sourceProfile = entityActor.gameProfile
+            action.sourceProfile = entityActor.playerConfigEntry
         }
 
         return action
@@ -278,7 +278,7 @@ object ActionFactory {
         entity: Entity,
         player: PlayerEntity,
     ): EntityMountActionType {
-        val world = entity.world
+        val world = entity.entityWorld
 
         val action = EntityMountActionType()
 
@@ -290,7 +290,7 @@ object ActionFactory {
         action.objectState = entity.createNbt().toString()
         action.sourceName = Sources.PLAYER
 
-        action.sourceProfile = player.gameProfile
+        action.sourceProfile = player.playerConfigEntry
 
         return action
     }
@@ -299,7 +299,7 @@ object ActionFactory {
         entity: Entity,
         player: PlayerEntity,
     ): EntityDismountActionType {
-        val world = entity.world
+        val world = entity.entityWorld
 
         val action = EntityDismountActionType()
 
@@ -311,7 +311,7 @@ object ActionFactory {
         action.objectState = entity.createNbt().toString()
         action.sourceName = Sources.PLAYER
 
-        action.sourceProfile = player.gameProfile
+        action.sourceProfile = player.playerConfigEntry
 
         return action
     }

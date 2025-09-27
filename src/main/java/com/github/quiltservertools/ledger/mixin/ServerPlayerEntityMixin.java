@@ -31,7 +31,7 @@ public abstract class ServerPlayerEntityMixin {
     }
 
     @Inject(method = "startRiding", at = @At(value = "RETURN"))
-    public void onPlayerStartedRiding(Entity entity, boolean force, CallbackInfoReturnable<Boolean> cir) {
+    public void onPlayerStartedRiding(Entity entity, boolean force, boolean emitEvent, CallbackInfoReturnable<Boolean> cir) {
         ServerPlayerEntity player = (ServerPlayerEntity) (Object) this;
 
         if (!cir.getReturnValue()) {

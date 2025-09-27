@@ -152,7 +152,7 @@ object SearchParamArgument {
                             builder.sourceNames!!.add(nonPlayer)
                         }
                     } else {
-                        val profile = source.server.userCache?.findByName(sourceInput.property)
+                        val profile = source.server.apiServices.nameToIdCache?.findByName(sourceInput.property)
                         // If the player doesn't exist use a random UUID to make the query not match
                         val id = profile?.orElse(null)?.id ?: UUID.randomUUID()
 

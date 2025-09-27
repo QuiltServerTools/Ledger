@@ -66,7 +66,7 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
 
     @Inject(method = "onClosed", at = @At(value = "RETURN"))
     private void ledgerCloseScreenLogChanges(PlayerEntity player, CallbackInfo ci) {
-        if (!player.getWorld().isClient && pos != null) {
+        if (!player.getEntityWorld().isClient() && pos != null) {
             for (var pair : changedStacks.keySet()) {
                 ItemStack stack = new ItemStack(Registries.ITEM.getEntry(pair.getItem()), 1, pair.getChanges());
                 if (stack.isEmpty()) {
@@ -82,11 +82,11 @@ public abstract class ScreenHandlerMixin implements HandlerWithContext {
                 }
                 if (count > 0) {
                     for (ItemStack splitStack : splitStacks) {
-                        ItemInsertCallback.EVENT.invoker().insert(splitStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
+                        ItemInsertCallback.EVENT.invoker().insert(splitStack, pos, (ServerWorld) player.getEntityWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
                     }
                 } else {
                     for (ItemStack splitStack : splitStacks) {
-                        ItemRemoveCallback.EVENT.invoker().remove(splitStack, pos, (ServerWorld) player.getWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
+                        ItemRemoveCallback.EVENT.invoker().remove(splitStack, pos, (ServerWorld) player.getEntityWorld(), Sources.PLAYER, (ServerPlayerEntity) player);
                     }
                 }
             }

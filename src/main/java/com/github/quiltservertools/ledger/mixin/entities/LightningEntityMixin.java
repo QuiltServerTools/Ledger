@@ -24,7 +24,7 @@ public abstract class LightningEntityMixin {
     )
     private void logFirePlacedByLightningBolt(int spreadAttempts, CallbackInfo ci, @Local BlockPos blockPos, @Local BlockState blockState) {
         LightningEntity entity = (LightningEntity) (Object) this;
-        BlockPlaceCallback.EVENT.invoker().place(entity.getWorld(), blockPos, blockState, null, Registries.ENTITY_TYPE.getId(entity.getType()).getPath());
+        BlockPlaceCallback.EVENT.invoker().place(entity.getEntityWorld(), blockPos, blockState, null, Registries.ENTITY_TYPE.getId(entity.getType()).getPath());
     }
 
     @Inject(
@@ -38,6 +38,6 @@ public abstract class LightningEntityMixin {
     )
     private void logFirePlacedByLightningBoltSpread(int spreadAttempts, CallbackInfo ci, @Local(ordinal = 1) BlockPos blockPos, @Local BlockState blockState) {
         LightningEntity entity = (LightningEntity) (Object) this;
-        BlockPlaceCallback.EVENT.invoker().place(entity.getWorld(), blockPos, blockState, null, Registries.ENTITY_TYPE.getId(entity.getType()).getPath());
+        BlockPlaceCallback.EVENT.invoker().place(entity.getEntityWorld(), blockPos, blockState, null, Registries.ENTITY_TYPE.getId(entity.getType()).getPath());
     }
 }

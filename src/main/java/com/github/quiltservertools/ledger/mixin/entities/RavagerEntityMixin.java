@@ -14,7 +14,7 @@ public abstract class RavagerEntityMixin {
     @ModifyArgs(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;breakBlock(Lnet/minecraft/util/math/BlockPos;ZLnet/minecraft/entity/Entity;)Z"))
     public void logRavagerBreakingLeaves(Args args) {
         BlockPos pos = args.get(0);
-        var world = ((RavagerEntity) (Object) this).getWorld();
+        var world = ((RavagerEntity) (Object) this).getEntityWorld();
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), world.getBlockEntity(pos), Registries.ENTITY_TYPE.getId(((RavagerEntity) (Object) this).getType()).getPath());
     }
 }
