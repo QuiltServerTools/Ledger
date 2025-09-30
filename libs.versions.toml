@@ -1,6 +1,6 @@
 [versions]
-minecraft = "1.21.9-rc1"
-yarn-mappings = "1.21.9-rc1+build.2"
+minecraft = "1.21.9"
+yarn-mappings = "1.21.9+build.1"
 fabric-loader = "0.17.2"
 
 fabric-api = "0.133.13+1.21.9"
