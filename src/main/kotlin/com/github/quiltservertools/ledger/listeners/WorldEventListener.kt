@@ -8,9 +8,9 @@ import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
+import net.minecraft.entity.LivingEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 
@@ -31,11 +31,11 @@ private fun onItemRemove(
     pos: BlockPos,
     world: ServerWorld,
     source: String,
-    player: ServerPlayerEntity?
+    entity: LivingEntity?
 ) {
-    if (player != null) {
+    if (entity != null) {
         ActionQueueService.addToQueue(
-            ActionFactory.itemRemoveAction(world, stack, pos, player)
+            ActionFactory.itemRemoveAction(world, stack, pos, entity)
         )
     } else {
         ActionQueueService.addToQueue(
@@ -49,11 +49,11 @@ private fun onItemInsert(
     pos: BlockPos,
     world: ServerWorld,
     source: String,
-    player: ServerPlayerEntity?
+    entity: LivingEntity?
 ) {
-    if (player != null) {
+    if (entity != null) {
         ActionQueueService.addToQueue(
-            ActionFactory.itemInsertAction(world, stack, pos, player)
+            ActionFactory.itemInsertAction(world, stack, pos, entity)
         )
     } else {
         ActionQueueService.addToQueue(

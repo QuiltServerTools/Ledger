@@ -29,6 +29,6 @@ public abstract class SheepEntityMixin {
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/SheepEntity;sheared(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/sound/SoundCategory;Lnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER))
     private void ledgerSheepWoolShear(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.getWorld(), entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.SHEAR);
+        EntityModifyCallback.EVENT.invoker().modify(player.getEntityWorld(), entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.SHEAR);
     }
 }

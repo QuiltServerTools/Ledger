@@ -8,6 +8,8 @@ import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.SpawnReason
 import net.minecraft.nbt.StringNbtReader
+import net.minecraft.network.listener.ClientPlayPacketListener
+import net.minecraft.network.packet.Packet
 import net.minecraft.registry.Registries
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.EntityTrackerEntry
@@ -17,9 +19,19 @@ import net.minecraft.storage.NbtReadView
 import net.minecraft.util.ErrorReporter
 import net.minecraft.util.Uuids
 import net.minecraft.util.math.Vec3d
+import java.util.function.Predicate
 
 class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
+
+    val noopPacketSender = object : EntityTrackerEntry.TrackerPacketSender {
+        override fun sendToListeners(packet: Packet<in ClientPlayPacketListener>?) = Unit
+        override fun sendToSelfAndListeners(packet: Packet<in ClientPlayPacketListener>?) = Unit
+        override fun sendToListenersIf(
+            packet: Packet<in ClientPlayPacketListener>?,
+            predicate: Predicate<ServerPlayerEntity?>?
+        ) = Unit
+    }
 
     override fun getTranslationType() = "entity"
 
@@ -38,16 +50,16 @@ class EntityKillActionType : AbstractActionType() {
     }
 
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
-        val world = player.world.server.getWorld(world)!!
+        val world = player.entityWorld.server.getWorld(world)!!
         val entity = getEntity(world, ErrorReporter.EMPTY)
 
-        val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, { }, { _, _ -> })
+        val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, noopPacketSender)
         entityTrackerEntry.startTracking(player)
         preview.spawnedEntityTrackers.add(entityTrackerEntry)
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
-        val world = player.world.server.getWorld(world)
+        val world = player.entityWorld.server.getWorld(world)
 
         val tag = StringNbtReader.readCompound(extraData)
         val optionalUuid = tag.get("UUID", Uuids.INT_STREAM_CODEC)
@@ -55,7 +67,7 @@ class EntityKillActionType : AbstractActionType() {
             val uuid = optionalUuid.get()
             val entity = world?.getEntity(uuid)
             entity?.let {
-                val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, { }, { _, _ -> })
+                val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, noopPacketSender)
                 entityTrackerEntry.stopTracking(player)
                 preview.removedEntityTrackers.add(entityTrackerEntry)
             }

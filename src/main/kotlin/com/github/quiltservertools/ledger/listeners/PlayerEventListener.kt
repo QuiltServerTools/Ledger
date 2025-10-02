@@ -21,6 +21,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.entity.Entity
 import net.minecraft.entity.ItemEntity
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.server.MinecraftServer
@@ -128,9 +129,9 @@ private fun onItemPickUp(
 
 private fun onItemDrop(
     entity: ItemEntity,
-    player: PlayerEntity
+    playerOrGolem: LivingEntity
 ) {
-    ActionQueueService.addToQueue(ActionFactory.itemDropAction(entity, player))
+    ActionQueueService.addToQueue(ActionFactory.itemDropAction(entity, playerOrGolem))
 }
 
 private fun onEntityMount(

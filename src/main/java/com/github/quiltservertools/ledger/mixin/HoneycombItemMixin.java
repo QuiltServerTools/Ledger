@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.HoneycombItem;
@@ -16,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(HoneycombItem.class)
 public abstract class HoneycombItemMixin {
     @ModifyArgs(method = "method_34719", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
-    private static void logCopperWaxing(Args args, ItemUsageContext context, BlockPos pos, World world, BlockState state) {
+    private static void logCopperWaxing(Args args, @Local World world, @Local PlayerEntity player) {
+        BlockPos pos = args.get(0);
         BlockState oldState = world.getBlockState(pos);
         BlockState newState = args.get(1);
-        PlayerEntity player = context.getPlayer();
         if (player == null) {
             BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, oldState, newState, null, null, Sources.INTERACT);
         } else {

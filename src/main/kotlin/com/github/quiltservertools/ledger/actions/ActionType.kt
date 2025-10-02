@@ -3,8 +3,8 @@ package com.github.quiltservertools.ledger.actions
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.config.ActionsSpec
 import com.github.quiltservertools.ledger.config.config
-import com.mojang.authlib.GameProfile
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.PlayerConfigEntry
 import net.minecraft.server.command.ServerCommandSource
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
@@ -24,7 +24,7 @@ interface ActionType {
     var objectState: String?
     var oldObjectState: String?
     var sourceName: String
-    var sourceProfile: GameProfile?
+    var sourceProfile: PlayerConfigEntry?
     var extraData: String?
     var rolledBack: Boolean
 

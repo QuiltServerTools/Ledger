@@ -49,7 +49,7 @@ class Preview(
 
     fun cancel(player: ServerPlayerEntity) {
         for (pos in positions) {
-            player.networkHandler.sendPacket(BlockUpdateS2CPacket(player.world, pos))
+            player.networkHandler.sendPacket(BlockUpdateS2CPacket(player.entityWorld, pos))
         }
         cleanup(player)
     }
@@ -70,7 +70,7 @@ class Preview(
 
     private fun isEntityPresent(entityTrackerEntry: EntityTrackerEntry): Boolean {
         val entity = (entityTrackerEntry as EntityTrackerEntryAccessor).entity
-        return entity.world.getEntityById(entity.id) != null
+        return entity.entityWorld.getEntityById(entity.id) != null
     }
 
     fun apply(context: Context) {

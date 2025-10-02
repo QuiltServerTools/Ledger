@@ -16,7 +16,8 @@ public abstract class ItemEntityMixin {
 
     @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;insertStack(Lnet/minecraft/item/ItemStack;)Z"))
     private void storeEntity(PlayerEntity player, CallbackInfo ci) {
-        itemEntity = ((ItemEntity) (Object) this).copy();
+        itemEntity = (ItemEntity) (Object) this;
+        itemEntity.copyFrom(itemEntity);
     }
 
     @Inject(method = "onPlayerCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;sendPickup(Lnet/minecraft/entity/Entity;I)V"))

@@ -22,6 +22,6 @@ public abstract class MobEntityMixin {
     )
     private <T extends MobEntity> void ledgerEntityConversion(EntityType<T> entityType, EntityConversionContext context, SpawnReason reason, EntityConversionContext.Finalizer<T> finalizer, CallbackInfoReturnable<T> cir) {
         MobEntity entity = (MobEntity) (Object) this;
-        EntityCallbackListenerKt.onKill(entity.getWorld(), entity.getBlockPos(), entity, Sources.CONVERSION);
+        EntityCallbackListenerKt.onKill(entity.getEntityWorld(), entity.getBlockPos(), entity, Sources.CONVERSION);
     }
 }

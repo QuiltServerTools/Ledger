@@ -46,9 +46,12 @@ open class BlockChangeActionType : AbstractActionType() {
     }
 
     override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
-        if (player.world.registryKey.value == world) {
+        if (player.entityWorld.registryKey.value == world) {
             player.networkHandler.sendPacket(
-                BlockUpdateS2CPacket(pos, oldBlockState(player.world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
+                BlockUpdateS2CPacket(
+                    pos,
+                    oldBlockState(player.entityWorld.createCommandRegistryWrapper(RegistryKeys.BLOCK))
+                )
             )
             preview.positions.add(pos)
         }
@@ -63,9 +66,12 @@ open class BlockChangeActionType : AbstractActionType() {
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
-        if (player.world.registryKey.value == world) {
+        if (player.entityWorld.registryKey.value == world) {
             player.networkHandler.sendPacket(
-                BlockUpdateS2CPacket(pos, newBlockState(player.world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
+                BlockUpdateS2CPacket(
+                    pos,
+                    newBlockState(player.entityWorld.createCommandRegistryWrapper(RegistryKeys.BLOCK))
+                )
             )
             preview.positions.add(pos)
         }

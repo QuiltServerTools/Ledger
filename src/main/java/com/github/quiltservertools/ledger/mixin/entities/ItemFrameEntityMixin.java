@@ -48,7 +48,7 @@ public abstract class ItemFrameEntityMixin {
     private void ledgerItemFrameEquip(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack playerStack = player.getStackInHand(hand);
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.getWorld(), entity.getBlockPos(), oldEntityTags, entity, playerStack, player, Sources.EQUIP);
+        EntityModifyCallback.EVENT.invoker().modify(player.getEntityWorld(), entity.getBlockPos(), oldEntityTags, entity, playerStack, player, Sources.EQUIP);
     }
 
     @Inject(method = "dropHeldStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setHeldItemStack(Lnet/minecraft/item/ItemStack;)V"))
@@ -58,26 +58,26 @@ public abstract class ItemFrameEntityMixin {
             return;
         }
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(entityActor.getWorld(), entity.getBlockPos(), oldEntityTags, entity, entityStack, entityActor, Sources.REMOVE);
+        EntityModifyCallback.EVENT.invoker().modify(entityActor.getEntityWorld(), entity.getBlockPos(), oldEntityTags, entity, entityStack, entityActor, Sources.REMOVE);
     }
 
     @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/ItemFrameEntity;setRotation(I)V", shift = At.Shift.AFTER))
     private void ledgerItemFrameRotate(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         Entity entity = (Entity) (Object) this;
-        EntityModifyCallback.EVENT.invoker().modify(player.getWorld(), entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.ROTATE);
+        EntityModifyCallback.EVENT.invoker().modify(player.getEntityWorld(), entity.getBlockPos(), oldEntityTags, entity, null, player, Sources.ROTATE);
     }
 
     @Inject(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/decoration/AbstractDecorationEntity;damage(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/damage/DamageSource;F)Z"))
     private void ledgerItemFrameKill(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity entity = (Entity) (Object) this;
-        EntityKillCallback.EVENT.invoker().kill(entity.getWorld(), entity.getBlockPos(), entity, source);
+        EntityKillCallback.EVENT.invoker().kill(entity.getEntityWorld(), entity.getBlockPos(), entity, source);
     }
 
     @Inject(method = "canStayAttached", at = @At(value = "RETURN"))
     private void ledgerItemFrameKill(CallbackInfoReturnable<Boolean> cir) {
         if (cir.getReturnValue() == Boolean.FALSE) {
             Entity entity = (Entity) (Object) this;
-            EntityKillCallback.EVENT.invoker().kill(entity.getWorld(), entity.getBlockPos(), entity, entity.getDamageSources().magic());
+            EntityKillCallback.EVENT.invoker().kill(entity.getEntityWorld(), entity.getBlockPos(), entity, entity.getDamageSources().magic());
         }
     }
 }
