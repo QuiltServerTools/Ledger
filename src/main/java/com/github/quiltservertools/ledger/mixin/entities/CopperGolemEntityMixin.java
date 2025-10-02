@@ -1,10 +1,14 @@
 package com.github.quiltservertools.ledger.mixin.entities;
 
+import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback;
+import com.github.quiltservertools.ledger.listeners.EntityCallbackListenerKt;
 import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.github.quiltservertools.ledger.utility.Sources;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.CopperGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -57,6 +61,10 @@ public class CopperGolemEntityMixin {
     public void onTurningIntoStatue(ServerWorld world, CallbackInfo ci) {
         CopperGolemEntity copperGolemEntity = (CopperGolemEntity) (Object) this;
         BlockPos pos = copperGolemEntity.getBlockPos();
-        EntityModifyCallback.EVENT.invoker().modify(world, pos, NbtUtils.INSTANCE.createNbt(copperGolemEntity), copperGolemEntity, null, null, Sources.STATUE);
+        EntityCallbackListenerKt.onKill(world, pos, copperGolemEntity, Sources.STATUE);
+
+        BlockState blockState = world.getBlockState(pos);
+        BlockEntity be = world.getBlockEntity(pos);
+        BlockPlaceCallback.EVENT.invoker().place(world, pos, blockState, be, Sources.STATUE);
     }
 }
