@@ -24,37 +24,42 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inSubQuery
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
-import org.jetbrains.exposed.sql.SqlLogger
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.addLogger
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.insertIgnore
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.orWhere
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.statements.StatementContext
-import org.jetbrains.exposed.sql.statements.expandArgs
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.SqlLogger
+import org.jetbrains.exposed.v1.core.Transaction
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.between
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.inSubQuery
+import org.jetbrains.exposed.v1.core.isNull
+import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.core.statements.StatementContext
+import org.jetbrains.exposed.v1.core.statements.expandArgs
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.EntityClass
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.Query
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.andWhere
+import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insertAndGetId
+import org.jetbrains.exposed.v1.jdbc.insertIgnore
+import org.jetbrains.exposed.v1.jdbc.orWhere
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 import org.sqlite.SQLiteConfig
 import org.sqlite.SQLiteDataSource
 import java.time.Instant
@@ -134,6 +139,7 @@ object DatabaseManager {
                 cache.sourceKeys.put(it.name, it.id.value)
             }
             Tables.Player.all().forEach {
+                print(it)
                 cache.playerKeys.put(it.playerId, it.id.value)
             }
         }
@@ -342,9 +348,9 @@ object DatabaseManager {
             if (allowed.isEmpty()) return op
 
             var operator = if (orColumn != null) {
-                Op.build { column eq allowed.first() or (orColumn eq allowed.first()) }
+                column eq allowed.first() or (orColumn eq allowed.first())
             } else {
-                Op.build { column eq allowed.first() }
+                column eq allowed.first()
             }
 
             allowed.stream().skip(1).forEach { param ->
@@ -365,9 +371,9 @@ object DatabaseManager {
             if (denied.isEmpty()) return op
 
             var operator = if (orColumn != null) {
-                Op.build { column neq denied.first() and (orColumn neq denied.first()) }
+                column neq denied.first() and (orColumn neq denied.first())
             } else {
-                Op.build { column neq denied.first() or column.isNull() }
+                column neq denied.first() or column.isNull()
             }
 
             denied.stream().skip(1).forEach { param ->

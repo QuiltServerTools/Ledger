@@ -38,7 +38,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import org.jetbrains.exposed.sql.vendors.SQLiteDialect
+import org.jetbrains.exposed.v1.core.vendors.SQLiteDialect
 import java.nio.file.Files
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
