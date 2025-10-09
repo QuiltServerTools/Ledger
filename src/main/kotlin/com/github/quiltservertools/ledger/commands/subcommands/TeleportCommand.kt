@@ -12,6 +12,7 @@ import net.minecraft.server.command.CommandManager
 import net.minecraft.server.world.ServerWorld
 
 object TeleportCommand : BuildableCommand {
+    private const val BLOCK_CENTER_OFFSET = 0.5
     override fun build(): LiteralNode =
         CommandManager.literal("tp")
             .requires(Permissions.require("ledger.commands.tp", CommandConsts.PERMISSION_LEVEL))
@@ -33,11 +34,15 @@ object TeleportCommand : BuildableCommand {
     private fun teleport(context: Context, world: ServerWorld, posArg: PosArgument): Int {
         val player = context.source.playerOrThrow
         val pos = posArg.toAbsoluteBlockPos(context.source)
+
+        val x = pos.x.toDouble() + BLOCK_CENTER_OFFSET
+        val z = pos.z.toDouble() + BLOCK_CENTER_OFFSET
+
         player.teleport(
             world,
-            pos.x.toDouble(),
+            x,
             pos.y.toDouble(),
-            pos.z.toDouble(),
+            z,
             emptySet(),
             player.yaw,
             player.pitch,
