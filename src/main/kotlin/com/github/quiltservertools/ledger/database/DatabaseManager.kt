@@ -139,7 +139,6 @@ object DatabaseManager {
                 cache.sourceKeys.put(it.name, it.id.value)
             }
             Tables.Player.all().forEach {
-                print(it)
                 cache.playerKeys.put(it.playerId, it.id.value)
             }
         }
