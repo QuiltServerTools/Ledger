@@ -29,76 +29,58 @@ object StatusCommand : BuildableCommand {
     private fun status(context: Context): Int {
         Ledger.launch {
             val source = context.source
-            source.sendFeedback(
-                {
-                    Text.translatable("text.ledger.header.status")
-                        .setStyle(TextColorPallet.primary)
-                },
-                false
+            source.sendMessage(
+                Text.translatable("text.ledger.header.status")
+                    .setStyle(TextColorPallet.primary)
             )
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.status.queue",
-                        ActionQueueService.size.toString().literal()
-                            .setStyle(TextColorPallet.secondaryVariant)
-                    ).setStyle(TextColorPallet.secondary)
-                },
-                false
+            source.sendMessage(
+                Text.translatable(
+                    "text.ledger.status.queue",
+                    ActionQueueService.size.toString().literal()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                ).setStyle(TextColorPallet.secondary)
             )
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.status.version",
-                        getVersion().friendlyString.literal()
-                            .setStyle(TextColorPallet.secondaryVariant)
-                    ).setStyle(TextColorPallet.secondary)
-                },
-                false
+            source.sendMessage(
+                Text.translatable(
+                    "text.ledger.status.version",
+                    getVersion().friendlyString.literal()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                ).setStyle(TextColorPallet.secondary)
             )
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.status.db_type",
-                        DatabaseManager.databaseType.literal()
-                            .setStyle(TextColorPallet.secondaryVariant)
-                    ).setStyle(TextColorPallet.secondary)
-                },
-                false
+            source.sendMessage(
+                Text.translatable(
+                    "text.ledger.status.db_type",
+                    DatabaseManager.databaseType.literal()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                ).setStyle(TextColorPallet.secondary)
             )
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.status.discord",
-                        "text.ledger.status.discord.join".translate()
-                            .setStyle(TextColorPallet.secondaryVariant)
-                            .styled {
-                                it.withClickEvent(
-                                    ClickEvent.OpenUrl(
-                                        URI("https://discord.gg/FpRNYrQaGP")
-                                    )
+            source.sendMessage(
+                Text.translatable(
+                    "text.ledger.status.discord",
+                    "text.ledger.status.discord.join".translate()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                        .styled {
+                            it.withClickEvent(
+                                ClickEvent.OpenUrl(
+                                    URI("https://discord.gg/FpRNYrQaGP")
                                 )
-                            }
-                    ).setStyle(TextColorPallet.secondary)
-                },
-                false
+                            )
+                        }
+                ).setStyle(TextColorPallet.secondary)
             )
-            source.sendFeedback(
-                {
-                    Text.translatable(
-                        "text.ledger.status.wiki",
-                        "text.ledger.status.wiki.view".translate()
-                            .setStyle(TextColorPallet.secondaryVariant)
-                            .styled {
-                                it.withClickEvent(
-                                    ClickEvent.OpenUrl(
-                                        URI("https://quiltservertools.github.io/Ledger/latest/")
-                                    )
+            source.sendMessage(
+                Text.translatable(
+                    "text.ledger.status.wiki",
+                    "text.ledger.status.wiki.view".translate()
+                        .setStyle(TextColorPallet.secondaryVariant)
+                        .styled {
+                            it.withClickEvent(
+                                ClickEvent.OpenUrl(
+                                    URI("https://www.quiltservertools.net/Ledger/${getVersion().friendlyString}/")
                                 )
-                            }
-                    ).setStyle(TextColorPallet.secondary)
-                },
-                false
+                            )
+                        }
+                ).setStyle(TextColorPallet.secondary)
             )
         }
 
