@@ -70,7 +70,8 @@ object MessageUtils {
                     } else {
                         Style.EMPTY
                     }
-                }).setStyle(TextColorPallet.primary)
+                }
+            ).setStyle(TextColorPallet.primary)
         )
     }
 
