@@ -2,16 +2,16 @@ package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.actionutils.Preview
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.level.ServerPlayer
 
 class ItemInsertActionType : ItemChangeActionType() {
     override val identifier: String = "item-insert"
 
-    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
+    override fun previewRollback(preview: Preview, player: ServerPlayer) {
         previewItemChange(preview, player, false)
     }
 
-    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
+    override fun previewRestore(preview: Preview, player: ServerPlayer) {
         previewItemChange(preview, player, true)
     }
 

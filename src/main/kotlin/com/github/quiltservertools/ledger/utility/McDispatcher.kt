@@ -6,8 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.world.World
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.Level
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
@@ -25,8 +25,8 @@ class McExecutor(val executor: (Runnable) -> Unit) : AbstractCoroutineContextEle
 fun launchMain(executor: (Runnable) -> Unit, block: suspend CoroutineScope.() -> Unit): Job =
     Ledger.launch(McDispatcher + McExecutor(executor), block = block)
 
-fun World.launchMain(block: suspend CoroutineScope.() -> Unit) {
+fun Level.launchMain(block: suspend CoroutineScope.() -> Unit) {
     when (this) {
-        is ServerWorld -> launchMain(server::execute, block)
+        is ServerLevel -> launchMain(server::execute, block)
     }
 }

@@ -4,22 +4,22 @@ import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
-import net.minecraft.nbt.StringNbtReader
-import net.minecraft.registry.RegistryKeys
+import net.minecraft.Util
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.registries.Registries
+import net.minecraft.nbt.TagParser
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.storage.NbtReadView
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
-import net.minecraft.util.ErrorReporter
-import net.minecraft.util.Util
+import net.minecraft.util.ProblemReporter
+import net.minecraft.world.level.storage.TagValueInput
 
 class BlockPlaceActionType : BlockChangeActionType() {
     override val identifier = "block-place"
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        world?.setBlockState(pos, oldBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK)))
+        world?.setBlockAndUpdate(pos, oldBlockState(world.holderLookup(Registries.BLOCK)))
 
         return world != null
     }
@@ -28,15 +28,15 @@ class BlockPlaceActionType : BlockChangeActionType() {
         val world = server.getWorld(world)
 
         if (world != null) {
-            val state = newBlockState(world.createCommandRegistryWrapper(RegistryKeys.BLOCK))
-            world.setBlockState(pos, state)
+            val state = newBlockState(world.holderLookup(Registries.BLOCK))
+            world.setBlockAndUpdate(pos, state)
             if (state.hasBlockEntity()) {
-                ErrorReporter.Logging({ "ledger:restore:block-place@$pos" }, LOGGER).use {
-                    world.getBlockEntity(pos)?.read(
-                        NbtReadView.create(
+                ProblemReporter.ScopedCollector({ "ledger:restore:block-place@$pos" }, LOGGER).use {
+                    world.getBlockEntity(pos)?.loadWithComponents(
+                        TagValueInput.create(
                             it,
-                            server.registryManager,
-                            StringNbtReader.readCompound(extraData)
+                            server.registryAccess(),
+                            TagParser.parseCompoundFully(extraData)
                         )
                     )
                 }
@@ -46,12 +46,12 @@ class BlockPlaceActionType : BlockChangeActionType() {
         return world != null
     }
 
-    override fun getObjectMessage(source: ServerCommandSource): Text = Text.translatable(
-        Util.createTranslationKey(
+    override fun getObjectMessage(source: CommandSourceStack): Component = Component.translatable(
+        Util.makeDescriptionId(
             this.getTranslationType(),
             objectIdentifier
         )
-    ).setStyle(TextColorPallet.secondaryVariant).styled {
+    ).setStyle(TextColorPallet.secondaryVariant).withStyle {
         it.withHoverEvent(
             HoverEvent.ShowText(
                 objectIdentifier.toString().literal()

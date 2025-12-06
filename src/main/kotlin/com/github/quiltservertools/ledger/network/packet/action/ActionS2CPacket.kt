@@ -2,38 +2,38 @@ package com.github.quiltservertools.ledger.network.packet.action
 
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.network.packet.CustomPayload.Id
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type
 
-data class ActionS2CPacket(val content: ActionType) : CustomPayload {
-    private fun write(buf: PacketByteBuf?) {
+data class ActionS2CPacket(val content: ActionType) : CustomPacketPayload {
+    private fun write(buf: FriendlyByteBuf?) {
         // Position
         buf?.writeBlockPos(content.pos)
         // Type
-        buf?.writeString(content.identifier)
+        buf?.writeUtf(content.identifier)
         // Dimension
-        buf?.writeIdentifier(content.world)
+        buf?.writeResourceLocation(content.world)
         // Objects
-        buf?.writeIdentifier(content.oldObjectIdentifier)
-        buf?.writeIdentifier(content.objectIdentifier)
+        buf?.writeResourceLocation(content.oldObjectIdentifier)
+        buf?.writeResourceLocation(content.objectIdentifier)
         // Source
-        buf?.writeString(content.sourceProfile?.name ?: "@" + content.sourceName)
+        buf?.writeUtf(content.sourceProfile?.name ?: "@" + content.sourceName)
         // Epoch second of event, sent as a long
         buf?.writeLong(content.timestamp.epochSecond)
         // Has been rolled back?
         buf?.writeBoolean(content.rolledBack)
         // NBT
-        buf?.writeString(content.extraData ?: "")
+        buf?.writeUtf(content.extraData ?: "")
     }
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object {
-        val ID: Id<ActionS2CPacket> = Id(LedgerPacketTypes.ACTION.id)
-        val CODEC: PacketCodec<PacketByteBuf, ActionS2CPacket> = CustomPayload.codecOf(
+        val ID: Type<ActionS2CPacket> = Type(LedgerPacketTypes.ACTION.id)
+        val CODEC: StreamCodec<FriendlyByteBuf, ActionS2CPacket> = CustomPacketPayload.codec(
             ActionS2CPacket::write
-        ) { _: PacketByteBuf? -> TODO() }
+        ) { _: FriendlyByteBuf? -> TODO() }
     }
 }

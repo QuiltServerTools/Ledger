@@ -1,9 +1,9 @@
 package com.github.quiltservertools.ledger.network.packet
 
 import com.github.quiltservertools.ledger.Ledger
-import net.minecraft.util.Identifier
+import net.minecraft.resources.ResourceLocation
 
-enum class LedgerPacketTypes(val id: Identifier) {
+enum class LedgerPacketTypes(val id: ResourceLocation) {
     ACTION(Ledger.identifier("action")),
     INSPECT_POS(Ledger.identifier("inspect")),
     SEARCH(Ledger.identifier("search")),

@@ -17,22 +17,22 @@ import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.fabricmc.fabric.api.networking.v1.PacketSender
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
-import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.entity.Entity
-import net.minecraft.entity.ItemEntity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemPlacementContext
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.ServerPlayNetworkHandler
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
-import net.minecraft.world.World
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.network.ServerGamePacketListenerImpl
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.BlockHitResult
 
 fun registerPlayerListeners() {
     PlayerBlockBreakEvents.AFTER.register(::onBlockBreak)
@@ -46,49 +46,49 @@ fun registerPlayerListeners() {
     EntityDismountCallback.EVENT.register(::onEntityDismount)
 }
 
-fun onLeave(handler: ServerPlayNetworkHandler, server: MinecraftServer) {
+fun onLeave(handler: ServerGamePacketListenerImpl, server: MinecraftServer) {
     handler.player.disableNetworking()
 }
 
 private fun onUseBlock(
-    player: PlayerEntity,
-    world: World,
-    hand: Hand,
+    player: Player,
+    world: Level,
+    hand: InteractionHand,
     blockHitResult: BlockHitResult
-): ActionResult {
-    if (player is ServerPlayerEntity && player.isInspecting() && hand == Hand.MAIN_HAND) {
-        player.commandSource.inspectBlock(blockHitResult.blockPos.offset(blockHitResult.side))
-        return ActionResult.SUCCESS
+): InteractionResult {
+    if (player is ServerPlayer && player.isInspecting() && hand == InteractionHand.MAIN_HAND) {
+        player.createCommandSourceStack().inspectBlock(blockHitResult.blockPos.relative(blockHitResult.direction))
+        return InteractionResult.SUCCESS
     }
-    return ActionResult.PASS
+    return InteractionResult.PASS
 }
 
 private fun onBlockAttack(
-    player: PlayerEntity,
-    world: World,
-    hand: Hand,
+    player: Player,
+    world: Level,
+    hand: InteractionHand,
     pos: BlockPos,
     direction: Direction
-): ActionResult {
-    if (player is ServerPlayerEntity && player.isInspecting()) {
-        player.commandSource.inspectBlock(pos)
-        return ActionResult.SUCCESS
+): InteractionResult {
+    if (player is ServerPlayer && player.isInspecting()) {
+        player.createCommandSourceStack().inspectBlock(pos)
+        return InteractionResult.SUCCESS
     }
-    return ActionResult.PASS
+    return InteractionResult.PASS
 }
 
-private fun onJoin(networkHandler: ServerPlayNetworkHandler, packetSender: PacketSender, server: MinecraftServer) {
+private fun onJoin(networkHandler: ServerGamePacketListenerImpl, packetSender: PacketSender, server: MinecraftServer) {
     Ledger.launch {
-        DatabaseManager.logPlayer(networkHandler.player.uuid, networkHandler.player.nameForScoreboard)
+        DatabaseManager.logPlayer(networkHandler.player.uuid, networkHandler.player.scoreboardName)
     }
 }
 
 private fun onBlockPlace(
-    world: World,
-    player: PlayerEntity,
+    world: Level,
+    player: Player,
     pos: BlockPos,
     state: BlockState,
-    context: ItemPlacementContext?,
+    context: BlockPlaceContext?,
     blockEntity: BlockEntity?
 ) {
     ActionQueueService.addToQueue(
@@ -103,8 +103,8 @@ private fun onBlockPlace(
 }
 
 private fun onBlockBreak(
-    world: World,
-    player: PlayerEntity,
+    world: Level,
+    player: Player,
     pos: BlockPos,
     state: BlockState,
     blockEntity: BlockEntity?
@@ -122,7 +122,7 @@ private fun onBlockBreak(
 
 private fun onItemPickUp(
     entity: ItemEntity,
-    player: PlayerEntity
+    player: Player
 ) {
     ActionQueueService.addToQueue(ActionFactory.itemPickUpAction(entity, player))
 }
@@ -136,14 +136,14 @@ private fun onItemDrop(
 
 private fun onEntityMount(
     entity: Entity,
-    playerEntity: PlayerEntity,
+    playerEntity: Player,
 ) {
     ActionQueueService.addToQueue(ActionFactory.entityMountAction(entity, playerEntity))
 }
 
 private fun onEntityDismount(
     entity: Entity,
-    playerEntity: PlayerEntity,
+    playerEntity: Player,
 ) {
     ActionQueueService.addToQueue(ActionFactory.entityDismountAction(entity, playerEntity))
 }

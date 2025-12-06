@@ -8,12 +8,12 @@ import com.github.quiltservertools.ledger.callbacks.BlockMeltCallback
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback
 import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.utility.Sources
-import net.minecraft.block.AirBlock
-import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.AirBlock
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
 
 fun registerBlockListeners() {
     BlockMeltCallback.EVENT.register(::onMelt)
@@ -23,12 +23,12 @@ fun registerBlockListeners() {
 }
 
 fun onBlockPlace(
-    world: World,
+    world: Level,
     pos: BlockPos,
     state: BlockState,
     entity: BlockEntity?,
     source: String,
-    player: PlayerEntity?
+    player: Player?
 ) {
     val action: ActionType = if (player != null) {
         ActionFactory.blockPlaceAction(world, pos, state, player, entity, source)
@@ -39,12 +39,12 @@ fun onBlockPlace(
 }
 
 fun onBlockBreak(
-    world: World,
+    world: Level,
     pos: BlockPos,
     state: BlockState,
     entity: BlockEntity?,
     source: String,
-    player: PlayerEntity?
+    player: Player?
 ) {
     val action: ActionType = if (player != null) {
         ActionFactory.blockBreakAction(world, pos, state, player, entity, source)
@@ -56,21 +56,21 @@ fun onBlockBreak(
 }
 
 fun onBlockChange(
-    world: World,
+    world: Level,
     pos: BlockPos,
     oldState: BlockState,
     newState: BlockState,
     oldBlockEntity: BlockEntity?,
     newBlockEntity: BlockEntity?,
     source: String,
-    player: PlayerEntity?
+    player: Player?
 ) {
     ActionQueueService.addToQueue(
         ActionFactory.blockChangeAction(world, pos, oldState, newState, oldBlockEntity, source, player)
     )
 }
 
-fun onMelt(world: World, pos: BlockPos, oldState: BlockState, newState: BlockState, entity: BlockEntity?) {
+fun onMelt(world: Level, pos: BlockPos, oldState: BlockState, newState: BlockState, entity: BlockEntity?) {
     ActionQueueService.addToQueue(
         ActionFactory.blockBreakAction(world, pos, oldState, Sources.MELT, entity)
     )

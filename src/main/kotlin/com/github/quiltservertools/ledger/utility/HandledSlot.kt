@@ -1,8 +1,8 @@
 package com.github.quiltservertools.ledger.utility
 
-import net.minecraft.screen.ScreenHandler
+import net.minecraft.world.inventory.AbstractContainerMenu
 
 interface HandledSlot {
-    fun getHandler(): ScreenHandler
-    fun setHandler(handler: ScreenHandler)
+    fun getHandler(): AbstractContainerMenu
+    fun setHandler(handler: AbstractContainerMenu)
 }

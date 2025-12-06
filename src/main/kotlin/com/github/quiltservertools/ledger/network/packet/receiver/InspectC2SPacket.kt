@@ -12,18 +12,18 @@ import com.github.quiltservertools.ledger.utility.getInspectResults
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 
-data class InspectC2SPacket(val pos: BlockPos, val pages: Int) : CustomPayload {
+data class InspectC2SPacket(val pos: BlockPos, val pages: Int) : CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<InspectC2SPacket> {
-        val ID: CustomPayload.Id<InspectC2SPacket> = CustomPayload.Id(LedgerPacketTypes.INSPECT_POS.id)
-        val CODEC: PacketCodec<PacketByteBuf, InspectC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
+        val ID: CustomPacketPayload.Type<InspectC2SPacket> = CustomPacketPayload.Type(LedgerPacketTypes.INSPECT_POS.id)
+        val CODEC: StreamCodec<FriendlyByteBuf, InspectC2SPacket> = CustomPacketPayload.codec({ _, _ -> TODO() }, {
             InspectC2SPacket(it.readBlockPos(), it.readInt())
         })
 

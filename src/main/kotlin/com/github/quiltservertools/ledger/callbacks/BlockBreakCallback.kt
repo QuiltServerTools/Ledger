@@ -3,26 +3,26 @@ package com.github.quiltservertools.ledger.callbacks
 import com.github.quiltservertools.ledger.utility.Sources
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
 
 fun interface BlockBreakCallback {
     fun breakBlock(
-        world: World,
+        world: Level,
         pos: BlockPos,
         state: BlockState,
         entity: BlockEntity?,
         source: String,
-        player: PlayerEntity?
+        player: Player?
     )
 
-    fun breakBlock(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?, player: PlayerEntity) =
+    fun breakBlock(world: Level, pos: BlockPos, state: BlockState, entity: BlockEntity?, player: Player) =
         breakBlock(world, pos, state, entity, Sources.PLAYER, player)
 
-    fun breakBlock(world: World, pos: BlockPos, state: BlockState, entity: BlockEntity?, source: String) =
+    fun breakBlock(world: Level, pos: BlockPos, state: BlockState, entity: BlockEntity?, source: String) =
         breakBlock(world, pos, state, entity, source, null)
 
     companion object {

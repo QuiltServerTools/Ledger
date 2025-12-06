@@ -2,11 +2,11 @@ package com.github.quiltservertools.ledger.callbacks
 
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.player.Player
 
 fun interface EntityDismountCallback {
-    fun dismount(entity: Entity, playerEntity: PlayerEntity)
+    fun dismount(entity: Entity, playerEntity: Player)
 
     companion object {
         @JvmField

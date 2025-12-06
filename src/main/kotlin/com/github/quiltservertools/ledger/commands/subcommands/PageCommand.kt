@@ -9,9 +9,9 @@ import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import kotlinx.coroutines.launch
-import net.minecraft.server.command.CommandManager.argument
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.text.Text
+import net.minecraft.commands.Commands.argument
+import net.minecraft.commands.Commands.literal
+import net.minecraft.network.chat.Component
 
 object PageCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -25,21 +25,21 @@ object PageCommand : BuildableCommand {
     private fun page(context: Context, page: Int): Int {
         val source = context.source
 
-        val params = Ledger.searchCache[source.name]
+        val params = Ledger.searchCache[source.textName]
         if (params != null) {
             Ledger.launch {
                 MessageUtils.warnBusy(source)
                 val results = DatabaseManager.searchActions(params, page)
 
                 if (results.page > results.pages) {
-                    source.sendError(Text.translatable("error.ledger.no_more_pages"))
+                    source.sendFailure(Component.translatable("error.ledger.no_more_pages"))
                     return@launch
                 }
 
                 MessageUtils.sendSearchResults(
                     source,
                     results,
-                    Text.translatable(
+                    Component.translatable(
                         "text.ledger.header.search"
                     ).setStyle(TextColorPallet.primary)
                 )
@@ -47,7 +47,7 @@ object PageCommand : BuildableCommand {
 
             return 1
         } else {
-            source.sendError(Text.translatable("error.ledger.no_cached_params"))
+            source.sendFailure(Component.translatable("error.ledger.no_cached_params"))
             return -1
         }
     }

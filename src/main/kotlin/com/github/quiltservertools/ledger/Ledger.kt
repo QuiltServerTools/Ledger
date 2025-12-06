@@ -33,9 +33,9 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.registry.Registries
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.util.Identifier
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.jetbrains.exposed.v1.core.vendors.SQLiteDialect
@@ -97,10 +97,10 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         Networking
 
         Ledger.launch {
-            val idSet = setOf<Identifier>()
-                .plus(Registries.BLOCK.ids)
-                .plus(Registries.ITEM.ids)
-                .plus(Registries.ENTITY_TYPE.ids)
+            val idSet = setOf<ResourceLocation>()
+                .plus(BuiltInRegistries.BLOCK.keySet())
+                .plus(BuiltInRegistries.ITEM.keySet())
+                .plus(BuiltInRegistries.ENTITY_TYPE.keySet())
 
             logInfo("Inserting ${idSet.size} registry keys into the database...")
             DatabaseManager.insertIdentifiers(idSet)
@@ -145,7 +145,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         registerEntityListeners()
     }
 
-    fun identifier(path: String) = Identifier.of(MOD_ID, path)
+    fun identifier(path: String) = ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
 }
 
 fun logDebug(message: String) = Ledger.logger.debug(message)

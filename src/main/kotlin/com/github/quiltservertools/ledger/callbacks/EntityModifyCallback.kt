@@ -2,17 +2,17 @@ package com.github.quiltservertools.ledger.callbacks
 
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.entity.Entity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
 
 fun interface EntityModifyCallback {
     fun modify(
-        world: World,
+        world: Level,
         pos: BlockPos,
-        oldEntityTags: NbtCompound,
+        oldEntityTags: CompoundTag,
         newEntity: Entity,
         itemStack: ItemStack?,
         entityActor: Entity?,

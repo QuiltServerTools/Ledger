@@ -5,47 +5,47 @@ import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.command.argument.DimensionArgumentType
-import net.minecraft.command.argument.PosArgument
-import net.minecraft.command.argument.Vec3ArgumentType
-import net.minecraft.server.command.CommandManager
-import net.minecraft.server.world.ServerWorld
+import net.minecraft.commands.Commands
+import net.minecraft.commands.arguments.DimensionArgument
+import net.minecraft.commands.arguments.coordinates.Coordinates
+import net.minecraft.commands.arguments.coordinates.Vec3Argument
+import net.minecraft.server.level.ServerLevel
 
 object TeleportCommand : BuildableCommand {
     private const val BLOCK_CENTER_OFFSET = 0.5
     override fun build(): LiteralNode =
-        CommandManager.literal("tp")
+        Commands.literal("tp")
             .requires(Permissions.require("ledger.commands.tp", CommandConsts.PERMISSION_LEVEL))
             .then(
-                CommandManager.argument("world", DimensionArgumentType.dimension())
+                Commands.argument("world", DimensionArgument.dimension())
                     .then(
-                        CommandManager.argument("location", Vec3ArgumentType.vec3())
+                        Commands.argument("location", Vec3Argument.vec3())
                             .executes {
                                 teleport(
                                     it,
-                                    DimensionArgumentType.getDimensionArgument(it, "world"),
-                                    Vec3ArgumentType.getPosArgument(it, "location")
+                                    DimensionArgument.getDimension(it, "world"),
+                                    Vec3Argument.getCoordinates(it, "location")
                                 )
                             }
                     )
             )
             .build()
 
-    private fun teleport(context: Context, world: ServerWorld, posArg: PosArgument): Int {
-        val player = context.source.playerOrThrow
-        val pos = posArg.toAbsoluteBlockPos(context.source)
+    private fun teleport(context: Context, world: ServerLevel, posArg: Coordinates): Int {
+        val player = context.source.playerOrException
+        val pos = posArg.getBlockPos(context.source)
 
         val x = pos.x.toDouble() + BLOCK_CENTER_OFFSET
         val z = pos.z.toDouble() + BLOCK_CENTER_OFFSET
 
-        player.teleport(
+        player.teleportTo(
             world,
             x,
             pos.y.toDouble(),
             z,
             emptySet(),
-            player.yaw,
-            player.pitch,
+            player.yRot,
+            player.xRot,
             true
         )
 

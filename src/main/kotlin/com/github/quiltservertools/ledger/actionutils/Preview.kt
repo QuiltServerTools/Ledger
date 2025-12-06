@@ -3,36 +3,36 @@ package com.github.quiltservertools.ledger.actionutils
 import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.commands.subcommands.RestoreCommand
 import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand
-import com.github.quiltservertools.ledger.mixin.preview.EntityTrackerEntryAccessor
+import com.github.quiltservertools.ledger.mixin.preview.ServerEntityAccessor
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.TextColorPallet
-import net.minecraft.item.ItemStack
-import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket
-import net.minecraft.server.network.EntityTrackerEntry
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket
+import net.minecraft.server.level.ServerEntity
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 
 class Preview(
     private val params: ActionSearchParams,
     actions: List<ActionType>,
-    player: ServerPlayerEntity,
+    player: ServerPlayer,
     private val type: Type
 ) {
     val positions = mutableSetOf<BlockPos>()
 
     // Preview entities that got spawned. Need to removed
-    val spawnedEntityTrackers = mutableSetOf<EntityTrackerEntry>()
+    val spawnedEntityTrackers = mutableSetOf<ServerEntity>()
 
     // Preview entities that got removed. Need to be spawned
-    val removedEntityTrackers = mutableSetOf<EntityTrackerEntry>()
+    val removedEntityTrackers = mutableSetOf<ServerEntity>()
 
     // Preview items that should be modified in screen handlers (true = added, false = removed)
     val modifiedItems = mutableMapOf<BlockPos, MutableList<Pair<ItemStack, Boolean>>>()
 
     init {
-        player.sendMessage(
-            Text.translatable(
+        player.displayClientMessage(
+            Component.translatable(
                 "text.ledger.preview.start",
                 actions.size
             ).setStyle(TextColorPallet.primary),
@@ -47,34 +47,34 @@ class Preview(
         }
     }
 
-    fun cancel(player: ServerPlayerEntity) {
+    fun cancel(player: ServerPlayer) {
         for (pos in positions) {
-            player.networkHandler.sendPacket(BlockUpdateS2CPacket(player.entityWorld, pos))
+            player.connection.sendPacket(ClientboundBlockUpdatePacket(player.level(), pos))
         }
         cleanup(player)
     }
 
-    private fun cleanup(player: ServerPlayerEntity) {
+    private fun cleanup(player: ServerPlayer) {
         // Cleanup preview entities, to keep client and server in sync
         spawnedEntityTrackers.forEach {
             if (!isEntityPresent(it)) {
-                it.stopTracking(player)
+                it.removePairing(player)
             }
         }
         removedEntityTrackers.forEach {
             if (isEntityPresent(it)) {
-                it.startTracking(player)
+                it.addPairing(player)
             }
         }
     }
 
-    private fun isEntityPresent(entityTrackerEntry: EntityTrackerEntry): Boolean {
-        val entity = (entityTrackerEntry as EntityTrackerEntryAccessor).entity
-        return entity.entityWorld.getEntityById(entity.id) != null
+    private fun isEntityPresent(entityTrackerEntry: ServerEntity): Boolean {
+        val entity = (entityTrackerEntry as ServerEntityAccessor).entity
+        return entity.level().getEntity(entity.id) != null
     }
 
     fun apply(context: Context) {
-        cleanup(context.source.playerOrThrow)
+        cleanup(context.source.playerOrException)
         when (type) {
             Type.ROLLBACK -> RollbackCommand.rollback(context, params)
             Type.RESTORE -> RestoreCommand.restore(context, params)

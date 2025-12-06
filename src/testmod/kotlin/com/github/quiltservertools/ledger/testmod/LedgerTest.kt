@@ -11,16 +11,16 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.BlockPos
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 object LedgerTest : ClientModInitializer {
-    val HANDSHAKE = Identifier.of("ledger", "handshake")
-    val INSPECT = Identifier.of("ledger", "inspect")
-    val SEARCH = Identifier.of("ledger", "search")
-    val ACTION = Identifier.of("ledger", "action")
+    val HANDSHAKE = ResourceLocation.fromNamespaceAndPath("ledger", "handshake")
+    val INSPECT = ResourceLocation.fromNamespaceAndPath("ledger", "inspect")
+    val SEARCH = ResourceLocation.fromNamespaceAndPath("ledger", "search")
+    val ACTION = ResourceLocation.fromNamespaceAndPath("ledger", "action")
     val LOGGER: Logger = LogManager.getLogger("LedgerTestmod")
 
     override fun onInitializeClient() {

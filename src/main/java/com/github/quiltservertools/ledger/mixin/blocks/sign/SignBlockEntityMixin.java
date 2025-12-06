@@ -4,14 +4,14 @@ import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.block.entity.SignText;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,15 +31,15 @@ public abstract class SignBlockEntityMixin {
      * @param instance    The sign block entity being edited
      * @param textChanger A parameter for the original operation
      * @param front       Whether the interaction is happening on the front of the sign
-     * @param original    The original {@link SignBlockEntity#changeText(UnaryOperator, boolean)} operation that this
+     * @param original    The original {@link SignBlockEntity#updateText(UnaryOperator, boolean)} operation that this
      *                    mixin wraps.
      * @return Returns the result of calling {@code original} with this method's parameters.
      */
     @WrapOperation(
-            method = "tryChangeText",
+            method = "updateSignText",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/entity/SignBlockEntity;changeText(Ljava/util/function/UnaryOperator;Z)Z"
+                    target = "Lnet/minecraft/world/level/block/entity/SignBlockEntity;updateText(Ljava/util/function/UnaryOperator;Z)Z"
             )
     )
     private boolean logSignTextChange(
@@ -49,21 +49,21 @@ public abstract class SignBlockEntityMixin {
             Operation<Boolean> original
     ) {
 
-        World world = instance.getWorld();
-        DynamicRegistryManager registryManager = world.getRegistryManager();
-        BlockPos pos = instance.getPos();
-        BlockState state = instance.getCachedState();
+        Level world = instance.getLevel();
+        RegistryAccess registryManager = world.registryAccess();
+        BlockPos pos = instance.getBlockPos();
+        BlockState state = instance.getBlockState();
 
         // a bad hack to copy the old sign block entity for rollbacks
-        @Nullable BlockEntity oldSignEntity = BlockEntity.createFromNbt(pos, state, NbtUtils.INSTANCE.createNbt(instance, registryManager), registryManager);
+        @Nullable BlockEntity oldSignEntity = BlockEntity.loadStatic(pos, state, NbtUtils.INSTANCE.createNbt(instance, registryManager), registryManager);
 
         boolean result = original.call(instance, textChanger, front);
         if (result && oldSignEntity != null) {
 
             assert world != null : "World cannot be null, this is already in the target method";
 
-            UUID editorID = instance.getEditor();
-            PlayerEntity player = world.getPlayerByUuid(editorID);
+            UUID editorID = instance.getPlayerWhoMayEdit();
+            Player player = world.getPlayerByUUID(editorID);
             assert player != null : "The editor must exist, this is already checked in target method";
 
             BlockChangeCallback.EVENT.invoker()

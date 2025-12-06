@@ -1,7 +1,7 @@
 package com.github.quiltservertools.ledger.utility
 
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 
 interface PlayerCausable {
-    val causingPlayer: PlayerEntity?
+    val causingPlayer: Player?
 }

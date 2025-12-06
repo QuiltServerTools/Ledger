@@ -3,8 +3,8 @@ package com.github.quiltservertools.ledger.utility
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
-import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.commands.CommandSourceStack
 
-typealias Dispatcher = CommandDispatcher<ServerCommandSource>
-typealias LiteralNode = LiteralCommandNode<ServerCommandSource>
-typealias Context = CommandContext<ServerCommandSource>
+typealias Dispatcher = CommandDispatcher<CommandSourceStack>
+typealias LiteralNode = LiteralCommandNode<CommandSourceStack>
+typealias Context = CommandContext<CommandSourceStack>

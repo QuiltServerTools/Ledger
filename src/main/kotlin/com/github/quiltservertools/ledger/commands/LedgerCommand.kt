@@ -14,7 +14,7 @@ import com.github.quiltservertools.ledger.commands.subcommands.TeleportCommand
 import com.github.quiltservertools.ledger.utility.BrigadierUtils
 import com.github.quiltservertools.ledger.utility.Dispatcher
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager.literal
+import net.minecraft.commands.Commands.literal
 
 fun registerCommands(dispatcher: Dispatcher) {
     val rootNode =

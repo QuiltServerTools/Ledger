@@ -13,19 +13,19 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.text.Text
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.chat.Component
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 
-data class SearchC2SPacket(val args: String, val pages: Int) : CustomPayload {
+data class SearchC2SPacket(val args: String, val pages: Int) : CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<SearchC2SPacket> {
-        val ID: CustomPayload.Id<SearchC2SPacket> = CustomPayload.Id(LedgerPacketTypes.SEARCH.id)
-        val CODEC: PacketCodec<PacketByteBuf, SearchC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
-            SearchC2SPacket(it.readString(), it.readInt())
+        val ID: CustomPacketPayload.Type<SearchC2SPacket> = CustomPacketPayload.Type(LedgerPacketTypes.SEARCH.id)
+        val CODEC: StreamCodec<FriendlyByteBuf, SearchC2SPacket> = CustomPacketPayload.codec({ _, _ -> TODO() }, {
+            SearchC2SPacket(it.readUtf(), it.readInt())
         })
 
         override fun receive(payload: SearchC2SPacket, context: ServerPlayNetworking.Context) {
@@ -44,7 +44,7 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPayload {
                 return
             }
 
-            val source = player.commandSource
+            val source = player.createCommandSourceStack()
 
             val params = SearchParamArgument.get(payload.args, source)
 
@@ -54,7 +54,7 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPayload {
             )
 
             Ledger.launch {
-                Ledger.searchCache[source.name] = params
+                Ledger.searchCache[source.textName] = params
 
                 MessageUtils.warnBusy(source)
                 val results = DatabaseManager.searchActions(params, 1)
@@ -64,7 +64,7 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPayload {
                     MessageUtils.sendSearchResults(
                         source,
                         page,
-                        Text.translatable(
+                        Component.translatable(
                             "text.ledger.header.search"
                         ).setStyle(TextColorPallet.primary)
                     )

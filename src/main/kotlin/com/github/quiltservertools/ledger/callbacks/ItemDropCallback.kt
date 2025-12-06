@@ -2,8 +2,8 @@ package com.github.quiltservertools.ledger.callbacks
 
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.entity.ItemEntity
-import net.minecraft.entity.LivingEntity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.item.ItemEntity
 
 fun interface ItemDropCallback {
     fun drop(entity: ItemEntity, playerOrGolem: LivingEntity)

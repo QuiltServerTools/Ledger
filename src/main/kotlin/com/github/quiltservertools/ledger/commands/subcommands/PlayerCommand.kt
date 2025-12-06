@@ -8,26 +8,26 @@ import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.command.argument.GameProfileArgumentType
-import net.minecraft.server.PlayerConfigEntry
-import net.minecraft.server.command.CommandManager.argument
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.Commands.argument
+import net.minecraft.commands.Commands.literal
+import net.minecraft.commands.arguments.GameProfileArgument
+import net.minecraft.server.players.NameAndId
 
 object PlayerCommand : BuildableCommand {
     override fun build(): LiteralNode {
         return literal("player")
             .requires(Permissions.require("ledger.commands.player", CommandConsts.PERMISSION_LEVEL))
             .then(
-                argument("player", GameProfileArgumentType.gameProfile())
+                argument("player", GameProfileArgument.gameProfile())
                 .executes {
-                    return@executes lookupPlayer(GameProfileArgumentType.getProfileArgument(it, "player"), it.source)
+                    return@executes lookupPlayer(GameProfileArgument.getGameProfiles(it, "player"), it.source)
                 }
             )
             .build()
     }
 
-    private fun lookupPlayer(profiles: MutableCollection<PlayerConfigEntry>, source: ServerCommandSource): Int {
+    private fun lookupPlayer(profiles: MutableCollection<NameAndId>, source: CommandSourceStack): Int {
         Ledger.launch {
             val players = DatabaseManager.searchPlayers(profiles.toSet())
             MessageUtils.sendPlayerMessage(source, players)

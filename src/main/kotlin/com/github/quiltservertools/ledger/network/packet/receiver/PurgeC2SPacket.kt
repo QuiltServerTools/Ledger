@@ -12,18 +12,18 @@ import com.github.quiltservertools.ledger.utility.getInspectResults
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 
-data class PurgeC2SPacket(val pos: BlockPos, val pages: Int) : CustomPayload {
+data class PurgeC2SPacket(val pos: BlockPos, val pages: Int) : CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<PurgeC2SPacket> {
-        val ID: CustomPayload.Id<PurgeC2SPacket> = CustomPayload.Id(LedgerPacketTypes.PURGE.id)
-        val CODEC: PacketCodec<PacketByteBuf, PurgeC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
+        val ID: CustomPacketPayload.Type<PurgeC2SPacket> = CustomPacketPayload.Type(LedgerPacketTypes.PURGE.id)
+        val CODEC: StreamCodec<FriendlyByteBuf, PurgeC2SPacket> = CustomPacketPayload.codec({ _, _ -> TODO() }, {
             PurgeC2SPacket(it.readBlockPos(), it.readInt())
         })
 

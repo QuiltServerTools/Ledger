@@ -12,8 +12,8 @@ import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.text.Text
+import net.minecraft.commands.Commands.literal
+import net.minecraft.network.chat.Component
 
 object SearchCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -30,20 +30,20 @@ object SearchCommand : BuildableCommand {
         val source = context.source
 
         Ledger.launch {
-            Ledger.searchCache[source.name] = params
+            Ledger.searchCache[source.textName] = params
 
             MessageUtils.warnBusy(source)
             val results = DatabaseManager.searchActions(params, 1)
 
             if (results.actions.isEmpty()) {
-                source.sendError(Text.translatable("error.ledger.command.no_results"))
+                source.sendFailure(Component.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
             MessageUtils.sendSearchResults(
                 source,
                 results,
-                Text.translatable(
+                Component.translatable(
                     "text.ledger.header.search"
                 ).setStyle(TextColorPallet.primary)
             )

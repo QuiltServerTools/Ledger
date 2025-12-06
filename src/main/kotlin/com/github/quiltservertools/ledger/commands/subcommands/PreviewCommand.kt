@@ -12,15 +12,15 @@ import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager
-import net.minecraft.text.Text
+import net.minecraft.commands.Commands
+import net.minecraft.network.chat.Component
 
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode {
-        return CommandManager.literal("preview")
+        return Commands.literal("preview")
             .requires(Permissions.require("ledger.commands.preview", CommandConsts.PERMISSION_LEVEL))
             .then(
-                CommandManager.literal("rollback")
+                Commands.literal("rollback")
                 .then(
                     SearchParamArgument.argument(CommandConsts.PARAMS)
                         .executes {
@@ -33,7 +33,7 @@ object PreviewCommand : BuildableCommand {
                 )
             )
             .then(
-                CommandManager.literal("restore")
+                Commands.literal("restore")
                 .then(
                     SearchParamArgument.argument(CommandConsts.PARAMS)
                         .executes {
@@ -45,21 +45,21 @@ object PreviewCommand : BuildableCommand {
                         }
                 )
             )
-            .then(CommandManager.literal("apply").executes { apply(it) })
-            .then(CommandManager.literal("cancel").executes { cancel(it) })
+            .then(Commands.literal("apply").executes { apply(it) })
+            .then(Commands.literal("cancel").executes { cancel(it) })
             .build()
     }
 
     private fun preview(context: Context, params: ActionSearchParams, type: Preview.Type): Int {
         val source = context.source
-        val player = source.playerOrThrow
+        val player = source.playerOrException
         params.ensureSpecific()
         Ledger.launch {
             MessageUtils.warnBusy(source)
             val actions = DatabaseManager.previewActions(params, type)
 
             if (actions.isEmpty()) {
-                source.sendError(Text.translatable("error.ledger.command.no_results"))
+                source.sendFailure(Component.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
@@ -70,13 +70,13 @@ object PreviewCommand : BuildableCommand {
     }
 
     private fun apply(context: Context): Int {
-        val uuid = context.source.playerOrThrow.uuid
+        val uuid = context.source.playerOrException.uuid
 
         if (Ledger.previewCache.containsKey(uuid)) {
             Ledger.previewCache[uuid]?.apply(context)
             Ledger.previewCache.remove(uuid)
         } else {
-            context.source.sendError(Text.translatable("error.ledger.no_preview"))
+            context.source.sendFailure(Component.translatable("error.ledger.no_preview"))
             return -1
         }
 
@@ -84,13 +84,13 @@ object PreviewCommand : BuildableCommand {
     }
 
     private fun cancel(context: Context): Int {
-        val uuid = context.source.playerOrThrow.uuid
+        val uuid = context.source.playerOrException.uuid
 
         if (Ledger.previewCache.containsKey(uuid)) {
-            Ledger.previewCache[uuid]?.cancel(context.source.playerOrThrow)
+            Ledger.previewCache[uuid]?.cancel(context.source.playerOrException)
             Ledger.previewCache.remove(uuid)
         } else {
-            context.source.sendError(Text.translatable("error.ledger.no_preview"))
+            context.source.sendFailure(Component.translatable("error.ledger.no_preview"))
             return -1
         }
 

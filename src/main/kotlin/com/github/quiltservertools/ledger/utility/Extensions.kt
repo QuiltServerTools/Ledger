@@ -1,29 +1,31 @@
 package com.github.quiltservertools.ledger.utility
 
-import net.minecraft.registry.RegistryKey
-import net.minecraft.registry.RegistryKeys
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.registries.Registries
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.MutableText
-import net.minecraft.text.Text
-import net.minecraft.util.Identifier
+import net.minecraft.server.level.ServerPlayer
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.times
 
-fun MutableText.appendWithSpace(text: Text) {
+fun MutableComponent.appendWithSpace(text: Component) {
     this.append(text)
     this.append(" ".literal())
 }
 
-fun String.literal() = Text.literal(this)
-fun String.translate() = Text.translatable(this)
+fun String.literal() = Component.literal(this)
+fun String.translate() = Component.translatable(this)
 
-fun ServerCommandSource.hasPlayer() = this.entity is ServerPlayerEntity
+fun CommandSourceStack.hasPlayer() = this.entity is ServerPlayer
 
 // fun String.translate(vararg args: Any) = TranslatableText(this, args)
 
-fun MinecraftServer.getWorld(identifier: Identifier?) = getWorld(RegistryKey.of(RegistryKeys.WORLD, identifier))
+fun MinecraftServer.getWorld(identifier: ResourceLocation?) = getLevel(
+    ResourceKey.create(Registries.DIMENSION, identifier)
+)
 
 val TICK_LENGTH = 50.milliseconds
 inline val Int.ticks get() = this * TICK_LENGTH

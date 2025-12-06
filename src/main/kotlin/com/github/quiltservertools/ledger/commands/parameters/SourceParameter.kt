@@ -5,8 +5,8 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.command.CommandSource
-import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
 import java.util.concurrent.CompletableFuture
 
 class SourceParameter : SimpleParameter<String>() {
@@ -21,17 +21,17 @@ class SourceParameter : SimpleParameter<String>() {
     }
 
     override fun getSuggestions(
-        context: CommandContext<ServerCommandSource>,
+        context: CommandContext<CommandSourceStack>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val stringReader = StringReader(builder.input)
         stringReader.cursor = builder.start
 
-        val sources = context.source.playerNames
+        val sources = context.source.onlinePlayerNames
         DatabaseManager.getKnownSources().forEach {
             sources.add("@$it")
         }
-        return CommandSource.suggestMatching(
+        return SharedSuggestionProvider.suggest(
             sources,
             builder
         )

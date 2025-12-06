@@ -6,17 +6,17 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.ItemEntity
-import net.minecraft.nbt.StringNbtReader
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.UUIDUtil
+import net.minecraft.nbt.TagParser
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.storage.NbtReadView
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
-import net.minecraft.util.ErrorReporter
-import net.minecraft.util.Uuids
+import net.minecraft.util.ProblemReporter
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.level.storage.TagValueInput
 
 // TODO remove duplication from ItemPickUpActionType and ItemDropActionType
 open class ItemDropActionType : AbstractActionType() {
@@ -28,15 +28,15 @@ open class ItemDropActionType : AbstractActionType() {
     private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
         extraData,
         objectIdentifier,
-        server.registryManager
+        server.registryAccess()
     )
 
-    override fun getObjectMessage(source: ServerCommandSource): Text {
+    override fun getObjectMessage(source: CommandSourceStack): Component {
         val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
             stack.itemName
-        ).setStyle(TextColorPallet.secondaryVariant).styled {
+        ).setStyle(TextColorPallet.secondaryVariant).withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowItem(
                     stack
@@ -48,8 +48,8 @@ open class ItemDropActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = StringNbtReader.readCompound(objectState)
-        val optionalUUID = newEntity!!.get(UUID, Uuids.INT_STREAM_CODEC)
+        val newEntity = TagParser.parseCompoundFully(objectState)
+        val optionalUUID = newEntity!!.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())
 
@@ -63,17 +63,17 @@ open class ItemDropActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)!!
 
-        val newEntity = StringNbtReader.readCompound(objectState)
-        val optionalUUID = newEntity!!.get(UUID, Uuids.INT_STREAM_CODEC)
+        val newEntity = TagParser.parseCompoundFully(objectState)
+        val optionalUUID = newEntity!!.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world.getEntity(optionalUUID.get())
 
         if (entity == null) {
             val entity = ItemEntity(EntityType.ITEM, world)
-            ErrorReporter.Logging({ "ledger:restore:item-drop@$pos" }, LOGGER).use {
-                val readView = NbtReadView.create(it, world.registryManager, newEntity)
-                entity.readData(readView)
-                world.spawnEntity(entity)
+            ProblemReporter.ScopedCollector({ "ledger:restore:item-drop@$pos" }, LOGGER).use {
+                val readView = TagValueInput.create(it, world.registryAccess(), newEntity)
+                entity.load(readView)
+                world.addFreshEntity(entity)
             }
         }
         return true

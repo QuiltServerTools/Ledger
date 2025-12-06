@@ -13,8 +13,8 @@ import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.text.Text
+import net.minecraft.commands.Commands.literal
+import net.minecraft.network.chat.Component
 
 object PurgeCommand : BuildableCommand {
     override fun build(): LiteralNode {
@@ -30,14 +30,14 @@ object PurgeCommand : BuildableCommand {
 
     private fun runPurge(ctx: Context, params: ActionSearchParams): Int {
         val source = ctx.source
-        source.sendFeedback(
-            { Text.translatable("text.ledger.purge.starting").setStyle(TextColorPallet.secondary) },
+        source.sendSuccess(
+            { Component.translatable("text.ledger.purge.starting").setStyle(TextColorPallet.secondary) },
             true
         )
         Ledger.launch {
             DatabaseManager.purgeActions(params)
-            source.sendFeedback(
-                { Text.translatable("text.ledger.purge.complete").setStyle(TextColorPallet.secondary) },
+            source.sendSuccess(
+                { Component.translatable("text.ledger.purge.complete").setStyle(TextColorPallet.secondary) },
                 true
             )
         }

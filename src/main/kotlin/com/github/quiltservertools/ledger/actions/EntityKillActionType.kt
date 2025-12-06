@@ -4,71 +4,71 @@ import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
-import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.SpawnReason
-import net.minecraft.nbt.StringNbtReader
-import net.minecraft.network.listener.ClientPlayPacketListener
-import net.minecraft.network.packet.Packet
-import net.minecraft.registry.Registries
+import net.minecraft.core.UUIDUtil
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.TagParser
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.network.EntityTrackerEntry
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.storage.NbtReadView
-import net.minecraft.util.ErrorReporter
-import net.minecraft.util.Uuids
-import net.minecraft.util.math.Vec3d
+import net.minecraft.server.level.ServerEntity
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.util.ProblemReporter
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntitySpawnReason
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.phys.Vec3
 import java.util.function.Predicate
 
 class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
 
-    val noopPacketSender = object : EntityTrackerEntry.TrackerPacketSender {
-        override fun sendToListeners(packet: Packet<in ClientPlayPacketListener>?) = Unit
-        override fun sendToSelfAndListeners(packet: Packet<in ClientPlayPacketListener>?) = Unit
+    val noopPacketSender = object : ServerEntity.Synchronizer {
+        override fun sendToListeners(packet: Packet<in ClientGamePacketListener>?) = Unit
+        override fun sendToSelfAndListeners(packet: Packet<in ClientGamePacketListener>?) = Unit
         override fun sendToListenersIf(
-            packet: Packet<in ClientPlayPacketListener>?,
-            predicate: Predicate<ServerPlayerEntity?>?
+            packet: Packet<in ClientGamePacketListener>?,
+            predicate: Predicate<ServerPlayer?>?
         ) = Unit
     }
 
     override fun getTranslationType() = "entity"
 
-    private fun getEntity(world: ServerWorld, reporter: ErrorReporter): Entity? {
-        val entityType = Registries.ENTITY_TYPE.getOptionalValue(objectIdentifier)
+    private fun getEntity(world: ServerLevel, reporter: ProblemReporter): Entity? {
+        val entityType = BuiltInRegistries.ENTITY_TYPE.getOptional(objectIdentifier)
         if (entityType.isEmpty) return null
 
-        val entity = entityType.get().create(world, SpawnReason.COMMAND)!!
-        val readView = NbtReadView.create(reporter, world.registryManager, StringNbtReader.readCompound(extraData))
-        entity.readData(readView)
-        entity.velocity = Vec3d.ZERO
-        entity.fireTicks = 0
-        if (entity is LivingEntity) entity.health = entity.defaultMaxHealth.toFloat()
+        val entity = entityType.get().create(world, EntitySpawnReason.COMMAND)!!
+        val readView = TagValueInput.create(reporter, world.registryAccess(), TagParser.parseCompoundFully(extraData))
+        entity.load(readView)
+        entity.setDeltaMovement(Vec3.ZERO)
+        entity.setRemainingFireTicks(0)
+        if (entity is LivingEntity) entity.health = entity.invulnerableDuration.toFloat()
 
         return entity
     }
 
-    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) {
-        val world = player.entityWorld.server.getWorld(world)!!
-        val entity = getEntity(world, ErrorReporter.EMPTY)
+    override fun previewRollback(preview: Preview, player: ServerPlayer) {
+        val world = player.level().server.getWorld(world)!!
+        val entity = getEntity(world, ProblemReporter.DISCARDING)
 
-        val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, noopPacketSender)
-        entityTrackerEntry.startTracking(player)
+        val entityTrackerEntry = ServerEntity(world, entity, 1, false, noopPacketSender)
+        entityTrackerEntry.addPairing(player)
         preview.spawnedEntityTrackers.add(entityTrackerEntry)
     }
 
-    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) {
-        val world = player.entityWorld.server.getWorld(world)
+    override fun previewRestore(preview: Preview, player: ServerPlayer) {
+        val world = player.level().server.getWorld(world)
 
-        val tag = StringNbtReader.readCompound(extraData)
-        val optionalUuid = tag.get("UUID", Uuids.INT_STREAM_CODEC)
+        val tag = TagParser.parseCompoundFully(extraData)
+        val optionalUuid = tag.read("UUID", UUIDUtil.CODEC)
         if (optionalUuid.isPresent) {
             val uuid = optionalUuid.get()
             val entity = world?.getEntity(uuid)
             entity?.let {
-                val entityTrackerEntry = EntityTrackerEntry(world, entity, 1, false, noopPacketSender)
-                entityTrackerEntry.stopTracking(player)
+                val entityTrackerEntry = ServerEntity(world, entity, 1, false, noopPacketSender)
+                entityTrackerEntry.removePairing(player)
                 preview.removedEntityTrackers.add(entityTrackerEntry)
             }
         }
@@ -76,9 +76,9 @@ class EntityKillActionType : AbstractActionType() {
 
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)!!
-        ErrorReporter.Logging({ "ledger:rollback:entity-kill@$pos" }, LOGGER).use {
+        ProblemReporter.ScopedCollector({ "ledger:rollback:entity-kill@$pos" }, LOGGER).use {
             val entity = getEntity(world, it) ?: return false
-            world.spawnEntity(entity)
+            world.addFreshEntity(entity)
         }
         return true
     }
@@ -86,7 +86,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val optionalUUID = StringNbtReader.readCompound(extraData)!!.get(UUID, Uuids.INT_STREAM_CODEC)
+        val optionalUUID = TagParser.parseCompoundFully(extraData)!!.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())
 

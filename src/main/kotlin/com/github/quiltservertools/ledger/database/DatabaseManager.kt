@@ -21,9 +21,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
-import net.minecraft.server.PlayerConfigEntry
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.players.NameAndId
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -241,7 +241,7 @@ object DatabaseManager {
             type.oldObjectState = action[Tables.Actions.oldBlockState]
             type.sourceName = sourceCache[action[Tables.Actions.sourceName].value]!!
             type.sourceProfile = action.getOrNull(Tables.Actions.sourcePlayer)?.let {
-                Ledger.server.apiServices.nameToIdCache?.getByUuid(playerCache[it.value]!!)?.orElse(null)
+                Ledger.server.services().nameToIdCache?.get(playerCache[it.value]!!)?.orElse(null)
             }
             type.extraData = action[Tables.Actions.extraData]
             type.rolledBack = action[Tables.Actions.rolledBack]
@@ -256,9 +256,9 @@ object DatabaseManager {
         var op: Op<Boolean> = Op.TRUE
 
         if (params.bounds != null && params.bounds != ActionSearchParams.GLOBAL) {
-            op = op.and { Tables.Actions.x.between(params.bounds.minX, params.bounds.maxX) }
-            op = op.and { Tables.Actions.y.between(params.bounds.minY, params.bounds.maxY) }
-            op = op.and { Tables.Actions.z.between(params.bounds.minZ, params.bounds.maxZ) }
+            op = op.and { Tables.Actions.x.between(params.bounds.minX(), params.bounds.maxX()) }
+            op = op.and { Tables.Actions.y.between(params.bounds.minY(), params.bounds.maxY()) }
+            op = op.and { Tables.Actions.z.between(params.bounds.minZ(), params.bounds.maxZ()) }
         }
 
         if (params.before != null && params.after != null) {
@@ -401,7 +401,7 @@ object DatabaseManager {
         }
     }
 
-    suspend fun registerWorld(identifier: Identifier) =
+    suspend fun registerWorld(identifier: ResourceLocation) =
         execute {
             insertWorld(identifier)
         }
@@ -416,13 +416,13 @@ object DatabaseManager {
             insertOrUpdatePlayer(uuid, name)
         }
 
-    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) =
+    suspend fun insertIdentifiers(identifiers: Collection<ResourceLocation>) =
         execute {
             insertRegKeys(identifiers)
         }
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
-        while (Ledger.server.overworld?.savingDisabled != false) {
+        while (Ledger.server.overworld()?.noSave != false) {
             delay(timeMillis = 1000)
         }
 
@@ -444,7 +444,7 @@ object DatabaseManager {
         }
     }
 
-    suspend fun searchPlayers(players: Set<PlayerConfigEntry>): List<PlayerResult> =
+    suspend fun searchPlayers(players: Set<NameAndId>): List<PlayerResult> =
         execute {
             return@execute selectPlayers(players)
         }
@@ -455,13 +455,13 @@ object DatabaseManager {
         }
     }
 
-    private fun Transaction.insertWorld(identifier: Identifier) {
+    private fun Transaction.insertWorld(identifier: ResourceLocation) {
         Tables.Worlds.insertIgnore {
             it[this.identifier] = identifier.toString()
         }
     }
 
-    private fun Transaction.insertRegKeys(identifiers: Collection<Identifier>) {
+    private fun Transaction.insertRegKeys(identifiers: Collection<ResourceLocation>) {
         Tables.ObjectIdentifiers.batchInsert(identifiers, true) { identifier ->
             this[Tables.ObjectIdentifiers.identifier] = identifier.toString()
         }
@@ -476,7 +476,10 @@ object DatabaseManager {
             this[Tables.Actions.z] = action.pos.z
             this[Tables.Actions.objectId] = getOrCreateRegistryKeyId(action.objectIdentifier)
             this[Tables.Actions.oldObjectId] = getOrCreateRegistryKeyId(action.oldObjectIdentifier)
-            this[Tables.Actions.world] = getOrCreateWorldId(action.world ?: Ledger.server.overworld.registryKey.value)
+            this[Tables.Actions.world] = getOrCreateWorldId(
+                action.world ?: Ledger.server.overworld().dimension()
+                .location()
+            )
             this[Tables.Actions.blockState] = action.objectState
             this[Tables.Actions.oldBlockState] = action.oldObjectState
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
@@ -606,20 +609,20 @@ object DatabaseManager {
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-    private fun getOrCreateRegistryKeyId(identifier: Identifier): Int =
+    private fun getOrCreateRegistryKeyId(identifier: ResourceLocation): Int =
         getOrCreateObjectId(
             identifier,
-            Identifier::toString,
+            ResourceLocation::toString,
             cache.objectIdentifierKeys,
             Tables.ObjectIdentifier,
             Tables.ObjectIdentifiers,
             Tables.ObjectIdentifiers.identifier
         )
 
-    private fun getOrCreateWorldId(identifier: Identifier): Int =
+    private fun getOrCreateWorldId(identifier: ResourceLocation): Int =
         getOrCreateObjectId(
             identifier,
-            Identifier::toString,
+            ResourceLocation::toString,
             cache.worldIdentifierKeys,
             Tables.World,
             Tables.Worlds,
@@ -640,19 +643,19 @@ object DatabaseManager {
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-    private fun getRegistryKeyId(identifier: Identifier): Int? =
+    private fun getRegistryKeyId(identifier: ResourceLocation): Int? =
         getObjectId(
             identifier,
-            Identifier::toString,
+            ResourceLocation::toString,
             cache.objectIdentifierKeys,
             Tables.ObjectIdentifier,
             Tables.ObjectIdentifiers.identifier
         )
 
-    private fun getWorldId(identifier: Identifier): Int? =
+    private fun getWorldId(identifier: ResourceLocation): Int? =
         getObjectId(
             identifier,
-            Identifier::toString,
+            ResourceLocation::toString,
             cache.worldIdentifierKeys,
             Tables.World,
             Tables.Worlds.identifier
@@ -664,7 +667,7 @@ object DatabaseManager {
             id inSubQuery Tables.Actions.select(id).where(buildQueryParams(params))
         }
 
-    private fun Transaction.selectPlayers(players: Set<PlayerConfigEntry>): List<PlayerResult> {
+    private fun Transaction.selectPlayers(players: Set<NameAndId>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
         for (player in players) {
             query.orWhere { Tables.Players.playerId eq player.id() }

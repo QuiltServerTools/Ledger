@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.database
 
-import net.minecraft.util.Identifier
+import net.minecraft.resources.ResourceLocation
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
@@ -48,7 +48,7 @@ object Tables {
     public val oldObjectTable = ObjectIdentifiers.alias("oldObjects")
 
     class ObjectIdentifier(id: EntityID<Int>) : IntEntity(id) {
-        var identifier by ObjectIdentifiers.identifier.transform({ it.toString() }, { Identifier.tryParse(it)!! })
+        var identifier by ObjectIdentifiers.identifier.transform({ it.toString() }, { ResourceLocation.tryParse(it)!! })
 
         companion object : IntEntityClass<ObjectIdentifier>(ObjectIdentifiers)
     }
@@ -108,7 +108,7 @@ object Tables {
     }
 
     class World(id: EntityID<Int>) : IntEntity(id) {
-        var identifier by Worlds.identifier.transform({ it.toString() }, { Identifier.tryParse(it)!! })
+        var identifier by Worlds.identifier.transform({ it.toString() }, { ResourceLocation.tryParse(it)!! })
 
         companion object : IntEntityClass<World>(Worlds)
     }
