@@ -47,7 +47,7 @@ open class BlockChangeActionType : AbstractActionType() {
 
     override fun previewRollback(preview: Preview, player: ServerPlayer) {
         if (player.level().dimension().location() == world) {
-            player.connection.sendPacket(
+            player.connection.send(
                 ClientboundBlockUpdatePacket(
                     pos,
                     oldBlockState(player.level().holderLookup(Registries.BLOCK))
@@ -67,7 +67,7 @@ open class BlockChangeActionType : AbstractActionType() {
 
     override fun previewRestore(preview: Preview, player: ServerPlayer) {
         if (player.level().dimension().location() == world) {
-            player.connection.sendPacket(
+            player.connection.send(
                 ClientboundBlockUpdatePacket(
                     pos,
                     newBlockState(player.level().holderLookup(Registries.BLOCK))

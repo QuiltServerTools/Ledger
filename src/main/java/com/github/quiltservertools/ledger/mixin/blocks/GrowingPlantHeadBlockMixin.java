@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(GrowingPlantHeadBlock.class)
 public abstract class GrowingPlantHeadBlockMixin {
-    @ModifyArgs(method = "performBonemeal", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    @ModifyArgs(method = "performBonemeal", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
     public void logPlantGrowth(Args args, ServerLevel world, RandomSource random, BlockPos sourcePos, BlockState sourceState) {
         BlockPos pos = args.get(0);
         BlockState state = args.get(1);

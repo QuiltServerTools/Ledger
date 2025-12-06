@@ -32,7 +32,7 @@ public class CopperGolemMixin {
         oldEntityTagsRef.set(NbtUtils.INSTANCE.createNbt(entity));
     }
 
-    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/coppergolem/CopperGolem;sheared(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
+    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/coppergolem/CopperGolem;shear(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
     public void afterShear(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir, @Share("oldEntityTags") LocalRef<CompoundTag> oldEntityTagsRef) {
         Level world = player.level();
         CopperGolem copperGolemEntity = (CopperGolem) (Object) this;
@@ -40,7 +40,7 @@ public class CopperGolemMixin {
         EntityModifyCallback.EVENT.invoker().modify(world, pos, oldEntityTagsRef.get(), copperGolemEntity, null, player, Sources.SHEAR);
     }
 
-    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;syncWorldEvent(Lnet/minecraft/world/entity/Entity;ILnet/minecraft/core/BlockPos;I)V", ordinal = 0))
+    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;levelEvent(Lnet/minecraft/world/entity/Entity;ILnet/minecraft/core/BlockPos;I)V", ordinal = 0))
     public void onWax(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir, @Share("oldEntityTags") LocalRef<CompoundTag> oldEntityTagsRef) {
         Level world = player.level();
         CopperGolem copperGolemEntity = (CopperGolem) (Object) this;

@@ -27,7 +27,7 @@ public abstract class CakeBlockMixin {
     public static IntegerProperty BITES;
 
     @Inject(method = "eat", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/LevelAccessor;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/LevelAccessor;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private static void ledgerLogCakeEat(
             LevelAccessor world, BlockPos pos, BlockState state, Player player, CallbackInfoReturnable<InteractionResult> cir) {
         BlockChangeCallback.EVENT.invoker().changeBlock(

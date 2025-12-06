@@ -27,14 +27,14 @@ public abstract class ArmorStandMixin {
     @Unique
     private ItemStack oldEntityStack;
 
-    @Inject(method = "swapItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;equipStack(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V"))
+    @Inject(method = "swapItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;setItemSlot(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V"))
     private void legerLogOldEntity(Player player, EquipmentSlot slot, ItemStack playerStack, InteractionHand hand, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         this.oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
         this.oldEntityStack = entity.getItemBySlot(slot);
     }
 
-    @Inject(method = "swapItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;equipStack(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
+    @Inject(method = "swapItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;setItemSlot(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
     private void ledgerArmorStandInteract(Player player, EquipmentSlot slot, ItemStack playerStack, InteractionHand hand, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (!oldEntityStack.isEmpty()) {

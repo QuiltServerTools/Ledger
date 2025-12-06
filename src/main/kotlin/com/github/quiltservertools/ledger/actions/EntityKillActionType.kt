@@ -25,9 +25,9 @@ class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
 
     val noopPacketSender = object : ServerEntity.Synchronizer {
-        override fun sendToListeners(packet: Packet<in ClientGamePacketListener>?) = Unit
-        override fun sendToSelfAndListeners(packet: Packet<in ClientGamePacketListener>?) = Unit
-        override fun sendToListenersIf(
+        override fun sendToTrackingPlayers(packet: Packet<in ClientGamePacketListener>?) = Unit
+        override fun sendToTrackingPlayersAndSelf(packet: Packet<in ClientGamePacketListener>?) = Unit
+        override fun sendToTrackingPlayersFiltered(
             packet: Packet<in ClientGamePacketListener>?,
             predicate: Predicate<ServerPlayer?>?
         ) = Unit

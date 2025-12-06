@@ -16,9 +16,8 @@ public abstract class ChestBlockMixin {
     @Shadow
     ChestBlockEntity val$first;
 
-    // TODO(Ravel): target method createMenu with the signature not found
     @Inject(
-            method = "createMenu(ILnet/minecraft/entity/player/PlayerInventory;Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/screen/ScreenHandler;",
+            method = "createMenu(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/inventory/AbstractContainerMenu;",
             at = @At("RETURN")
     )
     private void addPositionContext(int i, Inventory playerInventory, Player playerEntity, CallbackInfoReturnable<AbstractContainerMenu> cir) {

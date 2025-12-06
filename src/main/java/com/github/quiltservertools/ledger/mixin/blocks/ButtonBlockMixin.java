@@ -26,7 +26,7 @@ public abstract class ButtonBlockMixin {
         activePlayer = player;
     }
 
-    @ModifyArgs(method = "press", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    @ModifyArgs(method = "press", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void logLeverUse(Args args, BlockState state, Level world, BlockPos pos, Player playerEntity) {
         if (activePlayer == null) return;
 

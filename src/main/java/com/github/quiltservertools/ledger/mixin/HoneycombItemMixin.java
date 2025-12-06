@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(HoneycombItem.class)
 public abstract class HoneycombItemMixin {
-    @ModifyArgs(method = "method_34719", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    @ModifyArgs(method = "method_34719", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private static void logCopperWaxing(Args args, @Local Level world, @Local Player player) {
         BlockPos pos = args.get(0);
         BlockState oldState = world.getBlockState(pos);

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class WetSpongeBlockMixin {
 
     @Inject(method = "onPlace", at = @At(value = "INVOKE_ASSIGN",
-            target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void logSpongeToWetSponge(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean notify, CallbackInfo ci) {
         BlockState newBlockState = world.getBlockState(pos);
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, newBlockState, null, null, Sources.DRY);

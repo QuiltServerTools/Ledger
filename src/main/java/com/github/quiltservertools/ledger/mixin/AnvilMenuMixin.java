@@ -33,7 +33,7 @@ public abstract class AnvilMenuMixin {
 
     @ModifyArgs(method = "method_24922",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+                    target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private static void ledgerLogAnvilChange(Args args, Player player, Level world, BlockPos pos) {
         BlockState newBlockState = args.get(1);
         BlockChangeCallback.EVENT.invoker().changeBlock(

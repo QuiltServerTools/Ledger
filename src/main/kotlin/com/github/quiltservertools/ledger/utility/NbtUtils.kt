@@ -58,7 +58,7 @@ object NbtUtils {
                 // Ledger ItemStack in 1.20.4 and earlier had "Count" omitted if it was 1
                 itemTag.putByte(COUNT_PRE_1_20_5, 1)
             }
-            itemTag = DataFixers.dataFixer.update(
+            itemTag = DataFixers.getDataFixer().update(
                 References.ITEM_STACK,
                 Dynamic(NbtOps.INSTANCE, itemTag), ITEM_NBT_DATA_VERSION, ITEM_COMPONENTS_DATA_VERSION
             ).cast(NbtOps.INSTANCE) as CompoundTag?

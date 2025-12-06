@@ -25,7 +25,7 @@ public abstract class WanderAndInfestGoalMixin extends RandomStrollGoal {
             method = "start",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/LevelAccessor;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"
+                    target = "Lnet/minecraft/world/level/LevelAccessor;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"
             )
     )
     private boolean logSilverFishInfestBlock(

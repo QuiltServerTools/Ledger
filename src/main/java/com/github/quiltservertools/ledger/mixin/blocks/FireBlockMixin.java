@@ -33,7 +33,7 @@ public abstract class FireBlockMixin {
             method = "checkBurnOut",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"
+                    target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"
             )
     )
     private void ledgerBlockBurnReplaceInvoker(Level world, BlockPos pos, int spreadFactor, RandomSource random, int currentAge, CallbackInfo ci, @Local BlockState blockState) {

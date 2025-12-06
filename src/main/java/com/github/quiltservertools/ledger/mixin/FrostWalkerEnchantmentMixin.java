@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(ReplaceDisk.class)
 public abstract class FrostWalkerEnchantmentMixin {
-    @ModifyArgs(method = "apply", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
+    @ModifyArgs(method = "apply", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
     private void logFrostWalkerPlacement(Args args, ServerLevel world, int level, EnchantedItemInUse context, Entity entity, Vec3 vec3d) {
         // Frosted ice block is hardcoded in target class
         BlockPos pos = args.get(0);

@@ -24,7 +24,7 @@ public abstract class FallingBlockEntityMixin {
             method = "fall",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+                    target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private static void ledgerBlockFallInvoker(Level world, BlockPos pos, BlockState state, CallbackInfoReturnable<FallingBlockEntity> cir) {
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, state, state.hasBlockEntity() ? world.getBlockEntity(pos) : null, Sources.GRAVITY);
     }
@@ -33,7 +33,7 @@ public abstract class FallingBlockEntityMixin {
             method = "tick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+                    target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private void ledgerBlockLandInvoker(Args args) {
         FallingBlockEntity entity = (FallingBlockEntity) (Object) this;
         BlockPos pos = args.get(0);

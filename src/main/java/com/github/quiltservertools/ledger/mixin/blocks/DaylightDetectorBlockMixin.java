@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(DaylightDetectorBlock.class)
 public abstract class DaylightDetectorBlockMixin {
-    @ModifyArgs(method = "useWithoutItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    @ModifyArgs(method = "useWithoutItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void logDaylightDetectorToggling(Args args, BlockState oldState, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         BlockState newState = args.get(1);
         BlockEntity blockEntity = world.getBlockEntity(pos);

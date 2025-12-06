@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ChorusFlowerBlock.class)
 public abstract class ChorusFlowerBlockMixin {
-    @Inject(method = "onProjectileHit", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;breakBlock(Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/entity/Entity;)Z"))
+    @Inject(method = "onProjectileHit", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;destroyBlock(Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/entity/Entity;)Z"))
     public void logChorusFlowerBreak(Level world, BlockState state, BlockHitResult hit, Projectile projectile, CallbackInfo ci) {
         Entity entity = projectile.getOwner();
         if (entity instanceof Player player) {

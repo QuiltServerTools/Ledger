@@ -21,7 +21,7 @@ public abstract class SpongeBlockMixin {
     private BlockState oldBlockState;
 
     @Inject(method = "method_49829", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private static void logWaterDrainNonSource(BlockPos actorBlockPos, Level world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         // pos is the blockpos for affected water
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
@@ -34,7 +34,7 @@ public abstract class SpongeBlockMixin {
     }
 
     @Inject(method = "tryAbsorbWater", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void ledgerStoreState(Level world, BlockPos pos, CallbackInfo ci) {
         oldBlockState = world.getBlockState(pos);
         // first invocation will be sponge, all others after will be wet sponge
@@ -42,7 +42,7 @@ public abstract class SpongeBlockMixin {
     }
 
     @Inject(method = "tryAbsorbWater", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void ledgerLogSpongeToWetSponge(Level world, BlockPos pos, CallbackInfo ci) {
         BlockState newBlockState = world.getBlockState(pos);
         if (oldBlockState == newBlockState) {return;} // if the sponge is already wet don't log

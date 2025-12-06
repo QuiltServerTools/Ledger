@@ -52,7 +52,7 @@ public abstract class CampfireBlockMixin {
     }
 
     @Inject(method = "onProjectileHit", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private void logCampfireProjectileIgnite(Level world, BlockState blockState, BlockHitResult hit, Projectile projectile, CallbackInfo ci) {
         BlockChangeCallback.EVENT.invoker().changeBlock(world, hit.getBlockPos(), blockState, blockState.setValue(LIT, Boolean.TRUE), world.getBlockEntity(hit.getBlockPos()), null, Sources.FIRE);
     }

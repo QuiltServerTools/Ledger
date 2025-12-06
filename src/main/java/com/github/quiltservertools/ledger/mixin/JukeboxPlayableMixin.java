@@ -14,14 +14,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static net.minecraft.block.JukeboxBlock.HAS_RECORD;
-
+import static net.minecraft.world.level.block.JukeboxBlock.HAS_RECORD;
 
 @Mixin(JukeboxPlayable.class)
 public abstract class JukeboxPlayableMixin {
 
     @Inject(method = "tryInsertIntoJukebox", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/block/entity/JukeboxBlockEntity;setStack(Lnet/minecraft/world/item/ItemStack;)V"))
+            target = "Lnet/minecraft/world/level/block/entity/JukeboxBlockEntity;setTheItem(Lnet/minecraft/world/item/ItemStack;)V"))
     private static void ledgerPlayerInsertMusicDisc(Level world, BlockPos pos, ItemStack itemStack, Player player, CallbackInfoReturnable<InteractionResult> cir) {
         BlockState blockState = world.getBlockState(pos);
 

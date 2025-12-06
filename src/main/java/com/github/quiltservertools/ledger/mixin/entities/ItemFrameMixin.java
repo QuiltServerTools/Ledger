@@ -35,7 +35,7 @@ public abstract class ItemFrameMixin {
         oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
     }
 
-    @Inject(method = "dropItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setItem(Lnet/minecraft/world/item/ItemStack;)V"))
+    @Inject(method = "dropItem(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setItem(Lnet/minecraft/world/item/ItemStack;)V"))
     private void ledgerLogOldEntity2(ServerLevel world, Entity entityActor, boolean dropSelf, CallbackInfo ci) {
         if (entityActor == null) {
             return;
@@ -51,7 +51,7 @@ public abstract class ItemFrameMixin {
         EntityModifyCallback.EVENT.invoker().modify(player.level(), entity.blockPosition(), oldEntityTags, entity, playerStack, player, Sources.EQUIP);
     }
 
-    @Inject(method = "dropItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setItem(Lnet/minecraft/world/item/ItemStack;)V"))
+    @Inject(method = "dropItem(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setItem(Lnet/minecraft/world/item/ItemStack;)V"))
     private void ledgerItemFrameRemove(ServerLevel world, Entity entityActor, boolean dropSelf, CallbackInfo ci) {
         ItemStack entityStack = this.getItem();
         if (entityStack.isEmpty() || entityActor == null) {
@@ -67,7 +67,7 @@ public abstract class ItemFrameMixin {
         EntityModifyCallback.EVENT.invoker().modify(player.level(), entity.blockPosition(), oldEntityTags, entity, null, player, Sources.ROTATE);
     }
 
-    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/HangingEntity;damage(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/HangingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     private void ledgerItemFrameKill(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity entity = (Entity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.level(), entity.blockPosition(), entity, source);

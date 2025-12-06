@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(CopperGolemStatueBlock.class)
 public class CopperGolemStatueBlockMixin {
-    @ModifyArgs(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    @ModifyArgs(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void onChangePose(Args args, Level world, BlockState oldState, BlockPos pos, Player player) {
         BlockState newState = args.get(1);
 

@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(FlowerPotBlock.class)
 public abstract class FlowerPotBlockMixin {
-    @ModifyArgs(method = "useWithoutItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    @ModifyArgs(method = "useWithoutItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void logFlowerPotInteractions(Args args, BlockState oldState, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         BlockState state = args.get(1);
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, oldState, state, null, null, player);

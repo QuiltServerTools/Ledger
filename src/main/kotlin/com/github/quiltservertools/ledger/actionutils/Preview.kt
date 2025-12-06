@@ -49,7 +49,7 @@ class Preview(
 
     fun cancel(player: ServerPlayer) {
         for (pos in positions) {
-            player.connection.sendPacket(ClientboundBlockUpdatePacket(player.level(), pos))
+            player.connection.send(ClientboundBlockUpdatePacket(player.level(), pos))
         }
         cleanup(player)
     }

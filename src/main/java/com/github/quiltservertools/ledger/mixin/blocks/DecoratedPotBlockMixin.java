@@ -30,7 +30,7 @@ public abstract class DecoratedPotBlockMixin {
         ItemInsertCallback.EVENT.invoker().insert(stack.copyWithCount(1), pos, (ServerLevel) world, Sources.PLAYER, (ServerPlayer) player);
     }
 
-    @Inject(method = "onProjectileHit", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+    @Inject(method = "onProjectileHit", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void logProjectileHit(Level world, BlockState state, BlockHitResult hit, Projectile projectile, CallbackInfo ci) {
         if (world.getBlockEntity(hit.getBlockPos()) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity) {
             if (projectile.getOwner() instanceof ServerPlayer player) {
