@@ -34,63 +34,55 @@ object MessageUtils {
             return
         }
 
-        source.sendFeedback({ header }, false)
+        source.sendMessage(header)
 
         results.actions.forEach { actionType ->
-            source.sendFeedback({ actionType.getMessage(source) }, false)
+            source.sendMessage(actionType.getMessage(source))
         }
 
-        source.sendFeedback(
-            {
-                Text.translatable(
-                    "text.ledger.footer.search",
-                    Text.translatable("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant)
-                        .styled {
-                            if (results.page > 1) {
-                                it.withHoverEvent(
-                                    HoverEvent.ShowText(
-                                        Text.translatable("text.ledger.footer.page_backward.hover")
-                                    )
-                                ).withClickEvent(
-                                    ClickEvent.RunCommand("/lg pg ${results.page - 1}")
-                                )
-                            } else {
-                                Style.EMPTY
-                            }
-                        },
-                    results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
-                    results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
-                    Text.translatable("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant)
-                        .styled {
-                            if (results.page < results.pages) {
-                                it.withHoverEvent(
-                                    HoverEvent.ShowText(
-                                        Text.translatable("text.ledger.footer.page_forward.hover")
-                                    )
-                                ).withClickEvent(
-                                    ClickEvent.RunCommand("/lg pg ${results.page + 1}")
-                                )
-                            } else {
-                                Style.EMPTY
-                            }
-                        }
-                ).setStyle(TextColorPallet.primary)
-            },
-            false
+        source.sendMessage(
+            Text.translatable(
+                "text.ledger.footer.search",
+                Text.translatable("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant).styled {
+                    if (results.page > 1) {
+                        it.withHoverEvent(
+                            HoverEvent.ShowText(
+                                Text.translatable("text.ledger.footer.page_backward.hover")
+                            )
+                        ).withClickEvent(
+                            ClickEvent.RunCommand("/lg pg ${results.page - 1}")
+                        )
+                    } else {
+                        Style.EMPTY
+                    }
+                },
+                results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
+                results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
+                Text.translatable("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant).styled {
+                    if (results.page < results.pages) {
+                        it.withHoverEvent(
+                            HoverEvent.ShowText(
+                                Text.translatable("text.ledger.footer.page_forward.hover")
+                            )
+                        ).withClickEvent(
+                            ClickEvent.RunCommand("/lg pg ${results.page + 1}")
+                        )
+                    } else {
+                        Style.EMPTY
+                    }
+                }
+            ).setStyle(TextColorPallet.primary)
         )
     }
 
     fun sendPlayerMessage(source: ServerCommandSource, results: List<PlayerResult>) {
         if (results.isEmpty()) {
-            source.sendFeedback(
-                { "error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary) },
-                false
-            )
+            source.sendMessage("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary))
             return
         }
-        source.sendFeedback({ "text.ledger.header.search".translate().setStyle(TextColorPallet.secondary) }, false)
+        source.sendMessage("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary))
         results.forEach {
-            source.sendFeedback({ it.toText() }, false)
+            source.sendMessage(it.toText())
         }
     }
 
