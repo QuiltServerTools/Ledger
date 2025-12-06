@@ -22,7 +22,7 @@
     "HoneycombItemMixin",
     "ItemScattererMixin",
     "JukeboxPlayableComponentMixin",
-    "LilyPadBreakageMixin",
+    "LilyPadBlockMixin",
     "LockableContainerBlockEntityMixin",
     "MoveItemsTaskMixin",
     "NetherPortalMixin",
