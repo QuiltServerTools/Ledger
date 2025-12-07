@@ -47,7 +47,7 @@ open class ItemPickUpActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)!!
 
-        val oldEntity = TagParser.parseCompoundFully(oldObjectState)
+        val oldEntity = TagParser.parseCompoundFully(oldObjectState!!)
         val optionalUUID = oldEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world.getEntity(optionalUUID.get())
@@ -66,7 +66,7 @@ open class ItemPickUpActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = TagParser.parseCompoundFully(oldObjectState)
+        val oldEntity = TagParser.parseCompoundFully(oldObjectState!!)
         val optionalUUID = oldEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())

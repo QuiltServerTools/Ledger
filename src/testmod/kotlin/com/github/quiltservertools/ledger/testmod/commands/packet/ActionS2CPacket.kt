@@ -7,15 +7,15 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.core.BlockPos
 
 data class ActionS2CPacket(
     val pos: BlockPos,
     val id: String,
-    val world: ResourceLocation,
-    val oldObjectId: ResourceLocation,
-    val objectId: ResourceLocation,
+    val world: Identifier,
+    val oldObjectId: Identifier,
+    val objectId: Identifier,
     val source: String,
     val timestamp: Instant,
     val extraData: String
@@ -31,9 +31,9 @@ data class ActionS2CPacket(
                 ActionS2CPacket(
                     it.readBlockPos(),
                     it.readUtf(),
-                    it.readResourceLocation(),
-                    it.readResourceLocation(),
-                    it.readResourceLocation(),
+                    it.readIdentifier(),
+                    it.readIdentifier(),
+                    it.readIdentifier(),
                     it.readUtf(),
                     Instant.ofEpochSecond(it.readLong()),
                     it.readUtf()

@@ -34,7 +34,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -97,7 +97,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         Networking
 
         Ledger.launch {
-            val idSet = setOf<ResourceLocation>()
+            val idSet = setOf<Identifier>()
                 .plus(BuiltInRegistries.BLOCK.keySet())
                 .plus(BuiltInRegistries.ITEM.keySet())
                 .plus(BuiltInRegistries.ENTITY_TYPE.keySet())
@@ -145,7 +145,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         registerEntityListeners()
     }
 
-    fun identifier(path: String) = ResourceLocation.fromNamespaceAndPath(MOD_ID, path)
+    fun identifier(path: String) = Identifier.fromNamespaceAndPath(MOD_ID, path)
 }
 
 fun logDebug(message: String) = Ledger.logger.debug(message)

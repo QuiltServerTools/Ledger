@@ -75,7 +75,7 @@ fun CommandSourceStack.inspectBlock(pos: BlockPos) {
 
         val params = ActionSearchParams.build {
             bounds = area
-            worlds = mutableSetOf(Negatable.allow(source.level.dimension().location()))
+            worlds = mutableSetOf(Negatable.allow(source.level.dimension().identifier()))
         }
 
         Ledger.searchCache[source.textName] = params

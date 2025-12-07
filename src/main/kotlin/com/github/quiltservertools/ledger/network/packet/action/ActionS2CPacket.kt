@@ -14,12 +14,12 @@ data class ActionS2CPacket(val content: ActionType) : CustomPacketPayload {
         // Type
         buf?.writeUtf(content.identifier)
         // Dimension
-        buf?.writeResourceLocation(content.world)
+        buf?.writeIdentifier(content.world!!)
         // Objects
-        buf?.writeResourceLocation(content.oldObjectIdentifier)
-        buf?.writeResourceLocation(content.objectIdentifier)
+        buf?.writeIdentifier(content.oldObjectIdentifier)
+        buf?.writeIdentifier(content.objectIdentifier)
         // Source
-        buf?.writeUtf(content.sourceProfile?.name ?: "@" + content.sourceName)
+        buf?.writeUtf(content.sourceProfile?.name ?: ("@" + content.sourceName))
         // Epoch second of event, sent as a long
         buf?.writeLong(content.timestamp.epochSecond)
         // Has been rolled back?

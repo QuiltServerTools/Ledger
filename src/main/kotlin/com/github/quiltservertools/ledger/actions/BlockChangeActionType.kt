@@ -7,7 +7,6 @@ import com.github.quiltservertools.ledger.utility.NbtUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
-import net.minecraft.Util
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.HolderGetter
 import net.minecraft.core.registries.BuiltInRegistries
@@ -16,10 +15,11 @@ import net.minecraft.nbt.TagParser
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.ProblemReporter
+import net.minecraft.util.Util
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
@@ -36,7 +36,7 @@ open class BlockChangeActionType : AbstractActionType() {
                 TagValueInput.create(
                     it,
                     server.registryAccess(),
-                    TagParser.parseCompoundFully(extraData)
+                    TagParser.parseCompoundFully(extraData!!)
                 )
             )
         }
@@ -46,7 +46,7 @@ open class BlockChangeActionType : AbstractActionType() {
     }
 
     override fun previewRollback(preview: Preview, player: ServerPlayer) {
-        if (player.level().dimension().location() == world) {
+        if (player.level().dimension().identifier() == world) {
             player.connection.send(
                 ClientboundBlockUpdatePacket(
                     pos,
@@ -66,7 +66,7 @@ open class BlockChangeActionType : AbstractActionType() {
     }
 
     override fun previewRestore(preview: Preview, player: ServerPlayer) {
-        if (player.level().dimension().location() == world) {
+        if (player.level().dimension().identifier() == world) {
             player.connection.send(
                 ClientboundBlockUpdatePacket(
                     pos,
@@ -137,7 +137,7 @@ open class BlockChangeActionType : AbstractActionType() {
         }
     )
 
-    private fun checkForBlockState(identifier: ResourceLocation, checkState: BlockState?): BlockState {
+    private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {
         val block = BuiltInRegistries.BLOCK.getOptional(identifier)
         if (block.isEmpty) {
             logWarn("Unknown block $identifier")

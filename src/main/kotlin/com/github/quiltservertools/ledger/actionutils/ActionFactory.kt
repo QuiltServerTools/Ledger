@@ -21,7 +21,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.animal.coppergolem.CopperGolem
+import net.minecraft.world.entity.animal.golem.CopperGolem
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -95,7 +95,7 @@ object ActionFactory {
         entity: BlockEntity? = null
     ) {
         action.pos = pos
-        action.world = world.dimension().location()
+        action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.BLOCK.getKey(state.block)
         action.oldObjectIdentifier = BuiltInRegistries.BLOCK.getKey(oldState.block)
         action.objectState = NbtUtils.blockStateToProperties(state)?.toString()
@@ -213,7 +213,7 @@ object ActionFactory {
         source: String
     ) {
         action.pos = pos
-        action.world = world.dimension().location()
+        action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ITEM.getKey(stack.item)
         action.sourceName = source
         if (!stack.isEmpty) {
@@ -258,7 +258,7 @@ object ActionFactory {
         source: String
     ) {
         action.pos = pos
-        action.world = world.dimension().location()
+        action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
         action.sourceName = source
         action.extraData = entity.createNbt().toString()
@@ -276,7 +276,7 @@ object ActionFactory {
         val action = EntityChangeActionType()
 
         action.pos = pos
-        action.world = world.dimension().location()
+        action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
         action.oldObjectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
 
@@ -303,7 +303,7 @@ object ActionFactory {
         val action = EntityMountActionType()
 
         action.pos = entity.blockPosition()
-        action.world = world.dimension().location()
+        action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
         action.oldObjectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
 
@@ -324,7 +324,7 @@ object ActionFactory {
         val action = EntityDismountActionType()
 
         action.pos = entity.blockPosition()
-        action.world = world.dimension().location()
+        action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
         action.oldObjectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
 

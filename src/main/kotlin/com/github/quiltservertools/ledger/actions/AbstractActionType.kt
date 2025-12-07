@@ -6,16 +6,16 @@ import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.ChatFormatting
-import net.minecraft.Util
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.players.NameAndId
+import net.minecraft.util.Util
 import net.minecraft.world.level.Level
 import java.time.Instant
 import kotlin.time.ExperimentalTime
@@ -24,9 +24,9 @@ abstract class AbstractActionType : ActionType {
     override var id: Int = -1
     override var timestamp: Instant = Instant.now()
     override var pos: BlockPos = BlockPos.ZERO
-    override var world: ResourceLocation? = null
-    override var objectIdentifier: ResourceLocation = ResourceLocation.withDefaultNamespace("air")
-    override var oldObjectIdentifier: ResourceLocation = ResourceLocation.withDefaultNamespace("air")
+    override var world: Identifier? = null
+    override var objectIdentifier: Identifier = Identifier.withDefaultNamespace("air")
+    override var oldObjectIdentifier: Identifier = Identifier.withDefaultNamespace("air")
     override var objectState: String? = null
     override var oldObjectState: String? = null
     override var sourceName: String = Sources.UNKNOWN
@@ -105,7 +105,7 @@ abstract class AbstractActionType : ActionType {
                 )
             ).withClickEvent(
                 ClickEvent.RunCommand(
-                    "/lg tp ${world ?: Level.OVERWORLD.location()} ${pos.x} ${pos.y} ${pos.z}"
+                    "/lg tp ${world ?: Level.OVERWORLD.identifier()} ${pos.x} ${pos.y} ${pos.z}"
                 )
             )
         }

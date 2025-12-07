@@ -1,5 +1,5 @@
 package com.github.quiltservertools.ledger.network.packet.response
 
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
-data class ResponseContent(val type: ResourceLocation, val response: Int)
+data class ResponseContent(val type: Identifier, val response: Int)

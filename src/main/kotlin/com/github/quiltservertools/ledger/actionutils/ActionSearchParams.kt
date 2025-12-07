@@ -5,7 +5,7 @@ import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.levelgen.structure.BoundingBox
 import java.time.Instant
 import java.util.*
@@ -17,10 +17,10 @@ data class ActionSearchParams(
     val after: Instant?,
     val rolledBack: Boolean?,
     var actions: MutableSet<Negatable<String>>?,
-    var objects: MutableSet<Negatable<ResourceLocation>>?,
+    var objects: MutableSet<Negatable<Identifier>>?,
     var sourceNames: MutableSet<Negatable<String>>?,
     var sourcePlayerIds: MutableSet<Negatable<UUID>>?,
-    var worlds: MutableSet<Negatable<ResourceLocation>>?
+    var worlds: MutableSet<Negatable<Identifier>>?
 ) {
     private constructor(builder: Builder) : this(
         builder.bounds,
@@ -61,10 +61,10 @@ data class ActionSearchParams(
         var after: Instant? = null
         var rolledBack: Boolean? = null
         var actions: MutableSet<Negatable<String>>? = null
-        var objects: MutableSet<Negatable<ResourceLocation>>? = null
+        var objects: MutableSet<Negatable<Identifier>>? = null
         var sourceNames: MutableSet<Negatable<String>>? = null
         var sourcePlayerIds: MutableSet<Negatable<UUID>>? = null
-        var worlds: MutableSet<Negatable<ResourceLocation>>? = null
+        var worlds: MutableSet<Negatable<Identifier>>? = null
 
         fun build() = ActionSearchParams(this)
     }

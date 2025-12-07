@@ -48,8 +48,8 @@ open class ItemDropActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val newEntity = TagParser.parseCompoundFully(objectState)
-        val optionalUUID = newEntity!!.read(UUID, UUIDUtil.CODEC)
+        val newEntity = TagParser.parseCompoundFully(objectState!!)
+        val optionalUUID = newEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())
 
@@ -63,8 +63,8 @@ open class ItemDropActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)!!
 
-        val newEntity = TagParser.parseCompoundFully(objectState)
-        val optionalUUID = newEntity!!.read(UUID, UUIDUtil.CODEC)
+        val newEntity = TagParser.parseCompoundFully(objectState!!)
+        val optionalUUID = newEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world.getEntity(optionalUUID.get())
 

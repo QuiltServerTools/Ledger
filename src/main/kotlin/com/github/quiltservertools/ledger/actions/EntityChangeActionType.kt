@@ -6,7 +6,6 @@ import com.github.quiltservertools.ledger.utility.UUID
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import net.minecraft.Util
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.UUIDUtil
@@ -14,9 +13,10 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.TagParser
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.ProblemReporter
+import net.minecraft.util.Util
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.decoration.HangingEntity
 import net.minecraft.world.entity.decoration.ItemFrame
@@ -42,12 +42,12 @@ class EntityChangeActionType : AbstractActionType() {
             val readView = TagValueInput.create(
                 ProblemReporter.DISCARDING,
                 registryManager,
-                TagParser.parseCompoundFully(extraData)
+                TagParser.parseCompoundFully(extraData!!)
             )
             return readView.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY)
         } catch (_: CommandSyntaxException) {
             // In an earlier version of ledger extraData only stored the item id
-            val item = BuiltInRegistries.ITEM.getValue(ResourceLocation.parse(extraData))
+            val item = BuiltInRegistries.ITEM.getValue(Identifier.parse(extraData!!))
             return item.defaultInstance
         }
     }
@@ -92,7 +92,7 @@ class EntityChangeActionType : AbstractActionType() {
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val oldEntity = TagParser.parseCompoundFully(oldObjectState)
+        val oldEntity = TagParser.parseCompoundFully(oldObjectState!!)
         val optionalUUID = oldEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())
@@ -115,7 +115,7 @@ class EntityChangeActionType : AbstractActionType() {
 
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
-        val newEntity = TagParser.parseCompoundFully(objectState)
+        val newEntity = TagParser.parseCompoundFully(objectState!!)
         val optionalUUID = newEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())

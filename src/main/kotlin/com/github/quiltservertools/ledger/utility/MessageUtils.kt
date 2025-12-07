@@ -28,7 +28,7 @@ object MessageUtils {
             for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
-                    ServerPlayNetworking.send(source.player, ActionS2CPacket(it))
+                    ServerPlayNetworking.send(source.playerOrException, ActionS2CPacket(it))
                 }
             }
             return

@@ -25,7 +25,7 @@ import net.minecraft.commands.Commands
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Vec3i
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.levelgen.structure.BoundingBox
 import java.time.Instant
 import java.util.*
@@ -96,7 +96,7 @@ object SearchParamArgument {
                     .create()
             val value =
                 if (parameter is NegatableParameter) parameter.parseNegatable(reader) else parameter.parse(reader)
-            result.put(propertyName, value)
+            result.put(propertyName, value!!)
         }
 
         val builder = ActionSearchParams.Builder()
@@ -114,7 +114,7 @@ object SearchParamArgument {
                             BlockPos.containing(source.position).subtract(Vec3i(range, range, range)),
                             BlockPos.containing(source.position).offset(Vec3i(range, range, range))
                         )
-                        val world = Negatable.allow(source.level.dimension().location())
+                        val world = Negatable.allow(source.level.dimension().identifier())
                         if (builder.worlds == null) {
                             builder.worlds = mutableSetOf(world)
                         } else {
@@ -127,11 +127,11 @@ object SearchParamArgument {
                     }
                 }
                 "world" -> {
-                    val world = value as Negatable<ResourceLocation>
+                    val world = value as Negatable<Identifier>
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
                 "object" -> {
-                    val objectIds = (value as Negatable<List<ResourceLocation>>).property.map {
+                    val objectIds = (value as Negatable<List<Identifier>>).property.map {
                         if (value.allowed) Negatable.allow(it) else Negatable.deny(it)
                     }.toMutableSet()
 

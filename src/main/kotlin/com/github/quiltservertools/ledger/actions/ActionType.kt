@@ -6,7 +6,7 @@ import com.github.quiltservertools.ledger.config.config
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.players.NameAndId
@@ -18,9 +18,9 @@ interface ActionType {
     val identifier: String
     var timestamp: Instant
     var pos: BlockPos
-    var world: ResourceLocation?
-    var objectIdentifier: ResourceLocation
-    var oldObjectIdentifier: ResourceLocation
+    var world: Identifier?
+    var objectIdentifier: Identifier
+    var oldObjectIdentifier: Identifier
     var objectState: String?
     var oldObjectState: String?
     var sourceName: String

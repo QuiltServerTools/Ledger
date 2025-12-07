@@ -8,19 +8,19 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
-object IdentifierSerializer : JsonSerializer<ResourceLocation>() {
-    override fun serialize(value: ResourceLocation, gen: JsonGenerator, serializers: SerializerProvider) {
+object IdentifierSerializer : JsonSerializer<Identifier>() {
+    override fun serialize(value: Identifier, gen: JsonGenerator, serializers: SerializerProvider) {
         gen.writeString(value.toString())
     }
 }
 
-object IdentifierDeserializer : JsonDeserializer<ResourceLocation>() {
+object IdentifierDeserializer : JsonDeserializer<Identifier>() {
     override fun deserialize(
         p: JsonParser,
         ctxt: DeserializationContext
-    ): ResourceLocation = ResourceLocation.parse(p.valueAsString)
+    ): Identifier = Identifier.parse(p.valueAsString)
 }
 
 @JsonSerialize(using = IdentifierSerializer::class)

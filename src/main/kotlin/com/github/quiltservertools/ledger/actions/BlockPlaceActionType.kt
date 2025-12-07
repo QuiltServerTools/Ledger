@@ -4,7 +4,6 @@ import com.github.quiltservertools.ledger.utility.LOGGER
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
-import net.minecraft.Util
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.TagParser
@@ -12,6 +11,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.ProblemReporter
+import net.minecraft.util.Util
 import net.minecraft.world.level.storage.TagValueInput
 
 class BlockPlaceActionType : BlockChangeActionType() {
@@ -36,7 +36,7 @@ class BlockPlaceActionType : BlockChangeActionType() {
                         TagValueInput.create(
                             it,
                             server.registryAccess(),
-                            TagParser.parseCompoundFully(extraData)
+                            TagParser.parseCompoundFully(extraData!!)
                         )
                     )
                 }

@@ -6,25 +6,25 @@ import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.SharedSuggestionProvider
-import net.minecraft.commands.arguments.ResourceLocationArgument
+import net.minecraft.commands.arguments.IdentifierArgument
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import java.util.concurrent.CompletableFuture
 
-class ObjectParameter : SimpleParameter<List<ResourceLocation>>() {
-    private val identifiers = mutableListOf<ResourceLocation>().apply {
+class ObjectParameter : SimpleParameter<List<Identifier>>() {
+    private val identifiers = mutableListOf<Identifier>().apply {
         addAll(BuiltInRegistries.ITEM.keySet())
         addAll(BuiltInRegistries.BLOCK.keySet())
         addAll(BuiltInRegistries.ENTITY_TYPE.keySet())
     }
 
-    override fun parse(stringReader: StringReader): List<ResourceLocation> {
+    override fun parse(stringReader: StringReader): List<Identifier> {
         if (stringReader.string.isEmpty()) return listOf()
         if (stringReader.string[stringReader.cursor] == '#') {
             stringReader.skip()
-            val tagId = ResourceLocationArgument.id().parse(stringReader)
+            val tagId = IdentifierArgument.id().parse(stringReader)
 
             val blockTag = TagKey.create(Registries.BLOCK, tagId)
             if (blockTag != null) {
@@ -48,7 +48,7 @@ class ObjectParameter : SimpleParameter<List<ResourceLocation>>() {
             }
         }
 
-        return listOf(ResourceLocationArgument.id().parse(stringReader))
+        return listOf(IdentifierArgument.id().parse(stringReader))
     }
 
     override fun getSuggestions(
@@ -57,7 +57,7 @@ class ObjectParameter : SimpleParameter<List<ResourceLocation>>() {
     ): CompletableFuture<Suggestions> {
         return if (builder.remaining.startsWith("#")) {
             SharedSuggestionProvider.suggestResource(
-                mutableListOf<ResourceLocation>().apply {
+                mutableListOf<Identifier>().apply {
                     addAll(BuiltInRegistries.BLOCK.tags.map { it.key().location }.toList())
                     addAll(BuiltInRegistries.ITEM.tags.map { it.key().location }.toList())
                     addAll(BuiltInRegistries.ENTITY_TYPE.tags.map { it.key().location }.toList())

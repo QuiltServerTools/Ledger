@@ -22,7 +22,7 @@ fun registerWorldEventListeners() {
 
 fun onWorldLoad(server: MinecraftServer, world: ServerLevel) {
     Ledger.launch {
-        DatabaseManager.registerWorld(world.dimension().location())
+        DatabaseManager.registerWorld(world.dimension().identifier())
     }
 }
 

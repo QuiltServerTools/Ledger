@@ -22,7 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import net.minecraft.core.BlockPos
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.players.NameAndId
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op
@@ -401,7 +401,7 @@ object DatabaseManager {
         }
     }
 
-    suspend fun registerWorld(identifier: ResourceLocation) =
+    suspend fun registerWorld(identifier: Identifier) =
         execute {
             insertWorld(identifier)
         }
@@ -416,7 +416,7 @@ object DatabaseManager {
             insertOrUpdatePlayer(uuid, name)
         }
 
-    suspend fun insertIdentifiers(identifiers: Collection<ResourceLocation>) =
+    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) =
         execute {
             insertRegKeys(identifiers)
         }
@@ -455,13 +455,13 @@ object DatabaseManager {
         }
     }
 
-    private fun Transaction.insertWorld(identifier: ResourceLocation) {
+    private fun Transaction.insertWorld(identifier: Identifier) {
         Tables.Worlds.insertIgnore {
             it[this.identifier] = identifier.toString()
         }
     }
 
-    private fun Transaction.insertRegKeys(identifiers: Collection<ResourceLocation>) {
+    private fun Transaction.insertRegKeys(identifiers: Collection<Identifier>) {
         Tables.ObjectIdentifiers.batchInsert(identifiers, true) { identifier ->
             this[Tables.ObjectIdentifiers.identifier] = identifier.toString()
         }
@@ -478,7 +478,7 @@ object DatabaseManager {
             this[Tables.Actions.oldObjectId] = getOrCreateRegistryKeyId(action.oldObjectIdentifier)
             this[Tables.Actions.world] = getOrCreateWorldId(
                 action.world ?: Ledger.server.overworld().dimension()
-                .location()
+                .identifier()
             )
             this[Tables.Actions.blockState] = action.objectState
             this[Tables.Actions.oldBlockState] = action.oldObjectState
@@ -609,20 +609,20 @@ object DatabaseManager {
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-    private fun getOrCreateRegistryKeyId(identifier: ResourceLocation): Int =
+    private fun getOrCreateRegistryKeyId(identifier: Identifier): Int =
         getOrCreateObjectId(
             identifier,
-            ResourceLocation::toString,
+            Identifier::toString,
             cache.objectIdentifierKeys,
             Tables.ObjectIdentifier,
             Tables.ObjectIdentifiers,
             Tables.ObjectIdentifiers.identifier
         )
 
-    private fun getOrCreateWorldId(identifier: ResourceLocation): Int =
+    private fun getOrCreateWorldId(identifier: Identifier): Int =
         getOrCreateObjectId(
             identifier,
-            ResourceLocation::toString,
+            Identifier::toString,
             cache.worldIdentifierKeys,
             Tables.World,
             Tables.Worlds,
@@ -643,19 +643,19 @@ object DatabaseManager {
             Tables.ActionIdentifiers.actionIdentifier
         )
 
-    private fun getRegistryKeyId(identifier: ResourceLocation): Int? =
+    private fun getRegistryKeyId(identifier: Identifier): Int? =
         getObjectId(
             identifier,
-            ResourceLocation::toString,
+            Identifier::toString,
             cache.objectIdentifierKeys,
             Tables.ObjectIdentifier,
             Tables.ObjectIdentifiers.identifier
         )
 
-    private fun getWorldId(identifier: ResourceLocation): Int? =
+    private fun getWorldId(identifier: Identifier): Int? =
         getObjectId(
             identifier,
-            ResourceLocation::toString,
+            Identifier::toString,
             cache.worldIdentifierKeys,
             Tables.World,
             Tables.Worlds.identifier

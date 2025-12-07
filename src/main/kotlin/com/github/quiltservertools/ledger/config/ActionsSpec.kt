@@ -1,11 +1,11 @@
 package com.github.quiltservertools.ledger.config
 
 import com.uchuhimo.konf.ConfigSpec
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 object ActionsSpec : ConfigSpec() {
     val typeBlacklist by required<List<String>>()
-    val worldBlacklist by required<List<ResourceLocation>>()
-    val objectBlacklist by required<List<ResourceLocation>>()
+    val worldBlacklist by required<List<Identifier>>()
+    val objectBlacklist by required<List<Identifier>>()
     val sourceBlacklist by required<List<String>>()
 }

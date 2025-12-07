@@ -2,10 +2,10 @@ package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
-import net.minecraft.Util
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
+import net.minecraft.util.Util
 
 class BlockBreakActionType : BlockChangeActionType() {
     override val identifier = "block-break"

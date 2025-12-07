@@ -10,7 +10,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.coppergolem.CopperGolem;
+import net.minecraft.world.entity.animal.golem.CopperGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -32,7 +32,7 @@ public class CopperGolemMixin {
         oldEntityTagsRef.set(NbtUtils.INSTANCE.createNbt(entity));
     }
 
-    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/coppergolem/CopperGolem;shear(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
+    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/golem/CopperGolem;shear(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/sounds/SoundSource;Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
     public void afterShear(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir, @Share("oldEntityTags") LocalRef<CompoundTag> oldEntityTagsRef) {
         Level world = player.level();
         CopperGolem copperGolemEntity = (CopperGolem) (Object) this;
@@ -57,7 +57,7 @@ public class CopperGolemMixin {
         EntityModifyCallback.EVENT.invoker().modify(world, pos, oldEntityTagsRef.get(), copperGolemEntity, null, player, Sources.INTERACT);
     }
 
-    @Inject(method = "turnToStatue", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/coppergolem/CopperGolem;discard()V"))
+    @Inject(method = "turnToStatue", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/golem/CopperGolem;discard()V"))
     public void onTurningIntoStatue(ServerLevel world, CallbackInfo ci) {
         CopperGolem copperGolemEntity = (CopperGolem) (Object) this;
         BlockPos pos = copperGolemEntity.blockPosition();

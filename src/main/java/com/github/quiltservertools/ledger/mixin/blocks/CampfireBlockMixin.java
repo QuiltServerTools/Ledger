@@ -33,7 +33,7 @@ public abstract class CampfireBlockMixin {
     public static BooleanProperty LIT;
 
     @Inject(method = "useItemOn", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;awardStat(Lnet/minecraft/resources/ResourceLocation;)V")
+            target = "Lnet/minecraft/world/entity/player/Player;awardStat(Lnet/minecraft/resources/Identifier;)V")
     )
     public void logCampfireAddItem(ItemStack itemStack, BlockState blockState, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir, @Local BlockEntity oldBlockEntity) {
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, world.getBlockState(pos), oldBlockEntity, world.getBlockEntity(pos), Sources.INSERT, player);

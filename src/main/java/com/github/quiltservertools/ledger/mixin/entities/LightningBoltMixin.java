@@ -17,7 +17,7 @@ public abstract class LightningBoltMixin {
             method = "spawnFire",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
+                    target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
                     ordinal = 0,
                     shift = At.Shift.AFTER
             )
@@ -31,7 +31,7 @@ public abstract class LightningBoltMixin {
             method = "spawnFire",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
+                    target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
                     ordinal = 1,
                     shift = At.Shift.AFTER
             )

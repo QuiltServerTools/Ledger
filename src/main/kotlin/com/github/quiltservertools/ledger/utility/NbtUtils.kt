@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.NbtUtils
 import net.minecraft.nbt.TagParser
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.ProblemReporter
 import net.minecraft.util.datafix.DataFixers
 import net.minecraft.util.datafix.fixes.References
@@ -39,7 +39,7 @@ object NbtUtils {
 
     fun blockStateFromProperties(
         tag: CompoundTag,
-        name: ResourceLocation,
+        name: Identifier,
         blockLookup: HolderGetter<Block>
     ): BlockState {
         val stateTag = CompoundTag()
@@ -48,7 +48,7 @@ object NbtUtils {
         return NbtUtils.readBlockState(blockLookup, stateTag)
     }
 
-    fun itemFromProperties(tag: String?, name: ResourceLocation, registries: HolderLookup.Provider): ItemStack {
+    fun itemFromProperties(tag: String?, name: Identifier, registries: HolderLookup.Provider): ItemStack {
         val extraDataTag = TagParser.parseCompoundFully(tag ?: "{}")
         var itemTag = extraDataTag
         if (!extraDataTag.contains(COUNT)) {
@@ -61,7 +61,7 @@ object NbtUtils {
             itemTag = DataFixers.getDataFixer().update(
                 References.ITEM_STACK,
                 Dynamic(NbtOps.INSTANCE, itemTag), ITEM_NBT_DATA_VERSION, ITEM_COMPONENTS_DATA_VERSION
-            ).cast(NbtOps.INSTANCE) as CompoundTag?
+            ).cast(NbtOps.INSTANCE) as CompoundTag
         }
         ProblemReporter.ScopedCollector({ "ledger:itemstack@$name" }, LOGGER).use {
             val readView = TagValueInput.create(it, registries, itemTag)

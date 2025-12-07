@@ -25,11 +25,11 @@ class EntityKillActionType : AbstractActionType() {
     override val identifier = "entity-kill"
 
     val noopPacketSender = object : ServerEntity.Synchronizer {
-        override fun sendToTrackingPlayers(packet: Packet<in ClientGamePacketListener>?) = Unit
-        override fun sendToTrackingPlayersAndSelf(packet: Packet<in ClientGamePacketListener>?) = Unit
+        override fun sendToTrackingPlayers(packet: Packet<in ClientGamePacketListener>) = Unit
+        override fun sendToTrackingPlayersAndSelf(packet: Packet<in ClientGamePacketListener>) = Unit
         override fun sendToTrackingPlayersFiltered(
-            packet: Packet<in ClientGamePacketListener>?,
-            predicate: Predicate<ServerPlayer?>?
+            packet: Packet<in ClientGamePacketListener>,
+            predicate: Predicate<ServerPlayer>
         ) = Unit
     }
 
@@ -40,18 +40,18 @@ class EntityKillActionType : AbstractActionType() {
         if (entityType.isEmpty) return null
 
         val entity = entityType.get().create(world, EntitySpawnReason.COMMAND)!!
-        val readView = TagValueInput.create(reporter, world.registryAccess(), TagParser.parseCompoundFully(extraData))
+        val readView = TagValueInput.create(reporter, world.registryAccess(), TagParser.parseCompoundFully(extraData!!))
         entity.load(readView)
         entity.setDeltaMovement(Vec3.ZERO)
         entity.setRemainingFireTicks(0)
-        if (entity is LivingEntity) entity.health = entity.invulnerableDuration.toFloat()
+        if (entity is LivingEntity) entity.health = entity.maxHealth
 
         return entity
     }
 
     override fun previewRollback(preview: Preview, player: ServerPlayer) {
         val world = player.level().server.getWorld(world)!!
-        val entity = getEntity(world, ProblemReporter.DISCARDING)
+        val entity = getEntity(world, ProblemReporter.DISCARDING) ?: return
 
         val entityTrackerEntry = ServerEntity(world, entity, 1, false, noopPacketSender)
         entityTrackerEntry.addPairing(player)
@@ -61,7 +61,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun previewRestore(preview: Preview, player: ServerPlayer) {
         val world = player.level().server.getWorld(world)
 
-        val tag = TagParser.parseCompoundFully(extraData)
+        val tag = TagParser.parseCompoundFully(extraData!!)
         val optionalUuid = tag.read("UUID", UUIDUtil.CODEC)
         if (optionalUuid.isPresent) {
             val uuid = optionalUuid.get()
@@ -86,7 +86,7 @@ class EntityKillActionType : AbstractActionType() {
     override fun restore(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)
 
-        val optionalUUID = TagParser.parseCompoundFully(extraData)!!.read(UUID, UUIDUtil.CODEC)
+        val optionalUUID = TagParser.parseCompoundFully(extraData!!).read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world?.getEntity(optionalUUID.get())
 
