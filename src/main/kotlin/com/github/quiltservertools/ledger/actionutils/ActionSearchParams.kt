@@ -4,15 +4,15 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.utility.Negatable
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import net.minecraft.text.Text
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockBox
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
+import net.minecraft.world.level.levelgen.structure.BoundingBox
 import java.time.Instant
 import java.util.*
 import kotlin.math.max
 
 data class ActionSearchParams(
-    val bounds: BlockBox?,
+    val bounds: BoundingBox?,
     val before: Instant?,
     val after: Instant?,
     val rolledBack: Boolean?,
@@ -36,27 +36,27 @@ data class ActionSearchParams(
 
     fun ensureSpecific() {
         if (bounds == null) {
-            throw SimpleCommandExceptionType(Text.translatable("error.ledger.unspecific.range")).create()
+            throw SimpleCommandExceptionType(Component.translatable("error.ledger.unspecific.range")).create()
         }
-        val range = (max(bounds.blockCountX, max(bounds.blockCountY, bounds.blockCountZ)) + 1) / 2
+        val range = (max(bounds.xSpan, max(bounds.ySpan, bounds.zSpan)) + 1) / 2
         if (range > Ledger.config[SearchSpec.maxRange] && bounds != GLOBAL) {
             throw SimpleCommandExceptionType(
-                Text.translatable("error.ledger.unspecific.range_to_big", Ledger.config[SearchSpec.maxRange])
+                Component.translatable("error.ledger.unspecific.range_to_big", Ledger.config[SearchSpec.maxRange])
             ).create()
         }
         if (sourceNames == null && sourcePlayerIds == null && after == null && before == null) {
-            throw SimpleCommandExceptionType(Text.translatable("error.ledger.unspecific.source_or_time")).create()
+            throw SimpleCommandExceptionType(Component.translatable("error.ledger.unspecific.source_or_time")).create()
         }
     }
 
     companion object {
-        val GLOBAL: BlockBox =
-            BlockBox(-Int.MAX_VALUE, -Int.MAX_VALUE, -Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
+        val GLOBAL: BoundingBox =
+            BoundingBox(-Int.MAX_VALUE, -Int.MAX_VALUE, -Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
         inline fun build(block: Builder.() -> Unit) = Builder().apply(block).build()
     }
 
     class Builder {
-        var bounds: BlockBox? = null
+        var bounds: BoundingBox? = null
         var before: Instant? = null
         var after: Instant? = null
         var rolledBack: Boolean? = null

@@ -3,25 +3,25 @@ package com.github.quiltservertools.ledger.testmod.commands.packet
 
 import com.github.quiltservertools.ledger.testmod.LedgerTest
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 
 data class HandshakeS2CPacket(val protocolVersion: Int, val ledgerVersion: String, val actionTypes: Collection<String>) :
-    CustomPayload {
+    CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ClientPlayNetworking.PlayPayloadHandler<HandshakeS2CPacket> {
-        val ID: CustomPayload.Id<HandshakeS2CPacket> = CustomPayload.Id(LedgerTest.HANDSHAKE)
-        val CODEC: PacketCodec<PacketByteBuf, HandshakeS2CPacket> =
-            CustomPayload.codecOf({ _, _ -> TODO() }, {
+        val ID: CustomPacketPayload.Type<HandshakeS2CPacket> = CustomPacketPayload.Type(LedgerTest.HANDSHAKE)
+        val CODEC: StreamCodec<FriendlyByteBuf, HandshakeS2CPacket> =
+            CustomPacketPayload.codec({ _, _ -> TODO() }, {
                 val protocolVersion = it.readInt()
-                val ledgerVersion = it.readString()
+                val ledgerVersion = it.readUtf()
                 val actionsLength = it.readInt()
                 val actionTypes: MutableList<String> = mutableListOf()
                 for (i in 0..actionsLength) {
-                    actionTypes.add(it.readString())
+                    actionTypes.add(it.readUtf())
                 }
                 HandshakeS2CPacket(protocolVersion, ledgerVersion, actionTypes)
             })

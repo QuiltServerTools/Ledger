@@ -5,33 +5,33 @@ import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.SearchResults
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.launch
-import net.minecraft.block.BedBlock
-import net.minecraft.block.BlockState
-import net.minecraft.block.ChestBlock
-import net.minecraft.block.DoorBlock
-import net.minecraft.block.enums.BedPart
-import net.minecraft.block.enums.ChestType
-import net.minecraft.block.enums.DoubleBlockHalf
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.math.BlockBox
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Direction
+import net.minecraft.ChatFormatting
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.BedBlock
+import net.minecraft.world.level.block.ChestBlock
+import net.minecraft.world.level.block.DoorBlock
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.properties.BedPart
+import net.minecraft.world.level.block.state.properties.ChestType
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
+import net.minecraft.world.level.levelgen.structure.BoundingBox
 import java.util.*
 
 private val inspectingUsers = HashSet<UUID>()
 
-fun PlayerEntity.isInspecting() = inspectingUsers.contains(this.uuid)
+fun Player.isInspecting() = inspectingUsers.contains(this.uuid)
 
-fun PlayerEntity.inspectOn(): Int {
+fun Player.inspectOn(): Int {
     inspectingUsers.add(this.uuid)
-    this.sendMessage(
-        Text.translatable(
+    this.displayClientMessage(
+        Component.translatable(
             "text.ledger.inspect.toggle",
-            "text.ledger.inspect.on".translate().formatted(Formatting.GREEN)
+            "text.ledger.inspect.on".translate().withStyle(ChatFormatting.GREEN)
         ).setStyle(TextColorPallet.secondary),
         false
     )
@@ -39,12 +39,12 @@ fun PlayerEntity.inspectOn(): Int {
     return 1
 }
 
-fun PlayerEntity.inspectOff(): Int {
+fun Player.inspectOff(): Int {
     inspectingUsers.remove(this.uuid)
-    this.sendMessage(
-        Text.translatable(
+    this.displayClientMessage(
+        Component.translatable(
             "text.ledger.inspect.toggle",
-            "text.ledger.inspect.off".translate().formatted(Formatting.RED)
+            "text.ledger.inspect.off".translate().withStyle(ChatFormatting.RED)
         ).setStyle(TextColorPallet.secondary),
         false
     )
@@ -52,46 +52,46 @@ fun PlayerEntity.inspectOff(): Int {
     return 1
 }
 
-fun ServerCommandSource.inspectBlock(pos: BlockPos) {
+fun CommandSourceStack.inspectBlock(pos: BlockPos) {
     val source = this
 
     Ledger.launch {
-        var area = BlockBox(pos)
+        var area = BoundingBox(pos)
 
-        val state = source.world.getBlockState(pos)
+        val state = source.level.getBlockState(pos)
         if (state.block is ChestBlock) {
             getOtherChestSide(state, pos)?.let {
-                area = BlockBox.create(pos, it)
+                area = BoundingBox.fromCorners(pos, it)
             }
         } else if (state.block is DoorBlock) {
             getOtherDoorHalf(state, pos).let {
-                area = BlockBox.create(pos, it)
+                area = BoundingBox.fromCorners(pos, it)
             }
         } else if (state.block is BedBlock) {
             getOtherBedPart(state, pos).let {
-                area = BlockBox.create(pos, it)
+                area = BoundingBox.fromCorners(pos, it)
             }
         }
 
         val params = ActionSearchParams.build {
             bounds = area
-            worlds = mutableSetOf(Negatable.allow(source.world.registryKey.value))
+            worlds = mutableSetOf(Negatable.allow(source.level.dimension().identifier()))
         }
 
-        Ledger.searchCache[source.name] = params
+        Ledger.searchCache[source.textName] = params
 
         MessageUtils.warnBusy(source)
         val results = DatabaseManager.searchActions(params, 1)
 
         if (results.actions.isEmpty()) {
-            source.sendError(Text.translatable("error.ledger.command.no_results"))
+            source.sendFailure(Component.translatable("error.ledger.command.no_results"))
             return@launch
         }
 
         MessageUtils.sendSearchResults(
             source,
             results,
-            Text.translatable(
+            Component.translatable(
                 "text.ledger.header.search.pos",
                 "${pos.x} ${pos.y} ${pos.z}".literal()
             ).setStyle(TextColorPallet.primary)
@@ -100,15 +100,15 @@ fun ServerCommandSource.inspectBlock(pos: BlockPos) {
 }
 
 fun getOtherChestSide(state: BlockState, pos: BlockPos): BlockPos? {
-    val type = state.get(ChestBlock.CHEST_TYPE)
+    val type = state.getValue(ChestBlock.TYPE)
     return if (type != ChestType.SINGLE) {
         // We now need to query other container results in the same chest
-        val facing = state.get(ChestBlock.FACING)
+        val facing = state.getValue(ChestBlock.FACING)
         if (type == ChestType.RIGHT) {
             // Chest is right, so left as you look at it
-            pos.offset(facing.rotateCounterclockwise(Direction.Axis.Y))
+            pos.relative(facing.getCounterClockWise(Direction.Axis.Y))
         } else {
-            pos.offset(facing.rotateClockwise(Direction.Axis.Y))
+            pos.relative(facing.getClockWise(Direction.Axis.Y))
         }
     } else {
         null
@@ -116,31 +116,31 @@ fun getOtherChestSide(state: BlockState, pos: BlockPos): BlockPos? {
 }
 
 private fun getOtherDoorHalf(state: BlockState, pos: BlockPos): BlockPos {
-    val half = state.get(DoorBlock.HALF)
+    val half = state.getValue(DoorBlock.HALF)
     return if (half == DoubleBlockHalf.LOWER) {
-        pos.offset(Direction.UP)
+        pos.relative(Direction.UP)
     } else {
-        pos.offset(Direction.DOWN)
+        pos.relative(Direction.DOWN)
     }
 }
 
 private fun getOtherBedPart(state: BlockState, pos: BlockPos): BlockPos {
-    val part = state.get(BedBlock.PART)
-    val direction = state.get(BedBlock.FACING)
+    val part = state.getValue(BedBlock.PART)
+    val direction = state.getValue(BedBlock.FACING)
     return if (part == BedPart.FOOT) {
-        pos.offset(direction)
+        pos.relative(direction)
     } else {
-        pos.offset(direction.opposite)
+        pos.relative(direction.opposite)
     }
 }
 
-suspend fun ServerPlayerEntity.getInspectResults(pos: BlockPos): SearchResults {
-    val source = this.commandSource
+suspend fun ServerPlayer.getInspectResults(pos: BlockPos): SearchResults {
+    val source = this.createCommandSourceStack()
     val params = ActionSearchParams.build {
-        bounds = BlockBox(pos)
+        bounds = BoundingBox(pos)
     }
 
-    Ledger.searchCache[source.name] = params
+    Ledger.searchCache[source.textName] = params
     MessageUtils.warnBusy(source)
     return DatabaseManager.searchActions(params, 1)
 }

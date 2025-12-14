@@ -4,11 +4,11 @@ package com.github.quiltservertools.ledger.testmod.commands.packet
 import com.github.quiltservertools.ledger.testmod.LedgerTest
 import java.time.Instant
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.BlockPos
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
+import net.minecraft.resources.Identifier
+import net.minecraft.core.BlockPos
 
 data class ActionS2CPacket(
     val pos: BlockPos,
@@ -20,23 +20,23 @@ data class ActionS2CPacket(
     val timestamp: Instant,
     val extraData: String
 ) :
-    CustomPayload {
+    CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ClientPlayNetworking.PlayPayloadHandler<ActionS2CPacket> {
-        val ID: CustomPayload.Id<ActionS2CPacket> = CustomPayload.Id(LedgerTest.ACTION)
-        val CODEC: PacketCodec<PacketByteBuf, ActionS2CPacket> =
-            CustomPayload.codecOf({ _, _ -> TODO() }, {
+        val ID: CustomPacketPayload.Type<ActionS2CPacket> = CustomPacketPayload.Type(LedgerTest.ACTION)
+        val CODEC: StreamCodec<FriendlyByteBuf, ActionS2CPacket> =
+            CustomPacketPayload.codec({ _, _ -> TODO() }, {
                 ActionS2CPacket(
                     it.readBlockPos(),
-                    it.readString(),
+                    it.readUtf(),
                     it.readIdentifier(),
                     it.readIdentifier(),
                     it.readIdentifier(),
-                    it.readString(),
+                    it.readUtf(),
                     Instant.ofEpochSecond(it.readLong()),
-                    it.readString()
+                    it.readUtf()
                 )
             })
 

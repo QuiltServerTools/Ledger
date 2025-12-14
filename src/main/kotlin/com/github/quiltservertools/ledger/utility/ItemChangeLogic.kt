@@ -1,40 +1,40 @@
 package com.github.quiltservertools.ledger.utility
 
-import net.minecraft.inventory.Inventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
-fun addItem(rollbackStack: ItemStack, inventory: Inventory): Boolean {
+fun addItem(rollbackStack: ItemStack, inventory: Container): Boolean {
     // Check if the inventory has enough space
     var matchingCountLeft = 0
-    for (i in 0 until inventory.size()) {
-        val stack = inventory.getStack(i)
+    for (i in 0 until inventory.containerSize) {
+        val stack = inventory.getItem(i)
         if (stack.isEmpty) {
-            matchingCountLeft += rollbackStack.maxCount
-        } else if (ItemStack.areItemsAndComponentsEqual(stack, rollbackStack)) {
-            matchingCountLeft += stack.maxCount - stack.count
+            matchingCountLeft += rollbackStack.maxStackSize
+        } else if (ItemStack.isSameItemSameComponents(stack, rollbackStack)) {
+            matchingCountLeft += stack.maxStackSize - stack.count
         }
     }
     if (matchingCountLeft < rollbackStack.count) {
         return false
     }
     var requiredCount = rollbackStack.count
-    for (i in 0 until inventory.size()) {
-        val stack = inventory.getStack(i)
+    for (i in 0 until inventory.containerSize) {
+        val stack = inventory.getItem(i)
         if (stack.isEmpty) {
-            if (requiredCount > rollbackStack.maxCount) {
-                inventory.setStack(i, rollbackStack.copyWithCount(rollbackStack.maxCount))
-                requiredCount -= rollbackStack.maxCount
+            if (requiredCount > rollbackStack.maxStackSize) {
+                inventory.setItem(i, rollbackStack.copyWithCount(rollbackStack.maxStackSize))
+                requiredCount -= rollbackStack.maxStackSize
             } else {
-                inventory.setStack(i, rollbackStack.copyWithCount(requiredCount))
+                inventory.setItem(i, rollbackStack.copyWithCount(requiredCount))
                 requiredCount = 0
             }
-        } else if (ItemStack.areItemsAndComponentsEqual(stack, rollbackStack)) {
-            val countUntilMax = rollbackStack.maxCount - stack.count
+        } else if (ItemStack.isSameItemSameComponents(stack, rollbackStack)) {
+            val countUntilMax = rollbackStack.maxStackSize - stack.count
             if (requiredCount > countUntilMax) {
-                inventory.setStack(i, rollbackStack.copyWithCount(rollbackStack.maxCount))
+                inventory.setItem(i, rollbackStack.copyWithCount(rollbackStack.maxStackSize))
                 requiredCount -= countUntilMax
             } else {
-                inventory.setStack(i, rollbackStack.copyWithCount(stack.count + requiredCount))
+                inventory.setItem(i, rollbackStack.copyWithCount(stack.count + requiredCount))
                 requiredCount = 0
             }
         }
@@ -45,12 +45,12 @@ fun addItem(rollbackStack: ItemStack, inventory: Inventory): Boolean {
     return false
 }
 
-fun removeMatchingItem(rollbackStack: ItemStack, inventory: Inventory): Boolean {
+fun removeMatchingItem(rollbackStack: ItemStack, inventory: Container): Boolean {
     // Check if the inventory has enough matching items
     var matchingCount = 0
-    for (i in 0 until inventory.size()) {
-        val stack = inventory.getStack(i)
-        if (ItemStack.areItemsAndComponentsEqual(stack, rollbackStack)) {
+    for (i in 0 until inventory.containerSize) {
+        val stack = inventory.getItem(i)
+        if (ItemStack.isSameItemSameComponents(stack, rollbackStack)) {
             matchingCount += stack.count
         }
     }
@@ -58,15 +58,15 @@ fun removeMatchingItem(rollbackStack: ItemStack, inventory: Inventory): Boolean 
         return false
     }
     var requiredCount = rollbackStack.count
-    for (i in 0 until inventory.size()) {
-        val stack = inventory.getStack(i)
-        if (ItemStack.areItemsAndComponentsEqual(stack, rollbackStack)) {
+    for (i in 0 until inventory.containerSize) {
+        val stack = inventory.getItem(i)
+        if (ItemStack.isSameItemSameComponents(stack, rollbackStack)) {
             if (requiredCount < stack.count) {
                 // Only some parts of this stack are needed
-                inventory.setStack(i, stack.copyWithCount(stack.count - requiredCount))
+                inventory.setItem(i, stack.copyWithCount(stack.count - requiredCount))
                 requiredCount = 0
             } else {
-                inventory.setStack(i, ItemStack.EMPTY)
+                inventory.setItem(i, ItemStack.EMPTY)
                 requiredCount -= stack.count
             }
             if (requiredCount <= 0) {

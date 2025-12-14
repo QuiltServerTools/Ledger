@@ -6,8 +6,8 @@ import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.command.CommandSource
-import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
 import java.util.concurrent.CompletableFuture
 
 private const val MAX_SIZE = 9
@@ -31,13 +31,13 @@ class RangeParameter : SimpleParameter<Int?>() {
     }
 
     override fun getSuggestions(
-        context: CommandContext<ServerCommandSource>,
+        context: CommandContext<CommandSourceStack>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val remaining = builder.remaining.lowercase()
         val reader = StringReader(remaining)
 
-        CommandSource.suggestMatching(listOf(GLOBAL), builder)
+        SharedSuggestionProvider.suggest(listOf(GLOBAL), builder)
         var suggestNumber = false
         try {
             reader.readInt()

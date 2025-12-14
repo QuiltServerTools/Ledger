@@ -1,7 +1,7 @@
 package com.github.quiltservertools.ledger.network.packet
 
 import com.github.quiltservertools.ledger.Ledger
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 
 enum class LedgerPacketTypes(val id: Identifier) {
     ACTION(Ledger.identifier("action")),

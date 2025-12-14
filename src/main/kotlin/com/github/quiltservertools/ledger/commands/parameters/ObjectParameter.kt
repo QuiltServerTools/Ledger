@@ -4,64 +4,68 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.command.CommandSource
-import net.minecraft.command.argument.IdentifierArgumentType
-import net.minecraft.registry.Registries
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.registry.tag.TagKey
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.util.Identifier
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.SharedSuggestionProvider
+import net.minecraft.commands.arguments.IdentifierArgument
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
+import net.minecraft.tags.TagKey
 import java.util.concurrent.CompletableFuture
 
 class ObjectParameter : SimpleParameter<List<Identifier>>() {
     private val identifiers = mutableListOf<Identifier>().apply {
-        addAll(Registries.ITEM.ids)
-        addAll(Registries.BLOCK.ids)
-        addAll(Registries.ENTITY_TYPE.ids)
+        addAll(BuiltInRegistries.ITEM.keySet())
+        addAll(BuiltInRegistries.BLOCK.keySet())
+        addAll(BuiltInRegistries.ENTITY_TYPE.keySet())
     }
 
     override fun parse(stringReader: StringReader): List<Identifier> {
         if (stringReader.string.isEmpty()) return listOf()
         if (stringReader.string[stringReader.cursor] == '#') {
             stringReader.skip()
-            val tagId = IdentifierArgumentType.identifier().parse(stringReader)
+            val tagId = IdentifierArgument.id().parse(stringReader)
 
-            val blockTag = TagKey.of(RegistryKeys.BLOCK, tagId)
+            val blockTag = TagKey.create(Registries.BLOCK, tagId)
             if (blockTag != null) {
-                return Registries.BLOCK.iterateEntries(
+                return BuiltInRegistries.BLOCK.getTagOrEmpty(
                     blockTag
-                ).map { Registries.BLOCK.getId(it.value()) }
+                ).map { BuiltInRegistries.BLOCK.getKey(it.value()) }
             }
 
-            val itemTag = TagKey.of(RegistryKeys.ITEM, tagId)
-            if (itemTag != null) Registries.ITEM.iterateEntries(itemTag).map { Registries.ITEM.getId(it.value()) }
+            val itemTag = TagKey.create(Registries.ITEM, tagId)
+            if (itemTag != null) {
+                BuiltInRegistries.ITEM.getTagOrEmpty(
+                    itemTag
+                ).map { BuiltInRegistries.ITEM.getKey(it.value()) }
+            }
 
-            val entityTag = TagKey.of(RegistryKeys.ENTITY_TYPE, tagId)
+            val entityTag = TagKey.create(Registries.ENTITY_TYPE, tagId)
             if (entityTag != null) {
-                return Registries.ENTITY_TYPE.iterateEntries(entityTag).map {
-                Registries.ENTITY_TYPE.getId(it.value())
+                return BuiltInRegistries.ENTITY_TYPE.getTagOrEmpty(entityTag).map {
+                BuiltInRegistries.ENTITY_TYPE.getKey(it.value())
             }
             }
         }
 
-        return listOf(IdentifierArgumentType.identifier().parse(stringReader))
+        return listOf(IdentifierArgument.id().parse(stringReader))
     }
 
     override fun getSuggestions(
-        context: CommandContext<ServerCommandSource>,
+        context: CommandContext<CommandSourceStack>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         return if (builder.remaining.startsWith("#")) {
-            CommandSource.suggestIdentifiers(
+            SharedSuggestionProvider.suggestResource(
                 mutableListOf<Identifier>().apply {
-                    addAll(Registries.BLOCK.streamTags().map { it.tag.id }.toList())
-                    addAll(Registries.ITEM.streamTags().map { it.tag.id }.toList())
-                    addAll(Registries.ENTITY_TYPE.streamTags().map { it.tag.id }.toList())
+                    addAll(BuiltInRegistries.BLOCK.tags.map { it.key().location }.toList())
+                    addAll(BuiltInRegistries.ITEM.tags.map { it.key().location }.toList())
+                    addAll(BuiltInRegistries.ENTITY_TYPE.tags.map { it.key().location }.toList())
                 },
                 builder.createOffset(builder.start + 1)
             )
         } else {
-            CommandSource.suggestIdentifiers(
+            SharedSuggestionProvider.suggestResource(
                 identifiers,
                 builder
             )

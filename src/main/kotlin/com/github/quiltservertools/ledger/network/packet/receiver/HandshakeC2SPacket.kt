@@ -12,20 +12,20 @@ import com.github.quiltservertools.ledger.registry.ActionRegistry
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.text.Text
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.chat.Component
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 import java.util.*
 
-data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
+data class HandshakeC2SPacket(val nbt: CompoundTag?) : CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<HandshakeC2SPacket> {
-        val ID: CustomPayload.Id<HandshakeC2SPacket> = CustomPayload.Id(LedgerPacketTypes.HANDSHAKE.id)
-        val CODEC: PacketCodec<PacketByteBuf, HandshakeC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
+        val ID: CustomPacketPayload.Type<HandshakeC2SPacket> = CustomPacketPayload.Type(LedgerPacketTypes.HANDSHAKE.id)
+        val CODEC: StreamCodec<FriendlyByteBuf, HandshakeC2SPacket> = CustomPacketPayload.codec({ _, _ -> TODO() }, {
             HandshakeC2SPacket(it.readNbt())
         })
 
@@ -56,8 +56,8 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
                     ServerPlayNetworking.send(player, packet)
                     player.enableNetworking()
                 } else {
-                    player.sendMessage(
-                        Text.translatable(
+                    player.displayClientMessage(
+                        Component.translatable(
                             "text.ledger.network.protocols_mismatched",
                             Networking.PROTOCOL_VERSION,
                             info.get().protocolVersion
@@ -71,10 +71,10 @@ data class HandshakeC2SPacket(val nbt: NbtCompound?) : CustomPayload {
                     )
                 }
             } else {
-                player.sendMessage(Text.translatable("text.ledger.network.no_mod_info"), false)
+                player.displayClientMessage(Component.translatable("text.ledger.network.no_mod_info"), false)
             }
         }
-        private fun readInfo(nbt: NbtCompound?): Optional<ModInfo> {
+        private fun readInfo(nbt: CompoundTag?): Optional<ModInfo> {
             if (nbt == null) {
                 return Optional.empty()
             }

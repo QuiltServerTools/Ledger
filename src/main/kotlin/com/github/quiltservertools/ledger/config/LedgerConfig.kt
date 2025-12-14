@@ -4,7 +4,7 @@ import com.github.quiltservertools.ledger.config.util.IdentifierMixin
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.source.toml
 import net.fabricmc.loader.api.FabricLoader
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 
 const val CONFIG_PATH = "ledger.toml"
 

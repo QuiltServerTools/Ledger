@@ -8,11 +8,11 @@ import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import kotlinx.coroutines.launch
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.core.BlockPos
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.math.BlockPos
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
 
 fun registerWorldEventListeners() {
     ItemInsertCallback.EVENT.register(::onItemInsert)
@@ -20,16 +20,16 @@ fun registerWorldEventListeners() {
     ServerWorldEvents.LOAD.register(::onWorldLoad)
 }
 
-fun onWorldLoad(server: MinecraftServer, world: ServerWorld) {
+fun onWorldLoad(server: MinecraftServer, world: ServerLevel) {
     Ledger.launch {
-        DatabaseManager.registerWorld(world.registryKey.value)
+        DatabaseManager.registerWorld(world.dimension().identifier())
     }
 }
 
 private fun onItemRemove(
     stack: ItemStack,
     pos: BlockPos,
-    world: ServerWorld,
+    world: ServerLevel,
     source: String,
     entity: LivingEntity?
 ) {
@@ -47,7 +47,7 @@ private fun onItemRemove(
 private fun onItemInsert(
     stack: ItemStack,
     pos: BlockPos,
-    world: ServerWorld,
+    world: ServerLevel,
     source: String,
     entity: LivingEntity?
 ) {

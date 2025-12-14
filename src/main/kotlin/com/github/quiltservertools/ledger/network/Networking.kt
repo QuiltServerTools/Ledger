@@ -9,11 +9,11 @@ import com.github.quiltservertools.ledger.network.packet.receiver.RollbackC2SPac
 import com.github.quiltservertools.ledger.network.packet.receiver.SearchC2SPacket
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.level.ServerPlayer
 
 object Networking {
     // List of players who have a compatible client mod
-    private var networkedPlayers = mutableSetOf<ServerPlayerEntity>()
+    private var networkedPlayers = mutableSetOf<ServerPlayer>()
     const val PROTOCOL_VERSION = 3
 
     init {
@@ -35,9 +35,9 @@ object Networking {
         }
     }
 
-    fun ServerPlayerEntity.hasNetworking() = networkedPlayers.contains(this)
+    fun ServerPlayer.hasNetworking() = networkedPlayers.contains(this)
 
-    fun ServerPlayerEntity.enableNetworking() = networkedPlayers.add(this)
+    fun ServerPlayer.enableNetworking() = networkedPlayers.add(this)
 
-    fun ServerPlayerEntity.disableNetworking() = networkedPlayers.remove(this)
+    fun ServerPlayer.disableNetworking() = networkedPlayers.remove(this)
 }

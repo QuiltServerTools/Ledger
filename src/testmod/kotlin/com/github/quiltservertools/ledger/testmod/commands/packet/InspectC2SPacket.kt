@@ -2,23 +2,23 @@ package com.github.quiltservertools.ledger.testmod.commands.packet
 
 
 import com.github.quiltservertools.ledger.testmod.LedgerTest
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
-import net.minecraft.util.math.BlockPos
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
+import net.minecraft.core.BlockPos
 
-data class InspectC2SPacket(val pos: BlockPos) : CustomPayload {
+data class InspectC2SPacket(val pos: BlockPos) : CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
-    private fun write(buf: PacketByteBuf?) {
+    private fun write(buf: FriendlyByteBuf?) {
         buf?.writeBlockPos(pos)
     }
 
     companion object {
-        val ID: CustomPayload.Id<InspectC2SPacket> = CustomPayload.Id(LedgerTest.INSPECT)
-        val CODEC: PacketCodec<PacketByteBuf, InspectC2SPacket> =
-            CustomPayload.codecOf(InspectC2SPacket::write) { TODO() }
+        val ID: CustomPacketPayload.Type<InspectC2SPacket> = CustomPacketPayload.Type(LedgerTest.INSPECT)
+        val CODEC: StreamCodec<FriendlyByteBuf, InspectC2SPacket> =
+            CustomPacketPayload.codec(InspectC2SPacket::write) { TODO() }
     }
 
 }

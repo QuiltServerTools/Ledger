@@ -4,12 +4,12 @@ import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback
 import com.github.quiltservertools.ledger.database.ActionQueueService
-import net.minecraft.entity.Entity
-import net.minecraft.entity.damage.DamageSource
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
 
 fun registerEntityListeners() {
     EntityKillCallback.EVENT.register(::onKill)
@@ -17,7 +17,7 @@ fun registerEntityListeners() {
 }
 
 private fun onKill(
-    world: World,
+    world: Level,
     pos: BlockPos,
     entity: Entity,
     source: DamageSource
@@ -28,7 +28,7 @@ private fun onKill(
 }
 
 fun onKill(
-    world: World,
+    world: Level,
     pos: BlockPos,
     entity: Entity,
     source: String
@@ -39,9 +39,9 @@ fun onKill(
 }
 
 private fun onModify(
-    world: World,
+    world: Level,
     pos: BlockPos,
-    oldEntityTags: NbtCompound,
+    oldEntityTags: CompoundTag,
     entity: Entity,
     itemStack: ItemStack?,
     entityActor: Entity?,

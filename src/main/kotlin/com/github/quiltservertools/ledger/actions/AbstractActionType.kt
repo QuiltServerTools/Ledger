@@ -5,43 +5,43 @@ import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
+import net.minecraft.ChatFormatting
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.PlayerConfigEntry
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
-import net.minecraft.util.Identifier
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.players.NameAndId
 import net.minecraft.util.Util
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import java.time.Instant
 import kotlin.time.ExperimentalTime
 
 abstract class AbstractActionType : ActionType {
     override var id: Int = -1
     override var timestamp: Instant = Instant.now()
-    override var pos: BlockPos = BlockPos.ORIGIN
+    override var pos: BlockPos = BlockPos.ZERO
     override var world: Identifier? = null
-    override var objectIdentifier: Identifier = Identifier.ofVanilla("air")
-    override var oldObjectIdentifier: Identifier = Identifier.ofVanilla("air")
+    override var objectIdentifier: Identifier = Identifier.withDefaultNamespace("air")
+    override var oldObjectIdentifier: Identifier = Identifier.withDefaultNamespace("air")
     override var objectState: String? = null
     override var oldObjectState: String? = null
     override var sourceName: String = Sources.UNKNOWN
-    override var sourceProfile: PlayerConfigEntry? = null
+    override var sourceProfile: NameAndId? = null
     override var extraData: String? = null
     override var rolledBack: Boolean = false
 
     override fun rollback(server: MinecraftServer): Boolean = false
-    override fun previewRollback(preview: Preview, player: ServerPlayerEntity) = Unit
-    override fun previewRestore(preview: Preview, player: ServerPlayerEntity) = Unit
+    override fun previewRollback(preview: Preview, player: ServerPlayer) = Unit
+    override fun previewRestore(preview: Preview, player: ServerPlayer) = Unit
     override fun restore(server: MinecraftServer): Boolean = false
 
     @ExperimentalTime
-    override fun getMessage(source: ServerCommandSource): Text {
-        val message = Text.translatable(
+    override fun getMessage(source: CommandSourceStack): Component {
+        val message = Component.translatable(
             "text.ledger.action_message",
             getTimeMessage(),
             getSourceMessage(),
@@ -52,16 +52,16 @@ abstract class AbstractActionType : ActionType {
         message.style = TextColorPallet.light
 
         if (rolledBack) {
-            message.formatted(Formatting.STRIKETHROUGH)
+            message.withStyle(ChatFormatting.STRIKETHROUGH)
         }
 
         return message
     }
 
     @ExperimentalTime
-    open fun getTimeMessage(): Text = MessageUtils.instantToText(timestamp)
+    open fun getTimeMessage(): Component = MessageUtils.instantToText(timestamp)
 
-    open fun getSourceMessage(): Text {
+    open fun getSourceMessage(): Component {
         if (sourceProfile == null) {
             return "@$sourceName".literal().setStyle(TextColorPallet.secondary)
         }
@@ -73,8 +73,8 @@ abstract class AbstractActionType : ActionType {
         return "@$sourceName (${sourceProfile!!.name})".literal().setStyle(TextColorPallet.secondary)
     }
 
-    open fun getActionMessage(): Text = Text.translatable("text.ledger.action.$identifier")
-        .styled {
+    open fun getActionMessage(): Component = Component.translatable("text.ledger.action.$identifier")
+        .withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowText(
                     identifier.literal()
@@ -82,12 +82,12 @@ abstract class AbstractActionType : ActionType {
             )
         }
 
-    open fun getObjectMessage(source: ServerCommandSource): Text = Text.translatable(
-        Util.createTranslationKey(
+    open fun getObjectMessage(source: CommandSourceStack): Component = Component.translatable(
+        Util.makeDescriptionId(
             this.getTranslationType(),
             objectIdentifier
         )
-    ).setStyle(TextColorPallet.secondaryVariant).styled {
+    ).setStyle(TextColorPallet.secondaryVariant).withStyle {
         it.withHoverEvent(
             HoverEvent.ShowText(
                 objectIdentifier.toString().literal()
@@ -95,17 +95,17 @@ abstract class AbstractActionType : ActionType {
         )
     }
 
-    open fun getLocationMessage(): Text = "${pos.x} ${pos.y} ${pos.z}".literal()
+    open fun getLocationMessage(): Component = "${pos.x} ${pos.y} ${pos.z}".literal()
         .setStyle(TextColorPallet.secondary)
-        .styled {
+        .withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowText(
-                    Text.literal(world?.let { "$it\n" } ?: "")
-                        .append(Text.translatable("text.ledger.action_message.location.hover"))
+                    Component.literal(world?.let { "$it\n" } ?: "")
+                        .append(Component.translatable("text.ledger.action_message.location.hover"))
                 )
             ).withClickEvent(
                 ClickEvent.RunCommand(
-                    "/lg tp ${world ?: World.OVERWORLD.value} ${pos.x} ${pos.y} ${pos.z}"
+                    "/lg tp ${world ?: Level.OVERWORLD.identifier()} ${pos.x} ${pos.y} ${pos.z}"
                 )
             )
         }

@@ -3,15 +3,15 @@ package com.github.quiltservertools.ledger.mixin.entities.silverfish;
 import com.github.quiltservertools.ledger.callbacks.BlockBreakCallback;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.entity.Entity;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(
-        targets = "net.minecraft.entity.mob.SilverfishEntity$CallForHelpGoal"
+        targets = "net.minecraft.world.entity.monster.Silverfish$SilverfishWakeUpFriendsGoal"
 )
 public class CallForHelpGoalMixin {
 
@@ -19,17 +19,17 @@ public class CallForHelpGoalMixin {
             method = "tick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;breakBlock(Lnet/minecraft/util/math/BlockPos;ZLnet/minecraft/entity/Entity;)Z"
+                    target = "Lnet/minecraft/world/level/Level;destroyBlock(Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/entity/Entity;)Z"
             )
     )
     private boolean logSilverFishBreakInfestedBlock(
-            World world,
+            Level world,
             BlockPos pos,
             boolean drop,
             Entity entity,
             Operation<Boolean> original
     ) {
-        String source = Registries.ENTITY_TYPE.getId(entity.getType()).getPath();
+        String source = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).getPath();
         BlockBreakCallback.EVENT.invoker()
                 .breakBlock(
                         world,

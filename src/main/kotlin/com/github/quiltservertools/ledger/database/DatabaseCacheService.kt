@@ -2,7 +2,7 @@ package com.github.quiltservertools.ledger.database
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 import java.util.UUID
 
 object DatabaseCacheService {

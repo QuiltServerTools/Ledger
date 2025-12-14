@@ -4,7 +4,7 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
-import net.minecraft.server.command.ServerCommandSource
+import net.minecraft.commands.CommandSourceStack
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.CompletableFuture
@@ -49,7 +49,7 @@ class TimeParameter : SimpleParameter<Instant>() {
     private fun isCharValid(c: Char) = c in '0'..'9' || c in 'a'..'z'
 
     override fun getSuggestions(
-        context: CommandContext<ServerCommandSource>,
+        context: CommandContext<CommandSourceStack>,
         builder: SuggestionsBuilder
     ): CompletableFuture<Suggestions> {
         val remaining = builder.remaining.lowercase()

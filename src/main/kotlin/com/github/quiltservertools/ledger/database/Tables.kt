@@ -1,6 +1,6 @@
 package com.github.quiltservertools.ledger.database
 
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable

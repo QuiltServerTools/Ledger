@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 
 object IdentifierSerializer : JsonSerializer<Identifier>() {
     override fun serialize(value: Identifier, gen: JsonGenerator, serializers: SerializerProvider) {
@@ -17,7 +17,10 @@ object IdentifierSerializer : JsonSerializer<Identifier>() {
 }
 
 object IdentifierDeserializer : JsonDeserializer<Identifier>() {
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Identifier = Identifier.of(p.valueAsString)
+    override fun deserialize(
+        p: JsonParser,
+        ctxt: DeserializationContext
+    ): Identifier = Identifier.parse(p.valueAsString)
 }
 
 @JsonSerialize(using = IdentifierSerializer::class)

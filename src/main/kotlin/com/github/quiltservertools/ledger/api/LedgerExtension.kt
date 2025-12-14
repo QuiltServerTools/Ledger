@@ -1,7 +1,7 @@
 package com.github.quiltservertools.ledger.api
 
 import com.uchuhimo.konf.ConfigSpec
-import net.minecraft.util.Identifier
+import net.minecraft.resources.Identifier
 
 interface LedgerExtension {
     fun getIdentifier(): Identifier

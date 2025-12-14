@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.config
 import com.github.quiltservertools.ledger.Ledger
 import com.uchuhimo.konf.Config
 import com.uchuhimo.konf.ConfigSpec
-import net.minecraft.util.WorldSavePath
+import net.minecraft.world.level.storage.LevelResource
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
@@ -22,6 +22,6 @@ fun Config.getDatabasePath(): Path {
     return if (location != null) {
         Path.of(location)
     } else {
-        Ledger.server.getSavePath(WorldSavePath.ROOT)
+        Ledger.server.getWorldPath(LevelResource.ROOT)
     }
 }

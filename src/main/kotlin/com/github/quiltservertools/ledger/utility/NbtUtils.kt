@@ -2,23 +2,23 @@ package com.github.quiltservertools.ledger.utility
 
 import com.mojang.logging.LogUtils
 import com.mojang.serialization.Dynamic
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.datafixer.Schemas
-import net.minecraft.datafixer.TypeReferences
-import net.minecraft.entity.Entity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NbtCompound
-import net.minecraft.nbt.NbtHelper
+import net.minecraft.core.HolderGetter
+import net.minecraft.core.HolderLookup
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.StringNbtReader
-import net.minecraft.registry.RegistryEntryLookup
-import net.minecraft.registry.RegistryWrapper
-import net.minecraft.storage.NbtReadView
-import net.minecraft.storage.NbtWriteView
-import net.minecraft.util.ErrorReporter
-import net.minecraft.util.Identifier
+import net.minecraft.nbt.NbtUtils
+import net.minecraft.nbt.TagParser
+import net.minecraft.resources.Identifier
+import net.minecraft.util.ProblemReporter
+import net.minecraft.util.datafix.DataFixers
+import net.minecraft.util.datafix.fixes.References
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.level.storage.TagValueOutput
 
 const val ITEM_NBT_DATA_VERSION = 3817
 const val ITEM_COMPONENTS_DATA_VERSION = 3825
@@ -31,25 +31,25 @@ const val UUID = "UUID" // Entity
 val LOGGER = LogUtils.getLogger()
 
 object NbtUtils {
-    fun blockStateToProperties(state: BlockState): NbtCompound? {
-        val stateTag = NbtHelper.fromBlockState(state)
-        if (state.block.defaultState == state) return null // Don't store default block state
+    fun blockStateToProperties(state: BlockState): CompoundTag? {
+        val stateTag = NbtUtils.writeBlockState(state)
+        if (state.block.defaultBlockState() == state) return null // Don't store default block state
         return stateTag.getCompound(PROPERTIES).orElse(null)
     }
 
     fun blockStateFromProperties(
-        tag: NbtCompound,
+        tag: CompoundTag,
         name: Identifier,
-        blockLookup: RegistryEntryLookup<Block>
+        blockLookup: HolderGetter<Block>
     ): BlockState {
-        val stateTag = NbtCompound()
+        val stateTag = CompoundTag()
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
-        return NbtHelper.toBlockState(blockLookup, stateTag)
+        return NbtUtils.readBlockState(blockLookup, stateTag)
     }
 
-    fun itemFromProperties(tag: String?, name: Identifier, registries: RegistryWrapper.WrapperLookup): ItemStack {
-        val extraDataTag = StringNbtReader.readCompound(tag ?: "{}")
+    fun itemFromProperties(tag: String?, name: Identifier, registries: HolderLookup.Provider): ItemStack {
+        val extraDataTag = TagParser.parseCompoundFully(tag ?: "{}")
         var itemTag = extraDataTag
         if (!extraDataTag.contains(COUNT)) {
             // 1.20.4 and lower (need data fixing)
@@ -58,41 +58,41 @@ object NbtUtils {
                 // Ledger ItemStack in 1.20.4 and earlier had "Count" omitted if it was 1
                 itemTag.putByte(COUNT_PRE_1_20_5, 1)
             }
-            itemTag = Schemas.getFixer().update(
-                TypeReferences.ITEM_STACK,
+            itemTag = DataFixers.getDataFixer().update(
+                References.ITEM_STACK,
                 Dynamic(NbtOps.INSTANCE, itemTag), ITEM_NBT_DATA_VERSION, ITEM_COMPONENTS_DATA_VERSION
-            ).cast(NbtOps.INSTANCE) as NbtCompound?
+            ).cast(NbtOps.INSTANCE) as CompoundTag
         }
-        ErrorReporter.Logging({ "ledger:itemstack@$name" }, LOGGER).use {
-            val readView = NbtReadView.create(it, registries, itemTag)
+        ProblemReporter.ScopedCollector({ "ledger:itemstack@$name" }, LOGGER).use {
+            val readView = TagValueInput.create(it, registries, itemTag)
             return readView.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY)
         }
     }
 
-    fun BlockEntity.createNbt(registries: RegistryWrapper.WrapperLookup): NbtCompound {
-        ErrorReporter.Logging(this.reporterContext, LOGGER)
+    fun BlockEntity.createNbt(registries: HolderLookup.Provider): CompoundTag {
+        ProblemReporter.ScopedCollector(this.problemPath(), LOGGER)
             .use {
-                val writeView = NbtWriteView.create(it, registries)
-                this.writeDataWithId(writeView)
-                return writeView.nbt
+                val writeView = TagValueOutput.createWithContext(it, registries)
+                this.saveWithId(writeView)
+                return writeView.buildResult()
             }
     }
 
-    fun Entity.createNbt(): NbtCompound {
-        ErrorReporter.Logging(this.errorReporterContext, LOGGER)
+    fun Entity.createNbt(): CompoundTag {
+        ProblemReporter.ScopedCollector(this.problemPath(), LOGGER)
             .use {
-                val writeView = NbtWriteView.create(it, this.registryManager)
-                this.writeData(writeView)
-                return writeView.nbt
+                val writeView = TagValueOutput.createWithContext(it, this.registryAccess())
+                this.saveWithoutId(writeView)
+                return writeView.buildResult()
             }
     }
 
-    fun ItemStack.createNbt(registries: RegistryWrapper.WrapperLookup): NbtCompound {
-        ErrorReporter.Logging({ "ledger:itemstack@${this.item}" }, LOGGER)
+    fun ItemStack.createNbt(registries: HolderLookup.Provider): CompoundTag {
+        ProblemReporter.ScopedCollector({ "ledger:itemstack@${this.item}" }, LOGGER)
             .use {
-                val writeView = NbtWriteView.create(it, registries)
-                writeView.put(ItemStack.MAP_CODEC, this)
-                return writeView.nbt
+                val writeView = TagValueOutput.createWithContext(it, registries)
+                writeView.store(ItemStack.MAP_CODEC, this)
+                return writeView.buildResult()
             }
     }
 }

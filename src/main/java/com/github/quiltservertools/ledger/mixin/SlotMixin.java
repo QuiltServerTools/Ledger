@@ -4,11 +4,11 @@ import com.github.quiltservertools.ledger.actionutils.DoubleInventoryHelper;
 import com.github.quiltservertools.ledger.actionutils.LocationalInventory;
 import com.github.quiltservertools.ledger.utility.HandledSlot;
 import com.github.quiltservertools.ledger.utility.HandlerWithContext;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -22,50 +22,50 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Slot.class)
 public abstract class SlotMixin implements HandledSlot {
     @Unique
-    private ScreenHandler handler = null;
+    private AbstractContainerMenu handler = null;
     @Unique
     private ItemStack oldStack = null;
 
     @Shadow
     @Final
-    public Inventory inventory;
+    public Container container;
     @Shadow
     @Final
-    private int index;
+    private int slot;
 
     @Shadow
-    public abstract ItemStack getStack();
+    public abstract ItemStack getItem();
 
     @NotNull
     @Override
-    public ScreenHandler getHandler() {
+    public AbstractContainerMenu getHandler() {
         return handler;
     }
 
     @Override
-    public void setHandler(@NotNull ScreenHandler handler) {
+    public void setHandler(@NotNull AbstractContainerMenu handler) {
         this.handler = handler;
-        oldStack = this.getStack() == null ? ItemStack.EMPTY : this.getStack().copy();
+        oldStack = this.getItem() == null ? ItemStack.EMPTY : this.getItem().copy();
     }
 
-    @Inject(method = "markDirty", at = @At(value = "HEAD"))
+    @Inject(method = "setChanged", at = @At(value = "HEAD"))
     private void ledgerLogChanges(CallbackInfo ci) {
         BlockPos pos = getInventoryLocation();
         HandlerWithContext handlerWithContext = (HandlerWithContext) handler;
 
         if (pos != null && handlerWithContext.getPlayer() != null) {
-            handlerWithContext.onStackChanged(oldStack, this.getStack().copy(), pos);
+            handlerWithContext.onStackChanged(oldStack, this.getItem().copy(), pos);
         }
 
-        oldStack = this.getStack().copy();
+        oldStack = this.getItem().copy();
     }
 
     @Unique
     @Nullable
     private BlockPos getInventoryLocation() {
-        Inventory slotInventory = this.inventory;
+        Container slotInventory = this.container;
         if (slotInventory instanceof DoubleInventoryHelper) {
-            slotInventory = ((DoubleInventoryHelper) slotInventory).getInventory(this.index);
+            slotInventory = ((DoubleInventoryHelper) slotInventory).getInventory(this.slot);
         }
         if (slotInventory instanceof LocationalInventory) {
             return ((LocationalInventory) slotInventory).getLocation();

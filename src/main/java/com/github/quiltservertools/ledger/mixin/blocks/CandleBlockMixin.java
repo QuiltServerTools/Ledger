@@ -2,15 +2,15 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
-import net.minecraft.block.AbstractCandleBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.world.level.block.AbstractCandleBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,13 +26,13 @@ public abstract class CandleBlockMixin {
     public static BooleanProperty LIT;
 
     @Inject(method = "extinguish", at = @At(value = "RETURN"))
-    private static void ledgerLogCandleExtinguish(PlayerEntity player, BlockState state, WorldAccess worldAccess, BlockPos pos, CallbackInfo ci) {
-        if (worldAccess instanceof World world) {
+    private static void ledgerLogCandleExtinguish(Player player, BlockState state, LevelAccessor worldAccess, BlockPos pos, CallbackInfo ci) {
+        if (worldAccess instanceof Level world) {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     world,
                     pos,
                     state,
-                    state.with(LIT, !state.get(LIT)),
+                    state.setValue(LIT, !state.getValue(LIT)),
                     null,
                     null,
                     Sources.EXTINGUISH, player);
@@ -40,12 +40,12 @@ public abstract class CandleBlockMixin {
     }
 
     @Inject(method = "onProjectileHit", at = @At(value = "RETURN"))
-    private void ledgerLogCandleLit(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci) {
+    private void ledgerLogCandleLit(Level world, BlockState state, BlockHitResult hit, Projectile projectile, CallbackInfo ci) {
         BlockChangeCallback.EVENT.invoker().changeBlock(
                 world,
                 hit.getBlockPos(),
                 state,
-                state.with(LIT, !state.get(LIT)),
+                state.setValue(LIT, !state.getValue(LIT)),
                 null,
                 null,
                 Sources.FIRE);

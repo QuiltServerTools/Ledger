@@ -14,14 +14,14 @@ import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.SemanticVersion
-import net.minecraft.server.command.CommandManager
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.Text
+import net.minecraft.commands.Commands
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
 import java.net.URI
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode =
-        CommandManager.literal("status")
+        Commands.literal("status")
             .requires(Permissions.require("ledger.commands.status", CommandConsts.PERMISSION_LEVEL))
             .executes { status(it) }
             .build()
@@ -29,37 +29,37 @@ object StatusCommand : BuildableCommand {
     private fun status(context: Context): Int {
         Ledger.launch {
             val source = context.source
-            source.sendMessage(
-                Text.translatable("text.ledger.header.status")
+            source.sendSystemMessage(
+                Component.translatable("text.ledger.header.status")
                     .setStyle(TextColorPallet.primary)
             )
-            source.sendMessage(
-                Text.translatable(
+            source.sendSystemMessage(
+                Component.translatable(
                     "text.ledger.status.queue",
                     ActionQueueService.size.toString().literal()
                         .setStyle(TextColorPallet.secondaryVariant)
                 ).setStyle(TextColorPallet.secondary)
             )
-            source.sendMessage(
-                Text.translatable(
+            source.sendSystemMessage(
+                Component.translatable(
                     "text.ledger.status.version",
                     getVersion().friendlyString.literal()
                         .setStyle(TextColorPallet.secondaryVariant)
                 ).setStyle(TextColorPallet.secondary)
             )
-            source.sendMessage(
-                Text.translatable(
+            source.sendSystemMessage(
+                Component.translatable(
                     "text.ledger.status.db_type",
                     DatabaseManager.databaseType.literal()
                         .setStyle(TextColorPallet.secondaryVariant)
                 ).setStyle(TextColorPallet.secondary)
             )
-            source.sendMessage(
-                Text.translatable(
+            source.sendSystemMessage(
+                Component.translatable(
                     "text.ledger.status.discord",
                     "text.ledger.status.discord.join".translate()
                         .setStyle(TextColorPallet.secondaryVariant)
-                        .styled {
+                        .withStyle {
                             it.withClickEvent(
                                 ClickEvent.OpenUrl(
                                     URI("https://discord.gg/FpRNYrQaGP")
@@ -68,12 +68,12 @@ object StatusCommand : BuildableCommand {
                         }
                 ).setStyle(TextColorPallet.secondary)
             )
-            source.sendMessage(
-                Text.translatable(
+            source.sendSystemMessage(
+                Component.translatable(
                     "text.ledger.status.wiki",
                     "text.ledger.status.wiki.view".translate()
                         .setStyle(TextColorPallet.secondaryVariant)
-                        .styled {
+                        .withStyle {
                             it.withClickEvent(
                                 ClickEvent.OpenUrl(
                                     URI("https://www.quiltservertools.net/Ledger/${getVersion().friendlyString}/")

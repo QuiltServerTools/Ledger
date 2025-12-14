@@ -9,10 +9,10 @@ import com.github.quiltservertools.ledger.utility.inspectOff
 import com.github.quiltservertools.ledger.utility.inspectOn
 import com.github.quiltservertools.ledger.utility.isInspecting
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.command.argument.BlockPosArgumentType
-import net.minecraft.server.command.CommandManager.argument
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.util.math.BlockPos
+import net.minecraft.commands.Commands.argument
+import net.minecraft.commands.Commands.literal
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument
+import net.minecraft.core.BlockPos
 
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode =
@@ -21,21 +21,21 @@ object InspectCommand : BuildableCommand {
             .executes { toggleInspect(it) }
             .then(
                 literal("on")
-                    .executes { it.source.playerOrThrow.inspectOn() }
+                    .executes { it.source.playerOrException.inspectOn() }
             )
             .then(
                 literal("off")
-                    .executes { it.source.playerOrThrow.inspectOff() }
+                    .executes { it.source.playerOrException.inspectOff() }
             )
             .then(
-                argument("pos", BlockPosArgumentType.blockPos())
-                    .executes { inspectBlock(it, BlockPosArgumentType.getBlockPos(it, "pos")) }
+                argument("pos", BlockPosArgument.blockPos())
+                    .executes { inspectBlock(it, BlockPosArgument.getBlockPos(it, "pos")) }
             )
             .build()
 
     private fun toggleInspect(context: Context): Int {
         val source = context.source
-        val player = source.playerOrThrow
+        val player = source.playerOrException
 
         return if (player.isInspecting()) {
             player.inspectOff()

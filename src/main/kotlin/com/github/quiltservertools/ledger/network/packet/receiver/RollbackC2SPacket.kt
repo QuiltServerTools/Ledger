@@ -11,18 +11,18 @@ import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPac
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.network.PacketByteBuf
-import net.minecraft.network.codec.PacketCodec
-import net.minecraft.network.packet.CustomPayload
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload
 
-data class RollbackC2SPacket(val input: String) : CustomPayload {
+data class RollbackC2SPacket(val input: String) : CustomPacketPayload {
 
-    override fun getId() = ID
+    override fun type() = ID
 
     companion object : ServerPlayNetworking.PlayPayloadHandler<RollbackC2SPacket> {
-        val ID: CustomPayload.Id<RollbackC2SPacket> = CustomPayload.Id(LedgerPacketTypes.ROLLBACK.id)
-        val CODEC: PacketCodec<PacketByteBuf, RollbackC2SPacket> = CustomPayload.codecOf({ _, _ -> TODO() }, {
-            RollbackC2SPacket(it.readString())
+        val ID: CustomPacketPayload.Type<RollbackC2SPacket> = CustomPacketPayload.Type(LedgerPacketTypes.ROLLBACK.id)
+        val CODEC: StreamCodec<FriendlyByteBuf, RollbackC2SPacket> = CustomPacketPayload.codec({ _, _ -> TODO() }, {
+            RollbackC2SPacket(it.readUtf())
         })
 
         override fun receive(payload: RollbackC2SPacket, context: ServerPlayNetworking.Context) {
@@ -38,7 +38,7 @@ data class RollbackC2SPacket(val input: String) : CustomPayload {
                 return
             }
 
-            val params = SearchParamArgument.get(payload.input, player.commandSource)
+            val params = SearchParamArgument.get(payload.input, player.createCommandSourceStack())
 
             ResponseS2CPacket.sendResponse(
                 ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.EXECUTING.code),

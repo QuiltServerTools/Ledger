@@ -14,12 +14,12 @@ import com.github.quiltservertools.ledger.utility.launchMain
 import com.github.quiltservertools.ledger.utility.literal
 import kotlinx.coroutines.launch
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.minecraft.server.command.CommandManager
-import net.minecraft.text.Text
+import net.minecraft.commands.Commands
+import net.minecraft.network.chat.Component
 
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode {
-        return CommandManager.literal("rollback")
+        return Commands.literal("rollback")
             .requires(Permissions.require("ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL))
             .then(
                 SearchParamArgument.argument("params")
@@ -36,13 +36,13 @@ object RollbackCommand : BuildableCommand {
             val actions = DatabaseManager.selectRollback(params)
 
             if (actions.isEmpty()) {
-                source.sendError(Text.translatable("error.ledger.command.no_results"))
+                source.sendFailure(Component.translatable("error.ledger.command.no_results"))
                 return@launch
             }
 
-            source.sendFeedback(
+            source.sendSuccess(
                 {
-                    Text.translatable(
+                    Component.translatable(
                         "text.ledger.rollback.start",
                         actions.size.toString().literal().setStyle(TextColorPallet.secondary)
                     ).setStyle(TextColorPallet.primary)
@@ -50,7 +50,7 @@ object RollbackCommand : BuildableCommand {
                 true
             )
 
-            context.source.world.launchMain {
+            context.source.level.launchMain {
                 val fails = HashMap<String, Int>()
                 val actionIds = HashSet<Int>()
                 for (action in actions) {
@@ -65,9 +65,9 @@ object RollbackCommand : BuildableCommand {
                 }
 
                 for (entry in fails.entries) {
-                    source.sendFeedback(
+                    source.sendSuccess(
                         {
-                            Text.translatable("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
+                            Component.translatable("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
                                 TextColorPallet.secondary
                             )
                         },
@@ -75,9 +75,9 @@ object RollbackCommand : BuildableCommand {
                     )
                 }
 
-                source.sendFeedback(
+                source.sendSuccess(
                     {
-                        Text.translatable(
+                        Component.translatable(
                             "text.ledger.rollback.finish",
                             actions.size
                         ).setStyle(TextColorPallet.primary)

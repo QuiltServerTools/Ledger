@@ -7,12 +7,12 @@ import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionS2CPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.ClickEvent
-import net.minecraft.text.HoverEvent
-import net.minecraft.text.MutableText
-import net.minecraft.text.Style
-import net.minecraft.text.Text
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.network.chat.ClickEvent
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.HoverEvent
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -22,32 +22,34 @@ import kotlin.time.toKotlinDuration
 
 object MessageUtils {
     @OptIn(ExperimentalTime::class)
-    suspend fun sendSearchResults(source: ServerCommandSource, results: SearchResults, header: Text) {
+    suspend fun sendSearchResults(source: CommandSourceStack, results: SearchResults, header: Component) {
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
-        if (source.hasPlayer() && source.playerOrThrow.hasNetworking()) {
+        if (source.hasPlayer() && source.playerOrException.hasNetworking()) {
             for (n in results.page..results.pages) {
                 val networkResults = DatabaseManager.searchActions(results.searchParams, n)
                 networkResults.actions.forEach {
-                    ServerPlayNetworking.send(source.player, ActionS2CPacket(it))
+                    ServerPlayNetworking.send(source.playerOrException, ActionS2CPacket(it))
                 }
             }
             return
         }
 
-        source.sendMessage(header)
+        source.sendSystemMessage(header)
 
         results.actions.forEach { actionType ->
-            source.sendMessage(actionType.getMessage(source))
+            source.sendSystemMessage(actionType.getMessage(source))
         }
 
-        source.sendMessage(
-            Text.translatable(
+        source.sendSystemMessage(
+            Component.translatable(
                 "text.ledger.footer.search",
-                Text.translatable("text.ledger.footer.page_backward").setStyle(TextColorPallet.primaryVariant).styled {
+                Component.translatable(
+                    "text.ledger.footer.page_backward"
+                ).setStyle(TextColorPallet.primaryVariant).withStyle {
                     if (results.page > 1) {
                         it.withHoverEvent(
                             HoverEvent.ShowText(
-                                Text.translatable("text.ledger.footer.page_backward.hover")
+                                Component.translatable("text.ledger.footer.page_backward.hover")
                             )
                         ).withClickEvent(
                             ClickEvent.RunCommand("/lg pg ${results.page - 1}")
@@ -58,11 +60,13 @@ object MessageUtils {
                 },
                 results.page.toString().literal().setStyle(TextColorPallet.primaryVariant),
                 results.pages.toString().literal().setStyle(TextColorPallet.primaryVariant),
-                Text.translatable("text.ledger.footer.page_forward").setStyle(TextColorPallet.primaryVariant).styled {
+                Component.translatable(
+                    "text.ledger.footer.page_forward"
+                ).setStyle(TextColorPallet.primaryVariant).withStyle {
                     if (results.page < results.pages) {
                         it.withHoverEvent(
                             HoverEvent.ShowText(
-                                Text.translatable("text.ledger.footer.page_forward.hover")
+                                Component.translatable("text.ledger.footer.page_forward.hover")
                             )
                         ).withClickEvent(
                             ClickEvent.RunCommand("/lg pg ${results.page + 1}")
@@ -75,18 +79,18 @@ object MessageUtils {
         )
     }
 
-    fun sendPlayerMessage(source: ServerCommandSource, results: List<PlayerResult>) {
+    fun sendPlayerMessage(source: CommandSourceStack, results: List<PlayerResult>) {
         if (results.isEmpty()) {
-            source.sendMessage("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary))
+            source.sendSystemMessage("error.ledger.command.no_results".translate().setStyle(TextColorPallet.primary))
             return
         }
-        source.sendMessage("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary))
+        source.sendSystemMessage("text.ledger.header.search".translate().setStyle(TextColorPallet.secondary))
         results.forEach {
-            source.sendMessage(it.toText())
+            source.sendSystemMessage(it.toText())
         }
     }
 
-    fun warnBusy(source: ServerCommandSource) {
+    fun warnBusy(source: CommandSourceStack) {
 //        if (DatabaseManager.dbMutex.isLocked) { //TODO
 //            source.sendFeedback(
 //                {
@@ -99,9 +103,9 @@ object MessageUtils {
 //        }
     }
 
-    fun instantToText(time: Instant): MutableText {
+    fun instantToText(time: Instant): MutableComponent {
         val duration = Duration.between(time, Instant.now()).toKotlinDuration()
-        val text: MutableText = "".literal()
+        val text: MutableComponent = "".literal()
 
         duration.toComponents { days, hours, minutes, seconds, _ ->
 
@@ -113,12 +117,12 @@ object MessageUtils {
             }
         }
 
-        val message = Text.translatable("text.ledger.action_message.time_diff", text)
+        val message = Component.translatable("text.ledger.action_message.time_diff", text)
 
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
         val timeMessage = formatter.format(time.atZone(Ledger.config[SearchSpec.timeZone])).literal()
 
-        message.styled {
+        message.withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowText(
                     timeMessage
