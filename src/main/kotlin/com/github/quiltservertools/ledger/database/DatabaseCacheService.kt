@@ -3,7 +3,7 @@ package com.github.quiltservertools.ledger.database
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
 import net.minecraft.resources.ResourceLocation
-import java.util.UUID
+import java.util.*
 
 object DatabaseCacheService {
     val actionResourceLocationKeys: BiMap<String, Int> = HashBiMap.create()
@@ -15,4 +15,6 @@ object DatabaseCacheService {
     val sourceKeys: BiMap<String, Int> = HashBiMap.create()
 
     val playerKeys: BiMap<UUID, Int> = HashBiMap.create()
+
+    val playernameKeys: BiMap<String, Int> = HashBiMap.create()
 }

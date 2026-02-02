@@ -140,6 +140,7 @@ object DatabaseManager {
             }
             Tables.Player.all().forEach {
                 cache.playerKeys.put(it.playerId, it.id.value)
+                cache.playernameKeys.put(it.playerName, it.id.value)
             }
         }
     }
@@ -220,6 +221,7 @@ object DatabaseManager {
         val objectResourceLocationCache = DatabaseCacheService.objectResourceLocationKeys.inverse()
         val sourceCache = DatabaseCacheService.sourceKeys.inverse()
         val playerCache = DatabaseCacheService.playerKeys.inverse()
+        val playerNameCache = DatabaseCacheService.playernameKeys.inverse()
 
         for (action in query) {
             val typeSupplier = ActionRegistry.getType(
@@ -244,7 +246,7 @@ object DatabaseManager {
             type.oldObjectState = action[Tables.Actions.oldBlockState]
             type.sourceName = sourceCache[action[Tables.Actions.sourceName].value]!!
             type.sourceProfile = action.getOrNull(Tables.Actions.sourcePlayer)?.let {
-                Ledger.server.profileCache?.get(playerCache[it.value]!!)?.orElse(null)
+                GameProfile(playerCache[it.value]!!, playerNameCache[it.value]!!)
             }
             type.extraData = action[Tables.Actions.extraData]
             type.rolledBack = action[Tables.Actions.rolledBack]
@@ -497,11 +499,14 @@ object DatabaseManager {
         if (player != null) {
             player.lastJoin = Instant.now()
             player.playerName = name
+            cache.playernameKeys[name] = player.id.value
         } else {
-            Tables.Player.new {
+            val entity = Tables.Player.new {
                 this.playerId = uuid
                 this.playerName = name
             }
+            cache.playerKeys[uuid] = entity.id.value
+            cache.playernameKeys[name] = entity.id.value
         }
     }
 
