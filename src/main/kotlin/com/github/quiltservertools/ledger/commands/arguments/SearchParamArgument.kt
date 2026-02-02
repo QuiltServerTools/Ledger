@@ -88,7 +88,7 @@ object SearchParamArgument {
     @Suppress("UNCHECKED_CAST")
     fun get(input: String, source: CommandSourceStack): ActionSearchParams {
         val reader = StringReader(input)
-        val result = HashMultimap.create<String, Any>()
+        val result = HashMultimap.create<String, Any?>()
         while (reader.canRead()) {
             val propertyName = reader.readStringUntil(':').trim(' ')
             val parameter = paramSuggesters[propertyName]
@@ -96,7 +96,7 @@ object SearchParamArgument {
                     .create()
             val value =
                 if (parameter is NegatableParameter) parameter.parseNegatable(reader) else parameter.parse(reader)
-            result.put(propertyName, value!!)
+            result.put(propertyName, value)
         }
 
         val builder = ActionSearchParams.Builder()
