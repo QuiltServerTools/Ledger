@@ -15,6 +15,6 @@ object DatabaseCacheService {
     val sourceKeys: BiMap<String, Int> = HashBiMap.create()
 
     val playerKeys: BiMap<UUID, Int> = HashBiMap.create()
-    
+
     val playernameKeys: BiMap<String, Int> = HashBiMap.create()
 }
