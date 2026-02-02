@@ -3,12 +3,12 @@ package com.github.quiltservertools.ledger.commands.subcommands
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.commands.BuildableCommand
 import com.github.quiltservertools.ledger.database.DatabaseManager
-import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.mojang.brigadier.arguments.IntegerArgumentType
 import kotlinx.coroutines.launch
+import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands.argument
 import net.minecraft.commands.Commands.literal
 import net.minecraft.network.chat.Component
@@ -18,13 +18,11 @@ object PageCommand : BuildableCommand {
         literal("page")
             .then(
                 argument("page", IntegerArgumentType.integer(1))
-                    .executes { page(it, IntegerArgumentType.getInteger(it, "page")) }
+                    .executes { page(it.source, IntegerArgumentType.getInteger(it, "page")) }
             )
             .build()
 
-    private fun page(context: Context, page: Int): Int {
-        val source = context.source
-
+    fun page(source: CommandSourceStack, page: Int): Int {
         val params = Ledger.searchCache[source.textName]
         if (params != null) {
             Ledger.launch {
