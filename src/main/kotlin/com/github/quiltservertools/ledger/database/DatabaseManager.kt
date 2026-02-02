@@ -127,19 +127,20 @@ object DatabaseManager {
     suspend fun setupCache() {
         execute {
             Tables.ActionIdentifier.all().forEach {
-                cache.actionIdentifierKeys.put(it.identifier, it.id.value)
+                cache.actionIdentifierKeys[it.identifier] = it.id.value
             }
             Tables.World.all().forEach {
-                cache.worldIdentifierKeys.put(it.identifier, it.id.value)
+                cache.worldIdentifierKeys[it.identifier] = it.id.value
             }
             Tables.ObjectIdentifier.all().forEach {
-                cache.objectIdentifierKeys.put(it.identifier, it.id.value)
+                cache.objectIdentifierKeys[it.identifier] = it.id.value
             }
             Tables.Source.all().forEach {
-                cache.sourceKeys.put(it.name, it.id.value)
+                cache.sourceKeys[it.name] = it.id.value
             }
             Tables.Player.all().forEach {
-                cache.playerKeys.put(it.playerId, it.id.value)
+                cache.playerKeys[it.playerId] = it.id.value
+                cache.playernameKeys[it.playerName] = it.id.value
             }
         }
     }
@@ -220,6 +221,7 @@ object DatabaseManager {
         val objectIdentifierCache = DatabaseCacheService.objectIdentifierKeys.inverse()
         val sourceCache = DatabaseCacheService.sourceKeys.inverse()
         val playerCache = DatabaseCacheService.playerKeys.inverse()
+        val playerNameCache = DatabaseCacheService.playernameKeys.inverse()
 
         for (action in query) {
             val typeSupplier = ActionRegistry.getType(
@@ -241,7 +243,7 @@ object DatabaseManager {
             type.oldObjectState = action[Tables.Actions.oldBlockState]
             type.sourceName = sourceCache[action[Tables.Actions.sourceName].value]!!
             type.sourceProfile = action.getOrNull(Tables.Actions.sourcePlayer)?.let {
-                Ledger.server.services().nameToIdCache?.get(playerCache[it.value]!!)?.orElse(null)
+                NameAndId(playerCache[it.value]!!, playerNameCache[it.value]!!)
             }
             type.extraData = action[Tables.Actions.extraData]
             type.rolledBack = action[Tables.Actions.rolledBack]
@@ -494,11 +496,14 @@ object DatabaseManager {
         if (player != null) {
             player.lastJoin = Instant.now()
             player.playerName = name
+            cache.playernameKeys[name] = player.id.value
         } else {
-            Tables.Player.new {
+            val entity = Tables.Player.new {
                 this.playerId = uuid
                 this.playerName = name
             }
+            cache.playerKeys[uuid] = entity.id.value
+            cache.playernameKeys[name] = entity.id.value
         }
     }
 
