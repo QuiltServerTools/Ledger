@@ -19,7 +19,6 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.newSingleThreadContext
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
@@ -424,10 +423,6 @@ object DatabaseManager {
         }
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
-        while (Ledger.server.overworld()?.noSave != false) {
-            delay(timeMillis = 1000)
-        }
-
         return newSuspendedTransaction(context = databaseContext, db = database) {
             maxAttempts = MAX_QUERY_RETRIES
             minRetryDelay = MIN_RETRY_DELAY
@@ -479,8 +474,7 @@ object DatabaseManager {
             this[Tables.Actions.objectId] = getOrCreateRegistryKeyId(action.objectIdentifier)
             this[Tables.Actions.oldObjectId] = getOrCreateRegistryKeyId(action.oldObjectIdentifier)
             this[Tables.Actions.world] = getOrCreateWorldId(
-                action.world ?: Ledger.server.overworld().dimension()
-                .identifier()
+                action.world ?: Identifier.fromNamespaceAndPath("minecraft", "overworld")
             )
             this[Tables.Actions.blockState] = action.objectState
             this[Tables.Actions.oldBlockState] = action.oldObjectState
