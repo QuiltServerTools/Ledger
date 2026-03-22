@@ -16,6 +16,7 @@ import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.level.storage.TagValueInput
 
 // TODO remove duplication from ItemPickUpActionType and ItemDropActionType
@@ -28,19 +29,19 @@ open class ItemDropActionType : AbstractActionType() {
     private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
         extraData,
         objectIdentifier,
-        server.registryAccess()
+        server.registryAccess(),
     )
 
     override fun getObjectMessage(source: CommandSourceStack): Component {
         val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
-            stack.itemName
+            stack.itemName,
         ).setStyle(TextColorPallet.secondaryVariant).withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowItem(
-                    stack
-                )
+                    ItemStackTemplate(stack.item, stack.componentsPatch),
+                ),
             )
         }
     }

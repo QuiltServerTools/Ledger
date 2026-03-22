@@ -20,39 +20,38 @@ import net.minecraft.network.chat.Component
 import java.net.URI
 
 object StatusCommand : BuildableCommand {
-    override fun build(): LiteralNode =
-        Commands.literal("status")
-            .requires(Permissions.require("ledger.commands.status", CommandConsts.PERMISSION_LEVEL))
-            .executes { status(it) }
-            .build()
+    override fun build(): LiteralNode = Commands.literal("status")
+        .requires(Permissions.require("ledger.commands.status", CommandConsts.PERMISSION_LEVEL))
+        .executes { status(it) }
+        .build()
 
     private fun status(context: Context): Int {
         Ledger.launch {
             val source = context.source
             source.sendSystemMessage(
                 Component.translatable("text.ledger.header.status")
-                    .setStyle(TextColorPallet.primary)
+                    .setStyle(TextColorPallet.primary),
             )
             source.sendSystemMessage(
                 Component.translatable(
                     "text.ledger.status.queue",
                     ActionQueueService.size.toString().literal()
-                        .setStyle(TextColorPallet.secondaryVariant)
-                ).setStyle(TextColorPallet.secondary)
+                        .setStyle(TextColorPallet.secondaryVariant),
+                ).setStyle(TextColorPallet.secondary),
             )
             source.sendSystemMessage(
                 Component.translatable(
                     "text.ledger.status.version",
                     getVersion().friendlyString.literal()
-                        .setStyle(TextColorPallet.secondaryVariant)
-                ).setStyle(TextColorPallet.secondary)
+                        .setStyle(TextColorPallet.secondaryVariant),
+                ).setStyle(TextColorPallet.secondary),
             )
             source.sendSystemMessage(
                 Component.translatable(
                     "text.ledger.status.db_type",
                     DatabaseManager.databaseType.literal()
-                        .setStyle(TextColorPallet.secondaryVariant)
-                ).setStyle(TextColorPallet.secondary)
+                        .setStyle(TextColorPallet.secondaryVariant),
+                ).setStyle(TextColorPallet.secondary),
             )
             source.sendSystemMessage(
                 Component.translatable(
@@ -62,11 +61,11 @@ object StatusCommand : BuildableCommand {
                         .withStyle {
                             it.withClickEvent(
                                 ClickEvent.OpenUrl(
-                                    URI("https://discord.gg/FpRNYrQaGP")
-                                )
+                                    URI("https://discord.gg/FpRNYrQaGP"),
+                                ),
                             )
-                        }
-                ).setStyle(TextColorPallet.secondary)
+                        },
+                ).setStyle(TextColorPallet.secondary),
             )
             source.sendSystemMessage(
                 Component.translatable(
@@ -76,11 +75,11 @@ object StatusCommand : BuildableCommand {
                         .withStyle {
                             it.withClickEvent(
                                 ClickEvent.OpenUrl(
-                                    URI("https://www.quiltservertools.net/Ledger/${getVersion().friendlyString}/")
-                                )
+                                    URI("https://www.quiltservertools.net/Ledger/${getVersion().friendlyString}/"),
+                                ),
                             )
-                        }
-                ).setStyle(TextColorPallet.secondary)
+                        },
+                ).setStyle(TextColorPallet.secondary),
             )
         }
 
@@ -88,6 +87,6 @@ object StatusCommand : BuildableCommand {
     }
 
     private fun getVersion() = SemanticVersion.parse(
-        FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().metadata.version.friendlyString
+        FabricLoader.getInstance().getModContainer(Ledger.MOD_ID).get().metadata.version.friendlyString,
     )
 }

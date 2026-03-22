@@ -13,13 +13,13 @@ class BlockBreakActionType : BlockChangeActionType() {
     override fun getObjectMessage(source: CommandSourceStack): Component = Component.translatable(
         Util.makeDescriptionId(
             this.getTranslationType(),
-            oldObjectIdentifier
-        )
+            oldObjectIdentifier,
+        ),
     ).setStyle(TextColorPallet.secondaryVariant).withStyle {
         it.withHoverEvent(
             HoverEvent.ShowText(
-                oldObjectIdentifier.toString().literal()
-            )
+                oldObjectIdentifier.toString().literal(),
+            ),
         )
     }
 }

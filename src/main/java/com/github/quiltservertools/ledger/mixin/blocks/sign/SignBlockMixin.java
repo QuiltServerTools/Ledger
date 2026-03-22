@@ -4,6 +4,7 @@ import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.NbtUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,7 +34,7 @@ public class SignBlockMixin {
      * @param signBlockEntity The sign block entity being interacted with
      * @param front           Whether the interaction is happening on the front of the sign
      * @param player          The player interacting with the sign
-     * @param original        The original {@link SignApplicator#tryApplyToSign(Level, SignBlockEntity, boolean, Player)}
+     * @param original        The original {@link SignApplicator#tryApplyToSign(Level, SignBlockEntity, boolean, ItemStack, Player)}
      *                        operation that this mixin wraps.
      * @return Returns the result of calling {@code original} with this method's parameters.
      */
@@ -41,7 +42,7 @@ public class SignBlockMixin {
             method = "useItemOn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/SignApplicator;tryApplyToSign(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/SignBlockEntity;ZLnet/minecraft/world/entity/player/Player;)Z"
+                    target = "Lnet/minecraft/world/item/SignApplicator;tryApplyToSign(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/SignBlockEntity;ZLnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z"
             )
     )
     private boolean logSignItemInteraction(
@@ -49,6 +50,7 @@ public class SignBlockMixin {
         Level world,
         SignBlockEntity signBlockEntity,
         boolean front,
+        ItemStack itemStack,
         Player player,
         Operation<Boolean> original
     ) {
@@ -60,7 +62,7 @@ public class SignBlockMixin {
         // a bad hack to copy the old sign block entity for rollbacks
         @Nullable BlockEntity oldSignEntity = BlockEntity.loadStatic(pos, state, NbtUtils.INSTANCE.createNbt(signBlockEntity, registryManager), registryManager);
 
-        boolean result = original.call(instance, world, signBlockEntity, front, player);
+        boolean result = original.call(instance, world, signBlockEntity, front, itemStack, player);
         if (result && oldSignEntity != null) {
             BlockChangeCallback.EVENT.invoker()
                     .changeBlock(

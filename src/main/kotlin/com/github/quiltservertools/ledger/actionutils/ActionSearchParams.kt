@@ -20,7 +20,7 @@ data class ActionSearchParams(
     var objects: MutableSet<Negatable<Identifier>>?,
     var sourceNames: MutableSet<Negatable<String>>?,
     var sourcePlayerIds: MutableSet<Negatable<UUID>>?,
-    var worlds: MutableSet<Negatable<Identifier>>?
+    var worlds: MutableSet<Negatable<Identifier>>?,
 ) {
     private constructor(builder: Builder) : this(
         builder.bounds,
@@ -31,7 +31,7 @@ data class ActionSearchParams(
         builder.objects,
         builder.sourceNames,
         builder.sourcePlayerIds,
-        builder.worlds
+        builder.worlds,
     )
 
     fun ensureSpecific() {
@@ -41,7 +41,7 @@ data class ActionSearchParams(
         val range = (max(bounds.xSpan, max(bounds.ySpan, bounds.zSpan)) + 1) / 2
         if (range > Ledger.config[SearchSpec.maxRange] && bounds != GLOBAL) {
             throw SimpleCommandExceptionType(
-                Component.translatable("error.ledger.unspecific.range_to_big", Ledger.config[SearchSpec.maxRange])
+                Component.translatable("error.ledger.unspecific.range_to_big", Ledger.config[SearchSpec.maxRange]),
             ).create()
         }
         if (sourceNames == null && sourcePlayerIds == null && after == null && before == null) {

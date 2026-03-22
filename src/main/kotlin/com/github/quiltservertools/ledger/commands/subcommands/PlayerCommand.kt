@@ -20,9 +20,9 @@ object PlayerCommand : BuildableCommand {
             .requires(Permissions.require("ledger.commands.player", CommandConsts.PERMISSION_LEVEL))
             .then(
                 argument("player", GameProfileArgument.gameProfile())
-                .executes {
-                    return@executes lookupPlayer(GameProfileArgument.getGameProfiles(it, "player"), it.source)
-                }
+                    .executes {
+                        return@executes lookupPlayer(GameProfileArgument.getGameProfiles(it, "player"), it.source)
+                    },
             )
             .build()
     }

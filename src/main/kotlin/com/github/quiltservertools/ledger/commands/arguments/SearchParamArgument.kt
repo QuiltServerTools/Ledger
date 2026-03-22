@@ -112,24 +112,26 @@ object SearchParamArgument {
                         val range = range - 1
                         builder.bounds = BoundingBox.fromCorners(
                             BlockPos.containing(source.position).subtract(Vec3i(range, range, range)),
-                            BlockPos.containing(source.position).offset(Vec3i(range, range, range))
+                            BlockPos.containing(source.position).offset(Vec3i(range, range, range)),
                         )
                         val world = Negatable.allow(source.level.dimension().identifier())
                         if (builder.worlds == null) {
                             builder.worlds = mutableSetOf(world)
                         } else {
                             builder.worlds!!.add(
-                            world
-                        )
+                                world,
+                            )
                         }
                     } else {
                         builder.bounds = ActionSearchParams.GLOBAL
                     }
                 }
+
                 "world" -> {
                     val world = value as Negatable<Identifier>
                     if (builder.worlds == null) builder.worlds = mutableSetOf(world) else builder.worlds!!.add(world)
                 }
+
                 "object" -> {
                     val objectIds = (value as Negatable<List<Identifier>>).property.map {
                         if (value.allowed) Negatable.allow(it) else Negatable.deny(it)
@@ -141,6 +143,7 @@ object SearchParamArgument {
                         builder.objects!!.addAll(objectIds)
                     }
                 }
+
                 "source" -> {
                     val sourceInput = value as Negatable<String>
                     if (sourceInput.property.startsWith('@')) {
@@ -167,6 +170,7 @@ object SearchParamArgument {
                         }
                     }
                 }
+
                 "action" -> {
                     val action = value as Negatable<String>
                     if (builder.actions == null) {
@@ -175,14 +179,17 @@ object SearchParamArgument {
                         builder.actions!!.add(action)
                     }
                 }
+
                 "before" -> {
                     val time = value as Instant
                     builder.before = time
                 }
+
                 "after" -> {
                     val time = value as Instant
                     builder.after = time
                 }
+
                 "rolledback" -> {
                     val rolledBack = value as Boolean
                     builder.rolledBack = rolledBack
@@ -212,13 +219,11 @@ object SearchParamArgument {
 
         open fun listSuggestions(
             context: CommandContext<CommandSourceStack>,
-            builder: SuggestionsBuilder
-        ): CompletableFuture<Suggestions> {
-            return try {
-                parameter.getSuggestions(context, builder)
-            } catch (e: CommandSyntaxException) {
-                builder.buildFuture()
-            }
+            builder: SuggestionsBuilder,
+        ): CompletableFuture<Suggestions> = try {
+            parameter.getSuggestions(context, builder)
+        } catch (e: CommandSyntaxException) {
+            builder.buildFuture()
         }
 
         open fun getRemaining(s: String): Int {
@@ -238,7 +243,7 @@ object SearchParamArgument {
     private class NegatableParameter<T>(parameter: SimpleParameter<T>) : Parameter<T>(parameter) {
         override fun listSuggestions(
             context: CommandContext<CommandSourceStack>,
-            builder: SuggestionsBuilder
+            builder: SuggestionsBuilder,
         ): CompletableFuture<Suggestions> {
             val builder = if (builder.remaining.startsWith("!")) builder.createOffset(builder.start + 1) else builder
             return super.listSuggestions(context, builder)

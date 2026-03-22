@@ -49,7 +49,7 @@ abstract class AbstractActionType : ActionType {
             getSourceMessage(),
             getActionMessage(),
             getObjectMessage(source),
-            getLocationMessage()
+            getLocationMessage(),
         )
         message.style = TextColorPallet.light
 
@@ -79,21 +79,21 @@ abstract class AbstractActionType : ActionType {
         .withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowText(
-                    identifier.literal()
-                )
+                    identifier.literal(),
+                ),
             )
         }
 
     open fun getObjectMessage(source: CommandSourceStack): Component = Component.translatable(
         Util.makeDescriptionId(
             this.getTranslationType(),
-            objectIdentifier
-        )
+            objectIdentifier,
+        ),
     ).setStyle(TextColorPallet.secondaryVariant).withStyle {
         it.withHoverEvent(
             HoverEvent.ShowText(
-                objectIdentifier.toString().literal()
-            )
+                objectIdentifier.toString().literal(),
+            ),
         )
     }
 

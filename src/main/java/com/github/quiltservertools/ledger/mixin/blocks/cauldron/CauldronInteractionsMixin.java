@@ -2,9 +2,9 @@ package com.github.quiltservertools.ledger.mixin.blocks.cauldron;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.sounds.SoundEvent;
@@ -20,8 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.function.Predicate;
 
-@Mixin(CauldronInteraction.class)
-public interface CauldronInteractionMixin {
+@Mixin(CauldronInteractions.class)
+public abstract class CauldronInteractionsMixin {
 
     @Inject(method = "fillBucket", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getItem()Lnet/minecraft/world/item/Item;"))
     private static void ledgerLogFullDrainCauldron(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, ItemStack stack, ItemStack output,
@@ -35,7 +35,7 @@ public interface CauldronInteractionMixin {
         ledgerLogFillCauldron(world, pos, world.getBlockState(pos), state, player);
     }
 
-    @Inject(method = "method_32219", at = @At(value = "INVOKE",
+    @Inject(method = "lambda$bootStrap$4", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
             shift = At.Shift.AFTER))
     private static void ledgerLogBottleFillWaterCauldron(BlockState state, Level world, BlockPos pos,
@@ -43,7 +43,7 @@ public interface CauldronInteractionMixin {
         ledgerLogFillCauldron(world, pos, state, world.getBlockState(pos), player);
     }
 
-    @Inject(method = "method_32222", at = @At(value = "INVOKE",
+    @Inject(method = "lambda$bootStrap$0", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
             shift = At.Shift.AFTER))
     private static void ledgerLogBottleFillEmptyCauldron(BlockState state, Level world, BlockPos pos,

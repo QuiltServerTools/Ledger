@@ -18,19 +18,19 @@ object Networking {
 
     init {
         if (config[NetworkingSpec.networking]) {
-            PayloadTypeRegistry.playC2S().register(InspectC2SPacket.ID, InspectC2SPacket.CODEC)
+            PayloadTypeRegistry.serverboundPlay().register(InspectC2SPacket.ID, InspectC2SPacket.CODEC)
             ServerPlayNetworking.registerGlobalReceiver(InspectC2SPacket.ID, InspectC2SPacket)
 
-            PayloadTypeRegistry.playC2S().register(SearchC2SPacket.ID, SearchC2SPacket.CODEC)
+            PayloadTypeRegistry.serverboundPlay().register(SearchC2SPacket.ID, SearchC2SPacket.CODEC)
             ServerPlayNetworking.registerGlobalReceiver(SearchC2SPacket.ID, SearchC2SPacket)
 
-            PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.ID, HandshakeC2SPacket.CODEC)
+            PayloadTypeRegistry.serverboundPlay().register(HandshakeC2SPacket.ID, HandshakeC2SPacket.CODEC)
             ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.ID, HandshakeC2SPacket)
 
-            PayloadTypeRegistry.playC2S().register(RollbackC2SPacket.ID, RollbackC2SPacket.CODEC)
+            PayloadTypeRegistry.serverboundPlay().register(RollbackC2SPacket.ID, RollbackC2SPacket.CODEC)
             ServerPlayNetworking.registerGlobalReceiver(RollbackC2SPacket.ID, RollbackC2SPacket)
 
-            PayloadTypeRegistry.playC2S().register(PurgeC2SPacket.ID, PurgeC2SPacket.CODEC)
+            PayloadTypeRegistry.serverboundPlay().register(PurgeC2SPacket.ID, PurgeC2SPacket.CODEC)
             ServerPlayNetworking.registerGlobalReceiver(PurgeC2SPacket.ID, PurgeC2SPacket)
         }
     }

@@ -33,7 +33,7 @@ data class RollbackC2SPacket(val input: String) : CustomPacketPayload {
             ) {
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.NO_PERMISSION.code),
-                    sender
+                    sender,
                 )
                 return
             }
@@ -42,7 +42,7 @@ data class RollbackC2SPacket(val input: String) : CustomPacketPayload {
 
             ResponseS2CPacket.sendResponse(
                 ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.EXECUTING.code),
-                sender
+                sender,
             )
 
             Ledger.launch {
@@ -50,7 +50,7 @@ data class RollbackC2SPacket(val input: String) : CustomPacketPayload {
 
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(LedgerPacketTypes.PURGE.id, ResponseCodes.COMPLETED.code),
-                    sender
+                    sender,
                 )
             }
         }

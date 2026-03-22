@@ -105,7 +105,7 @@ object DatabaseManager {
         return SQLiteDataSource(
             SQLiteConfig().apply {
                 setJournalMode(SQLiteConfig.JournalMode.WAL)
-            }
+            },
         ).apply {
             url = "jdbc:sqlite:$dbFilepath"
         }
@@ -203,10 +203,7 @@ object DatabaseManager {
         return@execute getActionsFromQuery(query)
     }
 
-    suspend fun previewActions(
-        params: ActionSearchParams,
-        type: Preview.Type
-    ): List<ActionType> = execute {
+    suspend fun previewActions(params: ActionSearchParams, type: Preview.Type): List<ActionType> = execute {
         when (type) {
             Preview.Type.ROLLBACK -> return@execute selectRollback(params)
             Preview.Type.RESTORE -> return@execute selectRestore(params)
@@ -225,7 +222,7 @@ object DatabaseManager {
 
         for (action in query) {
             val typeSupplier = ActionRegistry.getType(
-                actionIdentifierCache[action[Tables.Actions.actionIdentifier].value]!!
+                actionIdentifierCache[action[Tables.Actions.actionIdentifier].value]!!,
             )
             if (typeSupplier == null) {
                 logWarn("Unknown action type ${actionIdentifierCache[action[Tables.Actions.actionIdentifier].value]}")
@@ -281,21 +278,21 @@ object DatabaseManager {
             op,
             params.sourceNames,
             DatabaseManager::getSourceId,
-            Tables.Actions.sourceName
+            Tables.Actions.sourceName,
         )
 
         op = addParameters(
             op,
             params.actions,
             DatabaseManager::getActionId,
-            Tables.Actions.actionIdentifier
+            Tables.Actions.actionIdentifier,
         )
 
         op = addParameters(
             op,
             params.worlds,
             DatabaseManager::getWorldId,
-            Tables.Actions.world
+            Tables.Actions.world,
         )
 
         op = addParameters(
@@ -303,14 +300,14 @@ object DatabaseManager {
             params.objects,
             DatabaseManager::getRegistryKeyId,
             Tables.Actions.objectId,
-            Tables.Actions.oldObjectId
+            Tables.Actions.oldObjectId,
         )
 
         op = addParameters(
             op,
             params.sourcePlayerIds,
             DatabaseManager::getPlayerId,
-            Tables.Actions.sourcePlayer
+            Tables.Actions.sourcePlayer,
         )
 
         return op
@@ -342,10 +339,7 @@ object DatabaseManager {
         column: Column<C>,
         orColumn: Column<C>? = null,
     ): Op<Boolean> {
-        fun addAllowedParameters(
-            allowed: Collection<E>,
-            op: Op<Boolean>
-        ): Op<Boolean> {
+        fun addAllowedParameters(allowed: Collection<E>, op: Op<Boolean>): Op<Boolean> {
             if (allowed.isEmpty()) return op
 
             var operator = if (orColumn != null) {
@@ -365,10 +359,7 @@ object DatabaseManager {
             return op.and { operator }
         }
 
-        fun addDeniedParameters(
-            denied: Collection<E>,
-            op: Op<Boolean>
-        ): Op<Boolean> {
+        fun addDeniedParameters(denied: Collection<E>, op: Op<Boolean>): Op<Boolean> {
             if (denied.isEmpty()) return op
 
             var operator = if (orColumn != null) {
@@ -403,25 +394,21 @@ object DatabaseManager {
         }
     }
 
-    suspend fun registerWorld(identifier: Identifier) =
-        execute {
-            insertWorld(identifier)
-        }
+    suspend fun registerWorld(identifier: Identifier) = execute {
+        insertWorld(identifier)
+    }
 
-    suspend fun registerActionType(id: String) =
-        execute {
-            insertActionType(id)
-        }
+    suspend fun registerActionType(id: String) = execute {
+        insertActionType(id)
+    }
 
-    suspend fun logPlayer(uuid: UUID, name: String) =
-        execute {
-            insertOrUpdatePlayer(uuid, name)
-        }
+    suspend fun logPlayer(uuid: UUID, name: String) = execute {
+        insertOrUpdatePlayer(uuid, name)
+    }
 
-    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) =
-        execute {
-            insertRegKeys(identifiers)
-        }
+    suspend fun insertIdentifiers(identifiers: Collection<Identifier>) = execute {
+        insertRegKeys(identifiers)
+    }
 
     private suspend fun <T : Any?> execute(body: suspend Transaction.() -> T): T {
         while (Ledger.server.overworld()?.noSave != false) {
@@ -446,10 +433,9 @@ object DatabaseManager {
         }
     }
 
-    suspend fun searchPlayers(players: Set<NameAndId>): List<PlayerResult> =
-        execute {
-            return@execute selectPlayers(players)
-        }
+    suspend fun searchPlayers(players: Set<NameAndId>): List<PlayerResult> = execute {
+        return@execute selectPlayers(players)
+    }
 
     private fun Transaction.insertActionType(id: String) {
         Tables.ActionIdentifiers.insertIgnore {
@@ -480,7 +466,7 @@ object DatabaseManager {
             this[Tables.Actions.oldObjectId] = getOrCreateRegistryKeyId(action.oldObjectIdentifier)
             this[Tables.Actions.world] = getOrCreateWorldId(
                 action.world ?: Ledger.server.overworld().dimension()
-                .identifier()
+                    .identifier(),
             )
             this[Tables.Actions.blockState] = action.objectState
             this[Tables.Actions.oldBlockState] = action.oldObjectState
@@ -519,7 +505,7 @@ object DatabaseManager {
 
         query = query.orderBy(Tables.Actions.id, SortOrder.DESC)
         query = query.limit(config[SearchSpec.pageSize]).offset(
-            (config[SearchSpec.pageSize] * (page - 1)).toLong()
+            (config[SearchSpec.pageSize] * (page - 1)).toLong(),
         ) // TODO better pagination without offset - probably doesn't matter as most people stay on first few pages
 
         actions.addAll(getActionsFromQuery(query))
@@ -548,14 +534,13 @@ object DatabaseManager {
             }
     }
 
-    fun getKnownSources() =
-        cache.sourceKeys.keys
+    fun getKnownSources() = cache.sourceKeys.keys
 
     private fun <T> getObjectId(
         obj: T,
         cache: BiMap<T, Int>,
         table: EntityClass<Int, Entity<Int>>,
-        column: Column<T>
+        column: Column<T>,
     ): Int? = getObjectId(obj, Function.identity(), cache, table, column)
 
     private fun <T, S> getObjectId(
@@ -563,7 +548,7 @@ object DatabaseManager {
         mapper: Function<T, S>,
         cache: BiMap<T, Int>,
         table: EntityClass<Int, Entity<Int>>,
-        column: Column<S>
+        column: Column<S>,
     ): Int? {
         if (cache.containsKey(obj)) {
             return cache[obj]
@@ -578,9 +563,8 @@ object DatabaseManager {
         cache: BiMap<T, Int>,
         entity: IntEntityClass<*>,
         table: IntIdTable,
-        column: Column<T>
-    ): Int =
-        getOrCreateObjectId(obj, Function.identity(), cache, entity, table, column)
+        column: Column<T>,
+    ): Int = getOrCreateObjectId(obj, Function.identity(), cache, entity, table, column)
 
     private fun <T, S> getOrCreateObjectId(
         obj: T,
@@ -588,14 +572,14 @@ object DatabaseManager {
         cache: BiMap<T, Int>,
         entity: IntEntityClass<*>,
         table: IntIdTable,
-        column: Column<S>
+        column: Column<S>,
     ): Int {
         getObjectId(obj, mapper, cache, entity, column)?.let { return it }
 
         return entity[
             table.insertAndGetId {
                 it[column] = mapper.apply(obj)
-            }
+            },
         ].id.value.also { cache.put(obj!!, it) }
     }
 
@@ -605,34 +589,31 @@ object DatabaseManager {
     private fun getOrCreateSourceId(source: String): Int =
         getOrCreateObjectId(source, cache.sourceKeys, Tables.Source, Tables.Sources, Tables.Sources.name)
 
-    private fun getOrCreateActionId(actionTypeId: String): Int =
-        getOrCreateObjectId(
-            actionTypeId,
-            cache.actionIdentifierKeys,
-            Tables.ActionIdentifier,
-            Tables.ActionIdentifiers,
-            Tables.ActionIdentifiers.actionIdentifier
-        )
+    private fun getOrCreateActionId(actionTypeId: String): Int = getOrCreateObjectId(
+        actionTypeId,
+        cache.actionIdentifierKeys,
+        Tables.ActionIdentifier,
+        Tables.ActionIdentifiers,
+        Tables.ActionIdentifiers.actionIdentifier,
+    )
 
-    private fun getOrCreateRegistryKeyId(identifier: Identifier): Int =
-        getOrCreateObjectId(
-            identifier,
-            Identifier::toString,
-            cache.objectIdentifierKeys,
-            Tables.ObjectIdentifier,
-            Tables.ObjectIdentifiers,
-            Tables.ObjectIdentifiers.identifier
-        )
+    private fun getOrCreateRegistryKeyId(identifier: Identifier): Int = getOrCreateObjectId(
+        identifier,
+        Identifier::toString,
+        cache.objectIdentifierKeys,
+        Tables.ObjectIdentifier,
+        Tables.ObjectIdentifiers,
+        Tables.ObjectIdentifiers.identifier,
+    )
 
-    private fun getOrCreateWorldId(identifier: Identifier): Int =
-        getOrCreateObjectId(
-            identifier,
-            Identifier::toString,
-            cache.worldIdentifierKeys,
-            Tables.World,
-            Tables.Worlds,
-            Tables.Worlds.identifier
-        )
+    private fun getOrCreateWorldId(identifier: Identifier): Int = getOrCreateObjectId(
+        identifier,
+        Identifier::toString,
+        cache.worldIdentifierKeys,
+        Tables.World,
+        Tables.Worlds,
+        Tables.Worlds.identifier,
+    )
 
     private fun getPlayerId(playerId: UUID): Int? =
         getObjectId(playerId, cache.playerKeys, Tables.Player, Tables.Players.playerId)
@@ -640,31 +621,28 @@ object DatabaseManager {
     private fun getSourceId(source: String): Int? =
         getObjectId(source, cache.sourceKeys, Tables.Source, Tables.Sources.name)
 
-    private fun getActionId(actionTypeId: String): Int? =
-        getObjectId(
-            actionTypeId,
-            cache.actionIdentifierKeys,
-            Tables.ActionIdentifier,
-            Tables.ActionIdentifiers.actionIdentifier
-        )
+    private fun getActionId(actionTypeId: String): Int? = getObjectId(
+        actionTypeId,
+        cache.actionIdentifierKeys,
+        Tables.ActionIdentifier,
+        Tables.ActionIdentifiers.actionIdentifier,
+    )
 
-    private fun getRegistryKeyId(identifier: Identifier): Int? =
-        getObjectId(
-            identifier,
-            Identifier::toString,
-            cache.objectIdentifierKeys,
-            Tables.ObjectIdentifier,
-            Tables.ObjectIdentifiers.identifier
-        )
+    private fun getRegistryKeyId(identifier: Identifier): Int? = getObjectId(
+        identifier,
+        Identifier::toString,
+        cache.objectIdentifierKeys,
+        Tables.ObjectIdentifier,
+        Tables.ObjectIdentifiers.identifier,
+    )
 
-    private fun getWorldId(identifier: Identifier): Int? =
-        getObjectId(
-            identifier,
-            Identifier::toString,
-            cache.worldIdentifierKeys,
-            Tables.World,
-            Tables.Worlds.identifier
-        )
+    private fun getWorldId(identifier: Identifier): Int? = getObjectId(
+        identifier,
+        Identifier::toString,
+        cache.worldIdentifierKeys,
+        Tables.World,
+        Tables.Worlds.identifier,
+    )
 
     // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
     private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions

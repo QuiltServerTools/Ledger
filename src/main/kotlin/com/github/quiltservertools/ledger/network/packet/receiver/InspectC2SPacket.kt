@@ -36,15 +36,15 @@ data class InspectC2SPacket(val pos: BlockPos, val pages: Int) : CustomPacketPay
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(
                         LedgerPacketTypes.INSPECT_POS.id,
-                        ResponseCodes.NO_PERMISSION.code
+                        ResponseCodes.NO_PERMISSION.code,
                     ),
-                        sender
+                    sender,
                 )
                 return
             }
             ResponseS2CPacket.sendResponse(
                 ResponseContent(LedgerPacketTypes.INSPECT_POS.id, ResponseCodes.EXECUTING.code),
-                sender
+                sender,
             )
 
             Ledger.launch {
@@ -57,7 +57,7 @@ data class InspectC2SPacket(val pos: BlockPos, val pages: Int) : CustomPacketPay
                 }
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(LedgerPacketTypes.INSPECT_POS.id, ResponseCodes.COMPLETED.code),
-                    sender
+                    sender,
                 )
             }
         }

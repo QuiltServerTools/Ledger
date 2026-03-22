@@ -25,7 +25,7 @@ fun CommandSourceStack.hasPlayer() = this.entity is ServerPlayer
 
 fun MinecraftServer.getWorld(identifier: Identifier?) = identifier?.let {
     getLevel(
-        ResourceKey.create(Registries.DIMENSION, identifier)
+        ResourceKey.create(Registries.DIMENSION, identifier),
     )
 }
 

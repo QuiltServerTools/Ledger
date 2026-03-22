@@ -15,23 +15,22 @@ import net.minecraft.server.level.ServerPlayer
 
 object TeleportCommand : BuildableCommand {
     private const val BLOCK_CENTER_OFFSET = 0.5
-    override fun build(): LiteralNode =
-        Commands.literal("tp")
-            .requires(Permissions.require("ledger.commands.tp", CommandConsts.PERMISSION_LEVEL))
-            .then(
-                Commands.argument("world", DimensionArgument.dimension())
-                    .then(
-                        Commands.argument("location", Vec3Argument.vec3())
-                            .executes {
-                                teleport(
-                                    it,
-                                    DimensionArgument.getDimension(it, "world"),
-                                    Vec3Argument.getCoordinates(it, "location")
-                                )
-                            }
-                    )
-            )
-            .build()
+    override fun build(): LiteralNode = Commands.literal("tp")
+        .requires(Permissions.require("ledger.commands.tp", CommandConsts.PERMISSION_LEVEL))
+        .then(
+            Commands.argument("world", DimensionArgument.dimension())
+                .then(
+                    Commands.argument("location", Vec3Argument.vec3())
+                        .executes {
+                            teleport(
+                                it,
+                                DimensionArgument.getDimension(it, "world"),
+                                Vec3Argument.getCoordinates(it, "location"),
+                            )
+                        },
+                ),
+        )
+        .build()
 
     private fun teleport(context: Context, world: ServerLevel, posArg: Coordinates): Int {
         val player = context.source.playerOrException
@@ -56,7 +55,7 @@ object TeleportCommand : BuildableCommand {
             emptySet(),
             player.yRot,
             player.xRot,
-            true
+            true,
         )
     }
 }

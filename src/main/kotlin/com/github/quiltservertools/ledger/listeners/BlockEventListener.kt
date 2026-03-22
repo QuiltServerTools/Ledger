@@ -28,7 +28,7 @@ fun onBlockPlace(
     state: BlockState,
     entity: BlockEntity?,
     source: String,
-    player: Player?
+    player: Player?,
 ) {
     val action: ActionType = if (player != null) {
         ActionFactory.blockPlaceAction(world, pos, state, player, entity, source)
@@ -44,7 +44,7 @@ fun onBlockBreak(
     state: BlockState,
     entity: BlockEntity?,
     source: String,
-    player: Player?
+    player: Player?,
 ) {
     val action: ActionType = if (player != null) {
         ActionFactory.blockBreakAction(world, pos, state, player, entity, source)
@@ -63,20 +63,20 @@ fun onBlockChange(
     oldBlockEntity: BlockEntity?,
     newBlockEntity: BlockEntity?,
     source: String,
-    player: Player?
+    player: Player?,
 ) {
     ActionQueueService.addToQueue(
-        ActionFactory.blockChangeAction(world, pos, oldState, newState, oldBlockEntity, source, player)
+        ActionFactory.blockChangeAction(world, pos, oldState, newState, oldBlockEntity, source, player),
     )
 }
 
 fun onMelt(world: Level, pos: BlockPos, oldState: BlockState, newState: BlockState, entity: BlockEntity?) {
     ActionQueueService.addToQueue(
-        ActionFactory.blockBreakAction(world, pos, oldState, Sources.MELT, entity)
+        ActionFactory.blockBreakAction(world, pos, oldState, Sources.MELT, entity),
     )
     if (newState.block !is AirBlock) {
         ActionQueueService.addToQueue(
-            ActionFactory.blockPlaceAction(world, pos, newState, Sources.MELT, entity)
+            ActionFactory.blockPlaceAction(world, pos, newState, Sources.MELT, entity),
         )
     }
 }

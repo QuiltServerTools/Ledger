@@ -36,8 +36,8 @@ open class BlockChangeActionType : AbstractActionType() {
                 TagValueInput.create(
                     it,
                     server.registryAccess(),
-                    TagParser.parseCompoundFully(extraData!!)
-                )
+                    TagParser.parseCompoundFully(extraData!!),
+                ),
             )
         }
         world?.chunkSource?.blockChanged(pos)
@@ -50,8 +50,8 @@ open class BlockChangeActionType : AbstractActionType() {
             player.connection.send(
                 ClientboundBlockUpdatePacket(
                     pos,
-                    oldBlockState(player.level().holderLookup(Registries.BLOCK))
-                )
+                    oldBlockState(player.level().holderLookup(Registries.BLOCK)),
+                ),
             )
             preview.positions.add(pos)
         }
@@ -70,8 +70,8 @@ open class BlockChangeActionType : AbstractActionType() {
             player.connection.send(
                 ClientboundBlockUpdatePacket(
                     pos,
-                    newBlockState(player.level().holderLookup(Registries.BLOCK))
-                )
+                    newBlockState(player.level().holderLookup(Registries.BLOCK)),
+                ),
             )
             preview.positions.add(pos)
         }
@@ -83,17 +83,17 @@ open class BlockChangeActionType : AbstractActionType() {
         val text = Component.literal("")
         text.append(
             Component.translatable(
-            Util.makeDescriptionId(
-                this.getTranslationType(),
-                oldObjectIdentifier
-            )
-        ).setStyle(TextColorPallet.secondaryVariant).withStyle {
-            it.withHoverEvent(
-                HoverEvent.ShowText(
-                    oldObjectIdentifier.toString().literal()
+                Util.makeDescriptionId(
+                    this.getTranslationType(),
+                    oldObjectIdentifier,
+                ),
+            ).setStyle(TextColorPallet.secondaryVariant).withStyle {
+                it.withHoverEvent(
+                    HoverEvent.ShowText(
+                        oldObjectIdentifier.toString().literal(),
+                    ),
                 )
-            )
-        }
+            },
         )
         if (oldObjectIdentifier != objectIdentifier) {
             text.append(" → ".literal())
@@ -101,15 +101,15 @@ open class BlockChangeActionType : AbstractActionType() {
                 Component.translatable(
                     Util.makeDescriptionId(
                         this.getTranslationType(),
-                        objectIdentifier
-                    )
+                        objectIdentifier,
+                    ),
                 ).setStyle(TextColorPallet.secondaryVariant).withStyle {
                     it.withHoverEvent(
                         HoverEvent.ShowText(
-                            objectIdentifier.toString().literal()
-                        )
+                            objectIdentifier.toString().literal(),
+                        ),
                     )
-                }
+                },
             )
         }
         return text
@@ -121,9 +121,9 @@ open class BlockChangeActionType : AbstractActionType() {
             NbtUtils.blockStateFromProperties(
                 TagParser.parseCompoundFully(it),
                 oldObjectIdentifier,
-                blockLookup
+                blockLookup,
             )
-        }
+        },
     )
 
     fun newBlockState(blockLookup: HolderGetter<Block>) = checkForBlockState(
@@ -132,9 +132,9 @@ open class BlockChangeActionType : AbstractActionType() {
             NbtUtils.blockStateFromProperties(
                 TagParser.parseCompoundFully(it),
                 objectIdentifier,
-                blockLookup
+                blockLookup,
             )
-        }
+        },
     )
 
     private fun checkForBlockState(identifier: Identifier, checkState: BlockState?): BlockState {

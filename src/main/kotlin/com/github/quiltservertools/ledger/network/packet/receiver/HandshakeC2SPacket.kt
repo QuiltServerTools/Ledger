@@ -39,7 +39,7 @@ data class HandshakeC2SPacket(val nbt: CompoundTag?) : CustomPacketPayload {
                 val modid = info.get().modid
                 val modVersion = info.get().version
                 val ledgerVersion = FabricLoader.getInstance().getModContainer(
-                    Ledger.MOD_ID
+                    Ledger.MOD_ID,
                 ).get().metadata.version.friendlyString
                 if (Networking.PROTOCOL_VERSION == info.get().protocolVersion) {
                     logInfo("${player.name.string} joined the server with a Ledger compatible client mod")
@@ -50,28 +50,28 @@ data class HandshakeC2SPacket(val nbt: CompoundTag?) : CustomPacketPayload {
                         HandshakeContent(
                             Networking.PROTOCOL_VERSION,
                             ledgerVersion,
-                            ActionRegistry.getTypes().toList()
-                        )
+                            ActionRegistry.getTypes().toList(),
+                        ),
                     )
                     ServerPlayNetworking.send(player, packet)
                     player.enableNetworking()
                 } else {
-                    player.displayClientMessage(
+                    player.sendSystemMessage(
                         Component.translatable(
                             "text.ledger.network.protocols_mismatched",
                             Networking.PROTOCOL_VERSION,
-                            info.get().protocolVersion
+                            info.get().protocolVersion,
                         ),
-                            false
+                        false,
                     )
                     logInfo(
                         "${player.name.string} joined the server with a Ledger compatible client mod, " +
                             "but has a mismatched protocol: Ledger protocol version: ${Networking.PROTOCOL_VERSION}" +
-                            ", Client mod protocol version ${info.get().protocolVersion}"
+                            ", Client mod protocol version ${info.get().protocolVersion}",
                     )
                 }
             } else {
-                player.displayClientMessage(Component.translatable("text.ledger.network.no_mod_info"), false)
+                player.sendSystemMessage(Component.translatable("text.ledger.network.no_mod_info"), false)
             }
         }
         private fun readInfo(nbt: CompoundTag?): Optional<ModInfo> {
@@ -83,8 +83,8 @@ data class HandshakeC2SPacket(val nbt: CompoundTag?) : CustomPacketPayload {
                 ModInfo(
                     nbt.getString("modid").orElseThrow(),
                     nbt.getString("version").orElseThrow(),
-                    nbt.getInt("protocol_version").orElseThrow()
-                )
+                    nbt.getInt("protocol_version").orElseThrow(),
+                ),
             )
         }
     }

@@ -36,7 +36,7 @@ object ActionFactory {
         pos: BlockPos,
         state: BlockState,
         source: String,
-        entity: BlockEntity? = null
+        entity: BlockEntity? = null,
     ): BlockBreakActionType {
         val action = BlockBreakActionType()
         setBlockData(action, pos, world, Blocks.AIR.defaultBlockState(), state, source, entity)
@@ -50,7 +50,7 @@ object ActionFactory {
         state: BlockState,
         player: Player,
         entity: BlockEntity? = null,
-        source: String = Sources.PLAYER
+        source: String = Sources.PLAYER,
     ): BlockChangeActionType {
         val action = blockBreakAction(world, pos, state, source, entity)
         action.sourceProfile = player.nameAndId()
@@ -63,7 +63,7 @@ object ActionFactory {
         pos: BlockPos,
         state: BlockState,
         source: String,
-        entity: BlockEntity? = null
+        entity: BlockEntity? = null,
     ): BlockChangeActionType {
         val action = BlockPlaceActionType()
         setBlockData(action, pos, world, state, Blocks.AIR.defaultBlockState(), source, entity)
@@ -77,7 +77,7 @@ object ActionFactory {
         state: BlockState,
         player: Player,
         entity: BlockEntity? = null,
-        source: String = Sources.PLAYER
+        source: String = Sources.PLAYER,
     ): BlockChangeActionType {
         val action = blockPlaceAction(world, pos, state, source, entity)
         action.sourceProfile = player.nameAndId()
@@ -92,7 +92,7 @@ object ActionFactory {
         state: BlockState,
         oldState: BlockState,
         source: String,
-        entity: BlockEntity? = null
+        entity: BlockEntity? = null,
     ) {
         action.pos = pos
         action.world = world.dimension().identifier()
@@ -111,12 +111,7 @@ object ActionFactory {
         return action
     }
 
-    fun itemInsertAction(
-        world: Level,
-        stack: ItemStack,
-        pos: BlockPos,
-        source: LivingEntity
-    ): ItemInsertActionType {
+    fun itemInsertAction(world: Level, stack: ItemStack, pos: BlockPos, source: LivingEntity): ItemInsertActionType {
         val action = ItemInsertActionType()
         var sourceType = Sources.UNKNOWN
         if (source is Player) {
@@ -138,12 +133,7 @@ object ActionFactory {
         return action
     }
 
-    fun itemRemoveAction(
-        world: Level,
-        stack: ItemStack,
-        pos: BlockPos,
-        source: LivingEntity
-    ): ItemRemoveActionType {
+    fun itemRemoveAction(world: Level, stack: ItemStack, pos: BlockPos, source: LivingEntity): ItemRemoveActionType {
         val action = ItemRemoveActionType()
         var sourceType = Sources.UNKNOWN
         if (source is Player) {
@@ -158,10 +148,7 @@ object ActionFactory {
         return action
     }
 
-    fun itemPickUpAction(
-        entity: ItemEntity,
-        source: Player
-    ): ItemPickUpActionType {
+    fun itemPickUpAction(entity: ItemEntity, source: Player): ItemPickUpActionType {
         val action = ItemPickUpActionType()
 
         setItemData(action, entity.blockPosition(), entity.level(), entity.item, Sources.PLAYER)
@@ -172,10 +159,7 @@ object ActionFactory {
         return action
     }
 
-    fun itemDropAction(
-        entity: ItemEntity,
-        source: LivingEntity
-    ): ItemDropActionType {
+    fun itemDropAction(entity: ItemEntity, source: LivingEntity): ItemDropActionType {
         val action = ItemDropActionType()
 
         setItemData(action, entity.blockPosition(), entity.level(), entity.item, Sources.PLAYER)
@@ -197,7 +181,7 @@ object ActionFactory {
         newState: BlockState,
         oldBlockEntity: BlockEntity?,
         source: String,
-        player: Player?
+        player: Player?,
     ): ActionType {
         val action = BlockChangeActionType()
         setBlockData(action, pos, world, newState, oldState, source, oldBlockEntity)
@@ -205,13 +189,7 @@ object ActionFactory {
         return action
     }
 
-    private fun setItemData(
-        action: ActionType,
-        pos: BlockPos,
-        world: Level,
-        stack: ItemStack,
-        source: String
-    ) {
+    private fun setItemData(action: ActionType, pos: BlockPos, world: Level, stack: ItemStack, source: String) {
         action.pos = pos
         action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ITEM.getKey(stack.item)
@@ -250,13 +228,7 @@ object ActionFactory {
         return action
     }
 
-    private fun setEntityData(
-        action: ActionType,
-        pos: BlockPos,
-        world: Level,
-        entity: Entity,
-        source: String
-    ) {
+    private fun setEntityData(action: ActionType, pos: BlockPos, world: Level, entity: Entity, source: String) {
         action.pos = pos
         action.world = world.dimension().identifier()
         action.objectIdentifier = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
@@ -271,7 +243,7 @@ object ActionFactory {
         entity: Entity,
         itemStack: ItemStack?,
         entityActor: Entity?,
-        sourceType: String
+        sourceType: String,
     ): EntityChangeActionType {
         val action = EntityChangeActionType()
 
@@ -294,10 +266,7 @@ object ActionFactory {
         return action
     }
 
-    fun entityMountAction(
-        entity: Entity,
-        player: Player,
-    ): EntityMountActionType {
+    fun entityMountAction(entity: Entity, player: Player): EntityMountActionType {
         val world = entity.level()
 
         val action = EntityMountActionType()
@@ -315,10 +284,7 @@ object ActionFactory {
         return action
     }
 
-    fun entityDismountAction(
-        entity: Entity,
-        player: Player,
-    ): EntityDismountActionType {
+    fun entityDismountAction(entity: Entity, player: Player): EntityDismountActionType {
         val world = entity.level()
 
         val action = EntityDismountActionType()

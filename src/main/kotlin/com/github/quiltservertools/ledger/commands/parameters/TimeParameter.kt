@@ -50,7 +50,7 @@ class TimeParameter : SimpleParameter<Instant>() {
 
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
     ): CompletableFuture<Suggestions> {
         val remaining = builder.remaining.lowercase()
         for (unit in units) {

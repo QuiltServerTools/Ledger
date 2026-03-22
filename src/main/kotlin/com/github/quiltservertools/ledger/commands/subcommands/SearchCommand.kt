@@ -16,15 +16,13 @@ import net.minecraft.commands.Commands.literal
 import net.minecraft.network.chat.Component
 
 object SearchCommand : BuildableCommand {
-    override fun build(): LiteralNode {
-        return literal("search")
-            .requires(Permissions.require("ledger.commands.search", CommandConsts.PERMISSION_LEVEL))
-            .then(
-                SearchParamArgument.argument("params")
-                    .executes { search(it, SearchParamArgument.get(it, "params")) }
-            )
-            .build()
-    }
+    override fun build(): LiteralNode = literal("search")
+        .requires(Permissions.require("ledger.commands.search", CommandConsts.PERMISSION_LEVEL))
+        .then(
+            SearchParamArgument.argument("params")
+                .executes { search(it, SearchParamArgument.get(it, "params")) },
+        )
+        .build()
 
     private fun search(context: Context, params: ActionSearchParams): Int {
         val source = context.source
@@ -44,8 +42,8 @@ object SearchCommand : BuildableCommand {
                 source,
                 results,
                 Component.translatable(
-                    "text.ledger.header.search"
-                ).setStyle(TextColorPallet.primary)
+                    "text.ledger.header.search",
+                ).setStyle(TextColorPallet.primary),
             )
         }
 

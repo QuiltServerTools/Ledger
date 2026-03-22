@@ -37,11 +37,7 @@ object NbtUtils {
         return stateTag.getCompound(PROPERTIES).orElse(null)
     }
 
-    fun blockStateFromProperties(
-        tag: CompoundTag,
-        name: Identifier,
-        blockLookup: HolderGetter<Block>
-    ): BlockState {
+    fun blockStateFromProperties(tag: CompoundTag, name: Identifier, blockLookup: HolderGetter<Block>): BlockState {
         val stateTag = CompoundTag()
         stateTag.putString("Name", name.toString())
         stateTag.put(PROPERTIES, tag)
@@ -60,7 +56,9 @@ object NbtUtils {
             }
             itemTag = DataFixers.getDataFixer().update(
                 References.ITEM_STACK,
-                Dynamic(NbtOps.INSTANCE, itemTag), ITEM_NBT_DATA_VERSION, ITEM_COMPONENTS_DATA_VERSION
+                Dynamic(NbtOps.INSTANCE, itemTag),
+                ITEM_NBT_DATA_VERSION,
+                ITEM_COMPONENTS_DATA_VERSION,
             ).cast(NbtOps.INSTANCE) as CompoundTag
         }
         ProblemReporter.ScopedCollector({ "ledger:itemstack@$name" }, LOGGER).use {

@@ -10,14 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
 fun interface BlockPlaceCallback {
-    fun place(
-        world: Level,
-        pos: BlockPos,
-        state: BlockState,
-        entity: BlockEntity?,
-        source: String,
-        player: Player?
-    )
+    fun place(world: Level, pos: BlockPos, state: BlockState, entity: BlockEntity?, source: String, player: Player?)
 
     fun place(world: Level, pos: BlockPos, state: BlockState, entity: BlockEntity?, player: Player) =
         place(world, pos, state, entity, Sources.PLAYER, player)

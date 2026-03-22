@@ -13,13 +13,13 @@ import java.util.concurrent.CompletableFuture
 class ActionParameter : SimpleParameter<String>() {
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
     ): CompletableFuture<Suggestions> {
         val types = ActionRegistry.getTypes()
         // Need to check equality to catch null
         return SharedSuggestionProvider.suggest(
             types,
-            builder
+            builder,
         )
     }
 

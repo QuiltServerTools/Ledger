@@ -13,6 +13,6 @@ class RollbackStatusParameter : SimpleParameter<Boolean>() {
 
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
     ): CompletableFuture<Suggestions> = BoolArgumentType.bool().listSuggestions(context, builder)
 }

@@ -12,6 +12,6 @@ interface Receiver {
         player: ServerPlayer,
         handler: ServerGamePacketListenerImpl,
         buf: FriendlyByteBuf,
-        sender: PacketSender
+        sender: PacketSender,
     )
 }

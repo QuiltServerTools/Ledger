@@ -1,23 +1,23 @@
 [versions]
-minecraft = "1.21.11"
-fabric-loader = "0.18.1"
+minecraft = "26.1-rc-2"
+fabric-loader = "0.18.4"
 
-fabric-api = "0.139.4+1.21.11"
+fabric-api = "0.143.15+26.1"
 
 # Kotlin
-kotlin = "2.2.0"
+kotlin = "2.3.10"
 # Also modrinth version in gradle.properties
-fabric-kotlin = "1.13.4+kotlin.2.2.0"
+fabric-kotlin = "1.13.9+kotlin.2.3.10"
 
-fabric-permissions = "0.6.1"
-translations = "2.5.2+1.21.9-pre3"
+fabric-permissions = "0.6.3-SNAPSHOT"
+translations = "3.0.0+26.1-pre-3"
 
 exposed = "1.0.0-rc-2"
 sqlite-jdbc = "3.50.3.0"
 
 konf = "1.1.2"
 
-detekt = "1.23.8"
+detekt = "2.0.0-alpha.2"
 
 [libraries]
 minecraft = { module = "net.minecraft:minecraft", version.ref = "minecraft" }
@@ -38,10 +38,10 @@ sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqlite-jdbc" }
 
 konf-core = { module = "com.uchuhimo:konf-core", version.ref = "konf"}
 konf-toml = { module = "com.uchuhimo:konf-toml", version.ref = "konf"}
-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detekt-formatting = { module = "dev.detekt:detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-loom = { id = "fabric-loom", version = "1.14.+" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
+loom = { id = "net.fabricmc.fabric-loom", version = "1.15.+" }
 git_hooks = { id = "com.github.jakemarsden.git-hooks", version = "0.0.2" }

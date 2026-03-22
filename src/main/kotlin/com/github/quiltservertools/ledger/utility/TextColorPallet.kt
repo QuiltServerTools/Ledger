@@ -13,13 +13,13 @@ object TextColorPallet {
 
     val primaryVariant: Style
         get() = Style.EMPTY.withColor(
-        TextColor.parseColor(config[ColorSpec.primaryVariant]).getOrNull()
-    )
+            TextColor.parseColor(config[ColorSpec.primaryVariant]).getOrNull(),
+        )
     val secondary: Style get() = Style.EMPTY.withColor(TextColor.parseColor(config[ColorSpec.secondary]).getOrNull())
     val secondaryVariant: Style
         get() = Style.EMPTY.withColor(
-        TextColor.parseColor(config[ColorSpec.secondaryVariant]).getOrNull()
-    )
+            TextColor.parseColor(config[ColorSpec.secondaryVariant]).getOrNull(),
+        )
     val light: Style get() = Style.EMPTY.withColor(TextColor.parseColor(config[ColorSpec.light]).getOrNull())
 }
 

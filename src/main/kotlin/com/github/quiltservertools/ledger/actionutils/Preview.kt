@@ -17,7 +17,7 @@ class Preview(
     private val params: ActionSearchParams,
     actions: List<ActionType>,
     player: ServerPlayer,
-    private val type: Type
+    private val type: Type,
 ) {
     val positions = mutableSetOf<BlockPos>()
 
@@ -31,12 +31,12 @@ class Preview(
     val modifiedItems = mutableMapOf<BlockPos, MutableList<Pair<ItemStack, Boolean>>>()
 
     init {
-        player.displayClientMessage(
+        player.sendSystemMessage(
             Component.translatable(
                 "text.ledger.preview.start",
-                actions.size
+                actions.size,
             ).setStyle(TextColorPallet.primary),
-            false
+            false,
         )
 
         for (action in actions) {
@@ -83,6 +83,6 @@ class Preview(
 
     enum class Type {
         ROLLBACK,
-        RESTORE
+        RESTORE,
     }
 }

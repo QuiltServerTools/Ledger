@@ -72,7 +72,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
             logInfo("No config file, Creating")
             Files.copy(
                 FabricLoader.getInstance().getModContainer(MOD_ID).get().findPath(CONFIG_PATH).get(),
-                FabricLoader.getInstance().configDir.resolve(CONFIG_PATH)
+                FabricLoader.getInstance().configDir.resolve(CONFIG_PATH),
             )
         }
         realConfig.validateRequired()
@@ -81,9 +81,9 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         ServerLifecycleEvents.SERVER_STARTING.register(::serverStarting)
         ServerLifecycleEvents.SERVER_STOPPED.register(::serverStopped)
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> registerCommands(dispatcher) }
-        PayloadTypeRegistry.playS2C().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
-        PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
-        PayloadTypeRegistry.playS2C().register(ResponseS2CPacket.ID, ResponseS2CPacket.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(ResponseS2CPacket.ID, ResponseS2CPacket.CODEC)
     }
 
     private fun serverStarting(server: MinecraftServer) {
@@ -121,7 +121,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                         while (ActionQueueService.size > 0) {
                             logInfo(
                                 "Database is still busy. If you exit now data WILL be lost. " +
-                                        "Actions in queue: ${ActionQueueService.size}"
+                                    "Actions in queue: ${ActionQueueService.size}",
                             )
 
                             delay(config[DatabaseSpec.queueCheckDelaySec].seconds)
@@ -132,7 +132,7 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                 }
             } catch (e: TimeoutCancellationException) {
                 logWarn(
-                    "Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost."
+                    "Database drain timed out. ${ActionQueueService.size} actions still in queue. Data may be lost.",
                 )
             }
         }

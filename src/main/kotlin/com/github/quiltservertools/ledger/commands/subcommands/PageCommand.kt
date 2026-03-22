@@ -14,13 +14,12 @@ import net.minecraft.commands.Commands.literal
 import net.minecraft.network.chat.Component
 
 object PageCommand : BuildableCommand {
-    override fun build(): LiteralNode =
-        literal("page")
-            .then(
-                argument("page", IntegerArgumentType.integer(1))
-                    .executes { page(it.source, IntegerArgumentType.getInteger(it, "page")) }
-            )
-            .build()
+    override fun build(): LiteralNode = literal("page")
+        .then(
+            argument("page", IntegerArgumentType.integer(1))
+                .executes { page(it.source, IntegerArgumentType.getInteger(it, "page")) },
+        )
+        .build()
 
     fun page(source: CommandSourceStack, page: Int): Int {
         val params = Ledger.searchCache[source.textName]

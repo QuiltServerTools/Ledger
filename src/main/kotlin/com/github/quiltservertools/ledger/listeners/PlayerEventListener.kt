@@ -54,7 +54,7 @@ private fun onUseBlock(
     player: Player,
     world: Level,
     hand: InteractionHand,
-    blockHitResult: BlockHitResult
+    blockHitResult: BlockHitResult,
 ): InteractionResult {
     if (player is ServerPlayer && player.isInspecting() && hand == InteractionHand.MAIN_HAND) {
         player.createCommandSourceStack().inspectBlock(blockHitResult.blockPos.relative(blockHitResult.direction))
@@ -68,7 +68,7 @@ private fun onBlockAttack(
     world: Level,
     hand: InteractionHand,
     pos: BlockPos,
-    direction: Direction
+    direction: Direction,
 ): InteractionResult {
     if (player is ServerPlayer && player.isInspecting()) {
         player.createCommandSourceStack().inspectBlock(pos)
@@ -89,7 +89,7 @@ private fun onBlockPlace(
     pos: BlockPos,
     state: BlockState,
     context: BlockPlaceContext?,
-    blockEntity: BlockEntity?
+    blockEntity: BlockEntity?,
 ) {
     ActionQueueService.addToQueue(
         ActionFactory.blockPlaceAction(
@@ -97,53 +97,35 @@ private fun onBlockPlace(
             pos,
             state,
             player,
-            blockEntity
-        )
+            blockEntity,
+        ),
     )
 }
 
-private fun onBlockBreak(
-    world: Level,
-    player: Player,
-    pos: BlockPos,
-    state: BlockState,
-    blockEntity: BlockEntity?
-) {
+private fun onBlockBreak(world: Level, player: Player, pos: BlockPos, state: BlockState, blockEntity: BlockEntity?) {
     ActionQueueService.addToQueue(
         ActionFactory.blockBreakAction(
             world,
             pos,
             state,
             player,
-            blockEntity
-        )
+            blockEntity,
+        ),
     )
 }
 
-private fun onItemPickUp(
-    entity: ItemEntity,
-    player: Player
-) {
+private fun onItemPickUp(entity: ItemEntity, player: Player) {
     ActionQueueService.addToQueue(ActionFactory.itemPickUpAction(entity, player))
 }
 
-private fun onItemDrop(
-    entity: ItemEntity,
-    playerOrGolem: LivingEntity
-) {
+private fun onItemDrop(entity: ItemEntity, playerOrGolem: LivingEntity) {
     ActionQueueService.addToQueue(ActionFactory.itemDropAction(entity, playerOrGolem))
 }
 
-private fun onEntityMount(
-    entity: Entity,
-    playerEntity: Player,
-) {
+private fun onEntityMount(entity: Entity, playerEntity: Player) {
     ActionQueueService.addToQueue(ActionFactory.entityMountAction(entity, playerEntity))
 }
 
-private fun onEntityDismount(
-    entity: Entity,
-    playerEntity: Player,
-) {
+private fun onEntityDismount(entity: Entity, playerEntity: Player) {
     ActionQueueService.addToQueue(ActionFactory.entityDismountAction(entity, playerEntity))
 }

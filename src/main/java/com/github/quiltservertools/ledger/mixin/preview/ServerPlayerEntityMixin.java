@@ -27,7 +27,7 @@ public abstract class ServerPlayerEntityMixin {
     // synthetic field ServerPlayerEntity from the outer class
     @Final
     @Shadow
-    ServerPlayer field_58075;
+    ServerPlayer this$0;
 
     @ModifyArg(
             method = "sendInitialData",
@@ -39,7 +39,7 @@ public abstract class ServerPlayerEntityMixin {
     private List<ItemStack> modifyStacks(List<ItemStack> stacks, @Local(argsOnly = true) AbstractContainerMenu handler) {
         BlockPos pos = ((HandlerWithContext) handler).getPos();
         if (pos == null) return stacks;
-        Preview preview = Ledger.previewCache.get(field_58075.getUUID());
+        Preview preview = Ledger.previewCache.get(this$0.getUUID());
         if (preview == null) return stacks;
         List<Pair<ItemStack, Boolean>> modifiedItems = preview.getModifiedItems().get(pos);
         if (modifiedItems == null) return stacks;
