@@ -1,15 +1,15 @@
 [versions]
-minecraft = "26.1-rc-2"
+minecraft = "26.1"
 fabric-loader = "0.18.4"
 
-fabric-api = "0.143.15+26.1"
+fabric-api = "0.144.1+26.1"
 
 # Kotlin
 kotlin = "2.3.10"
 # Also modrinth version in gradle.properties
 fabric-kotlin = "1.13.9+kotlin.2.3.10"
 
-fabric-permissions = "0.6.3-SNAPSHOT"
+fabric-permissions = "0.7.0"
 translations = "3.0.0+26.1-pre-3"
 
 exposed = "1.0.0-rc-2"
