@@ -8,19 +8,25 @@ import com.github.quiltservertools.ledger.network.Networking.hasNetworking
 import com.github.quiltservertools.ledger.network.packet.action.ActionS2CPacket
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.commands.CommandSourceStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
+import net.minecraft.resources.Identifier
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.time.toKotlinDuration
 
 object MessageUtils {
+    val pageChangeAction: Identifier = Ledger.identifier("page-change")
+    val teleportAction: Identifier = Ledger.identifier("teleport")
+    
     @OptIn(ExperimentalTime::class)
     suspend fun sendSearchResults(source: CommandSourceStack, results: SearchResults, header: Component) {
         // If the player has a Ledger compatible client, we send results as action packets rather than as chat messages
@@ -46,13 +52,15 @@ object MessageUtils {
                 Component.translatable(
                     "text.ledger.footer.page_backward"
                 ).setStyle(TextColorPallet.primaryVariant).withStyle {
+                    val tag: CompoundTag = CompoundTag().apply { this.putInt("page", results.page-1) }
+                    
                     if (results.page > 1) {
                         it.withHoverEvent(
                             HoverEvent.ShowText(
                                 Component.translatable("text.ledger.footer.page_backward.hover")
                             )
                         ).withClickEvent(
-                            ClickEvent.RunCommand("/lg pg ${results.page - 1}")
+                            ClickEvent.Custom(pageChangeAction, Optional.of(tag))
                         )
                     } else {
                         Style.EMPTY
@@ -63,13 +71,15 @@ object MessageUtils {
                 Component.translatable(
                     "text.ledger.footer.page_forward"
                 ).setStyle(TextColorPallet.primaryVariant).withStyle {
+                    val tag: CompoundTag = CompoundTag().apply { this.putInt("page", results.page+1) }
+
                     if (results.page < results.pages) {
                         it.withHoverEvent(
                             HoverEvent.ShowText(
                                 Component.translatable("text.ledger.footer.page_forward.hover")
                             )
                         ).withClickEvent(
-                            ClickEvent.RunCommand("/lg pg ${results.page + 1}")
+                            ClickEvent.Custom(pageChangeAction, Optional.of(tag))
                         )
                     } else {
                         Style.EMPTY

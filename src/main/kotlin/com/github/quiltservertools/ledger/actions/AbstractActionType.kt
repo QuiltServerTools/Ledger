@@ -8,6 +8,7 @@ import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
@@ -18,6 +19,7 @@ import net.minecraft.server.players.NameAndId
 import net.minecraft.util.Util
 import net.minecraft.world.level.Level
 import java.time.Instant
+import java.util.*
 import kotlin.time.ExperimentalTime
 
 abstract class AbstractActionType : ActionType {
@@ -98,15 +100,20 @@ abstract class AbstractActionType : ActionType {
     open fun getLocationMessage(): Component = "${pos.x} ${pos.y} ${pos.z}".literal()
         .setStyle(TextColorPallet.secondary)
         .withStyle {
+            val tag: CompoundTag = CompoundTag().apply { 
+                this.putInt("x", pos.x)
+                this.putInt("y", pos.y)
+                this.putInt("z", pos.z)
+                this.putString("world", (world ?: Level.OVERWORLD.identifier()).toString())
+            }
+
             it.withHoverEvent(
                 HoverEvent.ShowText(
                     Component.literal(world?.let { "$it\n" } ?: "")
                         .append(Component.translatable("text.ledger.action_message.location.hover"))
                 )
             ).withClickEvent(
-                ClickEvent.RunCommand(
-                    "/lg tp ${world ?: Level.OVERWORLD.identifier()} ${pos.x} ${pos.y} ${pos.z}"
-                )
+                ClickEvent.Custom(MessageUtils.teleportAction, Optional.of(tag))
             )
         }
 }
