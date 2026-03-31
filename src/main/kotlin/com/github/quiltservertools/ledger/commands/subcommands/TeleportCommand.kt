@@ -9,7 +9,9 @@ import net.minecraft.commands.Commands
 import net.minecraft.commands.arguments.DimensionArgument
 import net.minecraft.commands.arguments.coordinates.Coordinates
 import net.minecraft.commands.arguments.coordinates.Vec3Argument
+import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 
 object TeleportCommand : BuildableCommand {
     private const val BLOCK_CENTER_OFFSET = 0.5
@@ -35,6 +37,14 @@ object TeleportCommand : BuildableCommand {
         val player = context.source.playerOrException
         val pos = posArg.getBlockPos(context.source)
 
+        teleport(player, world, pos)
+
+        return 1
+    }
+
+    fun teleport(player: ServerPlayer, world: ServerLevel, pos: BlockPos) {
+        if (!Permissions.check(player, "ledger.commands.tp", CommandConsts.PERMISSION_LEVEL)) return
+
         val x = pos.x.toDouble() + BLOCK_CENTER_OFFSET
         val z = pos.z.toDouble() + BLOCK_CENTER_OFFSET
 
@@ -48,7 +58,5 @@ object TeleportCommand : BuildableCommand {
             player.xRot,
             true
         )
-
-        return 1
     }
 }

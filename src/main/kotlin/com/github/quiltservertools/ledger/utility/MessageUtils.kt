@@ -25,6 +25,7 @@ import kotlin.time.toKotlinDuration
 
 object MessageUtils {
     val pageChangeAction: Identifier = Ledger.identifier("page-change")
+    val teleportAction: Identifier = Ledger.identifier("teleport")
     
     @OptIn(ExperimentalTime::class)
     suspend fun sendSearchResults(source: CommandSourceStack, results: SearchResults, header: Component) {
