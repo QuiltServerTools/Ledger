@@ -140,7 +140,7 @@ object DatabaseManager {
             }
             Tables.Player.all().forEach {
                 cache.playerKeys[it.playerId] = it.id.value
-                cache.playernameKeys[it.playerName] = it.id.value
+                cache.playernameKeys.forcePut(it.playerName, it.id.value)
             }
         }
     }
@@ -482,14 +482,14 @@ object DatabaseManager {
         if (player != null) {
             player.lastJoin = Instant.now()
             player.playerName = name
-            cache.playernameKeys[name] = player.id.value
+            cache.playernameKeys.forcePut(name, player.id.value)
         } else {
             val entity = Tables.Player.new {
                 this.playerId = uuid
                 this.playerName = name
             }
             cache.playerKeys[uuid] = entity.id.value
-            cache.playernameKeys[name] = entity.id.value
+            cache.playernameKeys.forcePut(name, entity.id.value)
         }
     }
 
