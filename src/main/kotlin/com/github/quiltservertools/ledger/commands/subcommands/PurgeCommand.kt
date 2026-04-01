@@ -17,28 +17,26 @@ import net.minecraft.commands.Commands.literal
 import net.minecraft.network.chat.Component
 
 object PurgeCommand : BuildableCommand {
-    override fun build(): LiteralNode {
-        return literal("purge")
-            .requires(Permissions.require("ledger.commands.purge", config[SearchSpec.purgePermissionLevel]))
-            .then(
-                SearchParamArgument.argument(CommandConsts.PARAMS).executes {
+    override fun build(): LiteralNode = literal("purge")
+        .requires(Permissions.require("ledger.commands.purge", config[SearchSpec.purgePermissionLevel]))
+        .then(
+            SearchParamArgument.argument(CommandConsts.PARAMS).executes {
                 runPurge(it, SearchParamArgument.get(it, CommandConsts.PARAMS))
-            }
-            )
-            .build()
-    }
+            },
+        )
+        .build()
 
     private fun runPurge(ctx: Context, params: ActionSearchParams): Int {
         val source = ctx.source
         source.sendSuccess(
             { Component.translatable("text.ledger.purge.starting").setStyle(TextColorPallet.secondary) },
-            true
+            true,
         )
         Ledger.launch {
             DatabaseManager.purgeActions(params)
             source.sendSuccess(
                 { Component.translatable("text.ledger.purge.complete").setStyle(TextColorPallet.secondary) },
-                true
+                true,
             )
         }
         return 1

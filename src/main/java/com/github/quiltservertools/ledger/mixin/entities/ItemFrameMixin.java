@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,7 +31,7 @@ public abstract class ItemFrameMixin {
     private CompoundTag oldEntityTags;
 
     @Inject(method = "interact", at = @At(value = "HEAD"))
-    private void ledgerLogOldEntity(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+    private void ledgerLogOldEntity(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
         Entity entity = (Entity) (Object) this;
         oldEntityTags = NbtUtils.INSTANCE.createNbt(entity);
     }
@@ -45,7 +46,7 @@ public abstract class ItemFrameMixin {
     }
 
     @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setItem(Lnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER))
-    private void ledgerItemFrameEquip(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+    private void ledgerItemFrameEquip(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
         ItemStack playerStack = player.getItemInHand(hand);
         Entity entity = (Entity) (Object) this;
         EntityModifyCallback.EVENT.invoker().modify(player.level(), entity.blockPosition(), oldEntityTags, entity, playerStack, player, Sources.EQUIP);
@@ -62,7 +63,7 @@ public abstract class ItemFrameMixin {
     }
 
     @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ItemFrame;setRotation(I)V", shift = At.Shift.AFTER))
-    private void ledgerItemFrameRotate(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+    private void ledgerItemFrameRotate(Player player, InteractionHand hand, Vec3 location, CallbackInfoReturnable<InteractionResult> cir) {
         Entity entity = (Entity) (Object) this;
         EntityModifyCallback.EVENT.invoker().modify(player.level(), entity.blockPosition(), oldEntityTags, entity, null, player, Sources.ROTATE);
     }

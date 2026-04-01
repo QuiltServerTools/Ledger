@@ -33,7 +33,7 @@ data class ActionS2CPacket(val content: ActionType) : CustomPacketPayload {
     companion object {
         val ID: Type<ActionS2CPacket> = Type(LedgerPacketTypes.ACTION.id)
         val CODEC: StreamCodec<FriendlyByteBuf, ActionS2CPacket> = CustomPacketPayload.codec(
-            ActionS2CPacket::write
+            ActionS2CPacket::write,
         ) { _: FriendlyByteBuf? -> TODO() }
     }
 }

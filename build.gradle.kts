@@ -37,8 +37,8 @@ loom {
     }
 }
 
-fun DependencyHandlerScope.modImplementationAndInclude(dep: Any) {
-    modImplementation(dep)
+fun DependencyHandlerScope.implementationAndInclude(dep: Any) {
+    implementation(dep)
     include(dep)
 }
 
@@ -48,7 +48,6 @@ repositories {
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     mavenCentral()
-    mavenLocal()
 }
 
 val includeImplementation: Configuration by configurations.creating {
@@ -60,20 +59,19 @@ dependencies {
 
     // Fabric
     minecraft(libs.minecraft)
-    mappings(loom.officialMojangMappings())
-    modImplementation(libs.fabric.loader)
+    implementation(libs.fabric.loader)
 
     // Fabric API
-    modImplementation(libs.fabric.api)
+    implementation(libs.fabric.api)
 
     // Permissions
-    modImplementationAndInclude(libs.fabric.permissions)
+    implementationAndInclude(libs.fabric.permissions)
 
     // Translations
-    modImplementationAndInclude(libs.translations)
+    implementationAndInclude(libs.translations)
 
     // Kotlin
-    modImplementation(libs.fabric.kotlin)
+    implementation(libs.fabric.kotlin)
 
     // Database
     includeImplementation(libs.exposed.core)
@@ -116,14 +114,14 @@ tasks {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
     withSourcesJar()
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
+        jvmTarget.set(JvmTarget.JVM_25)
     }
 }
 
@@ -204,7 +202,7 @@ fun DependencyHandlerScope.handleIncludes(configuration: Configuration) {
     includeTransitive(
         configuration.resolvedConfiguration.firstLevelModuleDependencies,
         configurations.minecraftLibraries.get().resolvedConfiguration.firstLevelModuleDependencies,
-        configurations.modImplementation.get().resolvedConfiguration.firstLevelModuleDependencies
+        configurations.runtimeClasspath.get().resolvedConfiguration.firstLevelModuleDependencies
             .first { it.moduleGroup == "net.fabricmc" && it.moduleName == "fabric-language-kotlin" },
     )
 }

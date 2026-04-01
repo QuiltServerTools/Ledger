@@ -28,12 +28,11 @@ fun Player.isInspecting() = inspectingUsers.contains(this.uuid)
 
 fun Player.inspectOn(): Int {
     inspectingUsers.add(this.uuid)
-    this.displayClientMessage(
+    this.sendSystemMessage(
         Component.translatable(
             "text.ledger.inspect.toggle",
-            "text.ledger.inspect.on".translate().withStyle(ChatFormatting.GREEN)
+            "text.ledger.inspect.on".translate().withStyle(ChatFormatting.GREEN),
         ).setStyle(TextColorPallet.secondary),
-        false
     )
 
     return 1
@@ -41,12 +40,11 @@ fun Player.inspectOn(): Int {
 
 fun Player.inspectOff(): Int {
     inspectingUsers.remove(this.uuid)
-    this.displayClientMessage(
+    this.sendSystemMessage(
         Component.translatable(
             "text.ledger.inspect.toggle",
-            "text.ledger.inspect.off".translate().withStyle(ChatFormatting.RED)
+            "text.ledger.inspect.off".translate().withStyle(ChatFormatting.RED),
         ).setStyle(TextColorPallet.secondary),
-        false
     )
 
     return 1
@@ -93,8 +91,8 @@ fun CommandSourceStack.inspectBlock(pos: BlockPos) {
             results,
             Component.translatable(
                 "text.ledger.header.search.pos",
-                "${pos.x} ${pos.y} ${pos.z}".literal()
-            ).setStyle(TextColorPallet.primary)
+                "${pos.x} ${pos.y} ${pos.z}".literal(),
+            ).setStyle(TextColorPallet.primary),
         )
     }
 }

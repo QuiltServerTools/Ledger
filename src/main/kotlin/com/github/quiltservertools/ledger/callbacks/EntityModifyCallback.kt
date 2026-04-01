@@ -16,7 +16,7 @@ fun interface EntityModifyCallback {
         newEntity: Entity,
         itemStack: ItemStack?,
         entityActor: Entity?,
-        sourceType: String
+        sourceType: String,
     )
 
     companion object {

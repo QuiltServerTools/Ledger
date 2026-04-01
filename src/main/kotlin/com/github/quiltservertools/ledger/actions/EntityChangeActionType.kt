@@ -22,6 +22,7 @@ import net.minecraft.world.entity.decoration.HangingEntity
 import net.minecraft.world.entity.decoration.ItemFrame
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.level.storage.TagValueInput
 
 class EntityChangeActionType : AbstractActionType() {
@@ -42,7 +43,7 @@ class EntityChangeActionType : AbstractActionType() {
             val readView = TagValueInput.create(
                 ProblemReporter.DISCARDING,
                 registryManager,
-                TagParser.parseCompoundFully(extraData!!)
+                TagParser.parseCompoundFully(extraData!!),
             )
             return readView.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY)
         } catch (_: CommandSyntaxException) {
@@ -58,32 +59,32 @@ class EntityChangeActionType : AbstractActionType() {
             Component.translatable(
                 Util.makeDescriptionId(
                     "entity",
-                    objectIdentifier
-                )
+                    objectIdentifier,
+                ),
             ).setStyle(TextColorPallet.secondaryVariant).withStyle {
                 it.withHoverEvent(
                     HoverEvent.ShowText(
-                        objectIdentifier.toString().literal()
-                    )
+                        objectIdentifier.toString().literal(),
+                    ),
                 )
-            }
+            },
         )
 
         val stack = getStack(source.registryAccess())
         if (!stack.isEmpty) {
             text.append(
-                Component.literal(" ").append(Component.translatable("text.ledger.action_message.with")).append(" ")
+                Component.literal(" ").append(Component.translatable("text.ledger.action_message.with")).append(" "),
             )
             text.append(
                 Component.translatable(
-                    stack.item.descriptionId
+                    stack.item.descriptionId,
                 ).setStyle(TextColorPallet.secondaryVariant).withStyle {
                     it.withHoverEvent(
                         HoverEvent.ShowItem(
-                            stack
-                        )
+                            ItemStackTemplate(stack.item, stack.componentsPatch),
+                        ),
                     )
-                }
+                },
             )
         }
         return text

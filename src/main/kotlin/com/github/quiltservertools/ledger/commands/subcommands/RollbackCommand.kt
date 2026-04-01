@@ -18,15 +18,13 @@ import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
 object RollbackCommand : BuildableCommand {
-    override fun build(): LiteralNode {
-        return Commands.literal("rollback")
-            .requires(Permissions.require("ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL))
-            .then(
-                SearchParamArgument.argument("params")
-                    .executes { rollback(it, SearchParamArgument.get(it, "params")) }
-            )
-            .build()
-    }
+    override fun build(): LiteralNode = Commands.literal("rollback")
+        .requires(Permissions.require("ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL))
+        .then(
+            SearchParamArgument.argument("params")
+                .executes { rollback(it, SearchParamArgument.get(it, "params")) },
+        )
+        .build()
 
     fun rollback(context: Context, params: ActionSearchParams): Int {
         val source = context.source
@@ -44,10 +42,10 @@ object RollbackCommand : BuildableCommand {
                 {
                     Component.translatable(
                         "text.ledger.rollback.start",
-                        actions.size.toString().literal().setStyle(TextColorPallet.secondary)
+                        actions.size.toString().literal().setStyle(TextColorPallet.secondary),
                     ).setStyle(TextColorPallet.primary)
                 },
-                true
+                true,
             )
 
             context.source.level.launchMain {
@@ -68,10 +66,10 @@ object RollbackCommand : BuildableCommand {
                     source.sendSuccess(
                         {
                             Component.translatable("text.ledger.rollback.fail", entry.key, entry.value).setStyle(
-                                TextColorPallet.secondary
+                                TextColorPallet.secondary,
                             )
                         },
-                        true
+                        true,
                     )
                 }
 
@@ -79,10 +77,10 @@ object RollbackCommand : BuildableCommand {
                     {
                         Component.translatable(
                             "text.ledger.rollback.finish",
-                            actions.size
+                            actions.size,
                         ).setStyle(TextColorPallet.primary)
                     },
-                    true
+                    true,
                 )
             }
         }

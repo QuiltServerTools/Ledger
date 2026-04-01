@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(AnvilMenu.class)
 public abstract class AnvilMenuMixin {
 
-    @Inject(method = "method_24922",
+    @Inject(method = "lambda$onTake$0",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;removeBlock(Lnet/minecraft/core/BlockPos;Z)Z"))
     private static void ledgerLogAnvilBreak(Player player, Level world, BlockPos pos, CallbackInfo ci) {
@@ -31,7 +31,7 @@ public abstract class AnvilMenuMixin {
                 player);
     }
 
-    @ModifyArgs(method = "method_24922",
+    @ModifyArgs(method = "lambda$onTake$0",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     private static void ledgerLogAnvilChange(Args args, Player player, Level world, BlockPos pos) {

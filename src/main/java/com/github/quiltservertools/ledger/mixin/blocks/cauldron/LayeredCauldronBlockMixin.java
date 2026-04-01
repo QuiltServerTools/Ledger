@@ -52,7 +52,7 @@ public abstract class LayeredCauldronBlockMixin {
         }
     }
 
-    @Inject(method = "method_71627", at = @At(value = "INVOKE",
+    @Inject(method = "lambda$entityInside$0", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/block/LayeredCauldronBlock;handleEntityOnFireInside(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
     private void ledgerLogPlayerExtinguish(ServerLevel serverWorld, BlockPos blockPos, BlockState blockState, Level world, Entity collidedEntity, CallbackInfo ci) {
         if (collidedEntity instanceof Player) {

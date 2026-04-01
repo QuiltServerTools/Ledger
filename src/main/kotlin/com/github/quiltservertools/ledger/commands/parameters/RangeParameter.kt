@@ -32,7 +32,7 @@ class RangeParameter : SimpleParameter<Int?>() {
 
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
     ): CompletableFuture<Suggestions> {
         val remaining = builder.remaining.lowercase()
         val reader = StringReader(remaining)

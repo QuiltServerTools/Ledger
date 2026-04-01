@@ -22,7 +22,7 @@ class SourceParameter : SimpleParameter<String>() {
 
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
     ): CompletableFuture<Suggestions> {
         val stringReader = StringReader(builder.input)
         stringReader.cursor = builder.start
@@ -33,7 +33,7 @@ class SourceParameter : SimpleParameter<String>() {
         }
         return SharedSuggestionProvider.suggest(
             sources,
-            builder
+            builder,
         )
     }
 }

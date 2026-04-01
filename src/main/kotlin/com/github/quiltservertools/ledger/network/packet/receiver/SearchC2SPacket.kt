@@ -37,9 +37,9 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPacketPaylo
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(
                         LedgerPacketTypes.SEARCH.id,
-                        ResponseCodes.NO_PERMISSION.code
+                        ResponseCodes.NO_PERMISSION.code,
                     ),
-                    sender
+                    sender,
                 )
                 return
             }
@@ -50,7 +50,7 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPacketPaylo
 
             ResponseS2CPacket.sendResponse(
                 ResponseContent(LedgerPacketTypes.SEARCH.id, ResponseCodes.EXECUTING.code),
-                sender
+                sender,
             )
 
             Ledger.launch {
@@ -65,17 +65,17 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPacketPaylo
                         source,
                         page,
                         Component.translatable(
-                            "text.ledger.header.search"
-                        ).setStyle(TextColorPallet.primary)
+                            "text.ledger.header.search",
+                        ).setStyle(TextColorPallet.primary),
                     )
                 }
 
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(
                         LedgerPacketTypes.SEARCH.id,
-                        ResponseCodes.COMPLETED.code
+                        ResponseCodes.COMPLETED.code,
                     ),
-                    sender
+                    sender,
                 )
             }
         }

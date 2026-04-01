@@ -14,6 +14,6 @@ class DimensionParameter : SimpleParameter<Identifier>() {
 
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
+        builder: SuggestionsBuilder,
     ): CompletableFuture<Suggestions> = DimensionArgument.dimension().listSuggestions(context, builder)
 }

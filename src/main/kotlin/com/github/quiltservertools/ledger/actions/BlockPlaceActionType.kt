@@ -36,8 +36,8 @@ class BlockPlaceActionType : BlockChangeActionType() {
                         TagValueInput.create(
                             it,
                             server.registryAccess(),
-                            TagParser.parseCompoundFully(extraData!!)
-                        )
+                            TagParser.parseCompoundFully(extraData!!),
+                        ),
                     )
                 }
             }
@@ -49,13 +49,13 @@ class BlockPlaceActionType : BlockChangeActionType() {
     override fun getObjectMessage(source: CommandSourceStack): Component = Component.translatable(
         Util.makeDescriptionId(
             this.getTranslationType(),
-            objectIdentifier
-        )
+            objectIdentifier,
+        ),
     ).setStyle(TextColorPallet.secondaryVariant).withStyle {
         it.withHoverEvent(
             HoverEvent.ShowText(
-                objectIdentifier.toString().literal()
-            )
+                objectIdentifier.toString().literal(),
+            ),
         )
     }
 }

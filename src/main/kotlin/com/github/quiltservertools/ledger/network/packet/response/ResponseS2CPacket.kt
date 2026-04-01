@@ -19,7 +19,7 @@ data class ResponseS2CPacket(val content: ResponseContent) : CustomPacketPayload
     companion object {
         val ID: CustomPacketPayload.Type<ResponseS2CPacket> = CustomPacketPayload.Type(LedgerPacketTypes.RESPONSE.id)
         val CODEC: StreamCodec<FriendlyByteBuf, ResponseS2CPacket> = CustomPacketPayload.codec(
-            ResponseS2CPacket::write
+            ResponseS2CPacket::write,
         ) { _: FriendlyByteBuf? -> TODO() }
 
         fun sendResponse(content: ResponseContent, sender: PacketSender) {

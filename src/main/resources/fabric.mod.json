@@ -26,10 +26,10 @@
         "ledger.mixins.json"
     ],
     "depends": {
-        "fabricloader": ">=0.16.2",
-        "fabric": ">=0.133.13+1.21.9",
+        "fabricloader": ">=0.18.4",
         "fabric-language-kotlin": ">=${fabricKotlin}",
-        "minecraft": ">=1.21.11"
+        "minecraft": ">=${minecraft}",
+        "fabric-api": ">=${fabricApi}"
     },
     "breaks": {
         "cardboard": "*"

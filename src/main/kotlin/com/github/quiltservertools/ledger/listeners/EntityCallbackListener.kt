@@ -16,25 +16,15 @@ fun registerEntityListeners() {
     EntityModifyCallback.EVENT.register(::onModify)
 }
 
-private fun onKill(
-    world: Level,
-    pos: BlockPos,
-    entity: Entity,
-    source: DamageSource
-) {
+private fun onKill(world: Level, pos: BlockPos, entity: Entity, source: DamageSource) {
     ActionQueueService.addToQueue(
-        ActionFactory.entityKillAction(world, pos, entity, source)
+        ActionFactory.entityKillAction(world, pos, entity, source),
     )
 }
 
-fun onKill(
-    world: Level,
-    pos: BlockPos,
-    entity: Entity,
-    source: String
-) {
+fun onKill(world: Level, pos: BlockPos, entity: Entity, source: String) {
     ActionQueueService.addToQueue(
-        ActionFactory.entityKillAction(world, pos, entity, source)
+        ActionFactory.entityKillAction(world, pos, entity, source),
     )
 }
 
@@ -45,9 +35,9 @@ private fun onModify(
     entity: Entity,
     itemStack: ItemStack?,
     entityActor: Entity?,
-    sourceType: String
+    sourceType: String,
 ) {
     ActionQueueService.addToQueue(
-        ActionFactory.entityChangeAction(world, pos, oldEntityTags, entity, itemStack, entityActor, sourceType)
+        ActionFactory.entityChangeAction(world, pos, oldEntityTags, entity, itemStack, entityActor, sourceType),
     )
 }

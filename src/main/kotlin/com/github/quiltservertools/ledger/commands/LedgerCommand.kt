@@ -25,7 +25,7 @@ fun registerCommands(dispatcher: Dispatcher) {
     dispatcher.root.addChild(
         literal("lg")
             .requires(Permissions.require("ledger.commands.root", CommandConsts.PERMISSION_LEVEL)).redirect(rootNode)
-            .build()
+            .build(),
     )
 
     rootNode.addChild(InspectCommand.build())

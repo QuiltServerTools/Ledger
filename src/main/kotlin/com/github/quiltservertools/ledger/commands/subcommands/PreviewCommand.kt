@@ -16,39 +16,37 @@ import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
 object PreviewCommand : BuildableCommand {
-    override fun build(): LiteralNode {
-        return Commands.literal("preview")
-            .requires(Permissions.require("ledger.commands.preview", CommandConsts.PERMISSION_LEVEL))
-            .then(
-                Commands.literal("rollback")
+    override fun build(): LiteralNode = Commands.literal("preview")
+        .requires(Permissions.require("ledger.commands.preview", CommandConsts.PERMISSION_LEVEL))
+        .then(
+            Commands.literal("rollback")
                 .then(
                     SearchParamArgument.argument(CommandConsts.PARAMS)
                         .executes {
                             preview(
                                 it,
                                 SearchParamArgument.get(it, CommandConsts.PARAMS),
-                                Preview.Type.ROLLBACK
+                                Preview.Type.ROLLBACK,
                             )
-                        }
-                )
-            )
-            .then(
-                Commands.literal("restore")
+                        },
+                ),
+        )
+        .then(
+            Commands.literal("restore")
                 .then(
                     SearchParamArgument.argument(CommandConsts.PARAMS)
                         .executes {
                             preview(
                                 it,
                                 SearchParamArgument.get(it, CommandConsts.PARAMS),
-                                Preview.Type.RESTORE
+                                Preview.Type.RESTORE,
                             )
-                        }
-                )
-            )
-            .then(Commands.literal("apply").executes { apply(it) })
-            .then(Commands.literal("cancel").executes { cancel(it) })
-            .build()
-    }
+                        },
+                ),
+        )
+        .then(Commands.literal("apply").executes { apply(it) })
+        .then(Commands.literal("cancel").executes { cancel(it) })
+        .build()
 
     private fun preview(context: Context, params: ActionSearchParams, type: Preview.Type): Int {
         val source = context.source

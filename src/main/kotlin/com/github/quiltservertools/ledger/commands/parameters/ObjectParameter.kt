@@ -29,22 +29,22 @@ class ObjectParameter : SimpleParameter<List<Identifier>>() {
             val blockTag = TagKey.create(Registries.BLOCK, tagId)
             if (blockTag != null) {
                 return BuiltInRegistries.BLOCK.getTagOrEmpty(
-                    blockTag
+                    blockTag,
                 ).map { BuiltInRegistries.BLOCK.getKey(it.value()) }
             }
 
             val itemTag = TagKey.create(Registries.ITEM, tagId)
             if (itemTag != null) {
                 BuiltInRegistries.ITEM.getTagOrEmpty(
-                    itemTag
+                    itemTag,
                 ).map { BuiltInRegistries.ITEM.getKey(it.value()) }
             }
 
             val entityTag = TagKey.create(Registries.ENTITY_TYPE, tagId)
             if (entityTag != null) {
                 return BuiltInRegistries.ENTITY_TYPE.getTagOrEmpty(entityTag).map {
-                BuiltInRegistries.ENTITY_TYPE.getKey(it.value())
-            }
+                    BuiltInRegistries.ENTITY_TYPE.getKey(it.value())
+                }
             }
         }
 
@@ -53,22 +53,20 @@ class ObjectParameter : SimpleParameter<List<Identifier>>() {
 
     override fun getSuggestions(
         context: CommandContext<CommandSourceStack>,
-        builder: SuggestionsBuilder
-    ): CompletableFuture<Suggestions> {
-        return if (builder.remaining.startsWith("#")) {
-            SharedSuggestionProvider.suggestResource(
-                mutableListOf<Identifier>().apply {
-                    addAll(BuiltInRegistries.BLOCK.tags.map { it.key().location }.toList())
-                    addAll(BuiltInRegistries.ITEM.tags.map { it.key().location }.toList())
-                    addAll(BuiltInRegistries.ENTITY_TYPE.tags.map { it.key().location }.toList())
-                },
-                builder.createOffset(builder.start + 1)
-            )
-        } else {
-            SharedSuggestionProvider.suggestResource(
-                identifiers,
-                builder
-            )
-        }
+        builder: SuggestionsBuilder,
+    ): CompletableFuture<Suggestions> = if (builder.remaining.startsWith("#")) {
+        SharedSuggestionProvider.suggestResource(
+            mutableListOf<Identifier>().apply {
+                addAll(BuiltInRegistries.BLOCK.tags.map { it.key().location }.toList())
+                addAll(BuiltInRegistries.ITEM.tags.map { it.key().location }.toList())
+                addAll(BuiltInRegistries.ENTITY_TYPE.tags.map { it.key().location }.toList())
+            },
+            builder.createOffset(builder.start + 1),
+        )
+    } else {
+        SharedSuggestionProvider.suggestResource(
+            identifiers,
+            builder,
+        )
     }
 }

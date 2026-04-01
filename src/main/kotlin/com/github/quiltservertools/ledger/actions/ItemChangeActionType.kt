@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.WorldlyContainerHolder
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.ChestBlock
@@ -32,19 +33,19 @@ abstract class ItemChangeActionType : AbstractActionType() {
     private fun getStack(server: MinecraftServer) = NbtUtils.itemFromProperties(
         extraData,
         objectIdentifier,
-        server.registryAccess()
+        server.registryAccess(),
     )
 
     override fun getObjectMessage(source: CommandSourceStack): Component {
         val stack = getStack(source.server)
 
         return "${stack.count} ".literal().append(
-            stack.itemName
+            stack.itemName,
         ).setStyle(TextColorPallet.secondaryVariant).withStyle {
             it.withHoverEvent(
                 HoverEvent.ShowItem(
-                    stack
-                )
+                    ItemStackTemplate(stack.item, stack.componentsPatch),
+                ),
             )
         }
     }

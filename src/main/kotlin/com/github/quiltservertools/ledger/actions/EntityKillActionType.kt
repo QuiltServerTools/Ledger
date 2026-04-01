@@ -29,7 +29,7 @@ class EntityKillActionType : AbstractActionType() {
         override fun sendToTrackingPlayersAndSelf(packet: Packet<in ClientGamePacketListener>) = Unit
         override fun sendToTrackingPlayersFiltered(
             packet: Packet<in ClientGamePacketListener>,
-            predicate: Predicate<ServerPlayer>
+            predicate: Predicate<ServerPlayer>,
         ) = Unit
     }
 

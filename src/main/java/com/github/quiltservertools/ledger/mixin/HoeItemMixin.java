@@ -15,12 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(HoeItem.class)
 public abstract class HoeItemMixin {
     // These unmapped methods are lambda expressions used by the game for hoe uses
-    @Inject(method = "method_36984", at = @At("HEAD"))
+    @Inject(method = "lambda$changeIntoState$0", at = @At("HEAD"))
     private static void logHoeInteraction(BlockState state, UseOnContext context, CallbackInfo ci) {
         log(state, context);
     }
 
-    @Inject(method = "method_36986", at = @At("HEAD"))
+    @Inject(method = "lambda$changeIntoStateAndDropItem$0", at = @At("HEAD"))
     private static void logHoeInteraction(BlockState state, ItemLike itemConvertible, UseOnContext context, CallbackInfo ci) {
         log(state, context);
     }

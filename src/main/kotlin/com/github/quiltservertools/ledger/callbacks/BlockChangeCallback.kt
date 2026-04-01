@@ -18,7 +18,7 @@ fun interface BlockChangeCallback {
         oldBlockEntity: BlockEntity?,
         newBlockEntity: BlockEntity?,
         source: String,
-        player: Player?
+        player: Player?,
     )
 
     fun changeBlock(
@@ -28,9 +28,8 @@ fun interface BlockChangeCallback {
         newState: BlockState,
         oldBlockEntity: BlockEntity?,
         newBlockEntity: BlockEntity?,
-        player: Player
-    ) =
-        changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, Sources.PLAYER, player)
+        player: Player,
+    ) = changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, Sources.PLAYER, player)
 
     fun changeBlock(
         world: Level,
@@ -39,9 +38,8 @@ fun interface BlockChangeCallback {
         newState: BlockState,
         oldBlockEntity: BlockEntity?,
         newBlockEntity: BlockEntity?,
-        source: String
-    ) =
-        changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, source, null)
+        source: String,
+    ) = changeBlock(world, pos, oldState, newState, oldBlockEntity, newBlockEntity, source, null)
 
     companion object {
         @JvmField
@@ -57,7 +55,7 @@ fun interface BlockChangeCallback {
                             oldBlockEntity,
                             newBlockEntity,
                             source,
-                            player
+                            player,
                         )
                     }
                 }
