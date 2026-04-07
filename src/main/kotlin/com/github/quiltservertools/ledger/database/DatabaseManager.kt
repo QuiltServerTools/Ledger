@@ -121,6 +121,11 @@ object DatabaseManager {
             Tables.Sources,
             Tables.Worlds,
         )
+        try {
+            exec("CREATE INDEX IF NOT EXISTS actions_time ON actions(time)")
+        } catch (e: java.sql.SQLException) {
+            logWarn("Could not create actions_time index (MySQL 8.0.12+ required if using MySQL): ${e.message}")
+        }
         logInfo("Tables created")
     }
 
