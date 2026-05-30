@@ -21,7 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerCommonPacketListenerImpl.class)
 public class ServerCommonPacketListenerImplMixin {
-    @Inject(method = "handleCustomClickAction", at = @At("HEAD"), cancellable = true)
+    @Inject(
+            method = "handleCustomClickAction",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/MinecraftServer;handleCustomClickAction(Lnet/minecraft/resources/Identifier;Ljava/util/Optional;)V"
+            ),
+            cancellable = true
+    )
     private void handleLedgerPageChangeClick(ServerboundCustomClickActionPacket packet, CallbackInfo ci) {
         if (!((Object) this instanceof ServerGamePacketListenerImpl game)) return;
 
