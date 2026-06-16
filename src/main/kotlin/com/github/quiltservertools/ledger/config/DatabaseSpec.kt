@@ -15,6 +15,7 @@ object DatabaseSpec : ConfigSpec() {
     val batchDelay by optional<Int>(10)
     val logSQL by optional<Boolean>(false)
     val location by optional<String?>(null)
+    val updateSchema by optional<Boolean>(false)
 }
 
 fun Config.getDatabasePath(): Path {
