@@ -29,6 +29,9 @@ The path is relative to the server's root directory. If the path is left out, th
 
 `logSQL` [Default: false] will log all SQL queries to the console. This is useful for debugging, but can be very spammy
 
+`updateSchema` [Default: false] will run updates old databases on startup when true. This can take a long time for large databases.
+Current schema updates: Add actions_time index
+
 ### Search settings
 
 Found under `[search]`
