@@ -55,7 +55,7 @@ object Tables {
 
     object Actions : IntIdTable("actions") {
         val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
-        val timestamp = timestamp("time")
+        val timestamp = timestamp("time").index("actions_time")
         val x = integer("x")
         val y = integer("y")
         val z = integer("z")
