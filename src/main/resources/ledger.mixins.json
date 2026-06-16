@@ -40,6 +40,7 @@
         "blocks.CampfireBlockMixin",
         "blocks.CandleBlockMixin",
         "blocks.CarvedPumpkinBlockMixin",
+        "blocks.ChiseledBookShelfBlockMixin",
         "blocks.ChorusFlowerBlockMixin",
         "blocks.ChorusPlantBlockMixin",
         "blocks.ComparatorBlockMixin",

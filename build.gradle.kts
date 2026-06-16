@@ -129,13 +129,21 @@ kotlin {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            from(components["java"])
+            artifact(tasks.named("jar"))
+            artifact(tasks.named("sourcesJar"))
         }
     }
 
     // select the repositories you want to publish to
     repositories {
-        // mavenLocal()
+        maven {
+            name = "potatoGardenRepository"
+            url = uri("https://maven.potato.garden/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
     }
 }
 
