@@ -60,7 +60,7 @@
         "blocks.LeverBlockMixin",
         "blocks.LiquidBlockMixin",
         "blocks.NoteBlockMixin",
-        "blocks.PointedDripstoneBlockMixin",
+		"blocks.SpeleothemBlockMixin",
         "blocks.RepeaterBlockMixin",
         "blocks.RootedDirtBlockMixin",
         "blocks.ScaffoldingBlockMixin",
