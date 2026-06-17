@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(Evoker.EvokerWololoSpellGoal.class)
 public abstract class EvokerEntityWololoGoalMixin {
@@ -31,7 +30,7 @@ public abstract class EvokerEntityWololoGoalMixin {
     @Inject(method = "performSpellCasting", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/sheep/Sheep;setColor(Lnet/minecraft/world/item/DyeColor;)V", shift = At.Shift.AFTER))
     public void ledgerEvokerDyeSheep(CallbackInfo ci, @Local Sheep sheepEntity) {
         if (oldEntityTags != null) {
-            EntityModifyCallback.EVENT.invoker().modify(sheepEntity.level(), sheepEntity.blockPosition(), oldEntityTags, sheepEntity, Items.RED_DYE.getDefaultInstance(), null, Sources.DYE);
+            EntityModifyCallback.EVENT.invoker().modify(sheepEntity.level(), sheepEntity.blockPosition(), oldEntityTags, sheepEntity, Items.DYE.red().getDefaultInstance(), null, Sources.DYE);
         }
     }
 }

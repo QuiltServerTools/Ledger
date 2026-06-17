@@ -14,7 +14,7 @@ import net.minecraft.network.chat.HoverEvent
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.ProblemReporter
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.level.storage.TagValueInput
@@ -54,7 +54,7 @@ open class ItemPickUpActionType : AbstractActionType() {
         val entity = world.getEntity(optionalUUID.get())
 
         if (entity == null) {
-            val entity = ItemEntity(EntityType.ITEM, world)
+            val entity = ItemEntity(EntityTypes.ITEM, world)
             ProblemReporter.ScopedCollector({ "ledger:rollback:item-pick-up@$pos" }, LOGGER).use {
                 val readView = TagValueInput.create(it, world.registryAccess(), oldEntity)
                 entity.load(readView)
