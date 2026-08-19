@@ -16,3 +16,5 @@ minecraft/
 
 # Mkdocs
 site/
+# zcode local state
+.zcode/

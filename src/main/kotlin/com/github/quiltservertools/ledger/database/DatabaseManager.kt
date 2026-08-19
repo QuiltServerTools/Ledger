@@ -84,6 +84,8 @@ object DatabaseManager {
 
     private val cache = DatabaseCacheService
     private var databaseContext = Dispatchers.IO + CoroutineName("Ledger Database")
+    private const val UNKNOWN_PLAYER_PREFIX = "unknown_"
+    private const val UNKNOWN_PLAYER_UUID_CHARS = 8
     private val ledgerLogger = object : SqlLogger {
         override fun log(context: StatementContext, transaction: Transaction) {
             Ledger.logger.info("SQL: ${context.expandArgs(transaction)}")
@@ -488,7 +490,7 @@ object DatabaseManager {
             this[Tables.Actions.blockState] = action.objectState
             this[Tables.Actions.oldBlockState] = action.oldObjectState
             this[Tables.Actions.sourceName] = getOrCreateSourceId(action.sourceName)
-            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getOrCreatePlayerId(it.id) }
+            this[Tables.Actions.sourcePlayer] = action.sourceProfile?.let { getOrCreatePlayerId(it) }
             this[Tables.Actions.extraData] = action.extraData
         }
     }
@@ -602,8 +604,36 @@ object DatabaseManager {
         ].id.value.also { cache.put(obj!!, it) }
     }
 
-    private fun getOrCreatePlayerId(playerId: UUID): Int =
-        getOrCreateObjectId(playerId, cache.playerKeys, Tables.Player, Tables.Players, Tables.Players.playerId)
+    /**
+     * Returns the id of the player row for the given profile, creating it if necessary.
+     *
+     * Unlike the other single-key id tables, [Tables.Players] requires a non-null
+     * player_name, so a row can't be created from just the uuid. Actions can be flushed
+     * (e.g. when draining the queue on shutdown) before [insertOrUpdatePlayer] has
+     * registered the player, so lazily create a complete row from the profile.
+     */
+    private fun getOrCreatePlayerId(profile: GameProfile): Int {
+        val playerId = profile.id
+
+        cache.playerKeys[playerId]?.let { return it }
+        Tables.Player.find { Tables.Players.playerId eq playerId }.firstOrNull()?.let {
+            cache.playerKeys[playerId] = it.id.value
+            return it.id.value
+        }
+
+        // Fall back to a uuid-derived name (always <= the 16 char player_name column) for
+        // profiles without a name.
+        val name = profile.name?.takeIf { it.isNotEmpty() }
+            ?: UNKNOWN_PLAYER_PREFIX + playerId.toString().replace("-", "").take(UNKNOWN_PLAYER_UUID_CHARS)
+        val id = Tables.Player.new {
+            this.playerId = playerId
+            this.playerName = name
+        }.id.value
+        cache.playerKeys[playerId] = id
+        cache.playernameKeys[name] = id
+
+        return id
+    }
 
     private fun getOrCreateSourceId(source: String): Int =
         getOrCreateObjectId(source, cache.sourceKeys, Tables.Source, Tables.Sources, Tables.Sources.name)
