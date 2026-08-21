@@ -10,7 +10,9 @@
 Run into any issues? Join our [Discord](https://discord.gg/UxHnDWr) for support!
 
 ## Other Databases
-Ledger supports other databases like MySQL, PostgreSQL and H2 with the help of the [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) extension.
+Ledger supports other databases like MySQL, PostgreSQL and H2 with the help of the [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) extension.  
+
+To set these as environment variables, [Konf](https://github.com/uchuhimo/konf) maps `database_extensions` to `DATABASEEXTENSIONS` (drops the underscore), e.g. set `DATABASEEXTENSIONS_PASSWORD=<your_secret>`.
 
 ### H2
 H2 is another flat-file database like the default sqlite that may yield faster results but is more experimental.
