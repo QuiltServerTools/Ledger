@@ -37,8 +37,8 @@ object PageCommand : BuildableCommand {
                     source,
                     results,
                     Component.translatable(
-                        "text.ledger.header.search"
-                    ).setStyle(TextColorPallet.primary)
+                        "text.ledger.header.search",
+                    ).setStyle(TextColorPallet.primary),
                 )
             }
 

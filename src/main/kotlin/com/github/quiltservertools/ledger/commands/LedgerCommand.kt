@@ -11,20 +11,21 @@ import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand
 import com.github.quiltservertools.ledger.commands.subcommands.SearchCommand
 import com.github.quiltservertools.ledger.commands.subcommands.StatusCommand
 import com.github.quiltservertools.ledger.commands.subcommands.TeleportCommand
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.utility.BrigadierUtils
 import com.github.quiltservertools.ledger.utility.Dispatcher
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.commands.Commands.literal
 
 fun registerCommands(dispatcher: Dispatcher) {
     val rootNode =
-        literal("ledger").requires(Permissions.require("ledger.commands.root", CommandConsts.PERMISSION_LEVEL))
+        literal("ledger")
+            .requires(Permissions.has(Permissions.ROOT))
             .build()
 
     dispatcher.root.addChild(rootNode)
     dispatcher.root.addChild(
         literal("lg")
-            .requires(Permissions.require("ledger.commands.root", CommandConsts.PERMISSION_LEVEL)).redirect(rootNode)
+            .requires(Permissions.has(Permissions.ROOT)).redirect(rootNode)
             .build(),
     )
 

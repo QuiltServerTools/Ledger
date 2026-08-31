@@ -64,9 +64,6 @@ dependencies {
     // Fabric API
     implementation(libs.fabric.api)
 
-    // Permissions
-    implementationAndInclude(libs.fabric.permissions)
-
     // Translations
     implementationAndInclude(libs.translations)
 

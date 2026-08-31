@@ -1,7 +1,7 @@
 # Preview
 `/ledger preview`  
 Alias: `pv`  
-Permission: `ledger.commands.preview`
+Permission: `ledger:command/preview` or permission level 3
 
 ---
 

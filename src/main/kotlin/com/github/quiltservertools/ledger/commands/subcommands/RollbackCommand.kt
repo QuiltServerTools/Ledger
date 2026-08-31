@@ -3,9 +3,9 @@ package com.github.quiltservertools.ledger.commands.subcommands
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.commands.BuildableCommand
-import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
 import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
@@ -13,13 +13,12 @@ import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.launchMain
 import com.github.quiltservertools.ledger.utility.literal
 import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
 object RollbackCommand : BuildableCommand {
     override fun build(): LiteralNode = Commands.literal("rollback")
-        .requires(Permissions.require("ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL))
+        .requires(Permissions.has(Permissions.ROLLBACK))
         .then(
             SearchParamArgument.argument("params")
                 .executes { rollback(it, SearchParamArgument.get(it, "params")) },

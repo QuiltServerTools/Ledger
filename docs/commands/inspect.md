@@ -1,7 +1,7 @@
 # Inspect
 `/ledger inspect`  
 Alias: `i`  
-Permission: `ledger.commands.inspect`
+Permission: `ledger:command/inspect` or permission level 3
 
 ---
 

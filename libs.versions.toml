@@ -1,15 +1,13 @@
 [versions]
-minecraft = "26.2-rc-2"
+minecraft = "26.2"
 fabric-loader = "0.19.3"
 
-fabric-api = "0.152.1+26.2"
+fabric-api = "0.158.0+26.2"
 
 # Kotlin
 kotlin = "2.3.10"
 # Also modrinth version in gradle.properties
 fabric-kotlin = "1.13.9+kotlin.2.3.10"
-
-fabric-permissions = "0.7.0"
 translations = "3.1.0+26.2"
 
 exposed = "1.0.0-rc-2"
@@ -26,7 +24,6 @@ fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric-l
 fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric-api" }
 fabric-kotlin = { module = "net.fabricmc:fabric-language-kotlin", version.ref = "fabric-kotlin" }
 
-fabric-permissions = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric-permissions" }
 translations = { module = "xyz.nucleoid:server-translations-api", version.ref = "translations" }
 
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }

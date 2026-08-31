@@ -1,7 +1,7 @@
 # Teleport
 `/ledger tp`  
 Alias: None  
-Permission: `ledger.commands.tp`
+Permission: `ledger:command/tp` or permission level 3
 
 ---
 

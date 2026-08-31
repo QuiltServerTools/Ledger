@@ -1,7 +1,7 @@
 # Root
 `/ledger`  
 Alias: `lg`  
-Permission: `ledger.commands.root`
+Permission: `ledger:command/root` or permission level 3
 
 ---
 

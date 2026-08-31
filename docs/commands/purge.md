@@ -1,6 +1,7 @@
 # Purge
-`/ledger purge`
-Permission: `ledger.commands.purge`
+`/ledger purge`  
+Alias: None  
+Permission: `ledger:command/purge` or purge permission level as specified in the config
 
 ---
 
