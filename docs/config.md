@@ -72,6 +72,19 @@ blocks = ["minecraft:air", "minecraft:dirt"]
 
 `sourceBlacklist` [Default: empty] controls which sources are logged. Examples are `"lava"`, `"@playerName"` and `"gravity"`. Player names can be specified by prefixing them with `"@"`
 
+`combinationBlacklist` [Default: empty] defines rules where **all** specified fields must match for an action to be suppressed (AND logic). Each rule is an inline TOML table with any combination of `type`, `world`, `object`, `source`, and area fields — omitted keys are wildcards. Flat blacklists above are evaluated first.
+
+Area filtering: specify `centerX`, `centerY`, `centerZ`, and `range` (all four required together) to suppress actions within a cube of the given radius around the centre point. `world` is strongly recommended alongside area fields.
+
+Example — suppress only snow golem snow trails, suppress all logging in a 50-block spawn protection cube, and suppress dirt placement:
+```toml
+combinationBlacklist = [
+  { type = "block-place", object = "minecraft:snow", source = "snow_golem" },
+  { world = "minecraft:overworld", centerX = 0, centerY = 64, centerZ = 0, range = 50 },
+  { type = "block-place", object = "minecraft:dirt" },
+]
+```
+
 ## Default Config
 ```toml
 [database]
