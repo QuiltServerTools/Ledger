@@ -26,6 +26,8 @@ public abstract class ArmorStandMixin {
     private CompoundTag oldEntityTags;
     @Unique
     private ItemStack oldEntityStack;
+    @Unique
+    private boolean ledgerBreakLogged;
 
     @Inject(method = "swapItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;setItemSlot(Lnet/minecraft/world/entity/EquipmentSlot;Lnet/minecraft/world/item/ItemStack;)V"))
     private void legerLogOldEntity(Player player, EquipmentSlot slot, ItemStack playerStack, InteractionHand hand, CallbackInfoReturnable<Boolean> cir) {
@@ -45,15 +47,45 @@ public abstract class ArmorStandMixin {
         }
     }
 
+    // brokenByAnything drops the armor stand's equipment and empties every slot before kill is
+    // called, so logging at the kill call would store an armor stand without its items and the
+    // rollback would bring back an empty one. Log here, while the equipment is still attached.
+    @Inject(method = "brokenByAnything", at = @At("HEAD"))
+    private void ledgerArmorStandBroken(ServerLevel world, DamageSource damageSource, CallbackInfo ci) {
+        LivingEntity entity = (LivingEntity) (Object) this;
+        EntityKillCallback.EVENT.invoker().kill(world, entity.blockPosition(), entity, damageSource);
+        this.ledgerBreakLogged = true;
+    }
+
     @Inject(method = "causeDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;kill(Lnet/minecraft/server/level/ServerLevel;)V"))
     private void ledgerArmorStandKill(ServerLevel world, DamageSource damageSource, float amount, CallbackInfo ci) {
+        if (ledgerConsumeBreakLogged()) {
+            return;
+        }
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.level(), entity.blockPosition(), entity, damageSource);
     }
 
     @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;kill(Lnet/minecraft/server/level/ServerLevel;)V"))
     private void ledgerArmorStandKill(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (ledgerConsumeBreakLogged()) {
+            return;
+        }
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(world, entity.blockPosition(), entity, source);
+    }
+
+    /**
+     * Every brokenByAnything call is immediately followed by a kill call, which must not log the
+     * armor stand a second time. Paths that kill without breaking (creative, damage that bypasses
+     * invulnerability) never set the flag and are still logged by the kill hooks above.
+     */
+    @Unique
+    private boolean ledgerConsumeBreakLogged() {
+        if (!this.ledgerBreakLogged) {
+            return false;
+        }
+        this.ledgerBreakLogged = false;
+        return true;
     }
 }
