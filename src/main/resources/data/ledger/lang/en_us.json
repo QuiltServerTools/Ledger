@@ -76,5 +76,8 @@
     "text.ledger.purge.starting": "------ Starting purge ------",
     "text.ledger.purge.complete": "------ Completed purge ------",
 
+    "text.ledger.export.starting": "------ Starting export ------",
+    "text.ledger.export.complete": "------ Completed export ------",
+
     "text.ledger.player.result": "%1$s: First joined %2$s. Last joined: %3$s"
 }
