@@ -147,6 +147,10 @@ detekt {
     config.setFrom(rootProject.files("detekt.yml"))
 }
 
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    jvmTarget = JavaVersion.VERSION_21.toString()
+}
+
 gitHooks {
     setHooks(
         mapOf("pre-commit" to "detekt")
