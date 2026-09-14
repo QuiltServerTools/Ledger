@@ -569,8 +569,10 @@ object DatabaseManager {
                     query.andWhere {
                         table.sourceName.notInList(sourceBlacklist.asList()) and
                             table.objectId.notInList(objectBlacklist.asList()) and
+                            table.oldObjectId.notInList(objectBlacklist.asList()) and
                             table.actionIdentifier.notInList(actionBlacklist.asList()) and
-                            table.world.notInList(worldBlacklist.asList())
+                            table.world.notInList(worldBlacklist.asList()) and
+                            (table.sourcePlayer.isNull() or table.sourcePlayer.notInList(playerBlacklist.asList()))
                     }
                 }
             }
