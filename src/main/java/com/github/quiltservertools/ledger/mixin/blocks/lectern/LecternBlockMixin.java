@@ -28,8 +28,10 @@ public class LecternBlockMixin {
         ItemInsertCallback.EVENT.invoker().insert(blockEntity.getBook(), pos, (ServerLevel) world, Sources.PLAYER, (ServerPlayer) user);
     }
 
-    @Inject(method = "openScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;openMenu(Lnet/minecraft/world/MenuProvider;)Ljava/util/OptionalInt;"))
+    @Inject(method = "openScreen", at = @At("HEAD"))
     public void storeLectern(Level world, BlockPos pos, Player player, CallbackInfo ci) {
-        PlayerLecternHook.getActiveHandlers().put(player, world.getBlockEntity(pos));
+        if (world.getBlockEntity(pos) instanceof LecternBlockEntity blockEntity) {
+            PlayerLecternHook.getActiveHandlers().put(player, blockEntity);
+        }
     }
 }
