@@ -10,11 +10,16 @@
     "aliases": []
   },
   {
-    "version": "1.3.23",
-    "title": "1.3.23",
+    "version": "1.3.24",
+    "title": "1.3.24",
     "aliases": [
       "latest"
     ]
+  },
+  {
+    "version": "1.3.23",
+    "title": "1.3.23",
+    "aliases": []
   },
   {
     "version": "1.3.22",
