@@ -1,8 +1,8 @@
 [versions]
-minecraft = "26.2-rc-2"
-fabric-loader = "0.19.3"
+minecraft = "26.3"
+fabric-loader = "0.19.5"
 
-fabric-api = "0.152.1+26.2"
+fabric-api = "0.160.5+26.3"
 
 # Kotlin
 kotlin = "2.3.10"
@@ -10,7 +10,7 @@ kotlin = "2.3.10"
 fabric-kotlin = "1.13.9+kotlin.2.3.10"
 
 fabric-permissions = "0.7.0"
-translations = "3.1.0+26.2"
+translations = "3.2.0+26.3"
 
 exposed = "1.0.0-rc-2"
 sqlite-jdbc = "3.50.3.0"

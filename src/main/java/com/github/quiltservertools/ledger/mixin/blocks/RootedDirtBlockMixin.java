@@ -2,6 +2,7 @@ package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockPlaceCallback;
 import com.github.quiltservertools.ledger.utility.Sources;
+import net.minecraft.world.level.block.BonemealSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RootedDirtBlock;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(RootedDirtBlock.class)
 public abstract class RootedDirtBlockMixin {
     @Inject(method = "performBonemeal", at = @At("HEAD"))
-    public void logHangingRootsGrowth(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, CallbackInfo ci) {
+    public void logHangingRootsGrowth(ServerLevel world, RandomSource random, BlockPos pos, BlockState state, BonemealSource bonemealSource, CallbackInfo ci) {
         BlockPlaceCallback.EVENT.invoker().place(world, pos.below(), Blocks.HANGING_ROOTS.defaultBlockState(), null, Sources.GROW);
     }
 }
