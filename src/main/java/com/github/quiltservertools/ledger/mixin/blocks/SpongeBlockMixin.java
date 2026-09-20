@@ -21,7 +21,7 @@ public abstract class SpongeBlockMixin {
     private BlockState oldBlockState;
 
     @Inject(method = "lambda$removeWaterBreadthFirstSearch$1", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
+            target = "Lnet/minecraft/world/level/Level;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
     private static void logWaterDrainNonSource(BlockPos actorBlockPos, Level world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         // pos is the blockpos for affected water
         BlockBreakCallback.EVENT.invoker().breakBlock(world, pos, world.getBlockState(pos), null, Sources.SPONGE);
