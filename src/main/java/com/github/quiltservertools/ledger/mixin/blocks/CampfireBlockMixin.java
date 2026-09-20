@@ -39,7 +39,7 @@ public abstract class CampfireBlockMixin {
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, blockState, world.getBlockState(pos), oldBlockEntity, world.getBlockEntity(pos), Sources.INSERT, player);
     }
 
-    @Inject(method = "dowse", at = @At(value = "INVOKE",
+    @Inject(method = "douse", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/LevelAccessor;gameEvent(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/core/BlockPos;)V"))
     private static void logCampfireExtinguish(Entity entity, LevelAccessor worldAccess, BlockPos pos, BlockState blockState, CallbackInfo ci) {
         if (worldAccess instanceof Level world) {

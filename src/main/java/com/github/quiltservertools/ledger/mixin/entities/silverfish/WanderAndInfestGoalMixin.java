@@ -25,14 +25,13 @@ public abstract class WanderAndInfestGoalMixin extends RandomStrollGoal {
             method = "start",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/LevelAccessor;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"
+                    target = "Lnet/minecraft/world/level/LevelAccessor;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"
             )
     )
     private boolean logSilverFishInfestBlock(
             LevelAccessor worldAccess,
             BlockPos pos,
             BlockState state,
-            int flags,
             Operation<Boolean> original
     ) {
         BlockState oldState = worldAccess.getBlockState(pos);
@@ -49,6 +48,6 @@ public abstract class WanderAndInfestGoalMixin extends RandomStrollGoal {
                         source
                 );
 
-        return original.call(worldAccess, pos, state, flags);
+        return original.call(worldAccess, pos, state);
     }
 }

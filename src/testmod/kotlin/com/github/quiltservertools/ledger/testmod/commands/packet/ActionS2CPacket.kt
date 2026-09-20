@@ -40,7 +40,7 @@ data class ActionS2CPacket(
                 )
             })
 
-        override fun receive(payload: ActionS2CPacket, context: ClientPlayNetworking.Context?) {
+        override fun receive(payload: ActionS2CPacket, context: ClientPlayNetworking.Context) {
             LedgerTest.LOGGER.info(
                 "pos={}, id={}, world={}, oldObjectId={}, objectId={}, source={}, timestamp={}, extraData={}",
                 payload.pos,
