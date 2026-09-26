@@ -42,5 +42,6 @@ interface ActionType {
         config[ActionsSpec.objectBlacklist].contains(oldObjectIdentifier) ||
         config[ActionsSpec.sourceBlacklist].contains(sourceName) ||
         config[ActionsSpec.sourceBlacklist].contains("@${sourceProfile?.name}") ||
-        config[ActionsSpec.worldBlacklist].contains(world)
+        config[ActionsSpec.worldBlacklist].contains(world) ||
+        config[ActionsSpec.combinationBlacklist].any { it.matches(this) }
 }

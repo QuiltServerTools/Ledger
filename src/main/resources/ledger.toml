@@ -48,6 +48,15 @@ worldBlacklist = []
 objectBlacklist = []
 # Blacklists sources. Ex: "lava", "gravity", "fire", "fall"
 sourceBlacklist = []
+# Combination rules: ALL specified fields must match to suppress an action (AND logic).
+# Supported keys: type, world, object, source, centerX, centerY, centerZ, range.
+# Omitted keys are wildcards. centerX/Y/Z and range must all be specified together.
+# combinationBlacklist = [
+#   { type = "block-place", object = "minecraft:snow", source = "snow_golem" },
+#   { type = "block-place", object = "minecraft:dirt" },
+#   { world = "minecraft:overworld", centerX = 0, centerY = 64, centerZ = 0, range = 50 },
+# ]
+combinationBlacklist = []
 
 [networking]
 # This section relates to Ledger's ability to interact with client mods for ease of use
