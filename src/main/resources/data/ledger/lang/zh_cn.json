@@ -15,6 +15,7 @@
   "text.ledger.status.version": "版本: %s",
   "text.ledger.status.discord": "单击以加入 Ledger  discord 服务器",
   "text.ledger.status.discord.join": "单击以加入",
+  "text.ledger.status.db_type": "数据库类型：%s",
   "text.ledger.status.wiki": "Wiki: %s",
   "text.ledger.status.wiki.view": "单击跳转WIKI",
 
@@ -23,6 +24,7 @@
   "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
   "text.ledger.action_message.time_diff": "%s ago",
   "text.ledger.action_message.location.hover": "单击传送至此",
+  "text.ledger.action_message.with": "用",
 
   "text.ledger.rollback.start": "正在回滚，共 %s 次更改",
   "text.ledger.rollback.finish": "完成了指定规则内的回滚",
@@ -36,19 +38,43 @@
   "text.ledger.inspect.on": "开启",
   "text.ledger.inspect.off": "关闭",
 
-  "text.ledger.database.busy": "数据库任务繁忙. 这可能需要一点时间",
+  "text.ledger.database.busy": "数据库任务繁忙。这可能需要一点时间",
 
-  "error.ledger.no_cached_params": "没有缓存搜索. 尝试先执行搜索",
+  "error.ledger.no_cached_params": "没有缓存搜索。尝试先执行搜索",
   "error.ledger.command.no_results": "没有查询到任何结果",
   "error.ledger.no_more_pages": "没有更多页了",
   "error.ledger.unknown_param": "非法参数--> %s",
   "error.ledger.no_preview": "没有可预览的结果,预览失败",
+  "error.ledger.unspecific.range": "请指定范围。",
+  "error.ledger.unspecific.range_to_big": "最大范围为 %s。请输入 @global 确认在整个服务器上执行！",
+  "error.ledger.unspecific.source_or_time": "请指定来源或时间（after 参数）。",
 
   "text.ledger.action.block-place": "放置",
   "text.ledger.action.block-break": "破坏",
+  "text.ledger.action.block-change": "修改",
   "text.ledger.action.item-insert": "放入",
   "text.ledger.action.item-remove": "拿取",
+  "text.ledger.action.item-pick-up": "拾取",
+  "text.ledger.action.item-drop": "丢弃",
   "text.ledger.action.entity-kill": "杀死",
+  "text.ledger.action.entity-change": "修改",
+  "text.ledger.action.entity-mount": "骑乘",
+  "text.ledger.action.entity-dismount": "脱离",
 
-  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d"
+  "text.ledger.parameter.action.description": "按操作类型进行筛选。",
+  "text.ledger.parameter.after.description": "按时间筛选（在指定时间之后）。",
+  "text.ledger.parameter.before.description": "按时间筛选（在指定时间之前）。通常情况下请使用 after 参数。",
+  "text.ledger.parameter.object.description": "按匹配对象进行筛选。可以是方块、物品或实体。",
+  "text.ledger.parameter.range.description": "按位置筛选（以你为中心的方形半径范围内）。",
+  "text.ledger.parameter.rolledback.description": "按回滚状态进行筛选。",
+  "text.ledger.parameter.source.description": "按来源筛选（玩家名或带有 @ 的来源）。",
+  "text.ledger.parameter.world.description": "按维度进行筛选。",
+
+  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d",
+  "text.ledger.network.no_mod_info": "无法获取您的客户端模组信息",
+
+  "text.ledger.purge.starting": "------ 正在清理 ------",
+  "text.ledger.purge.complete": "------ 清理完成 ------",
+
+  "text.ledger.player.result": "%1$s：首次加入 %2$s。最后加入：%3$s"
 }
