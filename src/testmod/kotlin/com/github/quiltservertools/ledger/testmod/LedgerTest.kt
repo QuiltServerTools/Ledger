@@ -24,12 +24,12 @@ object LedgerTest : ClientModInitializer {
     val LOGGER: Logger = LogManager.getLogger("LedgerTestmod")
 
     override fun onInitializeClient() {
-        PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.ID, HandshakeC2SPacket.CODEC)
-        PayloadTypeRegistry.playC2S().register(SearchC2SPacket.ID, SearchC2SPacket.CODEC)
-        PayloadTypeRegistry.playC2S().register(InspectC2SPacket.ID, InspectC2SPacket.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(HandshakeC2SPacket.ID, HandshakeC2SPacket.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(SearchC2SPacket.ID, SearchC2SPacket.CODEC)
+        PayloadTypeRegistry.serverboundPlay().register(InspectC2SPacket.ID, InspectC2SPacket.CODEC)
 
-        PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
-        PayloadTypeRegistry.playS2C().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
+        PayloadTypeRegistry.clientboundPlay().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
 
         ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.ID, HandshakeS2CPacket)
         ClientPlayNetworking.registerGlobalReceiver(ActionS2CPacket.ID, ActionS2CPacket)

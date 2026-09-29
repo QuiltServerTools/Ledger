@@ -100,7 +100,7 @@ abstract class AbstractActionType : ActionType {
     open fun getLocationMessage(): Component = "${pos.x} ${pos.y} ${pos.z}".literal()
         .setStyle(TextColorPallet.secondary)
         .withStyle {
-            val tag: CompoundTag = CompoundTag().apply { 
+            val tag: CompoundTag = CompoundTag().apply {
                 this.putInt("x", pos.x)
                 this.putInt("y", pos.y)
                 this.putInt("z", pos.z)
@@ -110,10 +110,10 @@ abstract class AbstractActionType : ActionType {
             it.withHoverEvent(
                 HoverEvent.ShowText(
                     Component.literal(world?.let { "$it\n" } ?: "")
-                        .append(Component.translatable("text.ledger.action_message.location.hover"))
-                )
+                        .append(Component.translatable("text.ledger.action_message.location.hover")),
+                ),
             ).withClickEvent(
-                ClickEvent.Custom(MessageUtils.teleportAction, Optional.of(tag))
+                ClickEvent.Custom(MessageUtils.teleportAction, Optional.of(tag)),
             )
         }
 }

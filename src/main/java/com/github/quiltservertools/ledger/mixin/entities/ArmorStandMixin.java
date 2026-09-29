@@ -45,13 +45,13 @@ public abstract class ArmorStandMixin {
         }
     }
 
-    @Inject(method = "causeDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;kill(Lnet/minecraft/server/level/ServerLevel;)V"))
+    @Inject(method = "causeDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;kill(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;)V"))
     private void ledgerArmorStandKill(ServerLevel world, DamageSource damageSource, float amount, CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(entity.level(), entity.blockPosition(), entity, damageSource);
     }
 
-    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;kill(Lnet/minecraft/server/level/ServerLevel;)V"))
+    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/decoration/ArmorStand;kill(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;)V"))
     private void ledgerArmorStandKill(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity entity = (LivingEntity) (Object) this;
         EntityKillCallback.EVENT.invoker().kill(world, entity.blockPosition(), entity, source);

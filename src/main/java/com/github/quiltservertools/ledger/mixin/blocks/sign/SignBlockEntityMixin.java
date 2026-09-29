@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.RegistryAccess;
@@ -30,8 +31,8 @@ public abstract class SignBlockEntityMixin {
      *
      * @param instance    The sign block entity being edited
      * @param textChanger A parameter for the original operation
-     * @param front       Whether the interaction is happening on the front of the sign
-     * @param original    The original {@link SignBlockEntity#updateText(UnaryOperator, boolean)} operation that this
+     * @param slot        The side of the sign being edited
+     * @param original    The original {@link SignBlockEntity#updateText(UnaryOperator, SignTextSlot)} operation that this
      *                    mixin wraps.
      * @return Returns the result of calling {@code original} with this method's parameters.
      */
@@ -39,13 +40,13 @@ public abstract class SignBlockEntityMixin {
             method = "updateSignText",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/entity/SignBlockEntity;updateText(Ljava/util/function/UnaryOperator;Z)Z"
+                    target = "Lnet/minecraft/world/level/block/entity/SignBlockEntity;updateText(Ljava/util/function/UnaryOperator;Lnet/minecraft/world/level/block/entity/SignTextSlot;)Z"
             )
     )
     private boolean logSignTextChange(
             SignBlockEntity instance,
             UnaryOperator<SignText> textChanger,
-            boolean front,
+            SignTextSlot slot,
             Operation<Boolean> original
     ) {
 
@@ -57,7 +58,7 @@ public abstract class SignBlockEntityMixin {
         // a bad hack to copy the old sign block entity for rollbacks
         @Nullable BlockEntity oldSignEntity = BlockEntity.loadStatic(pos, state, NbtUtils.INSTANCE.createNbt(instance, registryManager), registryManager);
 
-        boolean result = original.call(instance, textChanger, front);
+        boolean result = original.call(instance, textChanger, slot);
         if (result && oldSignEntity != null) {
 
             assert world != null : "World cannot be null, this is already in the target method";

@@ -49,7 +49,7 @@ public class CopperGolemMixin {
     }
 
     // This catches 2 cases - removing oxidation with an axe, and using an axe on an unaffected copper golem resetting their next oxidation age.
-    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V"))
+    @Inject(method = "mobInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/sounds/SoundSource;FF)V"))
     public void onAxe(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir, @Share("oldEntityTags") LocalRef<CompoundTag> oldEntityTagsRef) {
         Level world = player.level();
         CopperGolem copperGolemEntity = (CopperGolem) (Object) this;

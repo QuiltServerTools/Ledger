@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SignApplicator;
@@ -32,9 +33,9 @@ public class SignBlockMixin {
      * @param instance        The {@linkplain Item item} that is being used on the sign
      * @param world           The world of the interaction
      * @param signBlockEntity The sign block entity being interacted with
-     * @param front           Whether the interaction is happening on the front of the sign
+     * @param slot            The side of the sign being edited
      * @param player          The player interacting with the sign
-     * @param original        The original {@link SignApplicator#tryApplyToSign(Level, SignBlockEntity, boolean, ItemStack, Player)}
+     * @param original        The original {@link SignApplicator#tryApplyToSign(Level, SignBlockEntity, SignTextSlot, ItemStack, Player)}
      *                        operation that this mixin wraps.
      * @return Returns the result of calling {@code original} with this method's parameters.
      */
@@ -42,14 +43,14 @@ public class SignBlockMixin {
             method = "useItemOn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/SignApplicator;tryApplyToSign(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/SignBlockEntity;ZLnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z"
+                    target = "Lnet/minecraft/world/item/SignApplicator;tryApplyToSign(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/level/block/entity/SignBlockEntity;Lnet/minecraft/world/level/block/entity/SignTextSlot;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z"
             )
     )
     private boolean logSignItemInteraction(
         SignApplicator instance,
         Level world,
         SignBlockEntity signBlockEntity,
-        boolean front,
+        SignTextSlot slot,
         ItemStack itemStack,
         Player player,
         Operation<Boolean> original
@@ -62,7 +63,7 @@ public class SignBlockMixin {
         // a bad hack to copy the old sign block entity for rollbacks
         @Nullable BlockEntity oldSignEntity = BlockEntity.loadStatic(pos, state, NbtUtils.INSTANCE.createNbt(signBlockEntity, registryManager), registryManager);
 
-        boolean result = original.call(instance, world, signBlockEntity, front, itemStack, player);
+        boolean result = original.call(instance, world, signBlockEntity, slot, itemStack, player);
         if (result && oldSignEntity != null) {
             BlockChangeCallback.EVENT.invoker()
                     .changeBlock(

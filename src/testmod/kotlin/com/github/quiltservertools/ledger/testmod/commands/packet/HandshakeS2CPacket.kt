@@ -26,7 +26,7 @@ data class HandshakeS2CPacket(val protocolVersion: Int, val ledgerVersion: Strin
                 HandshakeS2CPacket(protocolVersion, ledgerVersion, actionTypes)
             })
 
-        override fun receive(payload: HandshakeS2CPacket, context: ClientPlayNetworking.Context?) {
+        override fun receive(payload: HandshakeS2CPacket, context: ClientPlayNetworking.Context) {
             LedgerTest.LOGGER.info("Protocol version: {}", payload.protocolVersion)
             LedgerTest.LOGGER.info("Ledger version: {}", payload.ledgerVersion)
             LedgerTest.LOGGER.info("Number of types registered: {}", payload.actionTypes.size)

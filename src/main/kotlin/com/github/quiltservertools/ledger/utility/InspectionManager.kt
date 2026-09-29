@@ -12,7 +12,7 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.level.block.BedBlock
+import net.minecraft.world.level.block.AbstractBedBlock
 import net.minecraft.world.level.block.ChestBlock
 import net.minecraft.world.level.block.DoorBlock
 import net.minecraft.world.level.block.state.BlockState
@@ -65,7 +65,7 @@ fun CommandSourceStack.inspectBlock(pos: BlockPos) {
             getOtherDoorHalf(state, pos).let {
                 area = BoundingBox.fromCorners(pos, it)
             }
-        } else if (state.block is BedBlock) {
+        } else if (state.block is AbstractBedBlock) {
             getOtherBedPart(state, pos).let {
                 area = BoundingBox.fromCorners(pos, it)
             }
@@ -123,8 +123,8 @@ private fun getOtherDoorHalf(state: BlockState, pos: BlockPos): BlockPos {
 }
 
 private fun getOtherBedPart(state: BlockState, pos: BlockPos): BlockPos {
-    val part = state.getValue(BedBlock.PART)
-    val direction = state.getValue(BedBlock.FACING)
+    val part = state.getValue(AbstractBedBlock.PART)
+    val direction = state.getValue(AbstractBedBlock.FACING)
     return if (part == BedPart.FOOT) {
         pos.relative(direction)
     } else {

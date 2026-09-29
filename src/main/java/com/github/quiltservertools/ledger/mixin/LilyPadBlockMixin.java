@@ -19,9 +19,9 @@ public abstract class LilyPadBlockMixin {
     @Inject(method = "entityInside", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;destroyBlock(Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/entity/Entity;)Z"))
     private void ledgerLogLilyPadBreak(BlockState state, Level world, BlockPos pos, Entity entity, InsideBlockEffectApplier handler, boolean bl, CallbackInfo ci) {
         if (entity.getFirstPassenger() instanceof Player player) {
-            BlockBreakCallback.EVENT.invoker().breakBlock(world, new BlockPos(pos), state, null, Sources.VEHICLE, player);
+            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.immutable(), state, null, Sources.VEHICLE, player);
         } else {
-            BlockBreakCallback.EVENT.invoker().breakBlock(world, new BlockPos(pos), state, null, Sources.VEHICLE);
+            BlockBreakCallback.EVENT.invoker().breakBlock(world, pos.immutable(), state, null, Sources.VEHICLE);
         }
     }
 }

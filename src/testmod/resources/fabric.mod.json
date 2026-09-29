@@ -25,8 +25,8 @@
     "ledger-testmod.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.11.3",
-    "fabric": ">=0.34.8",
-    "fabric-language-kotlin": ">=1.6.0+kotlin.1.5.0"
+    "fabricloader": ">=0.19.5",
+    "fabric-api": ">=0.160.5+26.3",
+    "fabric-language-kotlin": ">=1.13.9+kotlin.2.3.10"
   }
 }
