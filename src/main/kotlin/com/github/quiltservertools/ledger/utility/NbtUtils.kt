@@ -23,7 +23,7 @@ import net.minecraft.world.level.storage.TagValueOutput
 const val ITEM_NBT_DATA_VERSION = 3817
 const val ITEM_COMPONENTS_DATA_VERSION = 3825
 
-const val PROPERTIES = "Properties" // BlockState
+const val PROPERTIES = "properties" // BlockState
 const val COUNT_PRE_1_20_5 = "Count" // ItemStack
 const val COUNT = "count" // ItemStack
 const val UUID = "UUID" // Entity
@@ -39,7 +39,7 @@ object NbtUtils {
 
     fun blockStateFromProperties(tag: CompoundTag, name: Identifier, blockLookup: HolderGetter<Block>): BlockState {
         val stateTag = CompoundTag()
-        stateTag.putString("Name", name.toString())
+        stateTag.putString("id", name.toString())
         stateTag.put(PROPERTIES, tag)
         return NbtUtils.readBlockState(blockLookup, stateTag)
     }
