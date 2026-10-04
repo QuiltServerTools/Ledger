@@ -9,7 +9,7 @@ Ledger extensions allow for additional functionality to be added to Ledger via a
 3. Run your server and adjust the config as needed. The extension should provide information on how to configure it
 
 ## Available extensions
-- [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) - Adds support for MySQL and H2
+- [Ledger Databases](https://www.curseforge.com/minecraft/mc-mods/ledger-databases) - Adds support for MySQL, H2, PostgreSQL, SQLite and MariaDB - [See documentation](ledger-databases.md).
 
 ## Features possible via extensions
 

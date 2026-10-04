@@ -72,6 +72,9 @@ blocks = ["minecraft:air", "minecraft:dirt"]
 
 `sourceBlacklist` [Default: empty] controls which sources are logged. Examples are `"lava"`, `"@playerName"` and `"gravity"`. Player names can be specified by prefixing them with `"@"`
 
+### Extension config
+Config for [extensions](extensions/extensions.md) should be placed in this file too. See relevant extension for options.
+
 ## Default Config
 ```toml
 [database]
