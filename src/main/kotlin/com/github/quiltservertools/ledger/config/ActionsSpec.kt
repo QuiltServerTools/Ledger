@@ -8,4 +8,5 @@ object ActionsSpec : ConfigSpec() {
     val worldBlacklist by required<List<Identifier>>()
     val objectBlacklist by required<List<Identifier>>()
     val sourceBlacklist by required<List<String>>()
+    val combinationBlacklist by required<List<CombinationBlacklistRule>>()
 }

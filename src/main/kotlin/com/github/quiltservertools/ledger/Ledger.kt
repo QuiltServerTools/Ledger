@@ -75,6 +75,8 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
                 FabricLoader.getInstance().configDir.resolve(CONFIG_PATH),
             )
         }
+
+        migrateConfig()
         realConfig.validateRequired()
         config = realConfig
 
@@ -84,6 +86,55 @@ object Ledger : DedicatedServerModInitializer, CoroutineScope {
         PayloadTypeRegistry.clientboundPlay().register(ActionS2CPacket.ID, ActionS2CPacket.CODEC)
         PayloadTypeRegistry.clientboundPlay().register(HandshakeS2CPacket.ID, HandshakeS2CPacket.CODEC)
         PayloadTypeRegistry.clientboundPlay().register(ResponseS2CPacket.ID, ResponseS2CPacket.CODEC)
+    }
+
+    // Returns updated content with addition inserted before insertBefore, or null if key already present.
+    private fun appendKeyIfMissing(
+        content: String,
+        key: String,
+        addition: String,
+        insertBefore: String = "\n[networking]",
+    ): String? {
+        if (key in content) return null
+        return if (insertBefore in content) {
+            content.replace(
+                insertBefore,
+                "$addition$insertBefore",
+            )
+        } else {
+            content + addition
+        }
+    }
+
+    // To migrate a new config key: add an appendKeyIfMissing call below with the key name,
+    // a commented example block, and the default line. It runs once per server startup
+    // and writes the file only if anything changed.
+    private fun migrateConfig() {
+        val configFile = FabricLoader.getInstance().configDir.resolve(CONFIG_PATH).toFile()
+        var content = configFile.readText()
+        var migrated = false
+
+        appendKeyIfMissing(
+            content,
+            "combinationBlacklist",
+            "\n# Combination rules: ALL specified fields must match to suppress an action (AND logic).\n" +
+                "# Supported keys: type, world, object, source, centerX, centerY, centerZ, range.\n" +
+                "# Omitted keys are wildcards. centerX/Y/Z and range must all be specified together.\n" +
+                "# combinationBlacklist = [\n" +
+                "#   { type = \"block-place\", object = \"minecraft:snow\", source = \"snow_golem\" },\n" +
+                "#   { type = \"block-place\", object = \"minecraft:dirt\" },\n" +
+                "#   { world = \"minecraft:overworld\", centerX = 0, centerY = 64, centerZ = 0, range = 50 },\n" +
+                "# ]\n" +
+                "combinationBlacklist = []\n",
+        )?.let {
+            content = it
+            migrated = true
+        }
+
+        if (migrated) {
+            configFile.writeText(content)
+            logInfo("Config migrated: added missing keys")
+        }
     }
 
     private fun serverStarting(server: MinecraftServer) {
