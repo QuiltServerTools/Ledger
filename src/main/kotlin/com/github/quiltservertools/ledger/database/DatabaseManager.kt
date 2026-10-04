@@ -663,11 +663,9 @@ object DatabaseManager {
         Tables.Worlds.identifier,
     )
 
-    // Workaround because can't delete from a join in exposed https://kotlinlang.slack.com/archives/C0CG7E0A1/p1605866974117400
-    private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions
-        .deleteWhere {
-            id inSubQuery Tables.Actions.select(id).where(buildQueryParams(params))
-        }
+    private fun Transaction.purgeActions(params: ActionSearchParams) = Tables.Actions.deleteWhere {
+        buildQueryParams(params)
+    }
 
     private fun Transaction.selectPlayers(players: Set<NameAndId>): List<PlayerResult> {
         val query = Tables.Players.selectAll()
