@@ -27,10 +27,12 @@
     "text.ledger.action_message.with": "with",
 
     "text.ledger.rollback.start": "Rolling back %s actions",
+    "text.ledger.rollback.progress": "Rollback in progress: %s / %s actions",
     "text.ledger.rollback.finish": "Rollback complete",
     "text.ledger.rollback.fail": "Failed to rollback %s x%s",
 
     "text.ledger.restore.start": "Restoring %s actions",
+    "text.ledger.restore.progress": "Restore in progress: %s / %s actions",
     "text.ledger.restore.finish": "Restore complete",
     "text.ledger.restore.fail": "Failed to restore %s x%s",
 
@@ -61,5 +63,9 @@
     "text.ledger.network.no_mod_info": "Unable to determine mod information for your client mod",
 
     "text.ledger.purge.starting": "------ Starting purge ------",
-    "text.ledger.purge.complete": "------ Completed purge ------"
+    "text.ledger.purge.complete": "------ Completed purge ------",
+
+    "text.ledger.compact.starting": "------ Compacting database (this may take a while) ------",
+    "text.ledger.compact.progress": "Compact in progress: %s / %s rows",
+    "text.ledger.compact.complete": "------ Compacted %s actions and vacuumed the database ------"
 }

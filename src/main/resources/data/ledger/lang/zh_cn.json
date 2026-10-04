@@ -25,10 +25,12 @@
   "text.ledger.action_message.location.hover": "单击传送至此",
 
   "text.ledger.rollback.start": "正在回滚，共 %s 次更改",
+  "text.ledger.rollback.progress": "回滚进行中: 已完成 %s / %s 次更改",
   "text.ledger.rollback.finish": "完成了指定规则内的回滚",
   "text.ledger.rollback.fail": "回滚失败 %s x%s",
 
   "text.ledger.restore.start": "正在还原 %s 次回档更改",
+  "text.ledger.restore.progress": "还原进行中: 已完成 %s / %s 次更改",
   "text.ledger.restore.finish": "完成了指定规则内的还原",
   "text.ledger.restore.fail": "还原失败 %s x%s",
 
@@ -49,6 +51,10 @@
   "text.ledger.action.item-insert": "放入",
   "text.ledger.action.item-remove": "拿取",
   "text.ledger.action.entity-kill": "杀死",
+
+  "text.ledger.compact.starting": "------ 正在压缩数据库（可能需要一些时间）------",
+  "text.ledger.compact.progress": "压缩进行中: 已处理 %s / %s 行",
+  "text.ledger.compact.complete": "------ 已压缩 %s 条记录并完成数据库瘦身 ------",
 
   "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d"
 }
