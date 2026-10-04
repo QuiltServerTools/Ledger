@@ -5,6 +5,7 @@ import com.github.quiltservertools.ledger.actions.ActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.actionutils.SearchResults
+import com.github.quiltservertools.ledger.config.ActionsSpec
 import com.github.quiltservertools.ledger.config.DatabaseSpec
 import com.github.quiltservertools.ledger.config.SearchSpec
 import com.github.quiltservertools.ledger.config.config
@@ -26,6 +27,7 @@ import net.minecraft.resources.Identifier
 import net.minecraft.server.players.NameAndId
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.SqlLogger
 import org.jetbrains.exposed.v1.core.Transaction
@@ -40,6 +42,7 @@ import org.jetbrains.exposed.v1.core.inSubQuery
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.core.statements.StatementContext
 import org.jetbrains.exposed.v1.core.statements.expandArgs
@@ -51,6 +54,7 @@ import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.andWhere
 import org.jetbrains.exposed.v1.jdbc.batchInsert
+import org.jetbrains.exposed.v1.jdbc.deleteAll
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.insertIgnore
@@ -62,6 +66,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import org.sqlite.SQLiteConfig
 import org.sqlite.SQLiteDataSource
+import java.sql.SQLException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -75,6 +80,7 @@ const val MIN_RETRY_DELAY = 1000L
 const val MAX_RETRY_DELAY = 300_000L
 private const val MAX_EXTRA_DATA_BYTES = 65_535
 
+@Suppress("LargeClass")
 object DatabaseManager {
 
     // These values are initialised late to allow the database to be created at server start,
@@ -125,7 +131,7 @@ object DatabaseManager {
         if (config[DatabaseSpec.updateSchema]) {
             try {
                 exec("CREATE INDEX IF NOT EXISTS actions_time ON actions(time)")
-            } catch (e: java.sql.SQLException) {
+            } catch (e: SQLException) {
                 logWarn("Could not create actions_time index (MySQL 8.0.12+ required if using MySQL): ${e.message}")
             }
         }
@@ -460,6 +466,151 @@ object DatabaseManager {
     private fun Transaction.insertRegKeys(identifiers: Collection<Identifier>) {
         Tables.ObjectIdentifiers.batchInsert(identifiers, true) { identifier ->
             this[Tables.ObjectIdentifiers.identifier] = identifier.toString()
+        }
+    }
+
+    suspend fun exportTo(to: Database, batchSize: Int? = null) {
+        val batchSize = batchSize ?: config[DatabaseSpec.batchSize]
+
+        val insertOrder = arrayOf(
+            Tables.ActionIdentifiers,
+            Tables.ObjectIdentifiers,
+            Tables.Worlds,
+            Tables.Sources,
+            Tables.Players,
+            Tables.Actions,
+        )
+
+        newSuspendedTransaction(db = to) {
+            maxAttempts = MAX_QUERY_RETRIES
+            minRetryDelay = MIN_RETRY_DELAY
+            maxRetryDelay = MAX_RETRY_DELAY
+
+            if (Ledger.config[DatabaseSpec.logSQL]) {
+                addLogger(ledgerLogger)
+            }
+
+            SchemaUtils.create(
+                Tables.Players,
+                Tables.Actions,
+                Tables.ActionIdentifiers,
+                Tables.ObjectIdentifiers,
+                Tables.Sources,
+                Tables.Worlds,
+            )
+
+            for (table in insertOrder.indices.reversed().map { insertOrder[it] }) {
+                table.deleteAll()
+            }
+        }
+
+        lateinit var actionBlacklist: IntArray
+        lateinit var objectBlacklist: IntArray
+        lateinit var worldBlacklist: IntArray
+        lateinit var sourceBlacklist: IntArray
+        lateinit var playerBlacklist: IntArray
+
+        execute {
+            actionBlacklist = Tables.ActionIdentifiers.select(Tables.ActionIdentifiers.id).where {
+                Tables.ActionIdentifiers.actionIdentifier inList config[ActionsSpec.typeBlacklist]
+            }.map { it[Tables.ActionIdentifiers.id].value }.toIntArray()
+
+            val objectBlacklistStrs = config[ActionsSpec.objectBlacklist].map { toString() }
+            objectBlacklist = Tables.ObjectIdentifiers.select(Tables.ObjectIdentifiers.id).where {
+                Tables.ObjectIdentifiers.identifier inList objectBlacklistStrs
+            }.map { it[Tables.ObjectIdentifiers.id].value }.toIntArray()
+
+            val worldBlacklistStrs = config[ActionsSpec.worldBlacklist].map { toString() }
+            worldBlacklist = Tables.Worlds.select(Tables.Worlds.id).where {
+                Tables.Worlds.identifier inList worldBlacklistStrs
+            }.map { it[Tables.Worlds.id].value }.toIntArray()
+
+            sourceBlacklist = Tables.Sources.select(Tables.Sources.id).where {
+                Tables.Sources.name inList config[ActionsSpec.sourceBlacklist]
+            }.map { it[Tables.Sources.id].value }.toIntArray()
+
+            val playerBlacklistStrs = config[ActionsSpec.sourceBlacklist]
+                .filter { it.startsWith('@') }
+                .map { it.drop(1) }
+                .toList()
+            playerBlacklist = Tables.Players.select(Tables.Players.id).where {
+                Tables.Players.playerName inList playerBlacklistStrs
+            }.map { it[Tables.Players.id].value }.toIntArray()
+        }
+
+        val rows = ArrayList<ResultRow>(batchSize)
+
+        for (table in insertOrder) {
+            var start = 1
+
+            val query = table.selectAll().limit(batchSize)
+            when (table) {
+                is Tables.ActionIdentifiers -> {
+                    query.andWhere { table.id notInList actionBlacklist.asList() }
+                }
+
+                is Tables.ObjectIdentifiers -> {
+                    query.andWhere { table.id notInList objectBlacklist.asList() }
+                }
+
+                is Tables.Worlds -> {
+                    query.andWhere { table.id notInList worldBlacklist.asList() }
+                }
+
+                is Tables.Sources -> {
+                    query.andWhere { table.id notInList sourceBlacklist.asList() }
+                }
+
+                is Tables.Players -> {
+                    query.andWhere { table.id notInList playerBlacklist.asList() }
+                }
+
+                is Tables.Actions -> {
+                    query.andWhere {
+                        table.sourceName.notInList(sourceBlacklist.asList()) and
+                            table.objectId.notInList(objectBlacklist.asList()) and
+                            table.oldObjectId.notInList(objectBlacklist.asList()) and
+                            table.actionIdentifier.notInList(actionBlacklist.asList()) and
+                            table.world.notInList(worldBlacklist.asList()) and
+                            (table.sourcePlayer.isNull() or table.sourcePlayer.notInList(playerBlacklist.asList()))
+                    }
+                }
+            }
+
+            while (true) {
+                rows.clear()
+                execute {
+                    rows.addAll(
+                        query.copy().andWhere { table.id greaterEq start },
+                    )
+                }
+
+                if (!rows.isEmpty()) {
+                    newSuspendedTransaction(db = to) {
+                        maxAttempts = MAX_QUERY_RETRIES
+                        minRetryDelay = MIN_RETRY_DELAY
+                        maxRetryDelay = MAX_RETRY_DELAY
+
+                        if (Ledger.config[DatabaseSpec.logSQL]) {
+                            addLogger(ledgerLogger)
+                        }
+
+                        val inserted = table.batchInsert(rows, shouldReturnGeneratedValues = false) {
+                            for (field in table.fields) {
+                                this[field as Column<Any?>] = it[field]
+                            }
+                        }
+
+                        Ledger.logger.info("Inserted " + inserted.size + " rows into " + table.tableName)
+                    }
+                }
+
+                if (rows.size < batchSize) {
+                    break
+                }
+
+                start = rows.last().get(table.id).value + 1
+            }
         }
     }
 
