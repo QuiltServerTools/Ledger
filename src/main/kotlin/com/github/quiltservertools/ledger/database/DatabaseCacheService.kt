@@ -17,4 +17,10 @@ object DatabaseCacheService {
     val playerKeys: BiMap<UUID, Int> = HashBiMap.create()
 
     val playernameKeys: BiMap<String, Int> = HashBiMap.create()
+
+    /**
+     * Reoptimization: dictionary-encoded block states (state string <-> block_states.id).
+     * Keeps the actions table rows narrow (int ref instead of a full state string per row).
+     */
+    val blockStateKeys: BiMap<String, Int> = HashBiMap.create()
 }

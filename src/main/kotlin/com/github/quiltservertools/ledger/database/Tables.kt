@@ -13,6 +13,7 @@ private const val MAX_PLAYER_NAME_LENGTH = 16
 private const val MAX_ACTION_NAME_LENGTH = 16
 private const val MAX_IDENTIFIER_LENGTH = 191
 private const val MAX_SOURCE_NAME_LENGTH = 30
+private const val MAX_BLOCK_STATE_LENGTH = 500
 
 object Tables {
     object Players : IntIdTable("players") {
@@ -53,24 +54,56 @@ object Tables {
         companion object : IntEntityClass<ObjectIdentifier>(ObjectIdentifiers)
     }
 
+    /**
+     * Reoptimization: dictionary table for block state strings.
+     * The actions table stores an int reference instead of repeating the full state
+     * string on every row (CoreProtect-style dictionary encoding).
+     */
+    object BlockStates : IntIdTable("block_states") {
+        val state = varchar("state", MAX_BLOCK_STATE_LENGTH).uniqueIndex()
+    }
+
+    class BlockState(id: EntityID<Int>) : IntEntity(id) {
+        var state by BlockStates.state
+
+        companion object : IntEntityClass<BlockState>(BlockStates)
+    }
+
     object Actions : IntIdTable("actions") {
-        val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
+        val actionIdentifier = reference("action_id", ActionIdentifiers.id)
         val timestamp = timestamp("time").index("actions_time")
         val x = integer("x")
         val y = integer("y")
         val z = integer("z")
         val world = reference("world_id", Worlds.id)
-        val objectId = reference("object_id", ObjectIdentifiers.id).index()
-        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id).index()
+        val objectId = reference("object_id", ObjectIdentifiers.id)
+        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id)
+
+        // Reoptimization: nullable legacy text columns kept for backwards compatibility.
+        // New writes store the dictionary id in the *_ref columns and null here.
         val blockState = text("block_state").nullable()
         val oldBlockState = text("old_block_state").nullable()
+        val blockStateRef = integer("block_state_ref").nullable()
+        val oldBlockStateRef = integer("old_block_state_ref").nullable()
+
         val sourceName = reference("source", Sources.id).index()
-        val sourcePlayer = optReference("player_id", Players.id).index()
+        val sourcePlayer = optReference("player_id", Players.id)
         val extraData = text("extra_data").nullable()
         val rolledBack = bool("rolled_back").clientDefault { false }
 
         init {
-            index("actions_by_location", false, x, y, z, world)
+            // Reoptimization: composite, query-oriented indexes (replacing the previous
+            // single-column indexes on action_id / object_id / old_object_id / player_id).
+            // Most searches filter by a dimension + time window (u: t:, a: t:, b: t:),
+            // which these composite indexes serve directly.
+            index("actions_player_time", false, sourcePlayer, timestamp)
+            index("actions_action_time", false, actionIdentifier, timestamp)
+            index("actions_object_time", false, objectId, timestamp)
+            index("actions_old_object_time", false, oldObjectId, timestamp)
+
+            // Location index: world first (equality) then x/z ranges, time as covering column.
+            // Supersedes the old (x, y, z, world) index where only the x range was usable.
+            index("actions_by_location", false, world, x, z, timestamp)
         }
     }
 
