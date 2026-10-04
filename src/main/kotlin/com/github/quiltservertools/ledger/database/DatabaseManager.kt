@@ -464,18 +464,27 @@ object DatabaseManager {
     }
 
     private fun Transaction.insertActions(actions: List<ActionType>) {
-        val (safe, oversized) = actions.partition {
-            it.extraData == null || it.extraData!!.length <= MAX_EXTRA_DATA_BYTES
+        val (valid, invalid) = actions.partition {
+            (it.extraData == null || it.extraData!!.length <= MAX_EXTRA_DATA_BYTES) &&
+                (it.sourceProfile == null || it.sourceProfile!!.name.isNotBlank())
         }
-        oversized.forEach { action ->
-            logWarn(
-                "Skipping action log: extra_data too large (${action.extraData!!.length} chars) " +
-                    "for action ${action.identifier} at " +
-                    "[${action.world} ${action.pos.x} ${action.pos.y} ${action.pos.z}] " +
-                    "by ${action.sourceProfile?.name ?: action.sourceName}",
-            )
+        invalid.forEach { action ->
+            if (action.sourceProfile != null && action.sourceProfile!!.name.isBlank()) {
+                logWarn(
+                    "Skipping action log: sourceProfile has blank name (UUID=${action.sourceProfile!!.id}) " +
+                        "for action ${action.identifier} at " +
+                        "[${action.world} ${action.pos.x} ${action.pos.y} ${action.pos.z}]",
+                )
+            } else {
+                logWarn(
+                    "Skipping action log: extra_data too large (${action.extraData!!.length} chars) " +
+                        "for action ${action.identifier} at " +
+                        "[${action.world} ${action.pos.x} ${action.pos.y} ${action.pos.z}] " +
+                        "by ${action.sourceProfile?.name ?: action.sourceName}",
+                )
+            }
         }
-        Tables.Actions.batchInsert(safe, shouldReturnGeneratedValues = false) { action ->
+        Tables.Actions.batchInsert(valid, shouldReturnGeneratedValues = false) { action ->
             this[Tables.Actions.actionIdentifier] = getOrCreateActionId(action.identifier)
             this[Tables.Actions.timestamp] = action.timestamp
             this[Tables.Actions.x] = action.pos.x
