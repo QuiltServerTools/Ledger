@@ -1,7 +1,7 @@
 {
   "text.ledger.header.search.pos": "--- 位于 %s 的记录---",
   "text.ledger.header.search": "------ 记录搜索 ------",
-  "text.ledger.header.status": "------ Ledger ------",
+  "text.ledger.header.status": "------ Ledger 状态 ------",
 
   "text.ledger.footer.search": "------- %s [第 %s 页 共 %s 页] %s -------",
   "text.ledger.footer.page_forward": ">>",
@@ -9,20 +9,22 @@
   "text.ledger.footer.page_backward": "<<",
   "text.ledger.footer.page_backward.hover": "上一页",
 
-  "text.ledger.status.queue": "数据库队列状态: %s ",
+  "text.ledger.status.queue": "数据库队列状态: %s",
   "text.ledger.status.queue.busy": "繁忙",
-  "text.ledger.status.queue.empty": "闲置",
+  "text.ledger.status.queue.empty": "空闲",
   "text.ledger.status.version": "版本: %s",
-  "text.ledger.status.discord": "单击以加入 Ledger  discord 服务器",
+  "text.ledger.status.discord": "单击以加入 Ledger Discord 服务器: %s",
   "text.ledger.status.discord.join": "单击以加入",
+  "text.ledger.status.db_type": "数据库类型: %s",
   "text.ledger.status.wiki": "Wiki: %s",
   "text.ledger.status.wiki.view": "单击跳转WIKI",
 
   "text.ledger.preview.start": "功能预览",
 
   "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
-  "text.ledger.action_message.time_diff": "%s ago",
+  "text.ledger.action_message.time_diff": "%s 前",
   "text.ledger.action_message.location.hover": "单击传送至此",
+  "text.ledger.action_message.with": "用",
 
   "text.ledger.rollback.start": "正在回滚，共 %s 次更改",
   "text.ledger.rollback.finish": "完成了指定规则内的回滚",
@@ -43,12 +45,36 @@
   "error.ledger.no_more_pages": "没有更多页了",
   "error.ledger.unknown_param": "非法参数--> %s",
   "error.ledger.no_preview": "没有可预览的结果,预览失败",
+  "error.ledger.unspecific.range": "请指定一个范围。",
+  "error.ledger.unspecific.range_to_big": "最大范围是 %s。使用 @global 来确认在整个服务器上执行！",
+  "error.ledger.unspecific.source_or_time": "请指定一个来源或时间（之后）。",
 
   "text.ledger.action.block-place": "放置",
   "text.ledger.action.block-break": "破坏",
+  "text.ledger.action.block-change": "变为",
   "text.ledger.action.item-insert": "放入",
   "text.ledger.action.item-remove": "拿取",
+  "text.ledger.action.item-pick-up": "捡起",
+  "text.ledger.action.item-drop": "丢弃",
   "text.ledger.action.entity-kill": "杀死",
+  "text.ledger.action.entity-change": "变为",
+  "text.ledger.action.entity-mount": "坐上",
+  "text.ledger.action.entity-dismount": "脱离",
 
-  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d"
+  "text.ledger.parameter.action.description": "按执行的操作类型过滤。",
+  "text.ledger.parameter.after.description": "按时间过滤（在指定时间之后）。",
+  "text.ledger.parameter.before.description": "按时间过滤（在指定时间之前）。通常你可能想用“after”。",
+  "text.ledger.parameter.object.description": "按匹配的对象过滤。可以是方块、物品或实体。",
+  "text.ledger.parameter.range.description": "按位置过滤（以你所在位置为中心的方形半径内）。",
+  "text.ledger.parameter.rolledback.description": "按回滚状态过滤。",
+  "text.ledger.parameter.source.description": "按来源过滤（玩家名或带“@”的来源）。",
+  "text.ledger.parameter.world.description": "按指定的维度过滤。",
+
+  "text.ledger.network.protocols_mismatched": "协议版本不匹配: 客户端协议版本 %d 服务端版本为 %d",
+  "text.ledger.network.no_mod_info": "无法确定你的客户端模组的模组信息",
+
+  "text.ledger.purge.starting": "------ 开始清理 ------",
+  "text.ledger.purge.complete": "------ 清理完成 ------",
+
+  "text.ledger.player.result": "%1$s: 首次加入于 %2$s。最后加入于: %3$s"
 }
