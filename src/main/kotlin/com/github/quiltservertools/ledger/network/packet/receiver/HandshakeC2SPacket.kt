@@ -1,15 +1,14 @@
 package com.github.quiltservertools.ledger.network.packet.receiver
 
 import com.github.quiltservertools.ledger.Ledger
-import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.logInfo
 import com.github.quiltservertools.ledger.network.Networking
 import com.github.quiltservertools.ledger.network.Networking.enableNetworking
 import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
 import com.github.quiltservertools.ledger.network.packet.handshake.HandshakeContent
 import com.github.quiltservertools.ledger.network.packet.handshake.ModInfo
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.registry.ActionRegistry
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.nbt.CompoundTag
@@ -31,7 +30,7 @@ data class HandshakeC2SPacket(val nbt: CompoundTag?) : CustomPacketPayload {
 
         override fun receive(payload: HandshakeC2SPacket, context: ServerPlayNetworking.Context) {
             val player = context.player()
-            if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL)) return
+            if (!Permissions.check(player, Permissions.NETWORKING)) return
             // This should be sent by the client whenever a player joins with a client mod
             // We do some validation on the packet to make sure it's complete and intact
             val info = readInfo(payload.nbt)

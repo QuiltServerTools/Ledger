@@ -4,28 +4,28 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.commands.BuildableCommand
-import com.github.quiltservertools.ledger.commands.CommandConsts
+import com.github.quiltservertools.ledger.commands.PARAMS
 import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
 import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.commands.Commands
 import net.minecraft.network.chat.Component
 
 object PreviewCommand : BuildableCommand {
     override fun build(): LiteralNode = Commands.literal("preview")
-        .requires(Permissions.require("ledger.commands.preview", CommandConsts.PERMISSION_LEVEL))
+        .requires(Permissions.has(Permissions.PREVIEW))
         .then(
             Commands.literal("rollback")
                 .then(
-                    SearchParamArgument.argument(CommandConsts.PARAMS)
+                    SearchParamArgument.argument(PARAMS)
                         .executes {
                             preview(
                                 it,
-                                SearchParamArgument.get(it, CommandConsts.PARAMS),
+                                SearchParamArgument.get(it, PARAMS),
                                 Preview.Type.ROLLBACK,
                             )
                         },
@@ -34,11 +34,11 @@ object PreviewCommand : BuildableCommand {
         .then(
             Commands.literal("restore")
                 .then(
-                    SearchParamArgument.argument(CommandConsts.PARAMS)
+                    SearchParamArgument.argument(PARAMS)
                         .executes {
                             preview(
                                 it,
-                                SearchParamArgument.get(it, CommandConsts.PARAMS),
+                                SearchParamArgument.get(it, PARAMS),
                                 Preview.Type.RESTORE,
                             )
                         },

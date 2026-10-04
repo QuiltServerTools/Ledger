@@ -2,16 +2,15 @@ package com.github.quiltservertools.ledger.commands.subcommands
 
 import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.commands.BuildableCommand
-import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
 import com.github.quiltservertools.ledger.utility.translate
 import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.SemanticVersion
 import net.minecraft.commands.Commands
@@ -21,7 +20,7 @@ import java.net.URI
 
 object StatusCommand : BuildableCommand {
     override fun build(): LiteralNode = Commands.literal("status")
-        .requires(Permissions.require("ledger.commands.status", CommandConsts.PERMISSION_LEVEL))
+        .requires(Permissions.has(Permissions.STATUS))
         .executes { status(it) }
         .build()
 

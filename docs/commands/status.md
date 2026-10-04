@@ -1,7 +1,7 @@
 # Status
 `/ledger status`  
 Alias: None  
-Permission: `ledger.commands.status`
+Permission: `ledger:command/status` or permission level 3
 
 ---
 

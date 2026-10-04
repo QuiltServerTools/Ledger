@@ -4,11 +4,22 @@ Ledger supports numerous custom packets for interacting with supported client mo
 
 ## Versions
 
+All packets are correct for Ledger Networking v3, which is included in Ledger 1.3.0 and later.
+
 The information on this page is applicable for Ledger Networking version 3, which is the version in Ledger versions `1.3.0` and later
+
+## Permissions
+
+The `ledger:networking` permission is required to interact with Ledger over the networking API. There is no fallback to a permission level: you **must** explicitly give players this permission to be able to use Ledger's functionality over the networking API.
+
+Each packet also requires the permissions that the corresponding command does, but note that this does have fallback to permission level.
+
+### Permissions prior to version 1.3.24
+
+Permission codes were changed in version 1.3.24 to enable support for the Fabric Permissions API v1. In older versions, the `ledger.networking` permission from lucko's [Fabric Permissions API](https://github.com/lucko/fabric-permissions-api) was required in addition to the corresponding packet type permissions, with no fallback to permission level provided for this permission.
 
 ## Packet Types
 
-The server will not respond to packets unless the player has the correct permissions, which is `ledger.networking` and the relevant command permission
 
 #### Notation
 Types shown here are the Java variable types. They have the equivalent value (if applicable) in Kotlin when used in Ledger's internal code
@@ -62,7 +73,7 @@ Mod NBT should contain the following:
 
 - Mod ID (`modid`) [`String`] : Mod identifier of the mod
 
-- Protocol version (`protocol_version`) [`int`] : Ledger protocol version
+- Protocol version (`protocol_version`) [`int`] : Ledger protocol version (currently 3)
 
 ### Purge Packet
 

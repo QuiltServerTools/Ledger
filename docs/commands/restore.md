@@ -1,7 +1,7 @@
 # Restore
 `/ledger restore`  
 Alias: None  
-Permission: `ledger.commands.rollback`
+Permission: `ledger:command/rollback` or permission level 3
 
 ---
 

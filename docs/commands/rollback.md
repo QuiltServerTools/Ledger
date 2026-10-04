@@ -1,7 +1,7 @@
 # Rollback
 `/ledger rollback`  
 Alias: `rb`  
-Permission: `ledger.commands.rollback`
+Permission: `ledger:command/rollback` or permission level 3
 
 ---
 

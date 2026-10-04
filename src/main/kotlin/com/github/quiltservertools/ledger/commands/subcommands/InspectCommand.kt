@@ -1,14 +1,13 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
 import com.github.quiltservertools.ledger.commands.BuildableCommand
-import com.github.quiltservertools.ledger.commands.CommandConsts
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.utility.Context
 import com.github.quiltservertools.ledger.utility.LiteralNode
 import com.github.quiltservertools.ledger.utility.inspectBlock
 import com.github.quiltservertools.ledger.utility.inspectOff
 import com.github.quiltservertools.ledger.utility.inspectOn
 import com.github.quiltservertools.ledger.utility.isInspecting
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.commands.Commands.argument
 import net.minecraft.commands.Commands.literal
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument
@@ -16,7 +15,7 @@ import net.minecraft.core.BlockPos
 
 object InspectCommand : BuildableCommand {
     override fun build(): LiteralNode = literal("inspect")
-        .requires(Permissions.require("ledger.commands.inspect", CommandConsts.PERMISSION_LEVEL))
+        .requires(Permissions.has(Permissions.INSPECT))
         .executes { toggleInspect(it) }
         .then(
             literal("on")

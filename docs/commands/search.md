@@ -1,7 +1,7 @@
 # Search
 `/ledger search`  
 Alias: `s`  
-Permission: `ledger.commands.search`
+Permission: `ledger:command/search` or permission level 3
 
 ---
 

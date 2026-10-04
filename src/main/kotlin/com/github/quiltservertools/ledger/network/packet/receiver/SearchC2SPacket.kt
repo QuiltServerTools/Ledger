@@ -1,17 +1,16 @@
 package com.github.quiltservertools.ledger.network.packet.receiver
 
 import com.github.quiltservertools.ledger.Ledger
-import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.commands.arguments.SearchParamArgument
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.packet.LedgerPacketTypes
 import com.github.quiltservertools.ledger.network.packet.response.ResponseCodes
 import com.github.quiltservertools.ledger.network.packet.response.ResponseContent
 import com.github.quiltservertools.ledger.network.packet.response.ResponseS2CPacket
+import com.github.quiltservertools.ledger.permissions.Permissions
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import kotlinx.coroutines.launch
-import me.lucko.fabric.api.permissions.v0.Permissions
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.chat.Component
@@ -31,8 +30,8 @@ data class SearchC2SPacket(val args: String, val pages: Int) : CustomPacketPaylo
         override fun receive(payload: SearchC2SPacket, context: ServerPlayNetworking.Context) {
             val player = context.player()
             val sender = context.responseSender()
-            if (!Permissions.check(player, "ledger.networking", CommandConsts.PERMISSION_LEVEL) ||
-                !Permissions.check(player, "ledger.commands.search", CommandConsts.PERMISSION_LEVEL)
+            if (!Permissions.check(player, Permissions.NETWORKING) ||
+                !Permissions.check(player, Permissions.SEARCH)
             ) {
                 ResponseS2CPacket.sendResponse(
                     ResponseContent(

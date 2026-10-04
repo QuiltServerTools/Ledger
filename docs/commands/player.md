@@ -1,7 +1,7 @@
 # Player
 `/ledger player`  
-Permission: `ledger.commands.player`  
-Alias: `pl`
+Alias: `pl`  
+Permission: `ledger:command/player` or permission level 3
 
 ---
 
