@@ -18,6 +18,7 @@ import net.minecraft.world.entity.EntityTypes
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStackTemplate
 import net.minecraft.world.level.storage.TagValueInput
+import net.minecraft.world.phys.Vec3
 
 // TODO remove duplication from ItemPickUpActionType and ItemDropActionType
 open class ItemDropActionType : AbstractActionType() {
@@ -47,18 +48,25 @@ open class ItemDropActionType : AbstractActionType() {
     }
 
     override fun rollback(server: MinecraftServer): Boolean {
-        val world = server.getWorld(world)
+        val world = server.getWorld(world) ?: return false
 
         val newEntity = TagParser.parseCompoundFully(objectState!!)
         val optionalUUID = newEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
-        val entity = world?.getEntity(optionalUUID.get())
 
-        if (entity != null) {
-            entity.remove(Entity.RemovalReason.DISCARDED)
-            return true
-        }
-        return false
+        world.getEntity(optionalUUID.get())?.remove(Entity.RemovalReason.DISCARDED)
+        val stack = getStack(server)
+
+        // Return item to source player if online
+        val player = sourceProfile?.id?.let { server.playerList.getPlayer(it) }
+        if (player != null && player.inventory.add(stack)) return true
+
+        // Player offline or inventory full — drop at logged position
+        val drop = ItemEntity(EntityTypes.ITEM, world)
+        drop.setPos(Vec3.atCenterOf(pos))
+        drop.item = stack
+        world.addFreshEntity(drop)
+        return true
     }
 
     override fun restore(server: MinecraftServer): Boolean {
