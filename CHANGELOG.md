@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.3.24-reopt.3 (2026-10-05)
+## 1.3.25-reopt.1 (2026-10-05)
 
-Reoptimization pass over upstream Ledger 1.3.24 for MC 26.3 Fabric.
+Reoptimization pass over upstream Ledger 1.3.25 for MC 26.3 Fabric.
 This entry describes the current version. Changes introduced since reopt.1 are
 listed first, followed by a cumulative summary of everything this build carries
 relative to upstream.
@@ -105,13 +105,14 @@ it went from about 1.53 s to 0.62 s.
   differences seen were within noise) while adding 3.0% / 3.7% to the file. Not
   adopted.
 
-### Cumulative summary vs upstream 1.3.24
+### Cumulative summary vs upstream 1.3.25
 
-- **Fixed - MC 26.3 block-state NBT key rename.** Vanilla `writeBlockState` /
-  `readBlockState` renamed `Name` -> `id` and `Properties` -> `properties`; upstream
-  still read the old keys, so every serialized block state was null on 26.3 and
-  stateful blocks (stairs, logs, doors, ...) rolled back to their default state. Both
-  key sets are now accepted on read; new writes use the 26.3 format.
+- **MC 26.3 block-state NBT key rename - handled upstream, not here.** An earlier
+  revision of this branch carried its own fix for this; upstream fixed it
+  independently in #402 (merged as 22705ac), so that commit has been dropped when
+  this branch was rebased onto 1.3.25 and the code is upstream's. Credit for the
+  fix belongs there. It is listed only to explain why this branch no longer
+  touches `NbtUtils.kt`.
 - **Fixed - rollback keyset off-by-one** that could exclude the newest action row.
 - **Block-state dictionary encoding** - identical state strings are stored once in
   `block_states` and referenced by integer id. Measured on a stairs workload, it saves
