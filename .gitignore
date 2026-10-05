@@ -16,3 +16,10 @@ minecraft/
 
 # Mkdocs
 site/
+
+# Never commit credentials. The publish script reads a token from $GITHUB_TOKEN or
+# from a .secrets/gh_token file; this keeps either out of the repository if one is
+# accidentally placed inside it.
+.secrets/
+gh_token
+*_token
