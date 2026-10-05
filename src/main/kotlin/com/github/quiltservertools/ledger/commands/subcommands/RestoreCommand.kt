@@ -64,6 +64,9 @@ object RestoreCommand : BuildableCommand {
                     val actions = DatabaseManager.selectRestoreBatch(params, cursor, ROLLBACK_BATCH_SIZE)
                     if (actions.isEmpty()) break
 
+                    // Re-checked each batch: the server's tick load can change mid-restore.
+                    val tickBudgetNs = rollbackTickBudgetNs(context.source.server)
+
                     var batchStart = System.nanoTime()
                     val actionIds = HashSet<Int>(actions.size)
 
@@ -77,7 +80,7 @@ object RestoreCommand : BuildableCommand {
 
                         // Adaptive tick budget: commit partial progress and yield the
                         // rest of the tick once we exceed the time budget.
-                        if (System.nanoTime() - batchStart > ROLLBACK_TICK_BUDGET_NS) {
+                        if (System.nanoTime() - batchStart > tickBudgetNs) {
                             if (actionIds.isNotEmpty()) {
                                 DatabaseManager.restoreActions(actionIds)
                                 actionIds.clear()

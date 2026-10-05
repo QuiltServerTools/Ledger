@@ -1,69 +1,97 @@
 # Changelog
 
-## 1.3.24-reopt.1 (2026-10-04)
+## 1.3.24-reopt.2 (2026-10-05)
 
 Reoptimization pass over upstream Ledger 1.3.24 for MC 26.3 Fabric.
-Priorities: (1) zero errors on MC 26.3, (2) runtime performance, (3) database size.
+This entry describes the current version. Changes introduced since reopt.1 are
+listed first, followed by a cumulative summary of everything this build carries
+relative to upstream.
 
-### Fixed
+### Changed since reopt.1
 
-- **MC 26.3 block-state NBT key rename** — vanilla `writeBlockState`/`readBlockState`
-  renamed `Name` -> `id` and `Properties` -> `properties`. Upstream 1.3.24 still used
-  the old keys, so every serialized blockState was `null` on 26.3 and stateful blocks
-  (stairs, logs, doors, ...) rolled back to their default state. Both keys are now
-  accepted when reading; new writes use the 26.3 format. Stored property compounds
-  are unchanged between versions, so pre-26.3 rows still parse correctly.
-- **Rollback keyset off-by-one** — the initial cursor could exclude the newest action
-  row, causing "Rolling back N actions" to restore only N-1.
+- **Integer time index (main storage win).** `actions.time` stores TEXT
+  (`'2026-10-05 13:22:21.702'`, ~23 bytes). An index over that key cost ~35 bytes
+  per row - measured at 19.6% of the entire database, the largest non-table object.
+  A new `time_ms` column holds the same instant as epoch milliseconds and carries
+  the index instead:
+  - time index: **35.5 -> 14.6 B/row (-59%)**
+  - whole database after migration + VACUUM: **181.4 -> 159.3 B/row (-12.2%)**
+  - an independent 500,000-row synthetic measurement confirms -11.5% file size and
+    -53% index size
+  The TEXT column is kept and written alongside, so display strings and any external
+  tooling reading `time` are unaffected.
+- **Automatic, resumable migration.** On startup the column is added, indexed and
+  backfilled in id-ordered batches; once no sentinel values remain the superseded
+  TEXT index is dropped. Every value is verified to be an exact millisecond match for
+  its TEXT source, distinct counts are preserved, and no rows are lost
+  (`bench/test_time_migration.py`, 8/8 checks). If a backfill cannot finish, queries
+  transparently fall back to the TEXT column, so a partially migrated database still
+  returns correct results. With `updateSchema = false` the migration does not run at
+  all and the plugin stays on the original schema.
+- **SQLite connection tuning.** `temp_store=MEMORY`, 16 MiB page cache, 256 MiB
+  `mmap_size`, 64 MiB `journal_size_limit`, applied through `SQLiteConfig` so they
+  reach every pooled connection. Verified applied via JDBC, not assumed.
+- **Adaptive rollback/restore tick budget.** The fixed 25 ms budget is replaced by one
+  derived from the server's smoothed tick time (35 ms idle, 5 ms when ticks are already
+  at capacity). Scope note: on an idle benchmark server this changes nothing
+  measurable - a rollback was measured completing with zero yields, so the budget was
+  never its bottleneck. The benefit is on a loaded server, which a benchmark cannot
+  show. A previously recorded claim that a large share of rollback wall time went into
+  `delay(1)` was wrong and has been removed from the source comments.
 
-### Performance
+### Evaluated and rejected
 
-- **Block-state dictionary encoding** — identical state strings (e.g. the same stairs
-  orientation placed 10,000 times) are stored once in a new `block_states` table and
-  referenced by integer id from `actions.block_state_ref` / `old_block_state_ref`.
-  New rows no longer repeat state text; legacy text rows are still read transparently.
-- **`/ledger compact`** (new command, `ledger.commands.purge` permission) — migrates
-  legacy text block-state rows into the dictionary in batches with progress reporting,
-  then runs `VACUUM` to reclaim space. Repeat-safe and crash-safe (batched commits).
-- **Streaming rollback/restore** — actions are processed in keyset-paginated batches
-  (<=1000 rows) under a 25 ms main-thread budget per tick; partial progress is
-  committed per batch so a crash never loses completed work. Progress messages every
-  5 batches. Large rollbacks no longer freeze the server or load everything in memory.
-- **Composite indexes were tried and reverted.** An earlier revision of this branch
-  replaced upstream's single-column indexes with four `(dimension, time)` composites
-  and widened `actions_by_location` to `(world_id, x, z, time)`. Ledger stores
-  timestamps as TEXT (~23 bytes), so every extra `time` column in an index costs
-  ~23 bytes per row. Measured over 13,500 rows, the index footprint grew from
-  1.45 MB to 3.29 MB and the whole file from 2.39 MB to 4.26 MB (+78%), with no
-  measurable lookup improvement. Reverted to the upstream index set: bytes per row
-  dropped from 315 back to 179 (upstream: 177). Startup migration repairs databases
-  that were created by the intermediate build.
-- **COUNT(*) result cache** (30 s TTL) to stop re-counting the whole table on every
-  page of a search result.
-- **SQLite tuning** — WAL journal mode, `synchronous=NORMAL`, 10 s busy timeout.
-- **Faster shutdown drain** — the action queue flushes with larger batches at shutdown
-  and guards each batch write with `NonCancellable`, so a server stop signal can no
-  longer drop a half-written batch (upstream race).
+- **Composite `(time_ms, id)` and `(time_ms, rolled_back, id)` indexes.** Once the time
+  key became an 8-byte integer these became affordable in principle, so they were
+  measured at 500,000 rows. Both still trigger `USE TEMP B-TREE FOR ORDER BY` for
+  Ledger's `ORDER BY id DESC LIMIT n` queries, giving no query improvement (the
+  differences seen were within noise) while adding 3.0% / 3.7% to the file. Not
+  adopted.
+
+### Cumulative summary vs upstream 1.3.24
+
+- **Fixed - MC 26.3 block-state NBT key rename.** Vanilla `writeBlockState` /
+  `readBlockState` renamed `Name` -> `id` and `Properties` -> `properties`; upstream
+  still read the old keys, so every serialized block state was null on 26.3 and
+  stateful blocks (stairs, logs, doors, ...) rolled back to their default state. Both
+  key sets are now accepted on read; new writes use the 26.3 format.
+- **Fixed - rollback keyset off-by-one** that could exclude the newest action row.
+- **Block-state dictionary encoding** - identical state strings are stored once in
+  `block_states` and referenced by integer id. Measured on a stairs workload, it saves
+  31.3% (55.8 bytes per row) versus storing the literal state text.
+- **`/ledger compact`** - batched migration of legacy text states into the dictionary
+  plus `VACUUM`. Also the way to reclaim the space freed by the index change above.
+- **Streaming rollback/restore** - keyset pagination with per-batch progress commits.
+- **COUNT(*) result cache** (30 s TTL).
+- **SQLite tuning** - WAL journal mode, `synchronous=NORMAL`, 10 s busy timeout.
+- **Faster shutdown drain** with `NonCancellable` batch writes.
+- **Reverted composite indexes** that an intermediate revision of this branch added;
+  they inflated the index footprint by 127% for no query benefit, and a startup
+  migration now repairs databases that carry them.
 
 ### Verification (live MC 26.3 Fabric server)
 
 - Boot, setblock/search/rollback/restore/status/compact all run with zero exceptions.
 - Rollback -> restore round-trip preserves exact block state
   (`execute if block ... oak_stairs[facing=north,half=top]` passes after restore).
-- Dictionary round-trip: new writes create refs; `compact` dedupes existing entries,
-  creates new ones for unseen states, nulls all text columns; search output is
-  identical before/after migration; VACUUM shrinks the file.
-- Schema migration on a pre-reoptimization database: `block_states` table and ref
-  columns added, indexes rebuilt, WAL active.
-- Index-repair migration on a database carrying the intermediate build's composite
-  indexes: composites dropped, upstream index set restored, `actions_by_location`
-  rebuilt as `(x, y, z, world_id)`, row count unchanged
-  (`bench/test_index_migration.py`).
+- Dictionary round-trip and `compact` behaviour verified against a live database.
+- Time migration: 8/8 checks on a real server boot.
+- Index-repair migration: 4/4 checks on a database carrying the intermediate layout.
+- Benchmarks A (13,500 uniform placements) and B (stateful stairs) both report **zero
+  errors and exactly 13,500 rows** for every run.
 
 ### Benchmarked against CoreProtect 24.1 (MC 26.3)
 
-See `ledger-vs-coreprotect-性能实测报告.html` at the project root. Workload: 13,500
-block placements, 3 runs each, medians. On uniform blocks the reoptimised build
-reaches roughly CoreProtect's ingest throughput (≈2,200 rows/s) and matches upstream
-Ledger on bytes per row; its rollback is deliberately slower (25 ms/tick budget,
-yielding to keep the server responsive) than either upstream or CoreProtect.
+See `ledger-vs-coreprotect-性能实测报告.html` at the project root. Medians of three
+runs, 13,500 block placements:
+
+| | Ledger reopt.2 | Ledger reopt.1 | CoreProtect (DuckDB) |
+|---|---|---|---|
+| bytes / row | 167.2 | 181.4 | 107.7 |
+| ingest (rows/s) | 2,125 | 1,959 | 2,156 |
+| lookup | 220 ms | 216 ms | 153 ms |
+| rollback | 2.52 s | 4.70 s | 0.61 s |
+
+Read the rollback row with care: reopt.1 also measured 2.63-2.69 s in an earlier
+campaign, so the run-to-run spread on this machine is wider than the difference
+between the two builds. The storage and ingest rows are reproducible.
