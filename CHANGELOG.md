@@ -14,10 +14,16 @@ relative to upstream.
   per row - measured at 19.6% of the entire database, the largest non-table object.
   A new `time_ms` column holds the same instant as epoch milliseconds and carries
   the index instead:
-  - time index: **35.5 -> 14.6 B/row (-59%)**
-  - whole database after migration + VACUUM: **181.4 -> 159.3 B/row (-12.2%)**
-  - an independent 500,000-row synthetic measurement confirms -11.5% file size and
-    -53% index size
+  - time index: **35.5 -> 16.4 B/row (-54%)**
+  - whole database, like-for-like (both fresh, neither vacuumed):
+    **181.44 -> 167.2 B/row (-7.9%)**
+  - an independent 500,000-row synthetic measurement reproduces -53% index size and
+    -11.5% file size
+  Note on the two sizes: running `/ledger compact` after the migration reclaims the
+  pages the dropped index leaves on the freelist, which takes an existing database
+  down by roughly 12%. Part of that comes from VACUUM itself - which any index-drop
+  would also produce - so the honest attribution for this change is the -7.9%
+  like-for-like figure above.
   The TEXT column is kept and written alongside, so display strings and any external
   tooling reading `time` are unaffected.
 - **Automatic, resumable migration.** On startup the column is added, indexed and
@@ -88,10 +94,13 @@ runs, 13,500 block placements:
 | | Ledger reopt.2 | Ledger reopt.1 | CoreProtect (DuckDB) |
 |---|---|---|---|
 | bytes / row | 167.2 | 181.4 | 107.7 |
-| ingest (rows/s) | 2,125 | 1,959 | 2,156 |
-| lookup | 220 ms | 216 ms | 153 ms |
-| rollback | 2.52 s | 4.70 s | 0.61 s |
+| ingest (rows/s) | 1,917 | 1,957 | 2,156 |
+| lookup | 185 ms | 159 ms | 153 ms |
+| rollback | 3.47 s | 3.95 s | 0.61 s |
 
-Read the rollback row with care: reopt.1 also measured 2.63-2.69 s in an earlier
-campaign, so the run-to-run spread on this machine is wider than the difference
-between the two builds. The storage and ingest rows are reproducible.
+**Only the bytes-per-row row is a real, reproducible result** - it comes from the
+schema itself and is independent of machine load. Every other row moved by more
+between campaigns than between the two builds: in an earlier campaign reopt.1
+ingested at 1,959 rows/s and rolled back in 2.63-2.69 s, while in the final one it
+did 1,957 rows/s and 3.95 s. Ingest, lookup and rollback are therefore reported as
+*no measurable change*, not as improvements.
