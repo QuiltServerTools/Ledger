@@ -1,11 +1,62 @@
 # Changelog
 
-## 1.3.24-reopt.2 (2026-10-05)
+## 1.3.24-reopt.3 (2026-10-05)
 
 Reoptimization pass over upstream Ledger 1.3.24 for MC 26.3 Fabric.
 This entry describes the current version. Changes introduced since reopt.1 are
 listed first, followed by a cumulative summary of everything this build carries
 relative to upstream.
+
+### Changed since reopt.2
+
+- **Real JDBC batch insert (ingest).** Exposed's `batchInsert` was issuing one
+  statement per row - a 13,500-action burst produced 13,500 individual
+  `INSERT INTO actions` statements. On the same schema and rows a genuine JDBC
+  batch costs 23 us/row and a single statement 44 us/row, against 310-500 us/row
+  on the live path, so statement machinery dominated the insert. Inserts now go
+  through a prepared statement on the transaction's own connection with
+  addBatch/executeBatch. Values still come from Exposed column types via
+  `valueToDB`, so the stored representation is unchanged - verified against an
+  archive written by the ORM path, 500/500 samples byte-identical.
+- **Burst-aware queue scheduling.** The writer waited the full `batchDelay`
+  (default 500 ms) on every pass even with work already queued: 6.1 s of an 8.7 s
+  ingest window was spent waiting against 2.6 s of writes. It now skips the wait
+  only while the previous pass filled a complete batch (i.e. while the queue is
+  being flooded), and returns to the configured cadence as soon as a pass comes up
+  short. Trickle traffic still batches exactly as before; an idle server does not
+  become one transaction per action.
+- **Rollback/restore batch size 1,000 -> 5,000 rows.** Fewer read and commit round
+  trips for the same undo: 3.86/4.16 s became 1.99/2.03 s on a 13,500-block
+  rollback (about 2x). Zero "can't keep up" warnings at either setting, so this
+  does not cost responsiveness - the per-tick budget still yields mid-batch.
+
+Combined effect on a 13,500-action workload against reopt.1 (medians of three
+runs, fresh terrain each time):
+
+| | reopt.1 | reopt.3 |
+|---|---|---|
+| drain window | 4.534 s | 3.622 s |
+| drain rate | 2,977 rows/s | 3,727 rows/s |
+| rollback | 4.01 s | 2.01 s |
+
+The drain window contains a fixed 3.0 s settle detector, so the write work behind
+it went from about 1.53 s to 0.62 s.
+
+### Evaluated and rejected (measured, not assumed)
+
+- **SQLite foreign keys off** - a controlled transaction-cost test showed FK
+  checks cost 5.9 -> 5.7 ms per 1,000-row transaction (3%). Not worth weakening
+  referential integrity for.
+- **SQLite `page_size`** - cannot be changed on an existing database; PRAGMA
+  page_size is silently ignored once the file exists (every tested value collapsed
+  back to 4,096). Not a lever this build can pull. The same test confirmed VACUUM
+  alone reclaims about 4.7% of the file, which `/ledger compact` already exposes.
+- **Dropping the legacy `time` TEXT column** (~13% more space) - deliberately not
+  implemented. Exposed cannot map an optional column, so supporting both schemas
+  would mean duplicating the table definition and branching the read path used by
+  every search and rollback; combined with the change being irreversible on user
+  databases, that trade is not worth 13% of disk under a
+  stability-first priority. `time_ms` already makes `time` redundant for querying.
 
 ### Changed since reopt.1
 
