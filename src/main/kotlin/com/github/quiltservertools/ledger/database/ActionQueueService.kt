@@ -30,7 +30,6 @@ object ActionQueueService {
     @Volatile
     private var consecutiveShortPasses = 0
 
-
     val size: Int get() = queue.size
 
     fun start() {
@@ -114,5 +113,4 @@ object ActionQueueService {
             prepareNextBatch()
         }
     }
-
 }

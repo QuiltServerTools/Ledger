@@ -25,7 +25,19 @@ import net.minecraft.server.MinecraftServer
 //  - DB batches are read via keyset pagination (max ROLLBACK_BATCH_SIZE rows in memory)
 //  - the main thread works at most one tick budget before yielding (see below)
 //  - rolled-back flags are committed per batch, so progress survives a crash
-internal const val ROLLBACK_BATCH_SIZE = 1000
+/**
+ * Reoptimization: rows read and committed per rollback/restore step.
+ *
+ * Raised from 1,000 to 5,000 after measuring the trade-off on a 13,500-block
+ * rollback: 1,000 took 3.86/4.16 s and 5,000 took 1.99/2.03 s, i.e. about twice as
+ * fast, because the per-read and per-commit overhead is paid three times instead of
+ * fourteen. Both batch sizes produced zero "can't keep up" warnings, so the larger
+ * batch does not cost server responsiveness - the per-tick work budget below still
+ * splits a batch and yields mid-way.
+ *
+ * Worst-case memory is bounded by about 5,000 materialised actions.
+ */
+internal const val ROLLBACK_BATCH_SIZE = 5000
 internal const val ROLLBACK_PROGRESS_INTERVAL = 5 // batches between progress messages
 
 // Reoptimization: adaptive tick budget thresholds. Smoothed tick durations (milliseconds

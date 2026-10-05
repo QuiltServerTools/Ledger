@@ -1014,6 +1014,7 @@ object DatabaseManager {
         // text) is byte-for-byte what the ORM path wrote. Only the statement execution
         // is bypassed, keeping the stored format stable across upgrades.
         val insertSql = INSERT_ACTIONS_SQL
+
         // JdbcTransaction wraps a plain JDBC connection; the generic parameter cannot be
         // inferred from Kotlin here, so make the (always true for JDBC) cast explicit.
         @Suppress("UNCHECKED_CAST")
