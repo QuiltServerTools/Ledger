@@ -70,14 +70,14 @@ object Tables {
     }
 
     object Actions : IntIdTable("actions") {
-        val actionIdentifier = reference("action_id", ActionIdentifiers.id)
+        val actionIdentifier = reference("action_id", ActionIdentifiers.id).index()
         val timestamp = timestamp("time").index("actions_time")
         val x = integer("x")
         val y = integer("y")
         val z = integer("z")
         val world = reference("world_id", Worlds.id)
-        val objectId = reference("object_id", ObjectIdentifiers.id)
-        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id)
+        val objectId = reference("object_id", ObjectIdentifiers.id).index()
+        val oldObjectId = reference("old_object_id", ObjectIdentifiers.id).index()
 
         // Reoptimization: nullable legacy text columns kept for backwards compatibility.
         // New writes store the dictionary id in the *_ref columns and null here.
@@ -87,23 +87,18 @@ object Tables {
         val oldBlockStateRef = integer("old_block_state_ref").nullable()
 
         val sourceName = reference("source", Sources.id).index()
-        val sourcePlayer = optReference("player_id", Players.id)
+        val sourcePlayer = optReference("player_id", Players.id).index()
         val extraData = text("extra_data").nullable()
         val rolledBack = bool("rolled_back").clientDefault { false }
 
         init {
-            // Reoptimization: composite, query-oriented indexes (replacing the previous
-            // single-column indexes on action_id / object_id / old_object_id / player_id).
-            // Most searches filter by a dimension + time window (u: t:, a: t:, b: t:),
-            // which these composite indexes serve directly.
-            index("actions_player_time", false, sourcePlayer, timestamp)
-            index("actions_action_time", false, actionIdentifier, timestamp)
-            index("actions_object_time", false, objectId, timestamp)
-            index("actions_old_object_time", false, oldObjectId, timestamp)
-
-            // Location index: world first (equality) then x/z ranges, time as covering column.
-            // Supersedes the old (x, y, z, world) index where only the x range was usable.
-            index("actions_by_location", false, world, x, z, timestamp)
+            // Reoptimization note: the composite (dimension, time) indexes that an
+            // earlier revision of this branch introduced were reverted. Ledger stores
+            // timestamps as TEXT, so every additional index column carries ~23 bytes
+            // per row; measured on a 13,500-row workload they inflated the index
+            // footprint from ~1.45 MB to ~3.29 MB (+78% total file size) with no
+            // measurable lookup win. Upstream's narrower index set is kept instead.
+            index("actions_by_location", false, x, y, z, world)
         }
     }
 

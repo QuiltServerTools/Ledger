@@ -29,9 +29,15 @@ Priorities: (1) zero errors on MC 26.3, (2) runtime performance, (3) database si
   (<=1000 rows) under a 25 ms main-thread budget per tick; partial progress is
   committed per batch so a crash never loses completed work. Progress messages every
   5 batches. Large rollbacks no longer freeze the server or load everything in memory.
-- **Composite indexes** for the common search/rollback access patterns
-  (time + position + rolled_back); superseded single-column indexes are dropped
-  after migration.
+- **Composite indexes were tried and reverted.** An earlier revision of this branch
+  replaced upstream's single-column indexes with four `(dimension, time)` composites
+  and widened `actions_by_location` to `(world_id, x, z, time)`. Ledger stores
+  timestamps as TEXT (~23 bytes), so every extra `time` column in an index costs
+  ~23 bytes per row. Measured over 13,500 rows, the index footprint grew from
+  1.45 MB to 3.29 MB and the whole file from 2.39 MB to 4.26 MB (+78%), with no
+  measurable lookup improvement. Reverted to the upstream index set: bytes per row
+  dropped from 315 back to 179 (upstream: 177). Startup migration repairs databases
+  that were created by the intermediate build.
 - **COUNT(*) result cache** (30 s TTL) to stop re-counting the whole table on every
   page of a search result.
 - **SQLite tuning** — WAL journal mode, `synchronous=NORMAL`, 10 s busy timeout.
@@ -49,3 +55,15 @@ Priorities: (1) zero errors on MC 26.3, (2) runtime performance, (3) database si
   identical before/after migration; VACUUM shrinks the file.
 - Schema migration on a pre-reoptimization database: `block_states` table and ref
   columns added, indexes rebuilt, WAL active.
+- Index-repair migration on a database carrying the intermediate build's composite
+  indexes: composites dropped, upstream index set restored, `actions_by_location`
+  rebuilt as `(x, y, z, world_id)`, row count unchanged
+  (`bench/test_index_migration.py`).
+
+### Benchmarked against CoreProtect 24.1 (MC 26.3)
+
+See `ledger-vs-coreprotect-性能实测报告.html` at the project root. Workload: 13,500
+block placements, 3 runs each, medians. On uniform blocks the reoptimised build
+reaches roughly CoreProtect's ingest throughput (≈2,200 rows/s) and matches upstream
+Ledger on bytes per row; its rollback is deliberately slower (25 ms/tick budget,
+yielding to keep the server responsive) than either upstream or CoreProtect.
