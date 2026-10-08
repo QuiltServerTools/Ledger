@@ -16,6 +16,7 @@
         "CompoundContainerMixin",
         "ContainersMixin",
         "CopperGolemGiveMixin",
+        "DebugStickItemMixin",
         "DyeItemMixin",
         "FillCommandMixin",
         "FlintAndSteelItemMixin",

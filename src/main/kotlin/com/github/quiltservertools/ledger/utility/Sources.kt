@@ -39,5 +39,6 @@ object Sources {
     const val COPPER_GOLEM = "copper_golem"
     const val WAX = "wax"
     const val REANIMATE = "reanimate"
+    const val DEBUG_STICK = "debug_stick"
     const val UNKNOWN = "unknown"
 }
