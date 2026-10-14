@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin;
 
 import com.github.quiltservertools.ledger.commands.subcommands.PageCommand;
+import com.github.quiltservertools.ledger.commands.subcommands.RollbackCommand;
 import com.github.quiltservertools.ledger.commands.subcommands.TeleportCommand;
 import com.github.quiltservertools.ledger.utility.MessageUtils;
 import net.minecraft.core.BlockPos;
@@ -53,6 +54,14 @@ public class ServerCommonPacketListenerImplMixin {
                 ServerLevel serverLevel = game.player.level().getServer().getLevel(resourceKey);
                 TeleportCommand.INSTANCE.teleport(player, serverLevel, pos);
             });
+            ci.cancel();
+        } else if (packet.id().equals(MessageUtils.INSTANCE.getRollbackAction())) {
+            ServerPlayer player = game.player;
+            packet.payload().flatMap(Tag::asCompound)
+                    .flatMap(root -> root.getInt("id"))
+                    .ifPresent(actionId ->
+                            RollbackCommand.INSTANCE.rollbackSingle(player, actionId)
+                    );
             ci.cancel();
         }
     }

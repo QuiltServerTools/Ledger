@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
+import com.github.quiltservertools.ledger.utility.ExplosionHitTracker;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.world.level.block.AbstractCandleBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,6 +28,9 @@ public abstract class CandleBlockMixin {
 
     @Inject(method = "extinguish", at = @At(value = "RETURN"))
     private static void ledgerLogCandleExtinguish(Player player, BlockState state, LevelAccessor worldAccess, BlockPos pos, CallbackInfo ci) {
+        // Blown out by a wind charge: logged by ServerExplosionMixin with the charge as source
+        if (ExplosionHitTracker.getActive()) return;
+
         if (worldAccess instanceof Level world) {
             BlockChangeCallback.EVENT.invoker().changeBlock(
                     world,

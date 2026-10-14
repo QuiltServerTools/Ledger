@@ -8,6 +8,7 @@ import com.github.quiltservertools.ledger.utility.getWorld
 import com.github.quiltservertools.ledger.utility.literal
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.UUIDUtil
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.TagParser
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
@@ -45,10 +46,12 @@ open class ItemPickUpActionType : AbstractActionType() {
         }
     }
 
+    protected open fun getRespawnTag(): CompoundTag = TagParser.parseCompoundFully(oldObjectState!!)
+
     override fun rollback(server: MinecraftServer): Boolean {
         val world = server.getWorld(world)!!
 
-        val oldEntity = TagParser.parseCompoundFully(oldObjectState!!)
+        val oldEntity = getRespawnTag()
         val optionalUUID = oldEntity.read(UUID, UUIDUtil.CODEC)
         if (optionalUUID.isEmpty) return false
         val entity = world.getEntity(optionalUUID.get())

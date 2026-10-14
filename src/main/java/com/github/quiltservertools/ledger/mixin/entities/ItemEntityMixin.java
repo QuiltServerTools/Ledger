@@ -1,5 +1,6 @@
 package com.github.quiltservertools.ledger.mixin.entities;
 
+import com.github.quiltservertools.ledger.callbacks.ItemDespawnCallback;
 import com.github.quiltservertools.ledger.callbacks.ItemPickUpCallback;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -29,6 +30,12 @@ public abstract class ItemEntityMixin extends Entity {
     @Inject(method = "playerTouch", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;add(Lnet/minecraft/world/item/ItemStack;)Z"))
     public void storeItemStack(Player player, CallbackInfo ci, @Local ItemStack itemStack, @Share("originalItemStack") LocalRef<ItemStack> originalItemStackRef) {
         originalItemStackRef.set(itemStack.copy());
+    }
+
+    // The first discard in tick removes empty stacks, the second one is the despawn at the end of the lifetime
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;discard()V", ordinal = 1))
+    private void logItemDespawn(CallbackInfo ci) {
+        ItemDespawnCallback.EVENT.invoker().despawn((ItemEntity) (Object) this);
     }
 
     // insertStack modifies the ItemStack instance of the ItemEntity

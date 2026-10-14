@@ -24,8 +24,11 @@
     "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
     "text.ledger.action_message.time_diff": "Vor %s",
     "text.ledger.action_message.location.hover": "Zum Teleportieren klicken",
+    "text.ledger.action_message.rollback": "[R]",
+    "text.ledger.action_message.rollback.hover": "Klicken, um diesen Eintrag zurückzusetzen",
 
     "text.ledger.rollback.start": "Setzt %s Aktionen zurück",
+    "text.ledger.rollback.single": "%s zurückgesetzt",
     "text.ledger.rollback.finish": "Zurücksetzen vollständig",
     "text.ledger.rollback.fail": "Fehler beim Zurücksetzen von %s x%s",
 
@@ -41,6 +44,8 @@
 
     "error.ledger.no_cached_params": "Keine Suche gefunden. Führe zuerst eine Suche durch",
     "error.ledger.command.no_results": "Keine Einträge für diese Suche",
+    "error.ledger.rollback.unavailable": "Dieser Eintrag wurde bereits zurückgesetzt oder existiert nicht mehr",
+    "error.ledger.rollback.item_despawn_permission": "Du hast keine Berechtigung, despawnte Items zurückzusetzen",
     "error.ledger.no_more_pages": "Keine weiteren Seiten",
     "error.ledger.unknown_param": "Unbekannte Angaben %s",
     "error.ledger.no_preview": "Keine laufende Vorschau",
@@ -49,6 +54,9 @@
     "text.ledger.action.block-break": "zerstört",
     "text.ledger.action.item-insert": "hinzugefügt",
     "text.ledger.action.item-remove": "entfernt",
+    "text.ledger.action.item-despawn": "despawnt",
+    "text.ledger.action.item-break": "verschlissen",
+    "text.ledger.action.item-rename": "umbenannt",
     "text.ledger.action.entity-kill": "getötet",
 
     "text.ledger.network.protocols_mismatched": "Keine passende Protokoll-Version: Client-Mod ist Ledger Protokoll-Version %d und die Client Version ist %d",

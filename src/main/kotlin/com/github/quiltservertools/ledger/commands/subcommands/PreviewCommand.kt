@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.commands.subcommands
 
 import com.github.quiltservertools.ledger.Ledger
+import com.github.quiltservertools.ledger.actions.ItemDespawnActionType
 import com.github.quiltservertools.ledger.actionutils.ActionSearchParams
 import com.github.quiltservertools.ledger.actionutils.Preview
 import com.github.quiltservertools.ledger.commands.BuildableCommand
@@ -52,6 +53,9 @@ object PreviewCommand : BuildableCommand {
         val source = context.source
         val player = source.playerOrException
         params.ensureSpecific()
+        if (type == Preview.Type.ROLLBACK) {
+            ItemDespawnActionType.restrictRollback(source, params)
+        }
         Ledger.launch {
             MessageUtils.warnBusy(source)
             val actions = DatabaseManager.previewActions(params, type)

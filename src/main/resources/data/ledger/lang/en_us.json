@@ -24,9 +24,12 @@
     "text.ledger.action_message": "%1$s %2$s %3$s %4$s %5$s",
     "text.ledger.action_message.time_diff": "%s ago",
     "text.ledger.action_message.location.hover": "Click to teleport",
+    "text.ledger.action_message.rollback": "[R]",
+    "text.ledger.action_message.rollback.hover": "Click to roll back this entry",
     "text.ledger.action_message.with": "with",
 
     "text.ledger.rollback.start": "Rolling back %s actions",
+    "text.ledger.rollback.single": "Rolled back %s",
     "text.ledger.rollback.finish": "Rollback complete",
     "text.ledger.rollback.fail": "Failed to rollback %s x%s",
 
@@ -42,6 +45,8 @@
 
     "error.ledger.no_cached_params": "No cached search. Try preforming a search first",
     "error.ledger.command.no_results": "No results for that search",
+    "error.ledger.rollback.unavailable": "That entry was already rolled back or no longer exists",
+    "error.ledger.rollback.item_despawn_permission": "You don't have permission to roll back despawned items",
     "error.ledger.no_more_pages": "No more pages",
     "error.ledger.unknown_param": "Unknown parameter %s",
     "error.ledger.no_preview": "No current preview",
@@ -56,6 +61,9 @@
     "text.ledger.action.item-remove": "removed",
     "text.ledger.action.item-pick-up": "picked up",
     "text.ledger.action.item-drop": "dropped",
+    "text.ledger.action.item-despawn": "despawned",
+    "text.ledger.action.item-break": "wore out",
+    "text.ledger.action.item-rename": "renamed",
     "text.ledger.action.entity-kill": "killed",
     "text.ledger.action.entity-change": "changed",
     "text.ledger.action.entity-mount": "mounted",

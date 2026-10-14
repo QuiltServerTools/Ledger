@@ -211,6 +211,13 @@ object DatabaseManager {
         return@execute getActionsFromQuery(query)
     }
 
+    suspend fun selectRollbackById(id: Int): ActionType? = execute {
+        val query = Tables.Actions
+            .selectAll()
+            .where { (Tables.Actions.id eq id) and (Tables.Actions.rolledBack eq false) }
+        return@execute getActionsFromQuery(query).firstOrNull()
+    }
+
     suspend fun previewActions(params: ActionSearchParams, type: Preview.Type): List<ActionType> = execute {
         when (type) {
             Preview.Type.ROLLBACK -> return@execute selectRollback(params)

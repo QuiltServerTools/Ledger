@@ -3,17 +3,24 @@ package com.github.quiltservertools.ledger.listeners
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.EntityKillCallback
 import com.github.quiltservertools.ledger.callbacks.EntityModifyCallback
+import com.github.quiltservertools.ledger.callbacks.ItemDespawnCallback
 import com.github.quiltservertools.ledger.database.ActionQueueService
 import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
 fun registerEntityListeners() {
     EntityKillCallback.EVENT.register(::onKill)
     EntityModifyCallback.EVENT.register(::onModify)
+    ItemDespawnCallback.EVENT.register(::onItemDespawn)
+}
+
+private fun onItemDespawn(entity: ItemEntity) {
+    ActionQueueService.addToQueue(ActionFactory.itemDespawnAction(entity))
 }
 
 private fun onKill(world: Level, pos: BlockPos, entity: Entity, source: DamageSource) {

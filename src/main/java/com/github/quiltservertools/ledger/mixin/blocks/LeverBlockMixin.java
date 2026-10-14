@@ -34,4 +34,12 @@ public abstract class LeverBlockMixin {
         BlockState newState = args.get(1);
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state, newState, null, null, activePlayer);
     }
+
+    // One LeverBlock/ButtonBlock instance is shared by every placed lever/button, so the player has
+    // to be cleared again. Otherwise a later pull/press without a player (wind charge) would be
+    // attributed to whoever used one last.
+    @Inject(method = "useWithoutItem", at = @At("RETURN"))
+    public void clearPlayer(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
+        activePlayer = null;
+    }
 }

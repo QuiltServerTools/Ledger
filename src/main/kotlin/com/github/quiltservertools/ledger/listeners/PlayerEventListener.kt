@@ -4,8 +4,10 @@ import com.github.quiltservertools.ledger.Ledger
 import com.github.quiltservertools.ledger.actionutils.ActionFactory
 import com.github.quiltservertools.ledger.callbacks.EntityDismountCallback
 import com.github.quiltservertools.ledger.callbacks.EntityMountCallback
+import com.github.quiltservertools.ledger.callbacks.ItemBreakCallback
 import com.github.quiltservertools.ledger.callbacks.ItemDropCallback
 import com.github.quiltservertools.ledger.callbacks.ItemPickUpCallback
+import com.github.quiltservertools.ledger.callbacks.ItemRenameCallback
 import com.github.quiltservertools.ledger.database.ActionQueueService
 import com.github.quiltservertools.ledger.database.DatabaseManager
 import com.github.quiltservertools.ledger.network.Networking.disableNetworking
@@ -28,6 +30,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -42,6 +45,8 @@ fun registerPlayerListeners() {
     UseBlockCallback.EVENT.register(::onUseBlock)
     ItemPickUpCallback.EVENT.register(::onItemPickUp)
     ItemDropCallback.EVENT.register(::onItemDrop)
+    ItemBreakCallback.EVENT.register(::onItemBreak)
+    ItemRenameCallback.EVENT.register(::onItemRename)
     EntityMountCallback.EVENT.register(::onEntityMount)
     EntityDismountCallback.EVENT.register(::onEntityDismount)
 }
@@ -128,4 +133,12 @@ private fun onEntityMount(entity: Entity, playerEntity: Player) {
 
 private fun onEntityDismount(entity: Entity, playerEntity: Player) {
     ActionQueueService.addToQueue(ActionFactory.entityDismountAction(entity, playerEntity))
+}
+
+private fun onItemBreak(stack: ItemStack, player: Player) {
+    ActionQueueService.addToQueue(ActionFactory.itemBreakAction(stack, player))
+}
+
+private fun onItemRename(player: Player, pos: BlockPos, oldStack: ItemStack, newStack: ItemStack) {
+    ActionQueueService.addToQueue(ActionFactory.itemRenameAction(player, pos, oldStack, newStack))
 }

@@ -16,3 +16,8 @@ It is ***highly*** recommended to use the [preview command](../commands/preview.
 - Block
 - Item
 - Entity
+
+**Despawned items**
+
+Rolling back `item-despawn` actions additionally requires `ledger.commands.rollback.item-despawn` (defaults to permission level 4).
+Without it, despawned items are left out of rollbacks and previews, and explicitly searching for `action:item-despawn` fails.

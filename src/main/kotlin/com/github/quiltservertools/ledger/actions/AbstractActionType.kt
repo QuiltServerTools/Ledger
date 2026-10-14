@@ -1,10 +1,12 @@
 package com.github.quiltservertools.ledger.actions
 
 import com.github.quiltservertools.ledger.actionutils.Preview
+import com.github.quiltservertools.ledger.commands.CommandConsts
 import com.github.quiltservertools.ledger.utility.MessageUtils
 import com.github.quiltservertools.ledger.utility.Sources
 import com.github.quiltservertools.ledger.utility.TextColorPallet
 import com.github.quiltservertools.ledger.utility.literal
+import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.core.BlockPos
@@ -22,8 +24,10 @@ import java.time.Instant
 import java.util.*
 import kotlin.time.ExperimentalTime
 
+private const val NO_ID = -1
+
 abstract class AbstractActionType : ActionType {
-    override var id: Int = -1
+    override var id: Int = NO_ID
     override var timestamp: Instant = Instant.now()
     override var pos: BlockPos = BlockPos.ZERO
     override var world: Identifier? = null
@@ -55,9 +59,40 @@ abstract class AbstractActionType : ActionType {
 
         if (rolledBack) {
             message.withStyle(ChatFormatting.STRIKETHROUGH)
+        } else {
+            getRollbackMessage(source)?.let { message.append(" ".literal()).append(it) }
         }
 
         return message
+    }
+
+    /**
+     * Rollback button appended to a single search or inspect result. Only rendered for actions that
+     * were read back from the database (which is where the id comes from) and are not rolled back
+     * yet, and only to viewers allowed to roll back. The click is handled by
+     * ServerCommonPacketListenerImplMixin, which checks the rollback permission again before acting
+     * on it.
+     */
+    open fun getRollbackMessage(source: CommandSourceStack): Component? {
+        if (id == NO_ID) return null
+        if (!Permissions.check(source, "ledger.commands.rollback", CommandConsts.PERMISSION_LEVEL)) return null
+
+        // Bound outside the apply block below, where `id` would resolve to CompoundTag's own id.
+        val actionId = id
+
+        return Component.translatable("text.ledger.action_message.rollback")
+            .setStyle(TextColorPallet.primaryVariant)
+            .withStyle {
+                val tag: CompoundTag = CompoundTag().apply { this.putInt("id", actionId) }
+
+                it.withHoverEvent(
+                    HoverEvent.ShowText(
+                        Component.translatable("text.ledger.action_message.rollback.hover"),
+                    ),
+                ).withClickEvent(
+                    ClickEvent.Custom(MessageUtils.rollbackAction, Optional.of(tag)),
+                )
+            }
     }
 
     @ExperimentalTime

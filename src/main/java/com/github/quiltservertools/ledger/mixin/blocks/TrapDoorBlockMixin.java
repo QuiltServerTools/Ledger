@@ -1,6 +1,7 @@
 package com.github.quiltservertools.ledger.mixin.blocks;
 
 import com.github.quiltservertools.ledger.callbacks.BlockChangeCallback;
+import com.github.quiltservertools.ledger.utility.ExplosionHitTracker;
 import com.github.quiltservertools.ledger.utility.Sources;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +26,9 @@ public abstract class TrapDoorBlockMixin {
 
     @Inject(method = "toggle", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z"))
     public void logTrapdoorInteraction(BlockState state, Level world, BlockPos pos, Player player, CallbackInfo ci) {
+        // Toggled by a wind charge: logged by ServerExplosionMixin with the charge as source
+        if (ExplosionHitTracker.getActive()) return;
+
         BlockChangeCallback.EVENT.invoker().changeBlock(world, pos, state.cycle(OPEN), state, null, null, Sources.INTERACT, player);
     }
 
